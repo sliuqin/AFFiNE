@@ -9,7 +9,7 @@ import {
 import { sessionUser } from '../../core/auth/service';
 import { UserType } from '../../core/user';
 import { Models } from '../../models';
-import { gql } from './common';
+import { gqlEndpoint } from './common';
 
 export type UserAuthedType = UserType & { token: ClientTokenType };
 
@@ -69,7 +69,7 @@ export async function signUp(
 
 export async function currentUser(app: INestApplication, token: string) {
   const res = await request(app.getHttpServer())
-    .post(gql)
+    .post(gqlEndpoint)
     .auth(token, { type: 'bearer' })
     .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
     .send({
@@ -93,7 +93,7 @@ export async function sendChangeEmail(
   callbackUrl: string
 ): Promise<boolean> {
   const res = await request(app.getHttpServer())
-    .post(gql)
+    .post(gqlEndpoint)
     .auth(userToken, { type: 'bearer' })
     .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
     .send({
@@ -115,7 +115,7 @@ export async function sendSetPasswordEmail(
   callbackUrl: string
 ): Promise<boolean> {
   const res = await request(app.getHttpServer())
-    .post(gql)
+    .post(gqlEndpoint)
     .auth(userToken, { type: 'bearer' })
     .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
     .send({
@@ -137,7 +137,7 @@ export async function changePassword(
   password: string
 ): Promise<string> {
   const res = await request(app.getHttpServer())
-    .post(gql)
+    .post(gqlEndpoint)
     .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
     .send({
       query: `
@@ -159,7 +159,7 @@ export async function sendVerifyChangeEmail(
   callbackUrl: string
 ): Promise<boolean> {
   const res = await request(app.getHttpServer())
-    .post(gql)
+    .post(gqlEndpoint)
     .auth(userToken, { type: 'bearer' })
     .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
     .send({
@@ -181,7 +181,7 @@ export async function changeEmail(
   email: string
 ): Promise<UserAuthedType> {
   const res = await request(app.getHttpServer())
-    .post(gql)
+    .post(gqlEndpoint)
     .auth(userToken, { type: 'bearer' })
     .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
     .send({

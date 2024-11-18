@@ -27,8 +27,7 @@ import {
   WorkflowNodeType,
   WorkflowParams,
 } from '../../plugins/copilot/workflow/types';
-import { gql } from './common';
-import { handleGraphQLError, sleep } from './utils';
+import { gqlEndpoint, handleGraphQLError, sleep } from './common';
 
 // @ts-expect-error no error
 export class MockCopilotTestProvider
@@ -167,7 +166,7 @@ export async function createCopilotSession(
   promptName: string
 ): Promise<string> {
   const res = await request(app.getHttpServer())
-    .post(gql)
+    .post(gqlEndpoint)
     .auth(userToken, { type: 'bearer' })
     .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
     .send({
@@ -192,7 +191,7 @@ export async function updateCopilotSession(
   promptName: string
 ): Promise<string> {
   const res = await request(app.getHttpServer())
-    .post(gql)
+    .post(gqlEndpoint)
     .auth(userToken, { type: 'bearer' })
     .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
     .send({
@@ -219,7 +218,7 @@ export async function forkCopilotSession(
   latestMessageId: string
 ): Promise<string> {
   const res = await request(app.getHttpServer())
-    .post(gql)
+    .post(gqlEndpoint)
     .auth(userToken, { type: 'bearer' })
     .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
     .send({
@@ -249,7 +248,7 @@ export async function createCopilotMessage(
   params?: Record<string, string>
 ): Promise<string> {
   const res = await request(app.getHttpServer())
-    .post(gql)
+    .post(gqlEndpoint)
     .auth(userToken, { type: 'bearer' })
     .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
     .send({
@@ -403,7 +402,7 @@ export async function getHistories(
   }
 ): Promise<History[]> {
   const res = await request(app.getHttpServer())
-    .post(gql)
+    .post(gqlEndpoint)
     .auth(userToken, { type: 'bearer' })
     .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
     .send({
