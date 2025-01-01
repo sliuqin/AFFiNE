@@ -71,7 +71,6 @@ export const useDraggable = <D extends DNDData = DNDData>(
 
   const context = useContext(DNDContext);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const options = useMemo(() => {
     const opts = getOptions();
 
@@ -84,7 +83,6 @@ export const useDraggable = <D extends DNDData = DNDData>(
           }
         : undefined,
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, context.toExternalData]);
 
   useEffect(() => {

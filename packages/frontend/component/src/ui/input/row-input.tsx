@@ -66,7 +66,6 @@ export const RowInput = forwardRef<HTMLInputElement, RowInputProps>(
       if (!onBlur) return;
       selectRef.current?.addEventListener('blur', onBlur as any);
       return () => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         selectRef.current?.removeEventListener('blur', onBlur as any);
       };
     }, [onBlur, selectRef]);

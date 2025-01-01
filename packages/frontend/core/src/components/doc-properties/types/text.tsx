@@ -30,7 +30,7 @@ const DesktopTextValue = ({ value, onChange }: PropertyValueProps) => {
   useEffect(() => {
     ref.current?.addEventListener('blur', handleBlur);
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // oxlint-disable-next-line react-hooks/exhaustive-deps
       ref.current?.removeEventListener('blur', handleBlur);
     };
   }, [handleBlur]);
@@ -95,7 +95,7 @@ const MobileTextValue = ({
   useEffect(() => {
     ref.current?.addEventListener('blur', handleBlur);
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // oxlint-disable-next-line react-hooks/exhaustive-deps
       ref.current?.removeEventListener('blur', handleBlur);
     };
   }, [handleBlur]);

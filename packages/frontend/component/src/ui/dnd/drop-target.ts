@@ -226,7 +226,6 @@ export const useDropTarget = <D extends DNDData = DNDData>(
           (dropTargetContext.fromExternalData as fromExternalData<D>))
         : undefined,
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, dropTargetContext.fromExternalData]);
 
   const dropTargetOptions = useMemo(() => {

@@ -63,7 +63,7 @@ export function AppSidebar({ children }: PropsWithChildren) {
 
     appSidebarService.setSmallScreenMode(shouldFloating);
     setInitialized(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const sidebarState = smallScreenMode

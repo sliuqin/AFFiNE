@@ -182,7 +182,9 @@
     "import/no-webpack-loader-syntax": "error",
     "import/no-duplicates": "error",
     "import/no-import-assign": "error",
-    "import/no-self-import": "error"
+    "import/no-self-import": "error",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error"
   },
   "overrides": [
     {
@@ -195,6 +197,13 @@
       "files": ["packages/backend/**/*.ts"],
       "rules": {
         "typescript/consistent-type-imports": "off"
+      }
+    },
+    {
+      "files": ["packages/**/*.{ts,js,mjs}"],
+      "rules": {
+        "react/rules-of-hooks": "off",
+        "react/exhaustive-deps": "off"
       }
     },
     {
@@ -214,7 +223,8 @@
             "ts-nocheck": true,
             "ts-check": false
           }
-        ]
+        ],
+        "react/rules-of-hooks": "off"
       }
     },
     {
@@ -231,7 +241,8 @@
         "typescript/ban-ts-comment": "off",
         "unicorn/prefer-dom-node-dataset": "off",
         "typescript/consistent-type-imports": "off",
-        "no-cycle": "off"
+        "no-cycle": "off",
+        "react/rules-of-hooks": "off"
       }
     }
   ]

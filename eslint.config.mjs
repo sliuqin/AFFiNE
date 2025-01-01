@@ -6,7 +6,6 @@ import tsParser from '@typescript-eslint/parser';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import importX from 'eslint-plugin-import-x';
 import react from 'eslint-plugin-react';
-import reactHooks from 'eslint-plugin-react-hooks';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import sonarjs from 'eslint-plugin-sonarjs';
 import unicorn from 'eslint-plugin-unicorn';
@@ -43,7 +42,6 @@ export default tseslint.config(
     plugins: {
       '@typescript-eslint': tseslint.plugin,
       react,
-      'react-hooks': reactHooks,
       sonarjs,
       'import-x': importX,
       'simple-import-sort': simpleImportSort,
@@ -54,7 +52,6 @@ export default tseslint.config(
       ...eslint.configs.recommended.rules,
       ...react.configs.recommended.rules,
       ...react.configs['jsx-runtime'].rules,
-      ...reactHooks.configs.recommended.rules,
       // covered by TypeScript
       'no-dupe-args': 'off',
       // the following rules are disabled because they are covered by oxlint
@@ -221,13 +218,6 @@ export default tseslint.config(
       '@typescript-eslint/no-misused-promises': ['error'],
       '@typescript-eslint/prefer-readonly': 'error',
       'import-x/no-extraneous-dependencies': ['error'],
-      'react-hooks/exhaustive-deps': [
-        'warn',
-        {
-          additionalHooks:
-            '(useAsyncCallback|useCatchEventCallback|useDraggable|useDropTarget|useRefEffect)',
-        },
-      ],
       'rxjs/finnish': [
         'error',
         {
@@ -260,12 +250,6 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 0,
       '@typescript-eslint/no-misused-promises': 0,
       '@typescript-eslint/no-restricted-imports': 0,
-    },
-  },
-  {
-    files: ['**/*.{ts,js,mjs}'],
-    rules: {
-      'react-hooks/rules-of-hooks': 'off',
     },
   },
   {

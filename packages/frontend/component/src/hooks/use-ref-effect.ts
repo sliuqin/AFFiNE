@@ -4,10 +4,8 @@
 import { useDebugValue, useEffect, useState } from 'react';
 
 // internalRef is used as a reference and therefore save to be used inside an effect
-/* eslint-disable react-hooks/exhaustive-deps */
 
 // the `process.env.NODE_ENV !== 'production'` condition is resolved by the build tool
-/* eslint-disable react-hooks/rules-of-hooks */
 
 const noop: (...args: any[]) => any = () => {};
 
