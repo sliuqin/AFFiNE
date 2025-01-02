@@ -477,7 +477,6 @@ export const PackageList = [
     name: '@affine/nbstore',
     workspaceDependencies: [
       'packages/common/infra',
-      'packages/frontend/electron-api',
       'packages/frontend/graphql',
     ],
   },
