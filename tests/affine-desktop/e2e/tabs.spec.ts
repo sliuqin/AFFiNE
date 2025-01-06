@@ -221,6 +221,10 @@ test('open split view in all docs (drag to resize handle)', async ({
   await clickNewPageButton(page, testTitle);
   await clickSideBarAllPageButton(page);
   await waitForAllPagesLoad(page);
+
+  // case for AF-2061. toggle selection checkbox
+  await page.getByTestId('page-list-header-selection-checkbox').click();
+
   const pageItem = page.getByTestId('page-list-item').filter({
     hasText: testTitle,
   });
