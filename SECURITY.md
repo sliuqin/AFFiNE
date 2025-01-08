@@ -13,7 +13,7 @@ We recommend users to always use the latest major version. Security updates will
 
 We welcome you to provide us with bug reports via and email at [security@toeverything.info](mailto:security@toeverything.info). We expect your report to contain at least the following for us to evaluate and reproduce:
 
-1. Using platform and version, for example:
+1. Using platform and version, for example11111:
 
    - macos arm64 0.12.0-canary-202402220729-0868ac6
    - app.affine.pro 0.12.0-canary-202402220729-0868ac6
