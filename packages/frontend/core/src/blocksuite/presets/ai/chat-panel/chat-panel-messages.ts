@@ -207,6 +207,14 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
   private readonly _onScroll = () => {
     if (!this.messagesContainer) return;
     const { clientHeight, scrollTop, scrollHeight } = this.messagesContainer;
+    console.log(
+      '[ScrollDebug] _onScroll - scrollHeight:',
+      scrollHeight,
+      'clientHeight:',
+      clientHeight,
+      'scrollTop:',
+      scrollTop
+    );
     this.showDownIndicator = scrollHeight - scrollTop - clientHeight > 200;
   };
 
@@ -395,15 +403,31 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
   }
 
   scrollToEnd() {
+    console.log('[ScrollDebug] scrollToEnd called');
     this.updateComplete
       .then(() => {
-        if (!this.messagesContainer) return;
+        if (!this.messagesContainer) {
+          console.log('[ScrollDebug] messagesContainer is null');
+          return;
+        }
+        const { scrollHeight, clientHeight, scrollTop } =
+          this.messagesContainer;
+        console.log(
+          '[ScrollDebug] scrollHeight:',
+          scrollHeight,
+          'clientHeight:',
+          clientHeight,
+          'scrollTop:',
+          scrollTop
+        );
         this.messagesContainer.scrollTo({
-          top: this.messagesContainer.scrollHeight,
+          top: scrollHeight,
           behavior: 'smooth',
         });
       })
-      .catch(console.error);
+      .catch(error => {
+        console.error('[ScrollDebug] Error in scrollToEnd:', error);
+      });
   }
 
   retry = async () => {
@@ -440,7 +464,39 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
           const items = [...this.chatContextValue.items];
           const last = items[items.length - 1] as ChatMessage;
           last.content += text;
+          console.log(
+            '[ScrollDebug] Streaming update - adding text:',
+            text.length,
+            'chars'
+          );
+          if (this.messagesContainer) {
+            const { scrollHeight, clientHeight, scrollTop } =
+              this.messagesContainer;
+            console.log(
+              '[ScrollDebug] Before updateContext - scrollHeight:',
+              scrollHeight,
+              'clientHeight:',
+              clientHeight,
+              'scrollTop:',
+              scrollTop
+            );
+          }
           this.updateContext({ items, status: 'transmitting' });
+          // Log after the update to see if scrollHeight changed
+          requestAnimationFrame(() => {
+            if (this.messagesContainer) {
+              const { scrollHeight, clientHeight, scrollTop } =
+                this.messagesContainer;
+              console.log(
+                '[ScrollDebug] After updateContext - scrollHeight:',
+                scrollHeight,
+                'clientHeight:',
+                clientHeight,
+                'scrollTop:',
+                scrollTop
+              );
+            }
+          });
         }
 
         this.updateContext({ status: 'success' });

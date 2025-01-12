@@ -159,7 +159,15 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
   };
 
   private readonly _scrollToEnd = () => {
-    requestAnimationFrame(() => this._chatMessages.value?.scrollToEnd());
+    console.log('[ScrollDebug] _scrollToEnd called from ChatPanel');
+    requestAnimationFrame(() => {
+      console.log('[ScrollDebug] requestAnimationFrame callback');
+      if (!this._chatMessages.value) {
+        console.log('[ScrollDebug] _chatMessages.value is null');
+        return;
+      }
+      this._chatMessages.value.scrollToEnd();
+    });
   };
 
   private readonly _cleanupHistories = async () => {
