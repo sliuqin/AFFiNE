@@ -497,10 +497,24 @@ export class ChatPanelInput extends WithDisposable(LitElement) {
         this.updateContext({ abortController });
 
         for await (const text of stream) {
+          console.log(
+            '[ScrollDebug] Input streaming update - text length:',
+            text.length
+          );
           const items = [...this.chatContextValue.items];
           const last = items[items.length - 1] as ChatMessage;
           last.content += text;
+          console.log(
+            '[ScrollDebug] Input before updateContext - content length:',
+            last.content.length
+          );
           this.updateContext({ items, status: 'transmitting' });
+          // Log after the update to track any scroll changes
+          requestAnimationFrame(() => {
+            console.log(
+              '[ScrollDebug] Input after updateContext - status: transmitting'
+            );
+          });
         }
 
         this.updateContext({ status: 'success' });
