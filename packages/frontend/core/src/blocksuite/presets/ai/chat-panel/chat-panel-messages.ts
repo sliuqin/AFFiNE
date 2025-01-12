@@ -207,13 +207,19 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
   private readonly _onScroll = () => {
     if (!this.messagesContainer) return;
     const { clientHeight, scrollTop, scrollHeight } = this.messagesContainer;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
     console.log(
-      '[ScrollDebug] _onScroll - scrollHeight:',
+      '[ScrollDebug] _onScroll -',
+      'scrollHeight:',
       scrollHeight,
       'clientHeight:',
       clientHeight,
       'scrollTop:',
-      scrollTop
+      scrollTop,
+      'distanceFromBottom:',
+      distanceFromBottom,
+      'isNearBottom:',
+      distanceFromBottom < 100
     );
     this.showDownIndicator = scrollHeight - scrollTop - clientHeight > 200;
   };
@@ -402,31 +408,76 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
     return html` <ai-loading></ai-loading>`;
   }
 
+  private _lastScrollAttempt = 0;
+  private _scrollRetryCount = 0;
+  private readonly _MAX_RETRIES = 3;
+  private readonly _RETRY_DELAY = 100; // ms
+
   scrollToEnd() {
     console.log('[ScrollDebug] scrollToEnd called');
+
+    // Debounce rapid scroll calls
+    const now = Date.now();
+    if (now - this._lastScrollAttempt < 50) {
+      // 50ms debounce
+      console.log('[ScrollDebug] Debouncing rapid scroll call');
+      return;
+    }
+    this._lastScrollAttempt = now;
+
     this.updateComplete
       .then(() => {
-        if (!this.messagesContainer) {
-          console.log('[ScrollDebug] messagesContainer is null');
-          return;
-        }
-        const { scrollHeight, clientHeight, scrollTop } =
-          this.messagesContainer;
-        console.log(
-          '[ScrollDebug] scrollHeight:',
-          scrollHeight,
-          'clientHeight:',
-          clientHeight,
-          'scrollTop:',
-          scrollTop
-        );
-        this.messagesContainer.scrollTo({
-          top: scrollHeight,
-          behavior: 'smooth',
-        });
+        const tryScroll = () => {
+          if (!this.messagesContainer) {
+            console.log('[ScrollDebug] messagesContainer is null');
+            return;
+          }
+          const { scrollHeight, clientHeight, scrollTop } =
+            this.messagesContainer;
+          console.log(
+            '[ScrollDebug] scrollHeight:',
+            scrollHeight,
+            'clientHeight:',
+            clientHeight,
+            'scrollTop:',
+            scrollTop
+          );
+
+          // Guard against invalid scroll heights
+          if (scrollHeight <= 0 || scrollHeight <= clientHeight) {
+            console.log('[ScrollDebug] Invalid scroll height, may retry');
+            if (this._scrollRetryCount < this._MAX_RETRIES) {
+              this._scrollRetryCount++;
+              console.log(
+                `[ScrollDebug] Retry attempt ${this._scrollRetryCount}`
+              );
+              setTimeout(tryScroll, this._RETRY_DELAY);
+              return;
+            } else {
+              console.log('[ScrollDebug] Max retries reached, giving up');
+              this._scrollRetryCount = 0;
+              return;
+            }
+          }
+
+          // Reset retry count on successful scroll
+          this._scrollRetryCount = 0;
+
+          // Only use smooth scrolling if user is near bottom
+          const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+          console.log('[ScrollDebug] isNearBottom:', isNearBottom);
+
+          this.messagesContainer.scrollTo({
+            top: scrollHeight,
+            behavior: isNearBottom ? 'smooth' : 'auto',
+          });
+        };
+
+        tryScroll();
       })
       .catch(error => {
         console.error('[ScrollDebug] Error in scrollToEnd:', error);
+        this._scrollRetryCount = 0;
       });
   }
 
@@ -487,13 +538,20 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
             if (this.messagesContainer) {
               const { scrollHeight, clientHeight, scrollTop } =
                 this.messagesContainer;
+              const distanceFromBottom =
+                scrollHeight - scrollTop - clientHeight;
               console.log(
-                '[ScrollDebug] After updateContext - scrollHeight:',
+                '[ScrollDebug] After updateContext -',
+                'scrollHeight:',
                 scrollHeight,
                 'clientHeight:',
                 clientHeight,
                 'scrollTop:',
-                scrollTop
+                scrollTop,
+                'distanceFromBottom:',
+                distanceFromBottom,
+                'isNearBottom:',
+                distanceFromBottom < 100
               );
             }
           });

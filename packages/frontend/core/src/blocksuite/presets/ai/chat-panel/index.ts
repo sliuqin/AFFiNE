@@ -160,13 +160,16 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
 
   private readonly _scrollToEnd = () => {
     console.log('[ScrollDebug] _scrollToEnd called from ChatPanel');
+    // Use double RAF to ensure DOM is fully updated
     requestAnimationFrame(() => {
-      console.log('[ScrollDebug] requestAnimationFrame callback');
-      if (!this._chatMessages.value) {
-        console.log('[ScrollDebug] _chatMessages.value is null');
-        return;
-      }
-      this._chatMessages.value.scrollToEnd();
+      requestAnimationFrame(() => {
+        console.log('[ScrollDebug] Double RAF scroll trigger');
+        if (!this._chatMessages.value) {
+          console.log('[ScrollDebug] _chatMessages.value is null');
+          return;
+        }
+        this._chatMessages.value.scrollToEnd();
+      });
     });
   };
 

@@ -337,7 +337,39 @@ export class AIChatBlockPeekView extends LitElement {
           const messages = [...this.chatContext.messages];
           const last = messages[messages.length - 1] as ChatMessage;
           last.content += text;
+          console.log(
+            '[ScrollDebug] Peek view streaming update - adding text:',
+            text.length,
+            'chars'
+          );
+          if (this._chatMessagesContainer) {
+            const { scrollHeight, clientHeight, scrollTop } =
+              this._chatMessagesContainer;
+            console.log(
+              '[ScrollDebug] Peek view before update - scrollHeight:',
+              scrollHeight,
+              'clientHeight:',
+              clientHeight,
+              'scrollTop:',
+              scrollTop
+            );
+          }
           this.updateContext({ messages, status: 'transmitting' });
+          // Log after the update to see if scrollHeight changed
+          requestAnimationFrame(() => {
+            if (this._chatMessagesContainer) {
+              const { scrollHeight, clientHeight, scrollTop } =
+                this._chatMessagesContainer;
+              console.log(
+                '[ScrollDebug] Peek view after update - scrollHeight:',
+                scrollHeight,
+                'clientHeight:',
+                clientHeight,
+                'scrollTop:',
+                scrollTop
+              );
+            }
+          });
           content += text;
         }
 
@@ -450,11 +482,24 @@ export class AIChatBlockPeekView extends LitElement {
 
   override firstUpdated() {
     // first time render, scroll ai-chat-messages-container to bottom
+    console.log('[ScrollDebug] Peek view attempting first render scroll');
     requestAnimationFrame(() => {
-      if (this._chatMessagesContainer) {
-        this._chatMessagesContainer.scrollTop =
-          this._chatMessagesContainer.scrollHeight;
+      if (!this._chatMessagesContainer) {
+        console.log('[ScrollDebug] Peek view chat messages container is null');
+        return;
       }
+      const { scrollHeight, clientHeight, scrollTop } =
+        this._chatMessagesContainer;
+      console.log(
+        '[ScrollDebug] Peek view scroll - scrollHeight:',
+        scrollHeight,
+        'clientHeight:',
+        clientHeight,
+        'scrollTop:',
+        scrollTop
+      );
+      this._chatMessagesContainer.scrollTop =
+        this._chatMessagesContainer.scrollHeight;
     });
   }
 
