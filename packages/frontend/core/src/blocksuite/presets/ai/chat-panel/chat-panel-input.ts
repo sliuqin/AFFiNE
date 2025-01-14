@@ -364,8 +364,7 @@ export class ChatPanelInput extends WithDisposable(LitElement) {
           }}
           @keydown=${async (evt: KeyboardEvent) => {
             if (evt.key === 'Enter' && !evt.shiftKey && !evt.isComposing) {
-              evt.preventDefault();
-              await this.send();
+              this._onTextareaSend(evt);
             }
           }}
           @focus=${() => {
@@ -425,7 +424,7 @@ export class ChatPanelInput extends WithDisposable(LitElement) {
                 ${ChatAbortIcon}
               </div>`
             : html`<div
-                @click="${this.send}"
+                @click="${this._onTextareaSend}"
                 class="chat-panel-send"
                 aria-disabled=${this.isInputEmpty}
                 data-testid="chat-panel-send"
@@ -436,19 +435,30 @@ export class ChatPanelInput extends WithDisposable(LitElement) {
       </div>`;
   }
 
-  send = async (input?: string) => {
+  private readonly _onTextareaSend = (e: MouseEvent | KeyboardEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const value = this.textarea.value.trim();
+    if (value.length === 0) return;
+
+    this.textarea.value = '';
+    this.isInputEmpty = true;
+    this.textarea.style.height = 'unset';
+
+    this.send(value).catch(console.error);
+  };
+
+  send = async (text: string) => {
     const { status, markdown } = this.chatContextValue;
     if (status === 'loading' || status === 'transmitting') return;
 
-    const text = input || this.textarea.value;
     const { images } = this.chatContextValue;
     if (!text && images.length === 0) {
       return;
     }
     const { doc } = this.host;
-    this.textarea.value = '';
-    this.isInputEmpty = true;
-    this.textarea.style.height = 'unset';
+
     this.updateContext({
       images: [],
       status: 'loading',
