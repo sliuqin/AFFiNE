@@ -9,15 +9,32 @@ function getTemplateRow(page: Page) {
   );
 }
 
-async function toggleTemplate(row: Locator, value: boolean) {
+function getJournalRow(page: Page) {
+  return page.locator(
+    '[data-testid="doc-property-row"][data-info-id="journal"]'
+  );
+}
+
+async function getRowCheckbox(row: Locator) {
   const checkbox = row.locator('input[type="checkbox"]');
   const state = await checkbox.inputValue();
   const checked = state === 'on';
+
+  return { checkbox, checked };
+}
+
+async function toggleCheckboxRow(
+  row: Locator,
+  value: boolean,
+  skipCheck = false
+) {
+  const { checkbox, checked } = await getRowCheckbox(row);
   if (checked !== value) {
     await checkbox.click();
-    const newState = await checkbox.inputValue();
-    const newChecked = newState === 'on';
-    expect(newChecked).toBe(value);
+    if (!skipCheck) {
+      const { checked: newChecked } = await getRowCheckbox(row);
+      expect(newChecked).toBe(value);
+    }
   }
 }
 
@@ -58,7 +75,7 @@ const createDocAndMarkAsTemplate = async (
 
   const templateRow = getTemplateRow(page);
   await expect(templateRow).toBeVisible();
-  await toggleTemplate(templateRow, true);
+  await toggleCheckboxRow(templateRow, true);
 
   // focus editor
   await page.locator('affine-note').first().click();
@@ -250,4 +267,66 @@ test('create template from sidebar template entrance', async ({ page }) => {
   await expect(
     page.getByTestId(`template-doc-item-${templateDocId}`)
   ).toBeVisible();
+});
+
+test('should not allow to set template and journal at the same time', async ({
+  page,
+}) => {
+  await openHomePage(page);
+  await createDocAndMarkAsTemplate(page, 'Test Template', async () => {
+    await page.keyboard.type('# Template');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('This is a template doc');
+  });
+
+  const journalRow = getJournalRow(page);
+  const templateRow = getTemplateRow(page);
+
+  // 1. try to set it as journal
+  await toggleCheckboxRow(journalRow, true, true);
+  const dialog1 = page.getByRole('dialog');
+  await expect(dialog1).toBeVisible();
+
+  // 1.1 cancel: keep as template
+  await dialog1.getByTestId('confirm-modal-cancel').click();
+  const { checked: journalCheckedAfterCancel1 } =
+    await getRowCheckbox(journalRow);
+  const { checked: templateCheckedAfterCancel1 } =
+    await getRowCheckbox(templateRow);
+  expect(journalCheckedAfterCancel1).toBe(false);
+  expect(templateCheckedAfterCancel1).toBe(true);
+
+  // 1.2 confirm: set as journal
+  await toggleCheckboxRow(journalRow, true, true);
+  await dialog1.getByTestId('confirm-modal-confirm').click();
+  const { checked: journalCheckedAfterConfirm1 } =
+    await getRowCheckbox(journalRow);
+  const { checked: templateCheckedAfterConfirm1 } =
+    await getRowCheckbox(templateRow);
+  expect(journalCheckedAfterConfirm1).toBe(true);
+  expect(templateCheckedAfterConfirm1).toBe(false);
+
+  // 2. try to set it as template
+  await toggleCheckboxRow(templateRow, true, true);
+  const dialog2 = page.getByRole('dialog');
+  await expect(dialog2).toBeVisible();
+
+  // 2.1 cancel: keep as journal
+  await dialog2.getByTestId('confirm-modal-cancel').click();
+  const { checked: templateCheckedAfterCancel2 } =
+    await getRowCheckbox(templateRow);
+  const { checked: journalCheckedAfterCancel2 } =
+    await getRowCheckbox(journalRow);
+  expect(templateCheckedAfterCancel2).toBe(false);
+  expect(journalCheckedAfterCancel2).toBe(true);
+
+  // 2.2 confirm: set as template
+  await toggleCheckboxRow(templateRow, true, true);
+  await dialog2.getByTestId('confirm-modal-confirm').click();
+  const { checked: templateCheckedAfterConfirm2 } =
+    await getRowCheckbox(templateRow);
+  const { checked: journalCheckedAfterConfirm2 } =
+    await getRowCheckbox(journalRow);
+  expect(templateCheckedAfterConfirm2).toBe(true);
+  expect(journalCheckedAfterConfirm2).toBe(false);
 });
