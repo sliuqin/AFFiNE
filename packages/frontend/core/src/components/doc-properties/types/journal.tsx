@@ -13,13 +13,16 @@ import {
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { useAsyncCallback } from '../../hooks/affine-async-hooks';
 import * as styles from './journal.css';
+import { useCheckTemplateJournalConflict } from './template';
 import type { PropertyValueProps } from './types';
 
 const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 export const JournalValue = ({ onChange }: PropertyValueProps) => {
   const t = useI18n();
 
+  const check = useCheckTemplateJournalConflict('journal');
   const journalService = useService(JournalService);
   const doc = useService(DocService).doc;
   const journalDate = useLiveData(journalService.journalDate$(doc.id));
@@ -58,8 +61,9 @@ export const JournalValue = ({ onChange }: PropertyValueProps) => {
     [journalService, doc.id, onChange]
   );
 
-  const handleCheck = useCallback(
-    (_: unknown, v: boolean) => {
+  const handleCheck = useAsyncCallback(
+    async (_: unknown, v: boolean) => {
+      if (!(await check(v))) return;
       if (!v) {
         journalService.removeJournalDate(doc.id);
         setShowDatePicker(false);
@@ -68,7 +72,7 @@ export const JournalValue = ({ onChange }: PropertyValueProps) => {
         handleDateSelect(selectedDate);
       }
     },
-    [onChange, journalService, doc.id, handleDateSelect, selectedDate]
+    [check, journalService, doc.id, handleDateSelect, selectedDate, onChange]
   );
 
   const workbench = useService(WorkbenchService).workbench;
