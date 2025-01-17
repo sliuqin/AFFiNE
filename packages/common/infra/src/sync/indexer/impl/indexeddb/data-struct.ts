@@ -124,17 +124,27 @@ export class DataStruct {
       }
     }
 
-    const nid = await trx.objectStore('records').put({
-      id: document.id,
-      data: dataMap,
-    });
+    try {
+      const nid = await trx.objectStore('records').put({
+        id: document.id,
+        data: dataMap,
+      });
 
-    for (const [key, values] of document.fields) {
-      const iidx = this.invertedIndex.get(key as string);
-      if (!iidx) {
-        continue;
+      for (const [key, values] of document.fields) {
+        const iidx = this.invertedIndex.get(key as string);
+        if (!iidx) {
+          continue;
+        }
+        try {
+          await iidx.insert(trx, nid, values);
+        } catch (e) {
+          console.error('error when iidx insert', e);
+          throw e;
+        }
       }
-      await iidx.insert(trx, nid, values);
+    } catch (e) {
+      console.error('error when insert', e);
+      throw e;
     }
   }
 
