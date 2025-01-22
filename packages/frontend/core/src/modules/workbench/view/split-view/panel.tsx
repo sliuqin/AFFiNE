@@ -18,7 +18,14 @@ import { useLiveData, useService } from '@toeverything/infra';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { useAtom } from 'jotai';
 import type { HTMLAttributes, PropsWithChildren } from 'react';
-import { memo, useCallback, useMemo } from 'react';
+import {
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 
 import type { View } from '../../entities/view';
 import { WorkbenchService } from '../../services/workbench';
@@ -42,16 +49,16 @@ export interface SplitViewPanelProps
   draggingEntity: boolean;
 }
 
-export const SplitViewPanelContainer = ({
-  children,
-  ...props
-}: HTMLAttributes<HTMLDivElement>) => {
+export const SplitViewPanelContainer = forwardRef<
+  HTMLDivElement,
+  HTMLAttributes<HTMLDivElement>
+>(function SplitViewPanelContainer({ children, ...props }, ref) {
   return (
-    <div className={styles.splitViewPanel} {...props}>
+    <div className={styles.splitViewPanel} {...props} ref={ref}>
       {children}
     </div>
   );
-};
+});
 
 /**
  * Calculate the order of the panel
@@ -103,6 +110,8 @@ export const SplitViewPanel = memo(function SplitViewPanel({
   const size = useLiveData(view.size$);
   const workbench = useService(WorkbenchService).workbench;
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const activeView = useLiveData(workbench.activeView$);
   const views = useLiveData(workbench.views$);
 
@@ -111,6 +120,8 @@ export const SplitViewPanel = memo(function SplitViewPanel({
   const [draggingView, setDraggingView] = useAtom(draggingViewAtom);
   const [draggingOverView, setDraggingOverView] = useAtom(draggingOverViewAtom);
   const [resizingView, setResizingView] = useAtom(resizingViewAtom);
+
+  const transitioningRef = useRef(false);
 
   const order = useMemo(
     () =>
@@ -130,12 +141,35 @@ export const SplitViewPanel = memo(function SplitViewPanel({
       ...assignInlineVars({
         [styles.size]: size.toString(),
         [styles.panelOrder]: order.toString(),
+        [styles.panelsCount]: views.length.toString(),
       }),
     };
-  }, [size, order]);
+  }, [size, order, views.length]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      const onTransitionEnd = () => {
+        transitioningRef.current = false;
+      };
+      const onTransitionStart = () => {
+        transitioningRef.current = true;
+      };
+      container.addEventListener('transitionend', onTransitionEnd);
+      container.addEventListener('transitionstart', onTransitionStart);
+      return () => {
+        container.removeEventListener('transitionend', onTransitionEnd);
+        container.removeEventListener('transitionstart', onTransitionStart);
+      };
+    }
+    return;
+  }, []);
 
   const { dropTargetRef } = useDropTarget<AffineDNDData>(() => {
     const handleDrag = (data: DropTargetDragEvent<AffineDNDData>) => {
+      if (transitioningRef.current) {
+        return;
+      }
       // only the first view has left edge
       const edge = data.closestEdge as 'left' | 'right';
       const switchEdge = edge === 'left' && !isFirst;
@@ -227,6 +261,7 @@ export const SplitViewPanel = memo(function SplitViewPanel({
   return (
     <SplitViewPanelContainer
       style={style}
+      ref={containerRef}
       data-is-resizing={!!resizingView}
       data-is-reordering={!!draggingView}
       data-is-dragging={dragging}

@@ -6,6 +6,7 @@ const borderRadius = createVar();
 const resizeHandleWidth = createVar();
 export const size = createVar();
 export const panelOrder = createVar();
+export const panelsCount = createVar();
 const dropIndicatorWidth = createVar();
 const dropIndicatorOpacity = createVar();
 const dropIndicatorRadius = createVar();
@@ -32,9 +33,12 @@ const expandDropIndicator = keyframes({
 export const splitViewPanel = style({
   flexShrink: 0,
   flexGrow: fallbackVar(size, '1'),
-  position: 'relative',
-  order: panelOrder,
   display: 'flex',
+  position: 'absolute',
+  width: `calc(100% / ${panelsCount})`,
+  height: '100%',
+  transform: `translateX(calc(${panelOrder} * 100%))`,
+  transition: 'transform 0.5s',
 
   selectors: {
     '[data-is-resizing="true"]&': {
