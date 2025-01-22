@@ -23,6 +23,7 @@ import {
 } from '@blocksuite/store';
 
 import { MarkdownAdapter } from './markdown/markdown';
+import { PlainTextAdapter } from './plain-text/plain-text';
 import { AdapterFactoryIdentifier } from './types/adapter';
 
 export type MixText = string;
@@ -36,10 +37,12 @@ type MixTextToSliceSnapshotPayload = {
 
 export class MixTextAdapter extends BaseAdapter<MixText> {
   private readonly _markdownAdapter: MarkdownAdapter;
+  private readonly _plainTextAdapter: PlainTextAdapter;
 
   constructor(job: Transformer, provider: ServiceProvider) {
     super(job);
     this._markdownAdapter = new MarkdownAdapter(job, provider);
+    this._plainTextAdapter = new PlainTextAdapter(job, provider);
   }
 
   private _splitDeltas(deltas: DeltaInsert[]): DeltaInsert[][] {
@@ -66,196 +69,44 @@ export class MixTextAdapter extends BaseAdapter<MixText> {
     return result;
   }
 
-  private async _traverseSnapshot(
-    snapshot: BlockSnapshot
-  ): Promise<{ mixtext: string }> {
-    let buffer = '';
-    const walker = new ASTWalker<BlockSnapshot, never>();
-    walker.setONodeTypeGuard(
-      (node): node is BlockSnapshot =>
-        BlockSnapshotSchema.safeParse(node).success
-    );
-    walker.setEnter(o => {
-      const text = (o.node.props.text ?? { delta: [] }) as {
-        delta: DeltaInsert[];
-      };
-      if (buffer.length > 0) {
-        buffer += '\n';
-      }
-      switch (o.node.flavour) {
-        case 'affine:code': {
-          buffer += text.delta.map(delta => delta.insert).join('');
-          break;
-        }
-        case 'affine:paragraph': {
-          buffer += text.delta.map(delta => delta.insert).join('');
-          break;
-        }
-        case 'affine:list': {
-          buffer += text.delta.map(delta => delta.insert).join('');
-          break;
-        }
-        case 'affine:divider': {
-          buffer += '---';
-          break;
-        }
-      }
-    });
-    await walker.walkONode(snapshot);
-    return {
-      mixtext: buffer,
-    };
-  }
-
   async fromBlockSnapshot({
     snapshot,
   }: FromBlockSnapshotPayload): Promise<FromBlockSnapshotResult<MixText>> {
-    const { mixtext } = await this._traverseSnapshot(snapshot);
-    return {
-      file: mixtext,
-      assetsIds: [],
-    };
+    return this._plainTextAdapter.fromBlockSnapshot({
+      snapshot,
+    });
   }
 
   async fromDocSnapshot({
     snapshot,
     assets,
   }: FromDocSnapshotPayload): Promise<FromDocSnapshotResult<MixText>> {
-    let buffer = '';
-    if (snapshot.meta.title) {
-      buffer += `${snapshot.meta.title}\n\n`;
-    }
-    const { file, assetsIds } = await this.fromBlockSnapshot({
-      snapshot: snapshot.blocks,
+    return this._plainTextAdapter.fromDocSnapshot({
+      snapshot,
       assets,
     });
-    buffer += file;
-    return {
-      file: buffer,
-      assetsIds,
-    };
   }
 
   async fromSliceSnapshot({
     snapshot,
   }: FromSliceSnapshotPayload): Promise<FromSliceSnapshotResult<MixText>> {
-    let buffer = '';
-    const sliceAssetsIds: string[] = [];
-    for (const contentSlice of snapshot.content) {
-      const { mixtext } = await this._traverseSnapshot(contentSlice);
-      buffer += mixtext;
-    }
-    const mixtext =
-      buffer.match(/\n/g)?.length === 1 ? buffer.trimEnd() : buffer;
-    return {
-      file: mixtext,
-      assetsIds: sliceAssetsIds,
-    };
+    return this._plainTextAdapter.fromSliceSnapshot({
+      snapshot,
+    });
   }
 
   toBlockSnapshot(payload: ToBlockSnapshotPayload<MixText>): BlockSnapshot {
-    payload.file = payload.file.replaceAll('\r', '');
-    return {
-      type: 'block',
-      id: nanoid(),
-      flavour: 'affine:note',
-      props: {
-        xywh: '[0,0,800,95]',
-        background: DefaultTheme.noteBackgrounColor,
-        index: 'a0',
-        hidden: false,
-        displayMode: NoteDisplayMode.DocAndEdgeless,
-      },
-      children: payload.file.split('\n').map((line): BlockSnapshot => {
-        return {
-          type: 'block',
-          id: nanoid(),
-          flavour: 'affine:paragraph',
-          props: {
-            type: 'text',
-            text: {
-              '$blocksuite:internal:text$': true,
-              delta: [
-                {
-                  insert: line,
-                },
-              ],
-            },
-          },
-          children: [],
-        };
-      }),
-    };
+    return this._plainTextAdapter.toBlockSnapshot({
+      file: payload.file,
+      assets: payload.assets,
+    });
   }
 
   toDocSnapshot(payload: ToDocSnapshotPayload<MixText>): DocSnapshot {
-    payload.file = payload.file.replaceAll('\r', '');
-    return {
-      type: 'page',
-      meta: {
-        id: nanoid(),
-        title: 'Untitled',
-        createDate: Date.now(),
-        tags: [],
-      },
-      blocks: {
-        type: 'block',
-        id: nanoid(),
-        flavour: 'affine:page',
-        props: {
-          title: {
-            '$blocksuite:internal:text$': true,
-            delta: [
-              {
-                insert: 'Untitled',
-              },
-            ],
-          },
-        },
-        children: [
-          {
-            type: 'block',
-            id: nanoid(),
-            flavour: 'affine:surface',
-            props: {
-              elements: {},
-            },
-            children: [],
-          },
-          {
-            type: 'block',
-            id: nanoid(),
-            flavour: 'affine:note',
-            props: {
-              xywh: '[0,0,800,95]',
-              background: DefaultTheme.noteBackgrounColor,
-              index: 'a0',
-              hidden: false,
-              displayMode: NoteDisplayMode.DocAndEdgeless,
-            },
-            children: payload.file.split('\n').map((line): BlockSnapshot => {
-              return {
-                type: 'block',
-                id: nanoid(),
-                flavour: 'affine:paragraph',
-                props: {
-                  type: 'text',
-                  text: {
-                    '$blocksuite:internal:text$': true,
-                    delta: [
-                      {
-                        insert: line,
-                      },
-                    ],
-                  },
-                },
-                children: [],
-              };
-            }),
-          },
-        ],
-      },
-    };
+    return this._plainTextAdapter.toDocSnapshot({
+      file: payload.file,
+      assets: payload.assets,
+    });
   }
 
   async toSliceSnapshot(
