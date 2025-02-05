@@ -155,6 +155,68 @@ export const removeContextDocMutation = {
 }`,
 };
 
+export const addContextFileMutation = {
+  id: 'addContextFileMutation' as const,
+  op: 'addContextFile',
+  query: `mutation addContextFile($content: Upload!, $options: AddContextFileInput!) {
+  addContextFile(content: $content, options: $options) {
+    id
+    createdAt
+    name
+    chunkSize
+    status
+    blobId
+  }
+}`,
+  file: true,
+};
+
+export const listContextFilesQuery = {
+  id: 'listContextFilesQuery' as const,
+  op: 'listContextFiles',
+  query: `query listContextFiles($workspaceId: String!, $sessionId: String!, $contextId: String!) {
+  currentUser {
+    copilot(workspaceId: $workspaceId) {
+      contexts(sessionId: $sessionId, contextId: $contextId) {
+        docs {
+          id
+          createdAt
+        }
+        files {
+          id
+          name
+          blobId
+          chunkSize
+          status
+          createdAt
+        }
+      }
+    }
+  }
+}`,
+};
+
+export const matchContextMutation = {
+  id: 'matchContextMutation' as const,
+  op: 'matchContext',
+  query: `mutation matchContext($contextId: String!, $content: String!, $limit: SafeInt) {
+  matchContext(contextId: $contextId, content: $content, limit: $limit) {
+    fileId
+    chunk
+    content
+    distance
+  }
+}`,
+};
+
+export const removeContextFileMutation = {
+  id: 'removeContextFileMutation' as const,
+  op: 'removeContextFile',
+  query: `mutation removeContextFile($options: RemoveContextFileInput!) {
+  removeContextFile(options: $options)
+}`,
+};
+
 export const listContextDocsAndFilesQuery = {
   id: 'listContextDocsAndFilesQuery' as const,
   op: 'listContextDocsAndFiles',
@@ -188,9 +250,42 @@ export const listContextQuery = {
     copilot(workspaceId: $workspaceId) {
       contexts(sessionId: $sessionId) {
         id
+        createdAt
       }
     }
   }
+}`,
+};
+
+export const matchWorkspaceContextMutation = {
+  id: 'matchWorkspaceContextMutation' as const,
+  op: 'matchWorkspaceContext',
+  query: `mutation matchWorkspaceContext($contextId: String!, $content: String!, $limit: SafeInt) {
+  matchWorkspaceContext(contextId: $contextId, content: $content, limit: $limit) {
+    docId
+    chunk
+    content
+    distance
+  }
+}`,
+};
+
+export const getWorkspaceEmbeddingStatusQuery = {
+  id: 'getWorkspaceEmbeddingStatusQuery' as const,
+  op: 'getWorkspaceEmbeddingStatus',
+  query: `query getWorkspaceEmbeddingStatus($workspaceId: String!) {
+  queryWorkspaceEmbeddingStatus(workspaceId: $workspaceId) {
+    total
+    embedded
+  }
+}`,
+};
+
+export const queueWorkspaceEmbeddingMutation = {
+  id: 'queueWorkspaceEmbeddingMutation' as const,
+  op: 'queueWorkspaceEmbedding',
+  query: `mutation queueWorkspaceEmbedding($workspaceId: String!, $docId: [String!]!) {
+  queueWorkspaceEmbedding(workspaceId: $workspaceId, docId: $docId)
 }`,
 };
 
@@ -503,9 +598,7 @@ export const getCurrentUserQuery = {
     }
   }
 }`,
-  deprecations: [
-    "'token' is deprecated: use [/api/auth/sign-in?native=true] instead",
-  ],
+  deprecations: ["'token' is deprecated: use [/api/auth/sign-in?native=true] instead"],
 };
 
 export const getDocDefaultRoleQuery = {
@@ -757,10 +850,7 @@ export const getWorkspaceInfoQuery = {
     team
   }
 }`,
-  deprecations: [
-    "'isAdmin' is deprecated: use WorkspaceType[role] instead",
-    "'isOwner' is deprecated: use WorkspaceType[role] instead",
-  ],
+  deprecations: ["'isAdmin' is deprecated: use WorkspaceType[role] instead","'isOwner' is deprecated: use WorkspaceType[role] instead"],
 };
 
 export const getWorkspacePageByIdQuery = {
@@ -1039,9 +1129,7 @@ export const quotaQuery = {
     }
   }
 }`,
-  deprecations: [
-    "'storageQuota' is deprecated: use `UserQuotaType['usedStorageQuota']` instead",
-  ],
+  deprecations: ["'storageQuota' is deprecated: use `UserQuotaType['usedStorageQuota']` instead"],
 };
 
 export const readNotificationMutation = {
@@ -1488,9 +1576,7 @@ export const getWorkspaceRolePermissionsQuery = {
     }
   }
 }`,
-  deprecations: [
-    "'workspaceRolePermissions' is deprecated: use WorkspaceType[permissions] instead",
-  ],
+  deprecations: ["'workspaceRolePermissions' is deprecated: use WorkspaceType[permissions] instead"],
 };
 
 export const approveWorkspaceTeamMemberMutation = {
