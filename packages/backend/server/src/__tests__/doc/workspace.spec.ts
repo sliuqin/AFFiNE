@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import test from 'ava';
 import * as Sinon from 'sinon';
 import { applyUpdate, Doc as YDoc, encodeStateAsUpdate } from 'yjs';
@@ -13,6 +13,7 @@ import { createTestingModule, type TestingModule } from '../utils';
 let m: TestingModule;
 let db: PrismaClient;
 let adapter: Adapter;
+let u1: User;
 
 test.before('init testing module', async () => {
   m = await createTestingModule({
@@ -35,124 +36,52 @@ test.before('init testing module', async () => {
 
 test.beforeEach(async () => {
   await m.initTestingDB();
+  u1 = await db.user.create({
+    data: {
+      email: 'test@test.com',
+      password: 'test',
+      name: 'test',
+    },
+  });
 });
 
 test.after.always(async () => {
   await m?.close();
 });
 
-/**
- * @deprecated `seq` would be removed
- */
-test('should have sequential update number', async t => {
-  const doc = new YDoc();
-  const text = doc.getText('content');
-  const updates: Buffer[] = [];
-
-  doc.on('update', update => {
-    updates.push(Buffer.from(update));
-  });
-
-  text.insert(0, 'hello');
-  text.insert(5, 'world');
-  text.insert(5, ' ');
-
-  await adapter.pushDocUpdates('2', '2', updates);
-
-  // [1,2,3]
-  let records = await db.update.findMany({
-    where: {
-      workspaceId: '2',
-      id: '2',
-    },
-  });
-
-  t.deepEqual(
-    records.map(({ seq }) => seq),
-    [1, 2, 3]
-  );
-
-  // merge
-  await adapter.getDoc('2', '2');
-
-  // fake the seq num is about to overflow
-  await db.snapshot.update({
-    where: {
-      workspaceId_id: {
-        id: '2',
-        workspaceId: '2',
-      },
-    },
-    data: {
-      seq: 0x3ffffffe,
-    },
-  });
-
-  await adapter.pushDocUpdates('2', '2', updates);
-
-  records = await db.update.findMany({
-    where: {
-      workspaceId: '2',
-      id: '2',
-    },
-  });
-
-  t.deepEqual(
-    records.map(({ seq }) => seq),
-    [0x3ffffffe + 1, 0x3ffffffe + 2, 0x3ffffffe + 3]
-  );
-
-  // push a new update with new seq num
-  await adapter.pushDocUpdates('2', '2', updates.slice(0, 1));
-
-  // let the manager ignore update with the new seq num
-  // @ts-expect-error private method
-  const stub = Sinon.stub(adapter, 'getDocUpdates').resolves(
-    records.map(record => ({
-      bin: record.blob,
-      timestamp: record.createdAt.getTime(),
-    }))
-  );
-
-  await adapter.getDoc('2', '2');
-  stub.restore();
-
-  // should not merge in one run
-  t.not(await db.update.count(), 0);
-});
-
 test('should retry if failed to insert updates', async t => {
   const stub = Sinon.stub();
-  const createMany = db.update.createMany;
-  db.update.createMany = stub;
+  const create = db.update.create;
+  db.update.create = stub;
 
   stub.onCall(0).rejects(new Error());
   stub.onCall(1).resolves();
 
   await t.notThrowsAsync(() =>
-    adapter.pushDocUpdates('1', '1', [Buffer.from([0, 0])])
+    adapter.pushDocUpdate('1', '1', Buffer.from([0, 0]), u1.id)
   );
+
   t.is(stub.callCount, 2);
 
   stub.reset();
-  db.update.createMany = createMany;
+  db.update.create = create;
 });
 
 test('should throw if meet max retry times', async t => {
   const stub = Sinon.stub();
-  const createMany = db.update.createMany;
-  db.update.createMany = stub;
+  const create = db.update.create;
+  db.update.create = stub;
 
   stub.rejects(new Error());
 
   await t.throwsAsync(
-    () => adapter.pushDocUpdates('1', '1', [Buffer.from([0, 0])]),
+    () => adapter.pushDocUpdate('1', '1', Buffer.from([0, 0]), u1.id),
     { message: 'Failed to store doc updates.' }
   );
   t.is(stub.callCount, 4);
 
   stub.reset();
-  db.update.createMany = createMany;
+  db.update.create = create;
 });
 
 test('should be able to merge updates as snapshot', async t => {
@@ -168,17 +97,14 @@ test('should be able to merge updates as snapshot', async t => {
     },
   });
 
-  await db.update.createMany({
-    data: [
-      {
-        id: '1',
-        workspaceId: '1',
-        blob: Buffer.from(update),
-        seq: 1,
-        createdAt: new Date(Date.now() + 1),
-        createdBy: null,
-      },
-    ],
+  await db.update.create({
+    data: {
+      id: '1',
+      workspaceId: '1',
+      blob: Buffer.from(update),
+      createdAt: new Date(Date.now() + 1),
+      createdBy: null,
+    },
   });
 
   t.deepEqual(
@@ -229,7 +155,8 @@ test('should be able to merge updates into snapshot', async t => {
   }
 
   {
-    await adapter.pushDocUpdates('1', '1', updates.slice(0, 2));
+    await adapter.pushDocUpdate('1', '1', updates[0], u1.id);
+    await adapter.pushDocUpdate('1', '1', updates[1], u1.id);
     // merge
     const { bin } = (await adapter.getDoc('1', '1'))!;
     const doc = new YDoc();
@@ -239,7 +166,8 @@ test('should be able to merge updates into snapshot', async t => {
   }
 
   {
-    await adapter.pushDocUpdates('1', '1', updates.slice(2));
+    await adapter.pushDocUpdate('1', '1', updates[2], u1.id);
+    await adapter.pushDocUpdate('1', '1', updates[3], u1.id);
     // merge
     const { bin } = (await adapter.getDoc('1', '1'))!;
     const doc = new YDoc();
@@ -266,7 +194,8 @@ test('should not update snapshot if doc is outdated', async t => {
     text.insert(11, '!');
   }
 
-  await adapter.pushDocUpdates('2', '1', updates.slice(0, 2)); // 'helloworld'
+  await adapter.pushDocUpdate('2', '1', updates[0], u1.id);
+  await adapter.pushDocUpdate('2', '1', updates[1], u1.id);
   // merge
   await adapter.getDoc('2', '1');
   // fake the snapshot is a lot newer
@@ -283,7 +212,9 @@ test('should not update snapshot if doc is outdated', async t => {
   });
 
   {
-    await adapter.pushDocUpdates('2', '1', updates.slice(2)); // 'hello world!'
+    await adapter.pushDocUpdate('2', '1', updates[2], u1.id);
+    await adapter.pushDocUpdate('2', '1', updates[3], u1.id);
+    // merge
     const { bin } = (await adapter.getDoc('2', '1'))!;
 
     // all updated will merged into doc not matter it's timestamp is outdated or not,

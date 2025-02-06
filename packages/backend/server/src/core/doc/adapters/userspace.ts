@@ -45,26 +45,25 @@ export class PgUserspaceDocStorageAdapter extends DocStorageAdapter {
     return await this.getDocSnapshot(spaceId, docId);
   }
 
-  async pushDocUpdates(
+  async pushDocUpdate(
     userId: string,
     docId: string,
-    updates: Uint8Array[],
+    update: Uint8Array,
     editorId?: string
   ) {
-    if (!updates.length) {
+    if (this.isEmptyBin(update)) {
       return 0;
     }
 
     await using _lock = await this.lockDocForUpdate(userId, docId);
     const snapshot = await this.getDocSnapshot(userId, docId);
-    const now = Date.now();
-    const pendings = updates.map((update, i) => ({
+    const pending = {
       bin: update,
-      timestamp: now + i,
-    }));
+      timestamp: Date.now(),
+    };
 
     const { timestamp, bin } = await this.squash(
-      snapshot ? [snapshot, ...pendings] : pendings
+      snapshot ? [snapshot, pending] : [pending]
     );
 
     await this.setDocSnapshot({

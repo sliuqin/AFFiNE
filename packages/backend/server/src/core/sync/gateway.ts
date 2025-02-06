@@ -280,12 +280,15 @@ export class SpaceSyncGateway
     const adapter = this.selectAdapter(client, spaceType);
 
     // TODO(@forehalo): we might need to check write permission before push updates
-    const timestamp = await adapter.push(
-      spaceId,
-      docId,
-      updates.map(update => Buffer.from(update, 'base64')),
-      user.id
-    );
+    let timestamp = 0;
+    for (const update of updates) {
+      timestamp = await adapter.push(
+        spaceId,
+        docId,
+        Buffer.from(update, 'base64'),
+        user.id
+      );
+    }
 
     // could be put in [adapter.push]
     // but the event should be kept away from adapter
@@ -327,7 +330,7 @@ export class SpaceSyncGateway
     const timestamp = await adapter.push(
       spaceId,
       docId,
-      [Buffer.from(update, 'base64')],
+      Buffer.from(update, 'base64'),
       user.id
     );
 
@@ -646,9 +649,9 @@ abstract class SyncSocketAdapter {
     permission?: WorkspaceRole
   ): Promise<void>;
 
-  push(spaceId: string, docId: string, updates: Buffer[], editorId: string) {
+  push(spaceId: string, docId: string, update: Buffer, editorId: string) {
     this.assertIn(spaceId);
-    return this.storage.pushDocUpdates(spaceId, docId, updates, editorId);
+    return this.storage.pushDocUpdate(spaceId, docId, update, editorId);
   }
 
   diff(spaceId: string, docId: string, stateVector?: Uint8Array) {
@@ -679,11 +682,11 @@ class WorkspaceSyncAdapter extends SyncSocketAdapter {
   override push(
     spaceId: string,
     docId: string,
-    updates: Buffer[],
+    update: Buffer,
     editorId: string
   ) {
     const id = new DocID(docId, spaceId);
-    return super.push(spaceId, id.guid, updates, editorId);
+    return super.push(spaceId, id.guid, update, editorId);
   }
 
   override diff(spaceId: string, docId: string, stateVector?: Uint8Array) {

@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { chunk } from 'lodash-es';
 
 import {
   Cache,
@@ -11,8 +10,8 @@ import {
   FailedToUpsertSnapshot,
   metrics,
   Mutex,
+  retryable,
 } from '../../../base';
-import { retryable } from '../../../base/utils/promise';
 import { DocStorageOptions } from '../options';
 import {
   DocRecord,
@@ -53,74 +52,37 @@ export class PgWorkspaceDocStorageAdapter extends DocStorageAdapter {
     super(options);
   }
 
-  async pushDocUpdates(
+  async pushDocUpdate(
     workspaceId: string,
     docId: string,
-    updates: Uint8Array[],
-    editorId?: string
+    update: Uint8Array,
+    editorId: string
   ) {
-    if (!updates.length) {
-      return 0;
-    }
-
-    let pendings = updates;
-    let done = 0;
-    let timestamp = Date.now();
     try {
-      await retryable(async () => {
-        if (done !== 0) {
-          pendings = pendings.slice(done);
-        }
-
-        // TODO(@forehalo): remove in next release
-        const lastSeq = await this.getUpdateSeq(
+      return await retryable(async () => {
+        const timestamp = Date.now();
+        await this.db.update.create({
+          data: {
+            workspaceId,
+            id: docId,
+            blob: Buffer.from(update),
+            createdAt: new Date(timestamp),
+            createdBy: editorId || null,
+          },
+        });
+        this.event.emit('doc.update.pushed', {
           workspaceId,
           docId,
-          updates.length
-        );
-
-        let turn = 0;
-        const batchCount = 10;
-        for (const batch of chunk(pendings, batchCount)) {
-          const now = Date.now();
-          await this.db.update.createMany({
-            data: batch.map((update, i) => {
-              const subSeq = turn * batchCount + i + 1;
-              // `seq` is the last seq num of the batch
-              // example for 11 batched updates, start from seq num 20
-              // seq for first update in the batch should be:
-              // 31             - 11                + subSeq(0        * 10          + 0 + 1) = 21
-              // ^ last seq num   ^ updates.length           ^ turn     ^ batchCount  ^i
-              const seq = lastSeq - updates.length + subSeq;
-              const createdAt = now + subSeq;
-              timestamp = Math.max(timestamp, createdAt);
-
-              return {
-                workspaceId,
-                id: docId,
-                blob: Buffer.from(update),
-                seq,
-                createdAt: new Date(createdAt),
-                createdBy: editorId || null,
-              };
-            }),
-          });
-          turn++;
-          done += batch.length;
-          await this.updateCachedUpdatesCount(workspaceId, docId, batch.length);
-        }
-      });
-      this.event.emit('doc.update.pushed', {
-        workspaceId,
-        docId,
-        editor: editorId,
+          editor: editorId,
+        });
+        await this.updateCachedUpdatesCount(workspaceId, docId, 1);
+        return timestamp;
       });
     } catch (e) {
       this.logger.error('Failed to insert doc updates', e);
       metrics.doc.counter('doc_update_insert_failed').add(1);
       throw new FailedToSaveUpdates();
     }
-    return timestamp;
   }
 
   protected async getDocUpdates(workspaceId: string, docId: string) {
@@ -586,68 +548,6 @@ export class PgWorkspaceDocStorageAdapter extends DocStorageAdapter {
         UPDATES_QUEUE_CACHE_KEY,
         `${workspaceId}::${guid}`
       );
-    }
-  }
-
-  /**
-   * @deprecated
-   */
-  private readonly seqMap = new Map<string, number>();
-  /**
-   *
-   * @deprecated updates do not rely on seq number anymore
-   *
-   * keep in next release to avoid downtime when upgrading instances
-   */
-  private async getUpdateSeq(workspaceId: string, guid: string, batch = 1) {
-    const MAX_SEQ_NUM = 0x3fffffff; // u31
-
-    try {
-      const { seq } = await this.db.snapshot.update({
-        select: {
-          seq: true,
-        },
-        where: {
-          workspaceId_id: {
-            workspaceId,
-            id: guid,
-          },
-        },
-        data: {
-          seq: {
-            increment: batch,
-          },
-        },
-      });
-
-      if (!seq) {
-        return batch;
-      }
-
-      // reset
-      if (seq >= MAX_SEQ_NUM) {
-        await this.db.snapshot.update({
-          select: {
-            seq: true,
-          },
-          where: {
-            workspaceId_id: {
-              workspaceId,
-              id: guid,
-            },
-          },
-          data: {
-            seq: 0,
-          },
-        });
-      }
-
-      return seq;
-    } catch {
-      // not existing snapshot just count it from 1
-      const last = this.seqMap.get(workspaceId + guid) ?? 0;
-      this.seqMap.set(workspaceId + guid, last + batch);
-      return last + batch;
     }
   }
 }
