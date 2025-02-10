@@ -8,6 +8,7 @@ import type {
   AffineAIPanelWidgetConfig,
 } from '@blocksuite/affine/blocks';
 import {
+  AffineFootnoteNode,
   CodeBlockComponent,
   defaultBlockMarkdownAdapterMatchers,
   DividerBlockComponent,
@@ -30,7 +31,7 @@ import { property, query } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { keyed } from 'lit/directives/keyed.js';
 
-import { CustomPageEditorBlockSpecs } from '../utils/custom-specs';
+import { PageEditorPreviewExtensions } from '../utils/custom-specs';
 import { markDownToDoc } from '../utils/markdown-utils';
 
 const textBlockStyles = css`
@@ -38,6 +39,7 @@ const textBlockStyles = css`
   ${ListBlockComponent.styles}
   ${DividerBlockComponent.styles}
   ${CodeBlockComponent.styles}
+  ${AffineFootnoteNode.styles}
 `;
 
 const customHeadingStyles = css`
@@ -288,7 +290,9 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
           html`<div class="ai-answer-text-editor affine-page-viewport">
             ${new BlockStdScope({
               store: this._doc,
-              extensions: this.options.extensions ?? CustomPageEditorBlockSpecs,
+              extensions:
+                this.options.extensions ??
+                PageEditorPreviewExtensions(this.host?.std),
             }).render()}
           </div>`
         )}
