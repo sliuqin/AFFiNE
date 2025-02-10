@@ -10,7 +10,9 @@ import type {
 import {
   AffineFootnoteNode,
   CodeBlockComponent,
+  codeBlockWrapMiddleware,
   defaultBlockMarkdownAdapterMatchers,
+  defaultImageProxyMiddleware,
   DividerBlockComponent,
   InlineDeltaToMarkdownAdapterExtensions,
   ListBlockComponent,
@@ -214,12 +216,12 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
         provider = container.provider();
       }
       if (latestAnswer && schema) {
-        markDownToDoc(
-          provider,
-          schema,
-          latestAnswer,
-          this.options.additionalMiddlewares
-        )
+        const middlewares = [
+          defaultImageProxyMiddleware,
+          codeBlockWrapMiddleware(true),
+          ...(this.options.additionalMiddlewares ?? []),
+        ];
+        markDownToDoc(provider, schema, latestAnswer, middlewares)
           .then(doc => {
             this.disposeDoc();
             this._doc = doc.doc.getStore({
