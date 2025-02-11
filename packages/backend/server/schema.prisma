@@ -333,6 +333,11 @@ enum AiPromptRole {
   user
 }
 
+enum AiMessageTag {
+  invisible
+  retrieval
+}
+
 model AiPromptMessage {
   promptId    Int          @map("prompt_id") @db.Integer
   // if a group of prompts contains multiple sentences, idx specifies the order of each sentence
@@ -344,6 +349,7 @@ model AiPromptMessage {
   attachments Json?        @db.Json
   params      Json?        @db.Json
   createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  tag         AiMessageTag?
 
   prompt AiPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
 
@@ -379,6 +385,7 @@ model AiSessionMessage {
   params      Json?        @db.Json
   createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  tag         AiMessageTag?
 
   session AiSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 

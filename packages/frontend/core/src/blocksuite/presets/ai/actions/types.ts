@@ -1,4 +1,8 @@
-import type { getCopilotHistoriesQuery, RequestOptions } from '@affine/graphql';
+import type {
+  CopilotPromptMessageRole,
+  getCopilotHistoriesQuery,
+  RequestOptions,
+} from '@affine/graphql';
 import type { EditorHost } from '@blocksuite/affine/block-std';
 import type { BlockModel } from '@blocksuite/affine/store';
 
@@ -241,12 +245,10 @@ declare global {
         id: string; // message id
         content: string;
         createdAt: string;
-        role: MessageRole;
+        role: CopilotPromptMessageRole;
         attachments?: string[];
       }[];
     }
-
-    type MessageRole = 'user' | 'assistant';
 
     type AIHistoryIds = Pick<AIHistory, 'sessionId' | 'messages'> & {
       messages: Pick<

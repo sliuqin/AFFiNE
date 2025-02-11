@@ -1,3 +1,4 @@
+import { CopilotPromptMessageRole } from '@affine/graphql';
 import type { EditorHost } from '@blocksuite/affine/block-std';
 import { type AIError, openFileOrFiles } from '@blocksuite/affine/blocks';
 import { css, html, LitElement, nothing } from 'lit';
@@ -379,7 +380,7 @@ export class ChatBlockInput extends LitElement {
         {
           id: '',
           content: text,
-          role: 'user',
+          role: CopilotPromptMessageRole.user,
           createdAt: new Date().toISOString(),
           attachments,
           userId: userInfo?.id,
@@ -389,7 +390,7 @@ export class ChatBlockInput extends LitElement {
         {
           id: '',
           content: '',
-          role: 'assistant',
+          role: CopilotPromptMessageRole.assistant,
           createdAt: new Date().toISOString(),
         },
       ],

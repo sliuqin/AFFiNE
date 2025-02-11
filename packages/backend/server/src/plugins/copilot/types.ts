@@ -1,5 +1,5 @@
 import { type Tokenizer } from '@affine/server-native';
-import { AiPromptRole } from '@prisma/client';
+import { AiMessageTag, AiPromptRole } from '@prisma/client';
 import { z } from 'zod';
 
 import { fromModelName } from '../../native';
@@ -41,20 +41,19 @@ export function getTokenEncoder(model?: string | null): Tokenizer | null {
 
 // ======== ChatMessage ========
 
-export const ChatMessageRole = Object.values(AiPromptRole) as [
-  'system',
-  'assistant',
-  'user',
-];
+export const ChatMessageRole = Object.values(AiPromptRole);
+
+export const ChatMessageTag = Object.values(AiMessageTag);
 
 const PureMessageSchema = z.object({
   content: z.string(),
   attachments: z.array(z.string()).optional().nullable(),
   params: z.record(z.any()).optional().nullable(),
+  tag: z.nativeEnum(AiMessageTag).optional().nullable(),
 });
 
 export const PromptMessageSchema = PureMessageSchema.extend({
-  role: z.enum(ChatMessageRole),
+  role: z.nativeEnum(AiPromptRole),
 }).strict();
 
 export type PromptMessage = z.infer<typeof PromptMessageSchema>;

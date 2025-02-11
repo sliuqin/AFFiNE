@@ -1,4 +1,5 @@
 import { stopPropagation } from '@affine/core/utils';
+import { CopilotPromptMessageRole } from '@affine/graphql';
 import type { EditorHost } from '@blocksuite/affine/block-std';
 import {
   type AIError,
@@ -545,14 +546,14 @@ export class ChatPanelInput extends SignalWatcher(WithDisposable(LitElement)) {
         ...this.chatContextValue.items,
         {
           id: '',
-          role: 'user',
+          role: CopilotPromptMessageRole.user,
           content: userInput,
           createdAt: new Date().toISOString(),
           attachments,
         },
         {
           id: '',
-          role: 'assistant',
+          role: CopilotPromptMessageRole.assistant,
           content: '',
           createdAt: new Date().toISOString(),
         },

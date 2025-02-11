@@ -39,7 +39,7 @@ export class PromptService implements OnModuleInit {
         model: true,
         config: true,
         messages: {
-          select: { role: true, content: true, params: true },
+          select: { role: true, content: true, params: true, tag: true },
           orderBy: { idx: 'asc' },
         },
       },
@@ -70,6 +70,7 @@ export class PromptService implements OnModuleInit {
             role: true,
             content: true,
             params: true,
+            tag: true,
           },
           orderBy: {
             idx: 'asc',
@@ -110,6 +111,7 @@ export class PromptService implements OnModuleInit {
               ...m,
               attachments: m.attachments || undefined,
               params: m.params || undefined,
+              tag: m.tag || undefined,
             })),
           },
         },
@@ -137,6 +139,7 @@ export class PromptService implements OnModuleInit {
             ...m,
             attachments: m.attachments || undefined,
             params: m.params || undefined,
+            tag: m.tag || undefined,
           })),
         },
       },

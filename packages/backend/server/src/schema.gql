@@ -2,6 +2,11 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+enum AiMessageTag {
+  invisible
+  retrieval
+}
+
 type AlreadyInSpaceDataType {
   spaceId: String!
 }
@@ -22,7 +27,8 @@ type ChatMessage {
   createdAt: DateTime!
   id: ID
   params: JSON
-  role: String!
+  role: CopilotPromptMessageRole!
+  tag: AiMessageTag
 }
 
 type Copilot {

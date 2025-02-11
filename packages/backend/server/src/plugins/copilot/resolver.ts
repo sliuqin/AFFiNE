@@ -15,7 +15,7 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AiPromptRole } from '@prisma/client';
+import { AiMessageTag, AiPromptRole } from '@prisma/client';
 import { GraphQLJSON, SafeIntResolver } from 'graphql-scalars';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 
@@ -155,14 +155,16 @@ class QueryChatHistoriesInput implements Partial<ListHistoriesOptions> {
 
 // ================== Return Types ==================
 
+registerEnumType(AiMessageTag, { name: 'AiMessageTag' });
+
 @ObjectType('ChatMessage')
 class ChatMessageType implements Partial<ChatMessage> {
   // id will be null if message is a prompt message
   @Field(() => ID, { nullable: true })
   id!: string;
 
-  @Field(() => String)
-  role!: 'system' | 'assistant' | 'user';
+  @Field(() => AiPromptRole)
+  role!: AiPromptRole;
 
   @Field(() => String)
   content!: string;
@@ -175,6 +177,9 @@ class ChatMessageType implements Partial<ChatMessage> {
 
   @Field(() => Date)
   createdAt!: Date;
+
+  @Field(() => AiMessageTag, { nullable: true })
+  tag!: AiMessageTag | undefined;
 }
 
 @ObjectType('CopilotHistories')

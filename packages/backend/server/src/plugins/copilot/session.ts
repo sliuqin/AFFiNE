@@ -257,6 +257,7 @@ export class ChatSessionService {
               attachments: m.attachments || undefined,
               params: m.params || undefined,
               sessionId,
+              tag: m.tag || undefined,
             })),
           });
 
@@ -312,6 +313,7 @@ export class ChatSessionService {
               content: true,
               attachments: true,
               createdAt: true,
+              tag: true,
             },
             orderBy: { createdAt: 'asc' },
           },
@@ -463,6 +465,7 @@ export class ChatSessionService {
               attachments: true,
               params: true,
               createdAt: true,
+              tag: true,
             },
             orderBy: {
               // message order is asc by default

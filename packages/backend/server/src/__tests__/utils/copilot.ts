@@ -320,6 +320,7 @@ type ChatMessage = {
   content: string;
   attachments: string[] | null;
   createdAt: string;
+  tag?: string | null;
 };
 
 type History = {
@@ -366,6 +367,7 @@ export async function getHistories(
               content
               attachments
               createdAt
+              tag
             }
           }
         }

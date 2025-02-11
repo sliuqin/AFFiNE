@@ -389,6 +389,7 @@ query getCopilotHistories($workspaceId: String!, $docId: String, $options: Query
           content
           attachments
           createdAt
+          tag
         }
       }
     }

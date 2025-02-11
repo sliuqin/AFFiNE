@@ -253,13 +253,15 @@ test('should be able to manage chat session', async t => {
     s1
       .finish(params)
       // @ts-expect-error
-      .map(({ id: _, attachments: __, createdAt: ___, ...m }) => m),
+      .map(({ id: _, attachments: __, createdAt: ___, tag: _tag, ...m }) => m),
     finalMessages,
     'should same as before message'
   );
   t.deepEqual(
-    // @ts-expect-error
-    s1.finish({}).map(({ id: _, attachments: __, createdAt: ___, ...m }) => m),
+    s1
+      .finish({})
+      // @ts-expect-error
+      .map(({ id: _, attachments: __, createdAt: ___, tag: _tag, ...m }) => m),
     [
       { content: 'hello ', params: {}, role: 'system' },
       { content: 'hello', role: 'user' },
@@ -365,8 +367,9 @@ test('should be able to fork chat session', async t => {
     const s2 = (await session.get(forkedSessionId1))!;
 
     const finalMessages = s2
-      .finish(params) // @ts-expect-error
-      .map(({ id: _, attachments: __, createdAt: ___, ...m }) => m);
+      .finish(params)
+      // @ts-expect-error
+      .map(({ id: _, attachments: __, createdAt: ___, tag: _tag, ...m }) => m);
     t.deepEqual(
       finalMessages,
       [
@@ -386,8 +389,9 @@ test('should be able to fork chat session', async t => {
     t.is(s2.config.userId, newUser.id, 'should have same user id');
 
     const finalMessages = s2
-      .finish(params) // @ts-expect-error
-      .map(({ id: _, attachments: __, createdAt: ___, ...m }) => m);
+      .finish(params)
+      // @ts-expect-error
+      .map(({ id: _, attachments: __, createdAt: ___, tag: _tag, ...m }) => m);
     t.deepEqual(
       finalMessages,
       [
@@ -404,8 +408,9 @@ test('should be able to fork chat session', async t => {
     const s3 = (await session.get(sessionId))!;
 
     const finalMessages = s3
-      .finish(params) // @ts-expect-error
-      .map(({ id: _, attachments: __, createdAt: ___, ...m }) => m);
+      .finish(params)
+      // @ts-expect-error
+      .map(({ id: _, attachments: __, createdAt: ___, tag: _tag, ...m }) => m);
     t.deepEqual(
       finalMessages,
       [

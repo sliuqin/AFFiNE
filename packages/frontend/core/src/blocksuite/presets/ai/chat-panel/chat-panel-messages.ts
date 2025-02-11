@@ -1,3 +1,4 @@
+import { CopilotMessageTag } from '@affine/graphql';
 import type { EditorHost } from '@blocksuite/affine/block-std';
 import { ShadowlessElement } from '@blocksuite/affine/block-std';
 import {
@@ -193,12 +194,15 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
     const { items } = this.chatContextValue;
     const { isLoading } = this;
     const filteredItems = items.filter(item => {
-      return (
-        'role' in item ||
-        item.messages?.length === 3 ||
-        (HISTORY_IMAGE_ACTIONS.includes(item.action) &&
-          item.messages?.length === 2)
-      );
+      if ('role' in item) {
+        return item.tag !== CopilotMessageTag.invisible;
+      } else {
+        return (
+          item.messages?.length === 3 ||
+          (HISTORY_IMAGE_ACTIONS.includes(item.action) &&
+            item.messages?.length === 2)
+        );
+      }
     });
 
     return html`<style>
@@ -215,7 +219,7 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
         class="chat-panel-messages"
         @scroll=${() => this._debouncedOnScroll()}
       >
-        ${items.length === 0
+        ${filteredItems.length === 0
           ? html`<div class="chat-panel-messages-placeholder">
               ${AffineIcon(
                 isLoading

@@ -1,8 +1,9 @@
+import type { CopilotPromptMessageRole } from '@affine/graphql';
 import { baseTheme } from '@toeverything/theme';
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit';
 import { property } from 'lit/decorators.js';
 
-import type { MessageRole, MessageUserInfo } from '../../../../blocks';
+import type { MessageUserInfo } from '../../../../blocks';
 import { AffineAIIcon } from '../../_common/icon';
 
 export class UserInfo extends LitElement {
@@ -96,7 +97,7 @@ declare global {
 
 export function UserInfoTemplate(
   userInfo: MessageUserInfo,
-  messageRole?: MessageRole
+  messageRole?: CopilotPromptMessageRole
 ) {
   const isUser = !!messageRole && messageRole === 'user';
 

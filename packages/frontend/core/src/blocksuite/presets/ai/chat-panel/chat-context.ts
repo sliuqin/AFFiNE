@@ -1,12 +1,17 @@
+import type {
+  CopilotMessageTag,
+  CopilotPromptMessageRole,
+} from '@affine/graphql';
 import type { AIError } from '@blocksuite/affine/blocks';
 import type { Signal } from '@preact/signals-core';
 
 export type ChatMessage = {
   id: string;
   content: string;
-  role: 'user' | 'assistant';
+  role: CopilotPromptMessageRole;
   attachments?: string[];
   createdAt: string;
+  tag?: CopilotMessageTag | null;
 };
 
 export type ChatAction = {

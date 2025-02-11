@@ -133,7 +133,7 @@ export class ChatPrompt {
     const paramsAttach = Array.isArray(attach) ? attach : [];
 
     return this.messages.map(
-      ({ attachments: attach, content, params: _, ...rest }) => {
+      ({ attachments: attach, content, params: _, tag, ...rest }) => {
         const result: PromptMessage = {
           ...rest,
           params,
@@ -146,6 +146,9 @@ export class ChatPrompt {
         ];
         if (attachments.length && rest.role === 'user') {
           result.attachments = attachments;
+        }
+        if (tag) {
+          result.tag = tag;
         }
         return result;
       }

@@ -615,6 +615,42 @@ test('should be able to list history', async t => {
   }
 });
 
+test('should be able to list history with tag', async t => {
+  Sinon.restore();
+  const { app, prompt } = t.context;
+  await app.initTestingDB();
+  await prompt.onModuleInit();
+  t.context.u1 = await app.signup('u1@affine.pro');
+
+  unregisterCopilotProvider(OpenAIProvider.type);
+  unregisterCopilotProvider(FalProvider.type);
+  unregisterCopilotProvider(PerplexityProvider.type);
+  registerCopilotProvider(MockCopilotTestProvider);
+
+  await prompt.set(promptName, 'test', [
+    { role: 'system', content: 'hello {{word}}' },
+    { role: 'user', content: 'retrieval user message', tag: 'retrieval' },
+  ]);
+
+  const { id: workspaceId } = await createWorkspace(app);
+  const sessionId = await createCopilotSession(
+    app,
+    workspaceId,
+    randomUUID(),
+    promptName
+  );
+
+  const messageId = await createCopilotMessage(app, sessionId, 'hello');
+  await chatWithText(app, sessionId, messageId);
+
+  const histories = await getHistories(app, { workspaceId });
+  t.is(
+    histories[0].messages[0].tag,
+    'retrieval',
+    'should be able to list history with tag'
+  );
+});
+
 test('should reject request that user have not permission', async t => {
   const { app, u1 } = t.context;
 

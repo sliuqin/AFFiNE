@@ -53,6 +53,11 @@ export enum ChatHistoryOrder {
   desc = 'desc',
 }
 
+export enum CopilotMessageTag {
+  invisible = 'invisible',
+  retrieval = 'retrieval',
+}
+
 export interface ChatMessage {
   __typename?: 'ChatMessage';
   attachments: Maybe<Array<Scalars['String']['output']>>;
@@ -60,7 +65,8 @@ export interface ChatMessage {
   createdAt: Scalars['DateTime']['output'];
   id: Maybe<Scalars['ID']['output']>;
   params: Maybe<Scalars['JSON']['output']>;
-  role: Scalars['String']['output'];
+  role: CopilotPromptMessageRole;
+  tag?: CopilotMessageTag | null;
 }
 
 export interface Copilot {

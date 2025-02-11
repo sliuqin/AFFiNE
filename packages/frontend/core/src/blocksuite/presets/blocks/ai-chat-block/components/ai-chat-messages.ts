@@ -1,3 +1,4 @@
+import type { CopilotPromptMessageRole } from '@affine/graphql';
 import type { EditorHost } from '@blocksuite/affine/block-std';
 import type { AffineAIPanelState } from '@blocksuite/affine/blocks';
 import { css, html, LitElement } from 'lit';
@@ -5,11 +6,7 @@ import { property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { repeat } from 'lit/directives/repeat.js';
 
-import type {
-  ChatMessage,
-  MessageRole,
-  MessageUserInfo,
-} from '../../../../blocks';
+import type { ChatMessage, MessageUserInfo } from '../../../../blocks';
 import type { TextRendererOptions } from '../../../_common/components/text-renderer';
 import { UserInfoTemplate } from './user-info';
 
@@ -79,7 +76,7 @@ export class AIChatMessage extends LitElement {
   accessor host!: EditorHost;
 
   @property({ attribute: false })
-  accessor messageRole: MessageRole | undefined = undefined;
+  accessor messageRole: CopilotPromptMessageRole | undefined = undefined;
 
   @property({ attribute: false })
   accessor state: AffineAIPanelState = 'finished';
