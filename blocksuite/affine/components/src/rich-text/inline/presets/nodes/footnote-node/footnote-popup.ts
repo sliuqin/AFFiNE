@@ -18,7 +18,7 @@ import {
   LightLoadingIcon,
   WebIcon16,
 } from '../../../../../icons';
-import { RefNodeSlotsProvider } from '../../../../extension/ref-node-slots';
+import { PeekViewProvider } from '../../../../../peek/service';
 import type { FootNotePopupClickHandler } from './footnote-config';
 
 export class FootNotePopup extends SignalWatcher(WithDisposable(LitElement)) {
@@ -132,11 +132,12 @@ export class FootNotePopup extends SignalWatcher(WithDisposable(LitElement)) {
    * When clicking the chip, we will navigate to the reference doc or open the url
    */
   private readonly _handleDocReference = (docId: string) => {
-    this.std.getOptional(RefNodeSlotsProvider)?.docLinkClicked.emit({
-      pageId: docId,
-      host: this.std.host,
-      openMode: 'open-in-center-peek',
-    });
+    this.std
+      .getOptional(PeekViewProvider)
+      ?.peek({
+        docId,
+      })
+      .catch(console.error);
   };
 
   private readonly _handleUrlReference = (url: string) => {
