@@ -102,11 +102,11 @@ const createHelmCommand = ({ isDryRun }) => {
   const serviceAnnotations =
     isProduction || isBeta || isInternal
       ? [
-          `--set-json   web.service.annotations=\"{ \\"cloud.google.com/neg\\": \\"{\\\\\\"ingress\\\\\\": true}\\" }\"`,
-          `--set-json   graphql.service.annotations=\"{ \\"cloud.google.com/neg\\": \\"{\\\\\\"ingress\\\\\\": true}\\" }\"`,
-          `--set-json   sync.service.annotations=\"{ \\"cloud.google.com/neg\\": \\"{\\\\\\"ingress\\\\\\": true}\\" }\"`,
-          `--set-json   cloud-sql-proxy.serviceAccount.annotations=\"{ \\"iam.gke.io/gcp-service-account\\": \\"${CLOUD_SQL_IAM_ACCOUNT}\\" }\"`,
-          `--set-json   cloud-sql-proxy.nodeSelector=\"{ \\"iam.gke.io/gke-metadata-server-enabled\\": \\"true\\" }\"`,
+          `--set-json   web.service.annotations="{ \\"cloud.google.com/neg\\": \\"{\\\\\\"ingress\\\\\\": true}\\" }"`,
+          `--set-json   graphql.service.annotations="{ \\"cloud.google.com/neg\\": \\"{\\\\\\"ingress\\\\\\": true}\\" }"`,
+          `--set-json   sync.service.annotations="{ \\"cloud.google.com/neg\\": \\"{\\\\\\"ingress\\\\\\": true}\\" }"`,
+          `--set-json   cloud-sql-proxy.serviceAccount.annotations="{ \\"iam.gke.io/gcp-service-account\\": \\"${CLOUD_SQL_IAM_ACCOUNT}\\" }"`,
+          `--set-json   cloud-sql-proxy.nodeSelector="{ \\"iam.gke.io/gke-metadata-server-enabled\\": \\"true\\" }"`,
         ]
       : [];
 
@@ -136,7 +136,7 @@ const createHelmCommand = ({ isDryRun }) => {
     `--namespace  ${namespace}`,
     `--set-string global.app.buildType="${buildType}"`,
     `--set        global.ingress.enabled=true`,
-    `--set-json   global.ingress.annotations=\"{ \\"kubernetes.io/ingress.class\\": \\"gce\\", \\"kubernetes.io/ingress.allow-http\\": \\"true\\", \\"kubernetes.io/ingress.global-static-ip-name\\": \\"${STATIC_IP_NAME}\\" }\"`,
+    `--set-json   global.ingress.annotations="{ \\"kubernetes.io/ingress.class\\": \\"gce\\", \\"kubernetes.io/ingress.allow-http\\": \\"true\\", \\"kubernetes.io/ingress.global-static-ip-name\\": \\"${STATIC_IP_NAME}\\" }"`,
     `--set-string global.ingress.host="${host}"`,
     `--set        global.objectStorage.r2.enabled=true`,
     `--set-string global.objectStorage.r2.accountId="${R2_ACCOUNT_ID}"`,
