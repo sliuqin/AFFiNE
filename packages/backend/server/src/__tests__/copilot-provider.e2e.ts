@@ -19,7 +19,6 @@ import {
 type Tester = {
   app: any;
   userEmail: string;
-  userToken: string;
   workspaceId: string;
 };
 const test = ava as TestFn<Tester>;
@@ -68,16 +67,12 @@ test.before(async t => {
   if (!isCopilotConfigured) return;
   const { endpoint } = e2eConfig;
 
-  const { email, sessionId: token } = await createRandomAIUser(
-    'affine.fail',
-    runPrisma
-  );
+  const { email } = await createRandomAIUser('affine.fail', runPrisma);
   const app = { getHttpServer: () => endpoint } as any;
-  const { id } = await createWorkspace(app, token);
+  const { id } = await createWorkspace(app);
 
   t.context.app = app;
   t.context.userEmail = email;
-  t.context.userToken = token;
   t.context.workspaceId = id;
 });
 
@@ -116,17 +111,15 @@ const makeCopilotChat = async (
   promptName: string,
   { content, attachments, params }: any
 ) => {
-  const { app, userToken, workspaceId } = t.context;
+  const { app, workspaceId } = t.context;
   const sessionId = await createCopilotSession(
     app,
-    userToken,
     workspaceId,
     randomUUID(),
     promptName
   );
   const messageId = await createCopilotMessage(
     app,
-    userToken,
     sessionId,
     content,
     attachments,
@@ -146,7 +139,7 @@ for (const { promptName, messages, verifier, type } of ProviderActionTestCase) {
       runIfCopilotConfigured,
       async t => {
         await retry(`action: ${promptName}`, t, async t => {
-          const { app, userToken } = t.context;
+          const { app } = t.context;
           const { sessionId, messageId } = await makeCopilotChat(
             t,
             promptName,
@@ -154,17 +147,12 @@ for (const { promptName, messages, verifier, type } of ProviderActionTestCase) {
           );
 
           if (type === 'text') {
-            const result = await chatWithText(
-              app,
-              userToken,
-              sessionId,
-              messageId
-            );
+            const result = await chatWithText(app, sessionId, messageId);
             t.truthy(result, 'should return result');
             verifier?.(t, result);
           } else if (type === 'image') {
             const result = sse2array(
-              await chatWithImages(app, userToken, sessionId, messageId)
+              await chatWithImages(app, sessionId, messageId)
             )
               .filter(e => e.event !== 'event')
               .map(e => e.data)
@@ -190,13 +178,13 @@ for (const { name, content, verifier } of ProviderWorkflowTestCase) {
     runIfCopilotConfigured,
     async t => {
       await retry(`workflow: ${name}`, t, async t => {
-        const { app, userToken } = t.context;
+        const { app } = t.context;
         const { sessionId, messageId } = await makeCopilotChat(
           t,
           `workflow:${name}`,
           { content }
         );
-        const r = await chatWithWorkflow(app, userToken, sessionId, messageId);
+        const r = await chatWithWorkflow(app, sessionId, messageId);
         const result = sse2array(r)
           .filter(e => e.event !== 'event' && e.data)
           .reduce((p, c) => p + c.data, '');
