@@ -368,6 +368,7 @@ module.exports.Application = nativeBinding.Application
 module.exports.ApplicationListChangedSubscriber = nativeBinding.ApplicationListChangedSubscriber
 module.exports.ApplicationStateChangedSubscriber = nativeBinding.ApplicationStateChangedSubscriber
 module.exports.AudioTapStream = nativeBinding.AudioTapStream
+module.exports.RecordingPermissions = nativeBinding.RecordingPermissions
 module.exports.ShareableContent = nativeBinding.ShareableContent
 module.exports.mintChallengeResponse = nativeBinding.mintChallengeResponse
 module.exports.verifyChallengeResponse = nativeBinding.verifyChallengeResponse

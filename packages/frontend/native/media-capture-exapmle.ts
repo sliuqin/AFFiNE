@@ -16,7 +16,7 @@ import {
   tap,
 } from 'rxjs/operators';
 
-import { type Application,ShareableContent } from './index.js';
+import { type Application, ShareableContent } from './index.js';
 
 const rootDir = join(fileURLToPath(import.meta.url), '..');
 
@@ -28,9 +28,7 @@ const appList = new Set([
   'org.mozilla.firefoxdeveloperedition',
 ]);
 
-console.info(
-  shareableContent.applications().map(app => app.bundleIdentifier())
-);
+console.info(shareableContent.applications().map(app => app.bundleIdentifier));
 
 const GGLM_LARGE = join(rootDir, 'ggml-large-v3-turbo.bin');
 
@@ -56,8 +54,8 @@ const applicationListChangedSubscriber =
 
 runningApplications
   .pipe(
-    mergeMap(apps => apps.filter(app => appList.has(app.bundleIdentifier()))),
-    groupBy(app => app.bundleIdentifier()),
+    mergeMap(apps => apps.filter(app => appList.has(app.bundleIdentifier))),
+    groupBy(app => app.bundleIdentifier),
     mergeMap(app$ =>
       app$.pipe(
         exhaustMap(app =>

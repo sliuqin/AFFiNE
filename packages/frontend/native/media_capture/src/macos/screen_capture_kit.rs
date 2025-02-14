@@ -1,6 +1,6 @@
 use std::{
   collections::HashMap,
-  ffi::c_void,
+  ffi::{c_void, CStr},
   ptr,
   sync::{
     atomic::{AtomicPtr, Ordering},
@@ -16,14 +16,22 @@ use core_foundation::{
 use coreaudio::sys::{
   kAudioHardwarePropertyProcessObjectList, kAudioObjectPropertyElementMain,
   kAudioObjectPropertyScopeGlobal, kAudioObjectSystemObject, kAudioProcessPropertyBundleID,
-  kAudioProcessPropertyIsRunning, kAudioProcessPropertyPID, AudioObjectAddPropertyListenerBlock,
-  AudioObjectID, AudioObjectPropertyAddress, AudioObjectRemovePropertyListenerBlock,
+  kAudioProcessPropertyIsRunning, kAudioProcessPropertyIsRunningInput, kAudioProcessPropertyPID,
+  AudioObjectAddPropertyListenerBlock, AudioObjectID, AudioObjectPropertyAddress,
+  AudioObjectRemovePropertyListenerBlock,
 };
 use napi::{
-  bindgen_prelude::{Error, Float32Array, Result, Status},
+  bindgen_prelude::{Buffer, Error, Float32Array, Result, Status},
   threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
 };
 use napi_derive::napi;
+use objc2::{
+  msg_send,
+  rc::Retained,
+  runtime::{AnyClass, AnyObject},
+  Encode, Encoding,
+};
+use objc2_foundation::NSString;
 use screencapturekit::shareable_content::SCShareableContent;
 use uuid::Uuid;
 
@@ -32,6 +40,39 @@ use crate::{
   pid::{audio_process_list, get_process_property},
   tap_audio::{AggregateDevice, AudioTapStream},
 };
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+struct NSSize {
+  width: f64,
+  height: f64,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+struct NSPoint {
+  x: f64,
+  y: f64,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+struct NSRect {
+  origin: NSPoint,
+  size: NSSize,
+}
+
+unsafe impl Encode for NSSize {
+  const ENCODING: Encoding = Encoding::Struct("NSSize", &[f64::ENCODING, f64::ENCODING]);
+}
+
+unsafe impl Encode for NSPoint {
+  const ENCODING: Encoding = Encoding::Struct("NSPoint", &[f64::ENCODING, f64::ENCODING]);
+}
+
+unsafe impl Encode for NSRect {
+  const ENCODING: Encoding = Encoding::Struct("NSRect", &[<NSPoint>::ENCODING, <NSSize>::ENCODING]);
+}
 
 static RUNNING_APPLICATIONS: LazyLock<RwLock<Vec<AudioObjectID>>> =
   LazyLock::new(|| RwLock::new(audio_process_list().expect("Failed to get running applications")));
@@ -43,6 +84,20 @@ static APPLICATION_STATE_CHANGED_SUBSCRIBERS: LazyLock<
 static APPLICATION_STATE_CHANGED_LISTENER_BLOCKS: LazyLock<
   RwLock<HashMap<AudioObjectID, AtomicPtr<c_void>>>,
 > = LazyLock::new(|| RwLock::new(HashMap::new()));
+
+static NSRUNNING_APPLICATION_CLASS: LazyLock<Option<&'static AnyClass>> =
+  LazyLock::new(|| unsafe {
+    AnyClass::get(CStr::from_bytes_with_nul_unchecked(
+      b"NSRunningApplication\0",
+    ))
+  });
+
+static AVCAPTUREDEVICE_CLASS: LazyLock<Option<&'static AnyClass>> = LazyLock::new(|| unsafe {
+  AnyClass::get(CStr::from_bytes_with_nul_unchecked(b"AVCaptureDevice\0"))
+});
+
+static SCSTREAM_CLASS: LazyLock<Option<&'static AnyClass>> =
+  LazyLock::new(|| unsafe { AnyClass::get(CStr::from_bytes_with_nul_unchecked(b"SCStream\0")) });
 
 struct TappableApplication {
   object_id: AudioObjectID,
@@ -62,22 +117,154 @@ impl TappableApplication {
       get_process_property(&self.object_id, kAudioProcessPropertyBundleID)?;
     Ok(unsafe { CFString::wrap_under_get_rule(bundle_id) }.to_string())
   }
+
+  fn name(&self) -> Result<String> {
+    let pid = self.process_id()?;
+
+    // Get NSRunningApplication class
+    let running_app_class = NSRUNNING_APPLICATION_CLASS.as_ref().ok_or_else(|| {
+      Error::new(
+        Status::GenericFailure,
+        "NSRunningApplication class not found",
+      )
+    })?;
+
+    // Get running application with PID
+    let running_app: *mut AnyObject =
+      unsafe { msg_send![*running_app_class, runningApplicationWithProcessIdentifier: pid] };
+    if running_app.is_null() {
+      return Ok(String::new());
+    }
+
+    // Get localized name
+    let name: *mut NSString = unsafe { msg_send![running_app, localizedName] };
+    if name.is_null() {
+      return Ok(String::new());
+    }
+
+    // Create a safe wrapper and convert to string
+    let name = unsafe { Retained::from_raw(name).unwrap() };
+    Ok(name.to_string())
+  }
+
+  fn icon(&self) -> Result<Vec<u8>> {
+    let pid = self.process_id()?;
+
+    // Get NSRunningApplication class
+    let running_app_class = NSRUNNING_APPLICATION_CLASS.as_ref().ok_or_else(|| {
+      Error::new(
+        Status::GenericFailure,
+        "NSRunningApplication class not found",
+      )
+    })?;
+
+    // Get running application with PID
+    let running_app: *mut AnyObject =
+      unsafe { msg_send![*running_app_class, runningApplicationWithProcessIdentifier: pid] };
+    if running_app.is_null() {
+      return Ok(Vec::new());
+    }
+
+    unsafe {
+      // Get original icon
+      let icon: *mut AnyObject = msg_send![running_app, icon];
+      if icon.is_null() {
+        return Ok(Vec::new());
+      }
+
+      // Create a new NSImage with 64x64 size
+      let nsimage_class = AnyClass::get(CStr::from_bytes_with_nul_unchecked(b"NSImage\0")).unwrap();
+      let resized_image: *mut AnyObject = msg_send![nsimage_class, alloc];
+      let resized_image: *mut AnyObject =
+        msg_send![resized_image, initWithSize: NSSize { width: 64.0, height: 64.0 }];
+      let _: () = msg_send![resized_image, lockFocus];
+
+      // Define drawing rectangle for 64x64 image
+      let draw_rect = NSRect {
+        origin: NSPoint { x: 0.0, y: 0.0 },
+        size: NSSize {
+          width: 64.0,
+          height: 64.0,
+        },
+      };
+
+      // Draw the original icon into draw_rect (using NSCompositingOperationCopy = 2)
+      let _: () = msg_send![icon, drawInRect: draw_rect, fromRect: NSRect { origin: NSPoint { x: 0.0, y: 0.0 }, size: NSSize { width: 0.0, height: 0.0 } }, operation: 2, fraction: 1.0];
+      let _: () = msg_send![resized_image, unlockFocus];
+
+      // Get TIFF representation from the downsized image
+      let tiff_data: *mut AnyObject = msg_send![resized_image, TIFFRepresentation];
+      if tiff_data.is_null() {
+        return Ok(Vec::new());
+      }
+
+      // Create bitmap image rep from TIFF
+      let bitmap_class: *const AnyClass =
+        AnyClass::get(CStr::from_bytes_with_nul_unchecked(b"NSBitmapImageRep\0")).unwrap();
+      let bitmap: *mut AnyObject = msg_send![bitmap_class, imageRepWithData: tiff_data];
+      if bitmap.is_null() {
+        return Ok(Vec::new());
+      }
+
+      // Create properties dictionary with compression factor
+      let dict_class = AnyClass::get(CStr::from_bytes_with_nul_unchecked(
+        b"NSMutableDictionary\0",
+      ))
+      .unwrap();
+      let properties: *mut AnyObject = msg_send![dict_class, dictionary];
+
+      // Add compression properties
+      let compression_key = NSString::from_str("NSImageCompressionFactor");
+      let number_class = AnyClass::get(CStr::from_bytes_with_nul_unchecked(b"NSNumber\0")).unwrap();
+      let compression_value: *mut AnyObject = msg_send![number_class, numberWithDouble: 0.8];
+      let _: () = msg_send![properties, setObject: compression_value, forKey: &*compression_key];
+
+      // Get PNG data with properties
+      let png_data: *mut AnyObject =
+        msg_send![bitmap, representationUsingType: 4, properties: properties]; // 4 = PNG
+
+      if png_data.is_null() {
+        return Ok(Vec::new());
+      }
+
+      // Get bytes from NSData
+      let bytes: *const u8 = msg_send![png_data, bytes];
+      let length: usize = msg_send![png_data, length];
+
+      if bytes.is_null() {
+        return Ok(Vec::new());
+      }
+
+      // Copy bytes into a Vec<u8>
+      let data = std::slice::from_raw_parts(bytes, length).to_vec();
+      Ok(data)
+    }
+  }
 }
 
 #[napi]
 pub struct Application {
   inner: TappableApplication,
   pub(crate) object_id: AudioObjectID,
+  pub(crate) process_id: i32,
+  pub(crate) bundle_identifier: String,
+  pub(crate) name: String,
 }
 
 #[napi]
 impl Application {
   fn new(app: TappableApplication) -> Result<Self> {
     let object_id = app.object_id;
+    let bundle_identifier = app.bundle_identifier()?;
+    let name = app.name()?;
+    let process_id = app.process_id()?;
 
     Ok(Self {
       inner: app,
       object_id,
+      process_id,
+      bundle_identifier,
+      name,
     })
   }
 
@@ -96,21 +283,32 @@ impl Application {
     device.start(audio_stream_callback)
   }
 
-  #[napi]
-  pub fn process_id(&self) -> Result<i32> {
-    Ok(self.inner.process_id()?)
+  #[napi(getter)]
+  pub fn process_id(&self) -> i32 {
+    self.process_id
   }
 
-  #[napi]
-  pub fn bundle_identifier(&self) -> Result<String> {
-    Ok(self.inner.bundle_identifier()?)
+  #[napi(getter)]
+  pub fn bundle_identifier(&self) -> String {
+    self.bundle_identifier.clone()
+  }
+
+  #[napi(getter)]
+  pub fn name(&self) -> String {
+    self.name.clone()
+  }
+
+  #[napi(getter)]
+  pub fn icon(&self) -> Result<Buffer> {
+    let icon = self.inner.icon()?;
+    Ok(Buffer::from(icon))
   }
 
   #[napi(getter)]
   pub fn get_is_running(&self) -> Result<bool> {
     Ok(get_process_property(
       &self.object_id,
-      kAudioProcessPropertyIsRunning,
+      kAudioProcessPropertyIsRunningInput,
     )?)
   }
 
@@ -198,6 +396,13 @@ impl ApplicationStateChangedSubscriber {
 #[napi]
 pub struct ShareableContent {
   _inner: SCShareableContent,
+}
+
+#[napi]
+#[derive(Default)]
+pub struct RecordingPermissions {
+  pub audio: bool,
+  pub screen: bool,
 }
 
 #[napi]
@@ -348,5 +553,65 @@ impl ShareableContent {
         }
       })
       .collect()
+  }
+
+  #[napi]
+  pub fn application_with_process_id(&self, process_id: u32) -> Result<Application> {
+    // Find the AudioObjectID for the given process ID
+    let audio_object_id = {
+      let running_apps = RUNNING_APPLICATIONS.read().map_err(|_| {
+        Error::new(
+          Status::GenericFailure,
+          "Poisoned RwLock while reading RunningApplications",
+        )
+      })?;
+
+      *running_apps
+        .iter()
+        .find(|&&id| {
+          let app = TappableApplication::new(id);
+          app
+            .process_id()
+            .map(|pid| pid as u32 == process_id)
+            .unwrap_or(false)
+        })
+        .ok_or_else(|| {
+          Error::new(
+            Status::GenericFailure,
+            format!("No application found with process ID {}", process_id),
+          )
+        })?
+    };
+
+    let app = TappableApplication::new(audio_object_id);
+    Application::new(app)
+  }
+
+  #[napi]
+  pub fn check_recording_permissions(&self) -> Result<RecordingPermissions> {
+    let av_capture_class = AVCAPTUREDEVICE_CLASS
+      .as_ref()
+      .ok_or_else(|| Error::new(Status::GenericFailure, "AVCaptureDevice class not found"))?;
+
+    let sc_stream_class = SCSTREAM_CLASS
+      .as_ref()
+      .ok_or_else(|| Error::new(Status::GenericFailure, "SCStream class not found"))?;
+
+    let media_type = NSString::from_str("com.apple.avfoundation.avcapturedevice.built-in_audio");
+
+    let audio_status: i32 = unsafe {
+      msg_send![
+        *av_capture_class,
+        authorizationStatusForMediaType: &*media_type
+      ]
+    };
+
+    let screen_status: bool = unsafe { msg_send![*sc_stream_class, isScreenCaptureAuthorized] };
+
+    Ok(RecordingPermissions {
+      // AVAuthorizationStatusAuthorized = 3
+      audio: audio_status == 3,
+      screen: screen_status,
+    })
   }
 }

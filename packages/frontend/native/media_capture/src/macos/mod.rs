@@ -7,6 +7,5 @@ pub mod device;
 pub(crate) mod error;
 pub mod pid;
 pub mod queue;
-pub mod resample;
 pub mod screen_capture_kit;
 pub mod tap_audio;

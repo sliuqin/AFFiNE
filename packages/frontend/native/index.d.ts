@@ -2,8 +2,10 @@
 /* eslint-disable */
 export declare class Application {
   static tapGlobalAudio(excludedProcesses: Array<Application> | undefined | null, audioStreamCallback: ((err: Error | null, arg: Float32Array) => void)): AudioTapStream
-  processId(): number
-  bundleIdentifier(): string
+  get processId(): number
+  get bundleIdentifier(): string
+  get name(): string
+  get icon(): Buffer
   get isRunning(): boolean
   tapAudio(audioStreamCallback: ((err: Error | null, arg: Float32Array) => void)): AudioTapStream
 }
@@ -20,11 +22,18 @@ export declare class AudioTapStream {
   stop(): void
 }
 
+export declare class RecordingPermissions {
+  audio: boolean
+  screen: boolean
+}
+
 export declare class ShareableContent {
   static onApplicationListChanged(callback: ((err: Error | null, ) => void)): ApplicationListChangedSubscriber
   static onAppStateChanged(app: Application, callback: ((err: Error | null, ) => void)): ApplicationStateChangedSubscriber
   constructor()
   applications(): Array<Application>
+  applicationWithProcessId(processId: number): Application
+  checkRecordingPermissions(): RecordingPermissions
 }
 
 export declare function mintChallengeResponse(resource: string, bits?: number | undefined | null): Promise<string>

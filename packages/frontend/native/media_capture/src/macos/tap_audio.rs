@@ -29,9 +29,8 @@ use napi_derive::napi;
 use objc2::{runtime::AnyObject, Encode, Encoding, RefEncode};
 
 use crate::{
-  audio_stream_basic_desc::read_audio_stream_basic_description,
   ca_tap_description::CATapDescription, device::get_device_uid, error::CoreAudioError,
-  queue::create_audio_tap_queue, resample::resample, screen_capture_kit::Application,
+  queue::create_audio_tap_queue, screen_capture_kit::Application,
 };
 
 extern "C" {
@@ -158,8 +157,6 @@ impl AggregateDevice {
     audio_stream_callback: Arc<ThreadsafeFunction<Float32Array, (), Float32Array, true>>,
   ) -> Result<AudioTapStream> {
     let queue = create_audio_tap_queue();
-    let audio_stream_basic_description = read_audio_stream_basic_description(self.tap_id)?;
-    let sample_rate = audio_stream_basic_description.0.mSampleRate;
     let mut in_proc_id: AudioDeviceIOProcID = None;
 
     let in_io_block: RcBlock<
@@ -185,24 +182,27 @@ impl AggregateDevice {
         }] = mBuffers;
         // Only create slice if we have valid data
         if !mData.is_null() && *mDataByteSize > 0 {
-          let samples: &[f32] = unsafe {
-            std::slice::from_raw_parts(
-              mData.cast::<f32>(),
-              *mDataByteSize as usize / 4, // 4 bytes per f32
-            )
+          // Calculate total number of samples (accounting for interleaved stereo)
+          let total_samples = *mDataByteSize as usize / 4; // 4 bytes per f32
+
+          // Create a slice of all samples
+          let samples: &[f32] =
+            unsafe { std::slice::from_raw_parts(mData.cast::<f32>(), total_samples) };
+
+          // Convert to mono if needed
+          let mono_samples: Vec<f32> = if *mNumberChannels > 1 {
+            samples
+              .chunks(*mNumberChannels as usize)
+              .map(|chunk| chunk.iter().sum::<f32>() / *mNumberChannels as f32)
+              .collect()
+          } else {
+            samples.to_vec()
           };
 
-          match resample(sample_rate, *mNumberChannels, samples) {
-            Ok(resampled_samples) => {
-              audio_stream_callback.call(
-                Ok(resampled_samples.into()),
-                ThreadsafeFunctionCallMode::NonBlocking,
-              );
-            }
-            Err(e) => {
-              audio_stream_callback.call(Err(e), ThreadsafeFunctionCallMode::NonBlocking);
-            }
-          }
+          audio_stream_callback.call(
+            Ok(mono_samples.into()),
+            ThreadsafeFunctionCallMode::NonBlocking,
+          );
         }
 
         kAudioHardwareNoError as i32
