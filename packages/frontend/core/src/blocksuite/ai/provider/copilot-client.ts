@@ -7,6 +7,7 @@ import { showAILoginRequiredAtom } from '@affine/core/components/affine/auth/ai-
 import type { UserFriendlyError } from '@affine/error';
 import {
   addContextDocMutation,
+  addContextFileMutation,
   cleanupCopilotSessionMutation,
   createCopilotContextMutation,
   createCopilotMessageMutation,
@@ -22,6 +23,7 @@ import {
   type QueryOptions,
   type QueryResponse,
   removeContextDocMutation,
+  removeContextFileMutation,
   type RequestOptions,
   updateCopilotSessionMutation,
 } from '@affine/graphql';
@@ -261,12 +263,30 @@ export class CopilotClient {
     return res.removeContextDoc;
   }
 
-  async addContextFile() {
-    return;
+  async addContextFile(
+    content: File,
+    options: OptionsField<typeof addContextFileMutation>
+  ) {
+    const res = await this.gql({
+      query: addContextFileMutation,
+      variables: {
+        content,
+        options,
+      },
+    });
+    return res.addContextFile;
   }
 
-  async removeContextFile() {
-    return;
+  async removeContextFile(
+    options: OptionsField<typeof removeContextFileMutation>
+  ) {
+    const res = await this.gql({
+      query: removeContextFileMutation,
+      variables: {
+        options,
+      },
+    });
+    return res.removeContextFile;
   }
 
   async getContextDocsAndFiles(

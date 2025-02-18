@@ -1,8 +1,10 @@
+import { toast } from '@affine/component';
 import { ShadowlessElement } from '@blocksuite/affine/block-std';
-import type { LinkedMenuGroup } from '@blocksuite/affine/blocks/root';
+import { type LinkedMenuGroup } from '@blocksuite/affine/blocks/root';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { scrollbarStyle } from '@blocksuite/affine/shared/styles';
-import { SearchIcon } from '@blocksuite/icons/lit';
+import { openFileOrFiles } from '@blocksuite/affine/shared/utils';
+import { SearchIcon, UploadIcon } from '@blocksuite/icons/lit';
 import type { DocMeta } from '@blocksuite/store';
 import { css, html } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
@@ -138,8 +140,34 @@ export class ChatPanelAddPopover extends SignalWatcher(
             })
           : html`<div class="no-result">No Result</div>`}
       </div>
+      <div class="divider"></div>
+      <div class="upload-wrapper">
+        <icon-button
+          width="280px"
+          height="30px"
+          data-id="upload"
+          .text=${'Upload files (pdf, txt, csv)'}
+          @click=${this._addFileChip}
+        >
+          ${UploadIcon()}
+        </icon-button>
+      </div>
     </div>`;
   }
+
+  private readonly _addFileChip = async () => {
+    const file = await openFileOrFiles();
+    if (!file) return;
+    if (file.size > 50 * 1024 * 1024) {
+      toast('You can only upload files less than 50MB');
+      return;
+    }
+    this.addChip({
+      file,
+      state: 'processing',
+    });
+    this.abortController.abort();
+  };
 
   private _onInput(event: Event) {
     this._query = (event.target as HTMLInputElement).value;
