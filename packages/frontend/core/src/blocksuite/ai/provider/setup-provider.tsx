@@ -36,16 +36,8 @@ export function setupAIProvider(
 ) {
   //#region actions
   AIProvider.provide('chat', options => {
-    const { input, docs, ...rest } = options;
-    const params = docs?.length
-      ? {
-          docs: docs.map((doc, i) => ({
-            docId: doc.docId,
-            markdown: doc.markdown,
-            index: i + 1,
-          })),
-        }
-      : undefined;
+    const { input, contexts, ...rest } = options;
+    const params = contexts ? { ...contexts } : undefined;
     return textToText({
       ...rest,
       client,
@@ -437,11 +429,17 @@ Could you make a new website based on these notes and send back just the html fi
     removeContextDoc: async (options: { contextId: string; docId: string }) => {
       return client.removeContextDoc(options);
     },
-    addContextFile: async () => {
-      return client.addContextFile();
+    addContextFile: async (
+      file: File,
+      options: { contextId: string; blobId: string }
+    ) => {
+      return client.addContextFile(file, options);
     },
-    removeContextFile: async () => {
-      return client.removeContextFile();
+    removeContextFile: async (options: {
+      contextId: string;
+      fileId: string;
+    }) => {
+      return client.removeContextFile(options);
     },
     getContextDocsAndFiles: async (
       workspaceId: string,
@@ -449,6 +447,13 @@ Could you make a new website based on these notes and send back just the html fi
       contextId: string
     ) => {
       return client.getContextDocsAndFiles(workspaceId, sessionId, contextId);
+    },
+    matchContext: async (
+      contextId: string,
+      content: string,
+      limit?: number
+    ) => {
+      return client.matchContext(contextId, content, limit);
     },
   });
 
