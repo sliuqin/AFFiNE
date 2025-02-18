@@ -486,7 +486,7 @@ export class CopilotContextResolver {
       .assert('Workspace.Copilot');
 
     try {
-      return await session.matchFileChunks(
+      return await session.matchWorkspaceChunks(
         content,
         limit,
         this.getSignal(ctx.req)
