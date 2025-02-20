@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 import { createRandomAIUser } from '@affine-test/kit/utils/cloud';
+import { PrismaClient } from '@prisma/client';
 import type { ExecutionContext, TestFn } from 'ava';
 import ava from 'ava';
 
@@ -47,13 +48,8 @@ const runIfCopilotConfigured = test.macro(
 );
 
 export const runPrisma = async <T>(
-  cb: (
-    prisma: InstanceType<
-      typeof import('../../node_modules/@prisma/client').PrismaClient
-    >
-  ) => Promise<T>
+  cb: (prisma: PrismaClient) => Promise<T>
 ): Promise<T> => {
-  const { PrismaClient } = await import('../../node_modules/@prisma/client');
   const client = new PrismaClient();
   await client.$connect();
   try {
