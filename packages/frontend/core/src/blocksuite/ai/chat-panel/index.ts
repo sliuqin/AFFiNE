@@ -408,14 +408,6 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
         .isLoading=${this.isLoading}
         .previewSpecBuilder=${this.previewSpecBuilder}
       ></chat-panel-messages>
-      <chat-panel-chips
-        .host=${this.host}
-        .chatContextValue=${this.chatContextValue}
-        .getContextId=${this._getContextId}
-        .updateContext=${this.updateContext}
-        .docDisplayConfig=${this.docDisplayConfig}
-        .docSearchMenuConfig=${this.docSearchMenuConfig}
-      ></chat-panel-chips>
       <chat-panel-input
         .chatContextValue=${this.chatContextValue}
         .getSessionId=${this._getSessionId}
