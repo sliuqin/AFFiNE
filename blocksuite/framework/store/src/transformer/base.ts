@@ -1,4 +1,4 @@
-import type { BlockModel } from '../model/block/block-model';
+import { BlockModel } from '../model/block/block-model';
 import type { DraftModel } from '../model/block/draft';
 import {
   type InternalPrimitives,
@@ -43,9 +43,15 @@ export class BaseBlockTransformer<Props extends object = object> {
   }
 
   protected _propsToSnapshot(model: DraftModel) {
+    const props =
+      model instanceof BlockModel
+        ? model.schema.model.isFlatData
+          ? model.props
+          : model
+        : model;
     return Object.fromEntries(
       model.keys.map(key => {
-        const value = model[key as keyof typeof model];
+        const value = props[key as keyof typeof model];
         return [key, toJSON(value)];
       })
     );
