@@ -15,12 +15,28 @@ export function toDraftModel<Model extends BlockModel = BlockModel>(
   origin: Model
 ): DraftModel<Model> {
   const { id, version, flavour, role, keys, text, children } = origin;
-  const props = origin.keys.reduce((acc, key) => {
-    return {
-      ...acc,
-      [key]: origin[key as keyof Model],
-    };
-  }, {} as ModelProps<Model>);
+
+  // Process props data
+  let props: ModelProps<Model>;
+
+  // Check if it's a flat data structure (has _props property)
+  if ('_props' in origin && origin._props) {
+    // Flat data structure, get directly from _props
+    props = Object.entries(origin._props).reduce((acc, [key, value]) => {
+      return {
+        ...acc,
+        [key]: value,
+      };
+    }, {} as ModelProps<Model>);
+  } else {
+    // Non-flat data structure, get through keys array
+    props = origin.keys.reduce((acc, key) => {
+      return {
+        ...acc,
+        [key]: origin[key as keyof Model],
+      };
+    }, {} as ModelProps<Model>);
+  }
 
   return {
     id,
