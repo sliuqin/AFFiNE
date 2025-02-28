@@ -29,6 +29,7 @@ export * from './common/utils';
 export * from './embed-figma-block';
 export * from './embed-github-block';
 export * from './embed-html-block';
+export * from './embed-iframe-block';
 export * from './embed-linked-doc-block';
 export * from './embed-loom-block';
 export * from './embed-synced-doc-block';

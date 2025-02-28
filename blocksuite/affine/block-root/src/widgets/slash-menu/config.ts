@@ -60,6 +60,7 @@ import { viewPresets } from '@blocksuite/data-view/view-presets';
 import { assertType } from '@blocksuite/global/utils';
 import {
   DualLinkIcon,
+  EmbedIcon,
   ExportToPdfIcon,
   FrameIcon,
   GroupingIcon,
@@ -345,6 +346,34 @@ export const defaultSlashMenuConfig: SlashMenuConfig = {
           [file],
           maxFileSize,
           model
+        );
+        tryRemoveEmptyLine(model);
+      },
+    },
+    {
+      name: 'Embed',
+      description: 'For PDFs, and more.',
+      icon: EmbedIcon({ width: '20', height: '20' }),
+      tooltip: slashMenuToolTips['Embed'],
+      showWhen: ({ model }) => {
+        const featureFlagService = model.doc.get(FeatureFlagService);
+        console.log(featureFlagService.getFlag('enable_embed_iframe_block'));
+        return (
+          featureFlagService.getFlag('enable_embed_iframe_block') &&
+          model.doc.schema.flavourSchemaMap.has('affine:embed-iframe')
+        );
+      },
+      action: async ({ rootComponent, model }) => {
+        const parentModel = rootComponent.doc.getParent(model);
+        if (!parentModel) {
+          return;
+        }
+        const index = parentModel.children.indexOf(model) + 1;
+        await toggleEmbedCardCreateModal(
+          rootComponent.host,
+          'Links',
+          'The added link will be displayed as a card view.',
+          { mode: 'page', parentModel, index }
         );
         tryRemoveEmptyLine(model);
       },

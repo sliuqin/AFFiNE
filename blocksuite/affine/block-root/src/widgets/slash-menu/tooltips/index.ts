@@ -8,6 +8,7 @@ import { CopyTooltip } from './copy.js';
 import { DeleteTooltip } from './delete.js';
 import { DividerTooltip } from './divider.js';
 import { EdgelessTooltip } from './edgeless.js';
+import { EmbedTooltip } from './embed.js';
 import { FigmaTooltip } from './figma.js';
 import { GithubRepoTooltip } from './github-repo.js';
 import { Heading1Tooltip } from './heading-1.js';
@@ -149,6 +150,11 @@ export const slashMenuToolTips: Record<string, SlashMenuTooltip> = {
   Attachment: {
     figure: AttachmentTooltip,
     caption: 'Attachment',
+  },
+
+  Embed: {
+    figure: EmbedTooltip,
+    caption: 'Embed',
   },
 
   PDF: {

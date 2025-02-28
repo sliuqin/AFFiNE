@@ -1,5 +1,9 @@
 import { DataViewBlockSchemaExtension } from '@blocksuite/affine-block-data-view';
 import { DatabaseSelectionExtension } from '@blocksuite/affine-block-database';
+import {
+  EmbedIframeConfigExtensions,
+  EmbedIframeService,
+} from '@blocksuite/affine-block-embed';
 import { ImageStoreSpec } from '@blocksuite/affine-block-image';
 import { SurfaceBlockSchemaExtension } from '@blocksuite/affine-block-surface';
 import { TableSelectionExtension } from '@blocksuite/affine-block-table';
@@ -13,6 +17,7 @@ import {
   EmbedFigmaBlockSchemaExtension,
   EmbedGithubBlockSchemaExtension,
   EmbedHtmlBlockSchemaExtension,
+  EmbedIframeBlockSchemaExtension,
   EmbedLinkedDocBlockSchemaExtension,
   EmbedLoomBlockSchemaExtension,
   EmbedSyncedDocBlockSchemaExtension,
@@ -70,6 +75,7 @@ export const StoreExtensions: ExtensionType[] = [
   EmbedSyncedDocBlockSchemaExtension,
   EmbedLinkedDocBlockSchemaExtension,
   EmbedHtmlBlockSchemaExtension,
+  EmbedIframeBlockSchemaExtension,
   EmbedGithubBlockSchemaExtension,
   EmbedFigmaBlockSchemaExtension,
   EmbedLoomBlockSchemaExtension,
@@ -98,4 +104,6 @@ export const StoreExtensions: ExtensionType[] = [
   PlainTextAdapterExtension,
 
   AdapterFactoryExtensions,
+  EmbedIframeConfigExtensions,
+  EmbedIframeService,
 ].flat();
