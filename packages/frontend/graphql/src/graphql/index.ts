@@ -250,7 +250,7 @@ export const listContextQuery = {
     copilot(workspaceId: $workspaceId) {
       contexts(sessionId: $sessionId) {
         id
-        createdAt
+        workspaceId
       }
     }
   }
