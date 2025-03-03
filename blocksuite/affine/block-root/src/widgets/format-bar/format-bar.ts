@@ -377,8 +377,13 @@ export class AffineFormatBarWidget extends WidgetComponent {
 
     // if the selection is on an embed (ex. linked page), we should not display the format bar
     if (this.displayType === 'text' && this._selectedBlocks.length === 1) {
+      const [element] = this._selectedBlocks;
+
+      if (element.flavour === 'affine:code') {
+        return false;
+      }
+
       const isEmbed = () => {
-        const [element] = this._selectedBlocks;
         const richText = element.querySelector<RichText>('rich-text');
         const inline = richText?.inlineEditor;
         if (!richText || !inline) {

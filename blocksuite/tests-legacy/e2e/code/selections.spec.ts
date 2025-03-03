@@ -16,6 +16,7 @@ import {
   getInlineSelectionIndex,
   getInlineSelectionText,
   initEmptyCodeBlockState,
+  setSelection,
 } from '../utils/actions/misc.js';
 import {
   assertBlockCount,
@@ -24,6 +25,7 @@ import {
   assertRichTexts,
 } from '../utils/asserts.js';
 import { test } from '../utils/playwright.js';
+import { getFormatBar } from '../utils/query.js';
 import { getCodeBlock } from './utils.js';
 
 test('click outside should close language list', async ({ page }) => {
@@ -192,4 +194,16 @@ test('press ArrowUp after code block can enter code block', async ({
 
   const text = await getInlineSelectionText(page);
   expect(text).toBe(code);
+});
+
+test('disable format bar when selection is on code block', async ({ page }) => {
+  await enterPlaygroundRoom(page);
+  await initEmptyCodeBlockState(page);
+  await focusRichText(page);
+  const code = 'const a = 1;';
+  await type(page, code);
+  await setSelection(page, 2, 5, 2, 8);
+  await assertRichTextInlineRange(page, 0, 5, 3);
+  const { formatBar } = getFormatBar(page);
+  await expect(formatBar).not.toBeVisible();
 });
