@@ -74,8 +74,9 @@ unsafe impl Encode for NSRect {
   const ENCODING: Encoding = Encoding::Struct("NSRect", &[<NSPoint>::ENCODING, <NSSize>::ENCODING]);
 }
 
-static RUNNING_APPLICATIONS: LazyLock<RwLock<Vec<AudioObjectID>>> =
-  LazyLock::new(|| RwLock::new(audio_process_list().expect("Failed to get running applications")));
+static RUNNING_APPLICATIONS: LazyLock<
+  RwLock<std::result::Result<Vec<AudioObjectID>, CoreAudioError>>,
+> = LazyLock::new(|| RwLock::new(audio_process_list()));
 
 static APPLICATION_STATE_CHANGED_SUBSCRIBERS: LazyLock<
   RwLock<HashMap<AudioObjectID, HashMap<Uuid, Arc<ThreadsafeFunction<(), ()>>>>>,
@@ -551,9 +552,8 @@ impl ShareableContent {
             )
           })
           .and_then(|mut running_applications| {
-            audio_process_list().map_err(From::from).map(|apps| {
-              *running_applications = apps;
-            })
+            *running_applications = audio_process_list();
+            Ok(())
           })
         {
           callback.call(Err(err), ThreadsafeFunctionCallMode::NonBlocking);
@@ -673,6 +673,7 @@ impl ShareableContent {
         )
       })?
       .iter()
+      .flatten()
       .filter_map(|id| {
         let app = TappableApplication::new(*id);
         if !app.bundle_identifier().ok()?.is_empty() {
