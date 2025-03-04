@@ -1,6 +1,7 @@
+import type { UniComponent } from '@blocksuite/affine-shared/types';
+
 import type { TypeInstance } from '../logical/type.js';
 import type { DVJSON } from '../property/types.js';
-import type { UniComponent } from '../utils/index.js';
 
 export interface GroupRenderProps<
   Data extends NonNullable<unknown> = NonNullable<unknown>,

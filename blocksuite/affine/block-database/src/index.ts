@@ -1,6 +1,7 @@
 export * from './adapters';
 export * from './commands';
 export * from './config';
+export * from './context';
 export * from './data-source';
 export * from './database-block';
 export * from './database-spec';
@@ -10,4 +11,6 @@ export * from './properties';
 export * from './properties/rich-text/cell-renderer';
 export * from './properties/utils';
 export * from './selection.js';
+export * from './service';
 export * from './utils/block-utils';
+export * from '@blocksuite/data-view';

@@ -1,5 +1,5 @@
 import type {
-  Column,
+  ColumnDataType,
   ColumnUpdater,
   DatabaseBlockModel,
 } from '@blocksuite/affine-model';
@@ -24,12 +24,11 @@ import { propertyPresets } from '@blocksuite/data-view/property-presets';
 import { IS_MOBILE } from '@blocksuite/global/env';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
 import { type BlockModel } from '@blocksuite/store';
-import { computed, type ReadonlySignal } from '@preact/signals-core';
+import { computed, type ReadonlySignal, signal } from '@preact/signals-core';
 
 import { getIcon } from './block-icons.js';
 import {
-  databaseBlockAllPropertyMap,
-  databaseBlockPropertyList,
+  databaseBlockProperties,
   databasePropertyConverts,
 } from './properties/index.js';
 import {
@@ -53,6 +52,19 @@ import {
 } from './views/index.js';
 
 export class DatabaseBlockDataSource extends DataSourceBase {
+  static externalProperties = signal<PropertyMetaConfig[]>([]);
+  static propertiesList = computed(() => {
+    return [
+      ...Object.values(databaseBlockProperties),
+      ...this.externalProperties.value,
+    ];
+  });
+  static propertiesMap = computed(() => {
+    return Object.fromEntries(
+      this.propertiesList.value.map(v => [v.type, v as PropertyMetaConfig])
+    );
+  });
+
   private _batch = 0;
 
   private readonly _model: DatabaseBlockModel;
@@ -108,7 +120,7 @@ export class DatabaseBlockDataSource extends DataSourceBase {
   }
 
   allPropertyMetas$ = computed<PropertyMetaConfig<any, any, any>[]>(() => {
-    return databaseBlockPropertyList;
+    return DatabaseBlockDataSource.propertiesList.value;
   });
 
   propertyMetas$ = computed<PropertyMetaConfig[]>(() => {
@@ -201,7 +213,7 @@ export class DatabaseBlockDataSource extends DataSourceBase {
 
   protected override getNormalPropertyAndIndex(propertyId: string):
     | {
-        column: Column<Record<string, unknown>>;
+        column: ColumnDataType<Record<string, unknown>>;
         index: number;
       }
     | undefined {
@@ -223,7 +235,7 @@ export class DatabaseBlockDataSource extends DataSourceBase {
 
   private getPropertyAndIndex(propertyId: string):
     | {
-        column: Column<Record<string, unknown>>;
+        column: ColumnDataType<Record<string, unknown>>;
         index: number;
       }
     | undefined {
@@ -336,7 +348,7 @@ export class DatabaseBlockDataSource extends DataSourceBase {
   }
 
   propertyMetaGet(type: string): PropertyMetaConfig {
-    const property = databaseBlockAllPropertyMap[type];
+    const property = DatabaseBlockDataSource.propertiesMap.value[type];
     if (!property) {
       throw new BlockSuiteError(
         ErrorCode.DatabaseBlockError,

@@ -1,7 +1,6 @@
-import {
-  createUniComponentFromWebComponent,
-  type UniComponent,
-} from '../utils/uni-component/index.js';
+import type { UniComponent } from '@blocksuite/affine-shared/types';
+
+import { createUniComponentFromWebComponent } from '../utils/uni-component/index.js';
 import type { BaseCellRenderer } from './base-cell.js';
 import type { CellRenderer, DataViewCellComponent } from './manager.js';
 

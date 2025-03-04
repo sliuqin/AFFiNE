@@ -1,4 +1,8 @@
-import { useConfirmModal, useLitPortalFactory } from '@affine/component';
+import {
+  uniReactRoot,
+  useConfirmModal,
+  useLitPortalFactory,
+} from '@affine/component';
 import {
   type EdgelessEditor,
   LitDocEditor,
@@ -47,6 +51,7 @@ import {
   DocPropertiesTable,
 } from '../../components/doc-properties';
 import { patchForAttachmentEmbedViews } from '../extensions/attachment-embed-view';
+import { patchDatabaseBlockConfigService } from '../extensions/database-block-config-service';
 import { patchDocModeService } from '../extensions/doc-mode-service';
 import { patchDocUrlExtensions } from '../extensions/doc-url';
 import { EdgelessClipboardWatcher } from '../extensions/edgeless-clipboard';
@@ -144,6 +149,7 @@ const usePatchSpecs = (mode: DocMode) => {
         patchQuickSearchService(framework),
         patchSideBarService(framework),
         patchDocModeService(docService, docsService, editorService),
+        patchDatabaseBlockConfigService(),
       ].flat()
     );
 
@@ -176,6 +182,7 @@ const usePatchSpecs = (mode: DocMode) => {
     useMemo(
       () => (
         <>
+          <uniReactRoot.Root />
           {portals.map(p => (
             <Fragment key={p.id}>{p.portal}</Fragment>
           ))}

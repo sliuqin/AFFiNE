@@ -1,23 +1,16 @@
+import type {
+  UniComponent,
+  UniComponentReturn,
+} from '@blocksuite/affine-shared/types';
 import { ShadowlessElement } from '@blocksuite/block-std';
 import { SignalWatcher } from '@blocksuite/global/utils';
+import type { Signal } from '@preact/signals-core';
 import type { LitElement, PropertyValues, TemplateResult } from 'lit';
 import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';
 import type { Ref } from 'lit/directives/ref.js';
 import { type StyleInfo, styleMap } from 'lit/directives/style-map.js';
 
-export type UniComponentReturn<
-  Props = NonNullable<unknown>,
-  Expose extends NonNullable<unknown> = NonNullable<unknown>,
-> = {
-  update: (props: Props) => void;
-  unmount: () => void;
-  expose: Expose;
-};
-export type UniComponent<
-  Props = NonNullable<unknown>,
-  Expose extends NonNullable<unknown> = NonNullable<unknown>,
-> = (ele: HTMLElement, props: Props) => UniComponentReturn<Props, Expose>;
 export const renderUniLit = <Props, Expose extends NonNullable<unknown>>(
   uni: UniComponent<Props, Expose> | undefined,
   props?: Props,
@@ -45,18 +38,22 @@ export class UniLit<
     }
   `;
 
-  uniReturn?: UniComponentReturn<Props, Expose>;
+  uniReturn?: UniComponentReturn<Props>;
+
+  private _expose?: Expose;
 
   get expose(): Expose | undefined {
-    return this.uniReturn?.expose;
+    return this._expose;
   }
 
   private mount() {
-    this.uniReturn = this.uni?.(this, this.props);
-    if (this.ref) {
-      // @ts-expect-error FIXME: ts error
-      this.ref.value = this.uniReturn?.expose;
-    }
+    this.uniReturn = this.uni?.(this, this.props, value => {
+      if (this.ref) {
+        // @ts-expect-error readonly
+        this.ref.value = value;
+        this._expose = value;
+      }
+    });
   }
 
   private unmount() {
@@ -91,7 +88,7 @@ export class UniLit<
   accessor props!: Props;
 
   @property({ attribute: false })
-  accessor ref: Ref<Expose> | undefined = undefined;
+  accessor ref: Signal<Expose> | undefined = undefined;
 
   @property({ attribute: false })
   accessor uni: UniComponent<Props, Expose> | undefined = undefined;
@@ -103,10 +100,12 @@ export const createUniComponentFromWebComponent = <
 >(
   component: typeof LitElement
 ): UniComponent<T, Expose> => {
-  return (ele, props) => {
+  return (ele, props, expose) => {
     const ins = new component();
     Object.assign(ins, props);
     ele.append(ins);
+    // @ts-expect-error ins.expose may not exist in all component instances
+    expose(ins.expose);
     return {
       update: props => {
         Object.assign(ins, props);
@@ -115,7 +114,6 @@ export const createUniComponentFromWebComponent = <
       unmount: () => {
         ins.remove();
       },
-      expose: ins as never as Expose,
     };
   };
 };

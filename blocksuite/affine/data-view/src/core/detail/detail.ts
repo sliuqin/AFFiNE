@@ -3,6 +3,7 @@ import {
   popMenu,
   popupTargetFromElement,
 } from '@blocksuite/affine-components/context-menu';
+import type { UniComponent } from '@blocksuite/affine-shared/types';
 import { ShadowlessElement } from '@blocksuite/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
 import {
@@ -19,10 +20,7 @@ import { repeat } from 'lit/directives/repeat.js';
 import { html } from 'lit/static-html.js';
 
 import { dataViewCommonStyle } from '../common/css-variable.js';
-import {
-  renderUniLit,
-  type UniComponent,
-} from '../utils/uni-component/uni-component.js';
+import { renderUniLit } from '../utils/uni-component/uni-component.js';
 import type { SingleView } from '../view-manager/single-view.js';
 import { DetailSelection } from './selection.js';
 

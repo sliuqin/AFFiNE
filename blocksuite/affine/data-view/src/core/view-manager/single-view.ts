@@ -1,3 +1,4 @@
+import type { UniComponent } from '@blocksuite/affine-shared/types';
 import type { InsertToPosition } from '@blocksuite/affine-shared/utils';
 import { computed, type ReadonlySignal, signal } from '@preact/signals-core';
 
@@ -8,7 +9,6 @@ import type { TypeInstance } from '../logical/type.js';
 import type { PropertyMetaConfig } from '../property/property-config.js';
 import type { TraitKey } from '../traits/key.js';
 import type { DatabaseFlags } from '../types.js';
-import type { UniComponent } from '../utils/uni-component/index.js';
 import type { DataViewDataType, ViewMeta } from '../view/data-view.js';
 import { type Cell, CellBase } from './cell.js';
 import type { Property } from './property.js';

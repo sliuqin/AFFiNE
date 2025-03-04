@@ -1,9 +1,9 @@
+import type { UniComponent } from '@blocksuite/affine-shared/types';
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 
 import type { TypeInstance } from '../logical/type.js';
 import type { CellRenderer } from '../property/index.js';
 import type { PropertyDataUpdater } from '../types.js';
-import type { UniComponent } from '../utils/uni-component/index.js';
 import type { Cell } from './cell.js';
 import type { SingleView } from './single-view.js';
 

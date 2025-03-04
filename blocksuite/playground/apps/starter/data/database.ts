@@ -1,7 +1,7 @@
 import {
-  databaseBlockColumns,
   DatabaseBlockDataSource,
   type DatabaseBlockModel,
+  databaseBlockProperties,
   type ListType,
   type ParagraphType,
 } from '@blocksuite/blocks';
@@ -43,13 +43,13 @@ export const database: InitFn = (collection: Workspace, id: string) => {
       database.title = new Text(title);
       const richTextId = datasource.propertyAdd(
         'end',
-        databaseBlockColumns.richTextColumnConfig.type
+        databaseBlockProperties.richTextColumnConfig.type
       );
       Object.values([
         propertyPresets.multiSelectPropertyConfig,
         propertyPresets.datePropertyConfig,
         propertyPresets.numberPropertyConfig,
-        databaseBlockColumns.linkColumnConfig,
+        databaseBlockProperties.linkColumnConfig,
         propertyPresets.checkboxPropertyConfig,
         propertyPresets.progressPropertyConfig,
       ]).forEach(column => {
