@@ -11,6 +11,7 @@ import {
 import { isMacOS } from '../../shared/utils';
 import { applicationMenuSubjects } from '../application-menu';
 import { beforeAppQuit } from '../cleanup';
+import { buildType } from '../config';
 import { logger } from '../logger';
 import {
   appGroups$,
@@ -290,7 +291,11 @@ class TrayState {
 
 let _trayState: TrayState | undefined;
 
-export const getTrayState = () => {
+export const setupTrayState = () => {
+  // TODO: remove for production
+  if (buildType !== 'canary') {
+    return;
+  }
   if (!_trayState) {
     _trayState = new TrayState();
     _trayState.init();

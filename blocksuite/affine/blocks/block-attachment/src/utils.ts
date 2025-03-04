@@ -247,7 +247,7 @@ export async function addSiblingAttachmentBlocks(
     name: file.name,
     size: file.size,
     type: types[index],
-    embed: isEmbed,
+    embed: isEmbed ?? types[index].startsWith('audio/'),
   }));
 
   const blockIds = doc.addSiblingBlocks(
@@ -319,6 +319,7 @@ export async function addAttachments(
           type: file.type,
           style: 'cubeThick',
           xywh: bound.serialize(),
+          embed: file.type.startsWith('audio/'),
         } satisfies Partial<AttachmentBlockProps>,
         gfx.surface
       );
