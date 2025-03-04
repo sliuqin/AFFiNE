@@ -8,7 +8,7 @@ import {
 import {
   getBezierParameters,
   type PointLocation,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 import { deltaInsertsToChunks } from '@blocksuite/inline';
 
 import { isConnectorWithLabel } from '../../../managers/connector-manager.js';

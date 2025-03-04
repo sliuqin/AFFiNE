@@ -3,7 +3,7 @@ import type {
   GfxElementGeometry,
 } from '@blocksuite/block-std/gfx';
 import { GfxCompatible } from '@blocksuite/block-std/gfx';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import {
   BlockModel,
   BlockSchemaExtension,

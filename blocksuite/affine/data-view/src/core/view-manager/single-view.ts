@@ -50,7 +50,7 @@ export interface SingleView {
 
   cellValueSet(rowId: string, propertyId: string, value: unknown): void;
 
-  cellJsonValueGet(rowId: string, propertyId: string): unknown;
+  cellJsonValueGet(rowId: string, propertyId: string): DVJSON;
 
   cellJsonValueSet(rowId: string, propertyId: string, value: DVJSON): void;
 
@@ -264,10 +264,10 @@ export abstract class SingleViewBase<
     return new CellBase(this, propertyId, rowId);
   }
 
-  cellJsonValueGet(rowId: string, propertyId: string): unknown {
+  cellJsonValueGet(rowId: string, propertyId: string): DVJSON {
     const type = this.propertyTypeGet(propertyId);
     if (!type) {
-      return;
+      return null;
     }
     return this.dataSource.propertyMetaGet(type).config.cellToJson({
       value: this.dataSource.cellValueGet(rowId, propertyId),

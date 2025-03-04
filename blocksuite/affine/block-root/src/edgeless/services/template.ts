@@ -3,13 +3,8 @@ import type {
   SurfaceBlockTransformer,
 } from '@blocksuite/affine-block-surface';
 import type { ConnectorElementModel } from '@blocksuite/affine-model';
-import {
-  assertExists,
-  assertType,
-  Bound,
-  getCommonBound,
-  Slot,
-} from '@blocksuite/global/utils';
+import { Bound, getCommonBound } from '@blocksuite/global/gfx';
+import { assertExists, assertType, Slot } from '@blocksuite/global/utils';
 import {
   type BlockModel,
   type BlockSnapshot,

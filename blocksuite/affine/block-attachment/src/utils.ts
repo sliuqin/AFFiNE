@@ -15,7 +15,7 @@ import {
 import { humanFileSize } from '@blocksuite/affine-shared/utils';
 import type { BlockStdScope, EditorHost } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { Bound, type IVec, Point, Vec } from '@blocksuite/global/utils';
+import { Bound, type IVec, Point, Vec } from '@blocksuite/global/gfx';
 import type { BlockModel } from '@blocksuite/store';
 
 import type { AttachmentBlockComponent } from './attachment-block.js';

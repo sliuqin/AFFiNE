@@ -1,6 +1,5 @@
 import type { ReferenceInfo } from '@blocksuite/affine-model';
 import {
-  FeatureFlagService,
   GenerateDocUrlProvider,
   type LinkEventType,
   OpenDocExtensionIdentifier,
@@ -320,10 +319,6 @@ export class ReferencePopup extends WithDisposable(LitElement) {
   }
 
   private _viewSelector() {
-    // synced doc entry controlled by flag
-    const isSyncedDocEnabled = this.doc
-      .get(FeatureFlagService)
-      .getFlag('enable_synced_doc_block');
     const buttons = [];
 
     buttons.push({
@@ -338,17 +333,13 @@ export class ReferencePopup extends WithDisposable(LitElement) {
       disabled: this.doc.readonly,
     });
 
-    if (isSyncedDocEnabled) {
-      buttons.push({
-        type: 'embed',
-        label: 'Embed view',
-        action: () => this._convertToEmbedView(),
-        disabled:
-          this.doc.readonly ||
-          this.isLinkedNode ||
-          this._embedViewButtonDisabled,
-      });
-    }
+    buttons.push({
+      type: 'embed',
+      label: 'Embed view',
+      action: () => this._convertToEmbedView(),
+      disabled:
+        this.doc.readonly || this.isLinkedNode || this._embedViewButtonDisabled,
+    });
 
     return html`
       <editor-menu-button

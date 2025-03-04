@@ -1,6 +1,7 @@
 // https://www.w3.org/TR/css-color-4/
 
 import type { Color, ColorScheme } from '@blocksuite/affine-model';
+import { clamp } from '@blocksuite/global/gfx';
 
 import { COLORS, FIRST_COLOR } from './consts.js';
 import type {
@@ -51,9 +52,6 @@ export function linearGradientAt(t: number): Rgb {
 }
 
 const lerp = (a: number, b: number, t: number) => a + t * (b - a);
-
-export const clamp = (min: number, val: number, max: number) =>
-  Math.min(Math.max(min, val), max);
 
 export const bound01 = (n: number, max: number) => {
   n = clamp(0, n, max);

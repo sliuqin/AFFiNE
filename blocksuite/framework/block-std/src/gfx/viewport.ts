@@ -1,12 +1,11 @@
 import {
   Bound,
   clamp,
-  debounce,
   type IPoint,
   type IVec,
-  Slot,
   Vec,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
+import { debounce, Slot } from '@blocksuite/global/utils';
 import { signal } from '@preact/signals-core';
 
 import type { GfxViewportElement } from '.';
@@ -78,7 +77,7 @@ export class Viewport {
     () => {
       this.zooming$.value = false;
     },
-    100,
+    200,
     { leading: false, trailing: true }
   );
 
@@ -86,7 +85,7 @@ export class Viewport {
     () => {
       this.panning$.value = false;
     },
-    100,
+    200,
     { leading: false, trailing: true }
   );
 
@@ -390,7 +389,7 @@ export class Viewport {
     this._resizeObserver.observe(el);
   }
 
-  setZoom(zoom: number, focusPoint?: IPoint) {
+  setZoom(zoom: number, focusPoint?: IPoint, wheel = false) {
     const prevZoom = this.zoom;
     focusPoint = (focusPoint ?? this._center) as IPoint;
     this._zoom = clamp(zoom, this.ZOOM_MIN, this.ZOOM_MAX);
@@ -401,7 +400,9 @@ export class Viewport {
       Vec.toVec(focusPoint),
       Vec.mul(offset, prevZoom / newZoom)
     );
-    this.zooming$.value = true;
+    if (wheel) {
+      this.zooming$.value = true;
+    }
     this.setCenter(newCenter[0], newCenter[1]);
     this.viewportUpdated.emit({
       zoom: this.zoom,

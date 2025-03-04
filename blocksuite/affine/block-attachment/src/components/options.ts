@@ -18,7 +18,7 @@ import {
   EMBED_CARD_HEIGHT,
   EMBED_CARD_WIDTH,
 } from '@blocksuite/affine-shared/consts';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import { ArrowDownSmallIcon, MoreVerticalIcon } from '@blocksuite/icons/lit';
 import { flip, offset } from '@floating-ui/dom';
 import { html, nothing } from 'lit';

@@ -1,10 +1,9 @@
 import { ShadowlessElement } from '@blocksuite/block-std';
 import { WithDisposable } from '@blocksuite/global/utils';
+import { ToggleDownIcon, ToggleRightIcon } from '@blocksuite/icons/lit';
 import { css, unsafeCSS } from 'lit';
 import { property } from 'lit/decorators.js';
 import { html } from 'lit-html';
-
-import { toggleDown, toggleRight } from '../icons/list.js';
 
 export const TOGGLE_BUTTON_PARENT_CLASS = 'blocksuite-toggle-button-parent';
 
@@ -53,7 +52,11 @@ export class ToggleButton extends WithDisposable(ShadowlessElement) {
         class="toggle-icon"
         @click=${() => this.updateCollapsed(!this.collapsed)}
       >
-        ${toggleDown}
+        ${ToggleDownIcon({
+          width: '16px',
+          height: '16px',
+          style: 'color: #77757D',
+        })}
       </div>
     `;
 
@@ -64,7 +67,11 @@ export class ToggleButton extends WithDisposable(ShadowlessElement) {
         data-collapsed=${this.collapsed}
         @click=${() => this.updateCollapsed(!this.collapsed)}
       >
-        ${toggleRight}
+        ${ToggleRightIcon({
+          width: '16px',
+          height: '16px',
+          style: 'color: #77757D',
+        })}
       </div>
     `;
 

@@ -9,7 +9,7 @@ import type { NoteChildrenFlavour } from '@blocksuite/affine-shared/types';
 import { hasClassNameInList } from '@blocksuite/affine-shared/utils';
 import type { PointerEventState } from '@blocksuite/block-std';
 import { BaseTool } from '@blocksuite/block-std/gfx';
-import { Point } from '@blocksuite/global/utils';
+import { Point } from '@blocksuite/global/gfx';
 import { effect } from '@preact/signals-core';
 
 import { EXCLUDING_MOUSE_OUT_CLASS_LIST } from '../utils/consts.js';

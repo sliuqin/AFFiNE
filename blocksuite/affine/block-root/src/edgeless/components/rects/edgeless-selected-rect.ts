@@ -35,7 +35,6 @@ import {
 import { EMBED_CARD_HEIGHT } from '@blocksuite/affine-shared/consts';
 import { unsafeCSSVarV2 } from '@blocksuite/affine-shared/theme';
 import {
-  clamp,
   getElementsWithoutGroup,
   getSelectedRect,
   requestThrottledConnectedFrame,
@@ -50,24 +49,19 @@ import {
   type GfxModel,
   type GfxPrimitiveElementModel,
 } from '@blocksuite/block-std/gfx';
-import type {
-  Disposable,
-  IPoint,
-  IVec,
-  PointLocation,
-} from '@blocksuite/global/utils';
+import type { IPoint, IVec, PointLocation } from '@blocksuite/global/gfx';
 import {
-  assertType,
   Bound,
   deserializeXYWH,
   normalizeDegAngle,
-  pickValues,
-  Slot,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
+import type { Disposable } from '@blocksuite/global/utils';
+import { assertType, pickValues, Slot } from '@blocksuite/global/utils';
 import { css, html, nothing } from 'lit';
 import { state } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { styleMap } from 'lit/directives/style-map.js';
+import clamp from 'lodash-es/clamp';
 
 import type { EdgelessRootBlockComponent } from '../../edgeless-root-block.js';
 import {

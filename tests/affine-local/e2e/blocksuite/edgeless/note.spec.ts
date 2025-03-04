@@ -30,8 +30,8 @@ import {
 import type {
   EdgelessRootBlockComponent,
   NoteBlockModel,
-} from '@blocksuite/blocks';
-import type { IVec } from '@blocksuite/global/utils';
+} from '@blocksuite/affine/blocks';
+import type { IVec } from '@blocksuite/affine/global/gfx';
 import { expect, type Page } from '@playwright/test';
 
 const title = 'Edgeless Note Header Test';

@@ -25,11 +25,11 @@ import {
 import { handleNativeRangeAtPoint } from '@blocksuite/affine-shared/utils';
 import { type BlockStdScope, stdContext } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import type { Bound, IVec } from '@blocksuite/global/utils';
+import type { Bound, IVec } from '@blocksuite/global/gfx';
+import { Vec } from '@blocksuite/global/gfx';
 import {
   assertExists,
   DisposableGroup,
-  Vec,
   WithDisposable,
 } from '@blocksuite/global/utils';
 import {

@@ -18,7 +18,8 @@ import {
   EMBED_CARD_WIDTH,
 } from '@blocksuite/affine-shared/consts';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
-import { Bound, WithDisposable } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
+import { WithDisposable } from '@blocksuite/global/utils';
 import type { TemplateResult } from 'lit';
 import { html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';

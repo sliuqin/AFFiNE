@@ -17,7 +17,8 @@ import {
   RANGE_QUERY_EXCLUDE_ATTR,
   ShadowlessElement,
 } from '@blocksuite/block-std';
-import { deserializeXYWH, WithDisposable } from '@blocksuite/global/utils';
+import { deserializeXYWH } from '@blocksuite/global/gfx';
+import { WithDisposable } from '@blocksuite/global/utils';
 import { type BlockModel, type Query } from '@blocksuite/store';
 import { css, nothing } from 'lit';
 import { property } from 'lit/decorators.js';

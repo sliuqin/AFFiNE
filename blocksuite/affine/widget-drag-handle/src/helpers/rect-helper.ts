@@ -1,6 +1,6 @@
 import { getCurrentNativeRange } from '@blocksuite/affine-shared/utils';
 import type { BlockComponent } from '@blocksuite/block-std';
-import { Rect } from '@blocksuite/global/utils';
+import { Rect } from '@blocksuite/global/gfx';
 
 import {
   DRAG_HANDLE_CONTAINER_WIDTH,

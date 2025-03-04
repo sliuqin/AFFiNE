@@ -6,7 +6,8 @@ import { toast } from '@blocksuite/affine-components/toast';
 import type { FrameBlockModel } from '@blocksuite/affine-model';
 import { EditPropsStore } from '@blocksuite/affine-shared/services';
 import type { GfxToolsFullOptionValue } from '@blocksuite/block-std/gfx';
-import { Bound, clamp, SignalWatcher } from '@blocksuite/global/utils';
+import { Bound, clamp } from '@blocksuite/global/gfx';
+import { SignalWatcher } from '@blocksuite/global/utils';
 import {
   EndPointArrowIcon,
   ExpandCloseIcon,

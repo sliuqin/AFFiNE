@@ -7,7 +7,7 @@ import {
   GfxControllerIdentifier,
   type GfxToolsFullOptionValue,
 } from '@blocksuite/block-std/gfx';
-import { type IVec, Rect } from '@blocksuite/global/utils';
+import { type IVec, Rect } from '@blocksuite/global/gfx';
 import { effect } from '@preact/signals-core';
 
 import {

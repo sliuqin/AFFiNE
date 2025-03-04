@@ -13,7 +13,7 @@ import {
   GfxBlockComponent,
   TextSelection,
 } from '@blocksuite/block-std';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import { css, html } from 'lit';
 import { query, state } from 'lit/decorators.js';
 import { type StyleInfo, styleMap } from 'lit/directives/style-map.js';

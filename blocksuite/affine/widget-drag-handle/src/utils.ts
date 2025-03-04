@@ -23,7 +23,7 @@ import {
   Point,
   Rect,
   type SerializedXYWH,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 import type {
   BaseSelection,
   BlockModel,

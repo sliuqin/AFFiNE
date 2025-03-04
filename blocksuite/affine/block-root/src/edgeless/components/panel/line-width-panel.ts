@@ -1,9 +1,10 @@
 import { LINE_WIDTHS, LineWidth } from '@blocksuite/affine-model';
-import { clamp, on, once } from '@blocksuite/affine-shared/utils';
+import { on, once } from '@blocksuite/affine-shared/utils';
 import { WithDisposable } from '@blocksuite/global/utils';
 import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
+import clamp from 'lodash-es/clamp';
 
 interface Config {
   width: number;

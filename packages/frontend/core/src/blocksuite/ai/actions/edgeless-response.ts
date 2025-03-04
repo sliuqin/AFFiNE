@@ -22,7 +22,8 @@ import {
   ResetIcon,
   TelemetryProvider,
 } from '@blocksuite/affine/blocks';
-import { assertExists, Bound } from '@blocksuite/affine/global/utils';
+import { Bound } from '@blocksuite/affine/global/gfx';
+import { assertExists } from '@blocksuite/affine/global/utils';
 import { html, type TemplateResult } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 

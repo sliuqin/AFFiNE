@@ -92,7 +92,6 @@ export class AIItemList extends WithDisposable(LitElement) {
         .onClick=${this.onClick}
         .abortController=${this._abortController}
       ></ai-sub-item-list>`,
-      container: aiItemContainer,
       positionStrategy: 'fixed',
       computePosition: {
         referenceElement: aiItemContainer,

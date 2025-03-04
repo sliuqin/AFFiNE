@@ -1,8 +1,9 @@
-import { clamp, stopPropagation } from '@blocksuite/affine-shared/utils';
+import { stopPropagation } from '@blocksuite/affine-shared/utils';
 import { DoneIcon } from '@blocksuite/icons/lit';
 import { css, html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
+import clamp from 'lodash-es/clamp';
 
 const MIN_SIZE = 1;
 const MAX_SIZE = 200;

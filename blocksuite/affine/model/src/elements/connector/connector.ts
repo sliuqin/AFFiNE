@@ -9,7 +9,7 @@ import {
   GfxPrimitiveElementModel,
   local,
 } from '@blocksuite/block-std/gfx';
-import type { IVec, SerializedXYWH, XYWH } from '@blocksuite/global/utils';
+import type { IVec, SerializedXYWH, XYWH } from '@blocksuite/global/gfx';
 import {
   Bound,
   curveIntersects,
@@ -22,7 +22,7 @@ import {
   Polyline,
   polyLineNearestPoint,
   Vec,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 import * as Y from 'yjs';
 
 import {
@@ -292,6 +292,10 @@ export class ConnectorElementModel extends GfxPrimitiveElementModel<ConnectorEle
       mode === ConnectorMode.Curve
         ? getBezierNearestPoint(getBezierParameters(path), currentPoint)
         : polyLineNearestPoint(path, currentPoint);
+
+    if (!point) {
+      return false;
+    }
 
     return (
       Vec.dist(point, currentPoint) <

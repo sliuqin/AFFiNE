@@ -1,5 +1,6 @@
 import type { InsertToPosition } from '@blocksuite/affine-shared/utils';
-import { assertExists, Point, Rect } from '@blocksuite/global/utils';
+import { Point, Rect } from '@blocksuite/global/gfx';
+import { assertExists } from '@blocksuite/global/utils';
 import { computed } from '@preact/signals-core';
 import type { ReactiveController } from 'lit';
 

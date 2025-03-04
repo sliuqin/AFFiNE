@@ -8,7 +8,7 @@ import {
   ThemeProvider,
 } from '@blocksuite/affine-shared/services';
 import type { GfxToolsFullOptionValue } from '@blocksuite/block-std/gfx';
-import type { Bound } from '@blocksuite/global/utils';
+import type { Bound } from '@blocksuite/global/gfx';
 import { SignalWatcher } from '@blocksuite/global/utils';
 import { computed } from '@preact/signals-core';
 import { css, html, LitElement, nothing } from 'lit';

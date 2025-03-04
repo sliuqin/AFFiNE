@@ -28,7 +28,7 @@ export type GroupByConfig = {
     key: string;
     value: DVJSON;
   }[];
-  addToGroup?: (value: unknown, oldValue: unknown) => unknown;
-  removeFromGroup?: (value: unknown, oldValue: unknown) => unknown;
+  addToGroup?: (value: DVJSON, oldValue: DVJSON) => DVJSON;
+  removeFromGroup?: (value: DVJSON, oldValue: DVJSON) => DVJSON;
   view: UniComponent<GroupRenderProps>;
 };

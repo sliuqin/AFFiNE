@@ -30,3 +30,10 @@ export type Connectable = Exclude<
   GfxModel,
   ConnectorElementModel | BrushElementModel | GroupElementModel
 >;
+
+export type BlockMeta = {
+  'meta:createdAt'?: number;
+  'meta:createdBy'?: string;
+  'meta:updatedAt'?: number;
+  'meta:updatedBy'?: string;
+};

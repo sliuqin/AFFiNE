@@ -1,5 +1,5 @@
 import type { GroupElementModel } from '@blocksuite/affine-model';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 
 import type { CanvasRenderer } from '../../canvas-renderer.js';
 import { titleRenderParams } from './utils.js';

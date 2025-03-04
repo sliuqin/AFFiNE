@@ -10,7 +10,7 @@ import {
   type GfxModel,
   isGfxGroupCompatibleModel,
 } from '@blocksuite/block-std/gfx';
-import { Bound, clamp } from '@blocksuite/global/utils';
+import { Bound, clamp } from '@blocksuite/global/gfx';
 import type { BlockModel, BlockProps } from '@blocksuite/store';
 
 function updatChildElementsXYWH(

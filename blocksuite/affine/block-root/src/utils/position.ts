@@ -1,4 +1,4 @@
-import { clamp } from '@blocksuite/affine-shared/utils';
+import clamp from 'lodash-es/clamp';
 
 type CollisionBox = {
   /**

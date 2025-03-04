@@ -29,7 +29,7 @@ import {
   isGfxGroupCompatibleModel,
 } from '@blocksuite/block-std/gfx';
 import { IS_MAC } from '@blocksuite/global/env';
-import { Bound, getCommonBound } from '@blocksuite/global/utils';
+import { Bound, getCommonBound } from '@blocksuite/global/gfx';
 
 import { PageKeyboardManager } from '../keyboard/keyboard-manager.js';
 import type { EdgelessRootBlockComponent } from './edgeless-root-block.js';

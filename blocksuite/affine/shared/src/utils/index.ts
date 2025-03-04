@@ -6,6 +6,7 @@ export * from './dom';
 export * from './drag-helper';
 export * from './edgeless';
 export * from './event';
+export { getSvgPath as getFigmaSquircleSvgPath } from './figma-squircle';
 export * from './file';
 export * from './fractional-indexing';
 export * from './image';

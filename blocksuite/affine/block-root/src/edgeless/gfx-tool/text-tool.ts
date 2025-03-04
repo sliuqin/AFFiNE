@@ -6,7 +6,7 @@ import {
 } from '@blocksuite/affine-shared/services';
 import type { PointerEventState } from '@blocksuite/block-std';
 import { BaseTool, type GfxController } from '@blocksuite/block-std/gfx';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import * as Y from 'yjs';
 
 import type { EdgelessRootBlockComponent } from '../edgeless-root-block.js';

@@ -8,7 +8,8 @@ import {
   type MindmapNode,
   type MindmapRoot,
 } from '@blocksuite/affine-model';
-import { Bound, last } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
+import { last } from '@blocksuite/global/utils';
 
 const isOnEdge = (node: MindmapNode, direction: 'tail' | 'head') => {
   let current = node;

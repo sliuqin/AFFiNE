@@ -17,10 +17,10 @@ import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
 import {
   Bound,
   deserializeXYWH,
-  DisposableGroup,
   type IVec,
   type SerializedXYWH,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
+import { DisposableGroup } from '@blocksuite/global/utils';
 import { type BlockModel, Text } from '@blocksuite/store';
 import * as Y from 'yjs';
 

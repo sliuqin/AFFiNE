@@ -1,9 +1,11 @@
 import {
+  getCommonBoundWithRotation,
+  type IPoint,
+} from '@blocksuite/global/gfx';
+import {
   assertType,
   DisposableGroup,
-  getCommonBoundWithRotation,
   groupBy,
-  type IPoint,
   Slot,
 } from '@blocksuite/global/utils';
 

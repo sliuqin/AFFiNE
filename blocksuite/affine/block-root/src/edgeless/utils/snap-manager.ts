@@ -1,30 +1,49 @@
-import type {
-  SurfaceBlockComponent,
-  SurfaceBlockModel,
-} from '@blocksuite/affine-block-surface';
-import { getSurfaceBlock, Overlay } from '@blocksuite/affine-block-surface';
-import type { ConnectorElementModel } from '@blocksuite/affine-model';
-import type { GfxController, GfxModel } from '@blocksuite/block-std/gfx';
-import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { Bound, Point } from '@blocksuite/global/utils';
-
-import { isConnectable } from '../utils/query.js';
+import { Overlay } from '@blocksuite/affine-block-surface';
+import { ConnectorElementModel } from '@blocksuite/affine-model';
+import type { GfxModel } from '@blocksuite/block-std/gfx';
+import { almostEqual, Bound, Point } from '@blocksuite/global/gfx';
 
 interface Distance {
-  absXDistance: number;
-  absYDistance: number;
-  xDistance: number;
-  yDistance: number;
-  indexX: number;
-  indexY: number;
+  horiz?: {
+    /**
+     * the minimum x moving distance to align with other bound
+     */
+    distance: number;
+
+    /**
+     * the indices of the align position
+     */
+    alignPositionIndices: number[];
+  };
+
+  vert?: {
+    /**
+     * the minimum y moving distance to align with other bound
+     */
+    distance: number;
+
+    /**
+     * the indices of the align position
+     */
+    alignPositionIndices: number[];
+  };
 }
 
-const ALIGN_THRESHOLD = 5;
+const ALIGN_THRESHOLD = 8;
+const DISTRIBUTION_LINE_OFFSET = 1;
 
-export class EdgelessSnapManager extends Overlay {
+export class SnapManager extends Overlay {
   static override overlayName: string = 'snap-manager';
 
-  private _alignableBounds: Bound[] = [];
+  private _referenceBounds: {
+    vertical: Bound[];
+    horizontal: Bound[];
+    all: Bound[];
+  } = {
+    vertical: [],
+    horizontal: [],
+    all: [],
+  };
 
   /**
    * This variable contains reference lines that are
@@ -44,28 +63,16 @@ export class EdgelessSnapManager extends Overlay {
    */
   private _intraGraphicAlignLines: [Point, Point][] = [];
 
-  cleanupAlignables = () => {
-    this._alignableBounds = [];
+  override clear() {
+    super.clear();
+
+    this._referenceBounds = {
+      vertical: [],
+      horizontal: [],
+      all: [],
+    };
     this._intraGraphicAlignLines = [];
     this._distributedAlignLines = [];
-    // FIXME: not sure why renderer can be undefined sometimes
-    this._surface.renderer?.removeOverlay(this);
-  };
-
-  private get _surface() {
-    const surfaceModel = getSurfaceBlock(this.gfx.doc);
-    if (!surfaceModel) {
-      throw new BlockSuiteError(
-        ErrorCode.ValueNotExists,
-        'Surface block not found in doc when creating snap manager'
-      );
-    }
-
-    return this.gfx.std.view.getBlock(surfaceModel.id) as SurfaceBlockComponent;
-  }
-
-  constructor(gfx: GfxController) {
-    super(gfx);
   }
 
   private _alignDistributeHorizontally(
@@ -75,31 +82,52 @@ export class EdgelessSnapManager extends Overlay {
     viewport: { zoom: number }
   ) {
     const wBoxes: Bound[] = [];
-    this._alignableBounds.forEach(box => {
+    this._referenceBounds.horizontal.forEach(box => {
       if (box.isHorizontalCross(bound)) {
         wBoxes.push(box);
       }
     });
+
+    wBoxes.sort((a, b) => a.center[0] - b.center[0]);
+
     let dif = Infinity;
     let min = Infinity;
+    let aveDis = Number.MAX_SAFE_INTEGER;
+    let curBound!: {
+      leftIdx: number;
+      rightIdx: number;
+      spacing: number;
+      points: [Point, Point][];
+    };
     for (let i = 0; i < wBoxes.length; i++) {
       for (let j = i + 1; j < wBoxes.length; j++) {
         let lb = wBoxes[i],
           rb = wBoxes[j];
         // it means these bound need to be horizontally across
-        if (!lb.isHorizontalCross(rb)) continue;
-        if (lb.isIntersectWithBound(rb)) continue;
+        if (!lb.isHorizontalCross(rb) || lb.isIntersectWithBound(rb)) continue;
+
+        let switchFlag = false;
+        // exchange lb and rb to make sure lb is on the left of rb
         if (rb.maxX < lb.minX) {
           const temp = rb;
           rb = lb;
           lb = temp;
+          switchFlag = true;
         }
-        /** align middle */
+
         let _centerX = 0;
         const updateDif = () => {
           dif = Math.abs(bound.center[0] - _centerX);
-          if (dif <= threshold && dif < min) {
+          const curAveDis =
+            (Math.abs(lb.center[0] - bound.center[0]) +
+              Math.abs(rb.center[0] - bound.center[0])) /
+            2;
+          if (
+            dif <= threshold &&
+            (dif < min || (almostEqual(dif, min) && curAveDis < aveDis))
+          ) {
             min = dif;
+            aveDis = curAveDis;
             rst.dx = _centerX - bound.center[0];
             /**
              * calculate points to draw
@@ -108,35 +136,100 @@ export class EdgelessSnapManager extends Overlay {
               (a, b) => a - b
             );
             const y = (ys[1] + ys[2]) / 2;
-            const offset = 2 / viewport.zoom;
+            const offset = DISTRIBUTION_LINE_OFFSET / viewport.zoom;
             const xs = [
-              _centerX - bound.w / 2 - offset,
-              _centerX + bound.w / 2 + offset,
+              _centerX - bound.w / 2,
+              _centerX + bound.w / 2,
               rb.minX,
               rb.maxX,
               lb.minX,
               lb.maxX,
             ].sort((a, b) => a - b);
-            this._distributedAlignLines[0] = [
-              new Point(xs[1], y),
-              new Point(xs[2], y),
-            ];
-            this._distributedAlignLines[1] = [
-              new Point(xs[3], y),
-              new Point(xs[4], y),
-            ];
+
+            curBound = {
+              leftIdx: switchFlag ? j : i,
+              rightIdx: switchFlag ? i : j,
+              spacing: xs[2] - xs[1],
+              points: [
+                [new Point(xs[1] + offset, y), new Point(xs[2] - offset, y)],
+                [new Point(xs[3] + offset, y), new Point(xs[4] - offset, y)],
+              ],
+            };
           }
         };
+
+        /**
+         * align between left and right bound
+         */
         if (lb.horizontalDistance(rb) > bound.w) {
           _centerX = (lb.maxX + rb.minX) / 2;
           updateDif();
         }
-        /** align left */
+
+        /**
+         * align to the left bounds
+         */
         _centerX = lb.minX - (rb.minX - lb.maxX) - bound.w / 2;
         updateDif();
+
         /** align right */
         _centerX = rb.minX - lb.maxX + rb.maxX + bound.w / 2;
         updateDif();
+      }
+    }
+
+    // find the boxes that has same spacing
+    if (curBound) {
+      const { leftIdx, rightIdx, spacing, points } = curBound;
+
+      this._distributedAlignLines.push(...points);
+
+      {
+        let curLeftBound = wBoxes[leftIdx];
+
+        for (let i = leftIdx - 1; i >= 0; i--) {
+          if (almostEqual(wBoxes[i].maxX, curLeftBound.minX - spacing)) {
+            const targetBound = wBoxes[i];
+            const ys = [
+              targetBound.minY,
+              targetBound.maxY,
+              curLeftBound.minY,
+              curLeftBound.maxY,
+            ].sort((a, b) => a - b);
+            const y = (ys[1] + ys[2]) / 2;
+
+            this._distributedAlignLines.push([
+              new Point(wBoxes[i].maxX, y),
+              new Point(curLeftBound.minX, y),
+            ]);
+
+            curLeftBound = wBoxes[i];
+          }
+        }
+      }
+
+      {
+        let curRightBound = wBoxes[rightIdx];
+
+        for (let i = rightIdx + 1; i < wBoxes.length; i++) {
+          if (almostEqual(wBoxes[i].minX, curRightBound.maxX + spacing)) {
+            const targetBound = wBoxes[i];
+            const ys = [
+              targetBound.minY,
+              targetBound.maxY,
+              curRightBound.minY,
+              curRightBound.maxY,
+            ].sort((a, b) => a - b);
+            const y = (ys[1] + ys[2]) / 2;
+
+            this._distributedAlignLines.push([
+              new Point(curRightBound.maxX, y),
+              new Point(wBoxes[i].minX, y),
+            ]);
+
+            curRightBound = wBoxes[i];
+          }
+        }
       }
     }
   }
@@ -148,29 +241,50 @@ export class EdgelessSnapManager extends Overlay {
     viewport: { zoom: number }
   ) {
     const hBoxes: Bound[] = [];
-    this._alignableBounds.forEach(box => {
+    this._referenceBounds.vertical.forEach(box => {
       if (box.isVerticalCross(bound)) {
         hBoxes.push(box);
       }
     });
+
+    hBoxes.sort((a, b) => a.center[0] - b.center[0]);
+
     let dif = Infinity;
     let min = Infinity;
+    let aveDis = Number.MAX_SAFE_INTEGER;
+    let curBound!: {
+      upperIdx: number;
+      lowerIdx: number;
+      spacing: number;
+      points: [Point, Point][];
+    };
     for (let i = 0; i < hBoxes.length; i++) {
       for (let j = i + 1; j < hBoxes.length; j++) {
         let ub = hBoxes[i],
           db = hBoxes[j];
-        if (!ub.isVerticalCross(db)) continue;
-        if (ub.isIntersectWithBound(db)) continue;
+        if (!ub.isVerticalCross(db) || ub.isIntersectWithBound(db)) continue;
+
+        let switchFlag = false;
         if (db.maxY < ub.minX) {
           const temp = ub;
           ub = db;
           db = temp;
+          switchFlag = true;
         }
+
         /** align middle */
         let _centerY = 0;
         const updateDiff = () => {
           dif = Math.abs(bound.center[1] - _centerY);
-          if (dif <= threshold && dif < min) {
+          const curAveDis =
+            (Math.abs(ub.center[1] - bound.center[1]) +
+              Math.abs(db.center[1] - bound.center[1])) /
+            2;
+
+          if (
+            dif <= threshold &&
+            (dif < min || (almostEqual(dif, min) && curAveDis < aveDis))
+          ) {
             min = dif;
             rst.dy = _centerY - bound.center[1];
             /**
@@ -180,35 +294,94 @@ export class EdgelessSnapManager extends Overlay {
               (a, b) => a - b
             );
             const x = (xs[1] + xs[2]) / 2;
-            const offset = 2 / viewport.zoom;
+            const offset = DISTRIBUTION_LINE_OFFSET / viewport.zoom;
             const ys = [
-              _centerY - bound.h / 2 - offset,
-              _centerY + bound.h / 2 + offset,
+              _centerY - bound.h / 2,
+              _centerY + bound.h / 2,
               db.minY,
               db.maxY,
               ub.minY,
               ub.maxY,
             ].sort((a, b) => a - b);
-            this._distributedAlignLines[3] = [
-              new Point(x, ys[1]),
-              new Point(x, ys[2]),
-            ];
-            this._distributedAlignLines[4] = [
-              new Point(x, ys[3]),
-              new Point(x, ys[4]),
-            ];
+
+            curBound = {
+              upperIdx: switchFlag ? j : i,
+              lowerIdx: switchFlag ? i : j,
+              spacing: ys[2] - ys[1],
+              points: [
+                [new Point(x, ys[1] + offset), new Point(x, ys[2] - offset)],
+                [new Point(x, ys[3] + offset), new Point(x, ys[4] - offset)],
+              ],
+            };
           }
         };
+
         if (ub.verticalDistance(db) > bound.h) {
           _centerY = (ub.maxY + db.minY) / 2;
           updateDiff();
         }
+
         /** align upper */
         _centerY = ub.minY - (db.minY - ub.maxY) - bound.h / 2;
         updateDiff();
         /** align lower */
         _centerY = db.minY - ub.maxY + db.maxY + bound.h / 2;
         updateDiff();
+      }
+    }
+
+    // find the boxes that has same spacing
+    if (curBound) {
+      const { upperIdx, lowerIdx, spacing, points } = curBound;
+
+      this._distributedAlignLines.push(...points);
+
+      {
+        let curUpperBound = hBoxes[upperIdx];
+
+        for (let i = upperIdx - 1; i >= 0; i--) {
+          if (almostEqual(hBoxes[i].maxY, curUpperBound.minY - spacing)) {
+            const targetBound = hBoxes[i];
+            const xs = [
+              targetBound.minX,
+              targetBound.maxX,
+              curUpperBound.minX,
+              curUpperBound.maxX,
+            ].sort((a, b) => a - b);
+            const x = (xs[1] + xs[2]) / 2;
+
+            this._distributedAlignLines.push([
+              new Point(x, hBoxes[i].maxY),
+              new Point(x, curUpperBound.minY),
+            ]);
+
+            curUpperBound = hBoxes[i];
+          }
+        }
+      }
+
+      {
+        let curLowerBound = hBoxes[lowerIdx];
+
+        for (let i = lowerIdx + 1; i < hBoxes.length; i++) {
+          if (almostEqual(hBoxes[i].minY, curLowerBound.maxY + spacing)) {
+            const targetBound = hBoxes[i];
+            const xs = [
+              targetBound.minX,
+              targetBound.maxX,
+              curLowerBound.minX,
+              curLowerBound.maxX,
+            ].sort((a, b) => a - b);
+            const x = (xs[1] + xs[2]) / 2;
+
+            this._distributedAlignLines.push([
+              new Point(x, curLowerBound.maxY),
+              new Point(x, hBoxes[i].minY),
+            ]);
+
+            curLowerBound = hBoxes[i];
+          }
+        }
       }
     }
   }
@@ -263,94 +436,150 @@ export class EdgelessSnapManager extends Overlay {
     const closestX = Math.min(...xDistancesAbs);
     const closestY = Math.min(...yDistancesAbs);
 
-    const indexX = xDistancesAbs.indexOf(closestX);
-    const indexY = yDistancesAbs.indexOf(closestY);
+    const threshold = ALIGN_THRESHOLD / this.gfx.viewport.zoom;
 
     // the x and y distances will be useful for locating the align point
     return {
-      absXDistance: closestX,
-      absYDistance: closestY,
-      xDistance: xDistances[indexX],
-      yDistance: yDistances[indexY],
-      indexX,
-      indexY,
+      horiz:
+        closestX <= threshold
+          ? {
+              distance: xDistances[xDistancesAbs.indexOf(closestX)],
+              get alignPositionIndices() {
+                const indices: number[] = [];
+                xDistancesAbs.forEach(
+                  (val, idx) => almostEqual(val, closestX) && indices.push(idx)
+                );
+                return indices;
+              },
+            }
+          : undefined,
+      vert:
+        closestY <= threshold
+          ? {
+              distance: yDistances[yDistancesAbs.indexOf(closestY)],
+              get alignPositionIndices() {
+                const indices: number[] = [];
+                yDistancesAbs.forEach(
+                  (val, idx) => almostEqual(val, closestY) && indices.push(idx)
+                );
+                return indices;
+              },
+            }
+          : undefined,
     };
   }
 
-  private _draw() {
-    this._surface.refresh();
-  }
-
-  // Update X align point
+  /**
+   * Update horizontal moving distance `rst.dx` to align with other bound.
+   * Also, update the align points to draw.
+   * @param rst
+   * @param bound
+   * @param other
+   * @param distance
+   */
   private _updateXAlignPoint(
     rst: { dx: number; dy: number },
     bound: Bound,
     other: Bound,
     distance: Distance
   ) {
-    const index = distance.indexX;
-    rst.dx = distance.xDistance;
-    const alignPointX = [
+    if (!distance.horiz) return;
+
+    const { distance: dx, alignPositionIndices: distanceIndices } =
+      distance.horiz;
+    const alignXPosition = [
       other.center[0],
       other.minX,
       other.maxX,
-      bound.minX + rst.dx,
-      bound.minX + rst.dx,
-      bound.maxX + rst.dx,
-      bound.maxX + rst.dx,
-    ][index];
-    this._intraGraphicAlignLines[0] = [
-      new Point(alignPointX, bound.center[1]),
-      new Point(alignPointX, other.center[1]),
+      bound.minX + dx,
+      bound.minX + dx,
+      bound.maxX + dx,
+      bound.maxX + dx,
     ];
+
+    rst.dx = dx;
+
+    const dy = distance.vert?.distance ?? 0;
+    const top = Math.min(bound.minY + dy, other.minY);
+    const down = Math.max(bound.maxY + dy, other.maxY);
+
+    this._intraGraphicAlignLines.push(
+      ...distanceIndices.map(
+        idx =>
+          [
+            new Point(alignXPosition[idx], top),
+            new Point(alignXPosition[idx], down),
+          ] as [Point, Point]
+      )
+    );
   }
 
-  // Update Y align point
+  /**
+   * Update vertical moving distance `rst.dy` to align with other bound.
+   * Also, update the align points to draw.
+   * @param rst
+   * @param bound
+   * @param other
+   * @param distance
+   */
   private _updateYAlignPoint(
     rst: { dx: number; dy: number },
     bound: Bound,
     other: Bound,
     distance: Distance
   ) {
-    const index = distance.indexY;
-    rst.dy = distance.yDistance;
-    const alignPointY = [
+    if (!distance.vert) return;
+
+    const { distance: dy, alignPositionIndices } = distance.vert;
+    const alignXPosition = [
       other.center[1],
       other.minY,
       other.maxY,
-      bound.minY + rst.dy,
-      bound.minY + rst.dy,
-      bound.maxY + rst.dy,
-      bound.maxY + rst.dy,
-    ][index];
-    this._intraGraphicAlignLines[1] = [
-      new Point(bound.center[0], alignPointY),
-      new Point(other.center[0], alignPointY),
+      bound.minY + dy,
+      bound.minY + dy,
+      bound.maxY + dy,
+      bound.maxY + dy,
     ];
+
+    rst.dy = dy;
+
+    const dx = distance.horiz?.distance ?? 0;
+    const left = Math.min(bound.minX + dx, other.minX);
+    const right = Math.max(bound.maxX + dx, other.maxX);
+
+    this._intraGraphicAlignLines.push(
+      ...alignPositionIndices.map(
+        idx =>
+          [
+            new Point(left, alignXPosition[idx]),
+            new Point(right, alignXPosition[idx]),
+          ] as [Point, Point]
+      )
+    );
   }
 
   align(bound: Bound): { dx: number; dy: number } {
     const rst = { dx: 0, dy: 0 };
-    const threshold = ALIGN_THRESHOLD;
+    const threshold = ALIGN_THRESHOLD / this.gfx.viewport.zoom;
 
     const { viewport } = this.gfx;
 
     this._intraGraphicAlignLines = [];
     this._distributedAlignLines = [];
 
-    for (const other of this._alignableBounds) {
+    for (const other of this._referenceBounds.all) {
       const closestDistances = this._calculateClosestDistances(bound, other);
 
-      if (closestDistances.absXDistance < threshold) {
+      if (closestDistances.horiz) {
         this._updateXAlignPoint(rst, bound, other, closestDistances);
       }
 
-      if (closestDistances.absYDistance < threshold) {
+      if (closestDistances.vert) {
         this._updateYAlignPoint(rst, bound, other, closestDistances);
       }
     }
 
-    // point align prority is higher than distribute align
+    // point align priority is higher than distribute align
     if (rst.dx === 0) {
       this._alignDistributeHorizontally(rst, bound, threshold, viewport);
     }
@@ -358,7 +587,9 @@ export class EdgelessSnapManager extends Overlay {
     if (rst.dy === 0) {
       this._alignDistributeVertically(rst, bound, threshold, viewport);
     }
-    this._draw();
+
+    this._renderer?.refresh();
+
     return rst;
   }
 
@@ -369,9 +600,9 @@ export class EdgelessSnapManager extends Overlay {
     )
       return;
     const { viewport } = this.gfx;
-    const strokeWidth = 1 / viewport.zoom;
-    const offset = 5 / viewport.zoom;
-    ctx.strokeStyle = '#1672F3';
+    const strokeWidth = 2 / viewport.zoom;
+
+    ctx.strokeStyle = '#8B5CF6';
     ctx.lineWidth = strokeWidth;
     ctx.beginPath();
 
@@ -381,30 +612,31 @@ export class EdgelessSnapManager extends Overlay {
         const x = line[0].x;
         const minY = Math.min(line[0].y, line[1].y);
         const maxY = Math.max(line[0].y, line[1].y);
-        d = `M${x},${minY - offset}L${x},${maxY}`;
+        d = `M${x},${minY}L${x},${maxY}`;
       } else {
         const y = line[0].y;
         const minX = Math.min(line[0].x, line[1].x);
         const maxX = Math.max(line[0].x, line[1].x);
-        d = `M${minX - offset},${y}L${maxX + offset},${y}`;
+        d = `M${minX},${y}L${maxX},${y}`;
       }
       ctx.stroke(new Path2D(d));
     });
 
+    ctx.strokeStyle = '#CC4187';
     this._distributedAlignLines.forEach(line => {
       const bar = 10 / viewport.zoom;
       let d = '';
       if (line[0].x === line[1].x) {
         const x = line[0].x;
-        const minY = Math.min(line[0].y, line[1].y) + offset;
-        const maxY = Math.max(line[0].y, line[1].y) - offset;
+        const minY = Math.min(line[0].y, line[1].y);
+        const maxY = Math.max(line[0].y, line[1].y);
         d = `M${x},${minY}L${x},${maxY}
         M${x - bar},${minY}L${x + bar},${minY}
         M${x - bar},${maxY}L${x + bar},${maxY} `;
       } else {
         const y = line[0].y;
-        const minX = Math.min(line[0].x, line[1].x) + offset;
-        const maxX = Math.max(line[0].x, line[1].x) - offset;
+        const minX = Math.min(line[0].x, line[1].x);
+        const maxX = Math.max(line[0].x, line[1].x);
         d = `M${minX},${y}L${maxX},${y}
         M${minX},${y - bar}L${minX},${y + bar}
         M${maxX},${y - bar}L${maxX},${y + bar}`;
@@ -413,42 +645,68 @@ export class EdgelessSnapManager extends Overlay {
     });
   }
 
-  setupAlignables(alignables: GfxModel[], exclude: GfxModel[] = []): Bound {
-    if (alignables.length === 0) return new Bound();
+  setMovingElements(
+    movingElements: GfxModel[],
+    excludes: GfxModel[] = []
+  ): Bound {
+    if (movingElements.length === 0) return new Bound();
 
-    const connectors = alignables.filter(isConnectable).reduce((prev, el) => {
-      const connectors = (this.gfx.surface as SurfaceBlockModel).getConnectors(
-        el.id
-      );
+    const skipped = new Set(movingElements);
+    excludes.forEach(e => skipped.add(e));
 
-      if (connectors.length > 0) {
-        prev = prev.concat(connectors);
-      }
-
-      return prev;
-    }, [] as ConnectorElementModel[]);
-
-    const { viewport } = this.gfx;
-    const viewportBounds = Bound.from(viewport.viewportBounds);
-    this._surface.renderer.addOverlay(this);
-    const canvasElements = this.gfx.layer.canvasElements;
-    const excludes = new Set([...alignables, ...exclude, ...connectors]);
-    this._alignableBounds = [];
-    ([...this.gfx.layer.blocks, ...canvasElements] as GfxModel[]).forEach(
-      alignable => {
-        const bounds = alignable.elementBound;
-        if (
-          viewportBounds.isOverlapWithBound(bounds) &&
-          !excludes.has(alignable)
-        ) {
-          this._alignableBounds.push(bounds);
-        }
-      }
+    const viewportBound = this.gfx.viewport.viewportBounds;
+    const movingBound = movingElements
+      .reduce(
+        (prev, element) => prev.unite(element.elementBound),
+        movingElements[0].elementBound
+      )
+      .expand(ALIGN_THRESHOLD * this.gfx.viewport.zoom);
+    const horizAreaBound = new Bound(
+      Math.min(movingBound.x, viewportBound.x),
+      movingBound.y,
+      Math.max(movingBound.w, viewportBound.w),
+      movingBound.h
+    );
+    const vertAreaBound = new Bound(
+      movingBound.x,
+      Math.min(movingBound.y, viewportBound.y),
+      movingBound.w,
+      Math.max(movingBound.h, viewportBound.h)
     );
 
-    return alignables.reduce((prev, element) => {
-      const bounds = element.elementBound;
-      return prev.unite(bounds);
-    }, Bound.deserialize(alignables[0].xywh));
+    const vertCandidates = this.gfx.grid.search(vertAreaBound, {
+      useSet: true,
+    });
+    const horizCandidates = this.gfx.grid.search(horizAreaBound, {
+      useSet: true,
+    });
+    const verticalBounds: Bound[] = [];
+    const horizBounds: Bound[] = [];
+    const allBounds: Bound[] = [];
+
+    vertCandidates.forEach(candidate => {
+      if (skipped.has(candidate) || candidate instanceof ConnectorElementModel)
+        return;
+      verticalBounds.push(candidate.elementBound);
+      allBounds.push(candidate.elementBound);
+    });
+
+    horizCandidates.forEach(candidate => {
+      if (skipped.has(candidate) || candidate instanceof ConnectorElementModel)
+        return;
+      horizBounds.push(candidate.elementBound);
+      allBounds.push(candidate.elementBound);
+    });
+
+    this._referenceBounds = {
+      horizontal: horizBounds,
+      vertical: verticalBounds,
+      all: allBounds,
+    };
+
+    return movingElements.reduce(
+      (prev, element) => prev.unite(element.elementBound),
+      Bound.deserialize(movingElements[0].xywh)
+    );
   }
 }

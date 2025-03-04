@@ -12,7 +12,7 @@ import {
   getSvgPathFromStroke,
   type IVec,
   linePolygonIntersects,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 
 class EraserOverlay extends Overlay {
   d = '';

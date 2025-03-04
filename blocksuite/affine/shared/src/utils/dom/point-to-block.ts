@@ -1,11 +1,10 @@
 import { NoteBlockModel, RootBlockModel } from '@blocksuite/affine-model';
 import { BLOCK_ID_ATTR, type BlockComponent } from '@blocksuite/block-std';
 import { SurfaceBlockModel } from '@blocksuite/block-std/gfx';
-import type { Point, Rect } from '@blocksuite/global/utils';
+import { clamp, type Point, type Rect } from '@blocksuite/global/gfx';
 import type { BlockModel } from '@blocksuite/store';
 
 import { BLOCK_CHILDREN_CONTAINER_PADDING_LEFT } from '../../consts/index.js';
-import { clamp } from '../math.js';
 import { matchModels } from '../model/checker.js';
 
 const ATTR_SELECTOR = `[${BLOCK_ID_ATTR}]`;

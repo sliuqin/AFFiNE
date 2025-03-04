@@ -15,7 +15,7 @@ import {
   TelemetryProvider,
   uploadBlobForImage,
 } from '@blocksuite/affine/blocks';
-import { Bound, getCommonBound } from '@blocksuite/affine/global/utils';
+import { Bound, getCommonBound } from '@blocksuite/affine/global/gfx';
 import { type BlockProps, Text } from '@blocksuite/affine/store';
 import * as Y from 'yjs';
 

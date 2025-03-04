@@ -12,7 +12,8 @@ import {
   TelemetryProvider,
 } from '@blocksuite/affine-shared/services';
 import { openFileOrFiles } from '@blocksuite/affine-shared/utils';
-import { assertInstanceOf, Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
+import { assertInstanceOf } from '@blocksuite/global/utils';
 import type { TemplateResult } from 'lit';
 import * as Y from 'yjs';
 

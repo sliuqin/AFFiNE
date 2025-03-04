@@ -1,5 +1,5 @@
-import type { IVec, IVec3 } from '@blocksuite/global/utils';
-import { almostEqual } from '@blocksuite/global/utils';
+import type { IVec, IVec3 } from '@blocksuite/global/gfx';
+import { almostEqual } from '@blocksuite/global/gfx';
 import { describe, expect, it } from 'vitest';
 
 import { AStarRunner } from '../utils/a-star.js';
@@ -55,7 +55,7 @@ describe('a* algorithm', () => {
     let path: IVec[] | IVec3[] = aStar.path;
     path.pop();
     path.shift();
-    path = mergePath(path);
+    path = mergePath(path as IVec3[]);
     const expected = [
       [0, 0],
       [100, 0],

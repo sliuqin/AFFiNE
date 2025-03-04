@@ -32,6 +32,7 @@ import {
   ImageSelectionExtension,
 } from '@blocksuite/affine-shared/selection';
 import {
+  BlockMetaService,
   FeatureFlagService,
   FileSizeLimitService,
   LinkPreviewerService,
@@ -87,15 +88,15 @@ export const StoreExtensions: ExtensionType[] = [
   DatabaseSelectionExtension,
   TableSelectionExtension,
 
-  FeatureFlagService,
-  LinkPreviewerService,
-  FileSizeLimitService,
-  ImageStoreSpec,
-
   HtmlAdapterExtension,
   MarkdownAdapterExtension,
   NotionHtmlAdapterExtension,
   PlainTextAdapterExtension,
-
   AdapterFactoryExtensions,
+
+  FeatureFlagService,
+  LinkPreviewerService,
+  FileSizeLimitService,
+  ImageStoreSpec,
+  BlockMetaService,
 ].flat();

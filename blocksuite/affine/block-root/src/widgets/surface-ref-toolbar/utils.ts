@@ -7,7 +7,8 @@ import {
   GfxControllerIdentifier,
   type GfxModel,
 } from '@blocksuite/block-std/gfx';
-import { assertExists, Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
+import { assertExists } from '@blocksuite/global/utils';
 
 export const edgelessToBlob = async (
   host: EditorHost,

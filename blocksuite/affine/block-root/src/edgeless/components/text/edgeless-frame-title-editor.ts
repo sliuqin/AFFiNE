@@ -9,7 +9,8 @@ import {
   RANGE_SYNC_EXCLUDE_ATTR,
   ShadowlessElement,
 } from '@blocksuite/block-std';
-import { assertExists, Bound, WithDisposable } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
+import { assertExists, WithDisposable } from '@blocksuite/global/utils';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { css, html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';

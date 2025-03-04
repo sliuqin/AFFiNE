@@ -2,7 +2,8 @@ import {
   EditPropsStore,
   ThemeProvider,
 } from '@blocksuite/affine-shared/services';
-import { assertExists, Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
+import { assertExists } from '@blocksuite/global/utils';
 import {
   type ReactiveController,
   type ReactiveControllerHost,

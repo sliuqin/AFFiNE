@@ -10,6 +10,7 @@ import {
   LitEdgelessEditor,
   type PageEditor,
 } from '@affine/core/blocksuite/editors';
+import { useEnableAI } from '@affine/core/components/hooks/affine/use-enable-ai';
 import type { DocCustomPropertyInfo } from '@affine/core/modules/db';
 import { DocService, DocsService } from '@affine/core/modules/doc';
 import type {
@@ -24,7 +25,11 @@ import { toURLSearchParams } from '@affine/core/modules/navigation';
 import { PeekViewService } from '@affine/core/modules/peek-view/services/peek-view';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import track from '@affine/track';
-import type { DocMode, DocTitle } from '@blocksuite/affine/blocks';
+import {
+  type DocMode,
+  type DocTitle,
+  ViewportTurboRendererExtension,
+} from '@blocksuite/affine/blocks';
 import type { Store } from '@blocksuite/affine/store';
 import {
   useFramework,
@@ -134,8 +139,14 @@ const usePatchSpecs = (mode: DocMode) => {
 
   const confirmModal = useConfirmModal();
 
+  const enableAI = useEnableAI();
+
+  const enableTurboRenderer = useLiveData(
+    featureFlagService.flags.enable_turbo_renderer.$
+  );
+
   const patchedSpecs = useMemo(() => {
-    const builder = enableEditorExtension(framework, mode);
+    const builder = enableEditorExtension(framework, mode, enableAI);
 
     builder.extend(
       [
@@ -150,6 +161,9 @@ const usePatchSpecs = (mode: DocMode) => {
         patchSideBarService(framework),
         patchDocModeService(docService, docsService, editorService),
         patchDatabaseBlockConfigService(),
+        mode === 'edgeless' && enableTurboRenderer
+          ? [ViewportTurboRendererExtension]
+          : [],
       ].flat()
     );
 
@@ -175,6 +189,8 @@ const usePatchSpecs = (mode: DocMode) => {
     reactToLit,
     referenceRenderer,
     featureFlagService,
+    enableAI,
+    enableTurboRenderer,
   ]);
 
   return [

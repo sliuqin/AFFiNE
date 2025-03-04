@@ -4,11 +4,11 @@ import type {
   FontWeight,
   TextElementModel,
 } from '@blocksuite/affine-model';
-import type { Bound } from '@blocksuite/global/utils';
+import type { Bound } from '@blocksuite/global/gfx';
 import {
   getPointsFromBoundWithRotation,
   rotatePoints,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 import { deltaInsertsToChunks } from '@blocksuite/inline';
 import type * as Y from 'yjs';
 

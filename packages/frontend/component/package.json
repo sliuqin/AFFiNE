@@ -26,7 +26,7 @@
     "@affine/i18n": "workspace:*",
     "@atlaskit/pragmatic-drag-and-drop": "^1.4.0",
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.0.3",
-    "@blocksuite/icons": "2.2.3",
+    "@blocksuite/icons": "2.2.4",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@radix-ui/react-avatar": "^1.1.2",
@@ -60,14 +60,14 @@
     "react-paginate": "^8.2.0",
     "react-router-dom": "^6.28.0",
     "react-transition-state": "^2.2.0",
-    "sonner": "^1.7.1",
+    "sonner": "^2.0.0",
     "swr": "^2.2.5",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@affine-tools/utils": "workspace:*",
     "@blocksuite/affine": "workspace:*",
-    "@blocksuite/icons": "2.2.3",
+    "@blocksuite/icons": "2.2.4",
     "@chromatic-com/storybook": "^3.2.2",
     "@storybook/addon-essentials": "^8.4.7",
     "@storybook/addon-interactions": "^8.4.7",
@@ -84,7 +84,7 @@
     "typescript": "^5.7.2",
     "unplugin-swc": "^1.5.1",
     "vite": "^6.0.3",
-    "vitest": "3.0.6"
+    "vitest": "3.0.7"
   },
   "version": "0.20.0"
 }

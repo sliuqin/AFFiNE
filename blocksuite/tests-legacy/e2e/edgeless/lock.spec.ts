@@ -194,16 +194,16 @@ test.describe('lock', () => {
     const { lock, unlock } = getButtons(page);
 
     await lock.click();
-    await assertEdgelessSelectedModelRect(page, [0, 0, 120, 120]); // frame outline and shape
+    await assertEdgelessSelectedModelRect(page, [0, 0, 125, 125]); // frame outline and shape
     await pressEscape(page);
     await clickView(page, [100, 100]);
-    await assertEdgelessSelectedModelRect(page, [0, 0, 120, 120]);
+    await assertEdgelessSelectedModelRect(page, [0, 0, 125, 125]);
 
     await unlock.click();
     await assertEdgelessSelectedModelRect(page, [0, 0, 100, 100]);
     await pressEscape(page);
     await clickView(page, [100, 100]);
-    await assertEdgelessSelectedModelRect(page, [70, 70, 50, 50]);
+    await assertEdgelessSelectedModelRect(page, [75, 75, 50, 50]);
 
     await deleteAll(page);
 

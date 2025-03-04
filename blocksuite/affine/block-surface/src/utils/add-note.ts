@@ -14,11 +14,7 @@ import {
   type GfxBlockElementModel,
   GfxControllerIdentifier,
 } from '@blocksuite/block-std/gfx';
-import {
-  type IPoint,
-  type Point,
-  serializeXYWH,
-} from '@blocksuite/global/utils';
+import { type IPoint, type Point, serializeXYWH } from '@blocksuite/global/gfx';
 
 import { DEFAULT_NOTE_OFFSET_X, DEFAULT_NOTE_OFFSET_Y } from '../consts';
 import { EdgelessCRUDIdentifier } from '../extensions/crud-extension';

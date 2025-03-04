@@ -12,15 +12,9 @@ import {
   observe,
   watch,
 } from '@blocksuite/block-std/gfx';
-import type { Bound, SerializedXYWH, XYWH } from '@blocksuite/global/utils';
-import {
-  assertType,
-  deserializeXYWH,
-  keys,
-  last,
-  noop,
-  pick,
-} from '@blocksuite/global/utils';
+import type { Bound, SerializedXYWH, XYWH } from '@blocksuite/global/gfx';
+import { deserializeXYWH } from '@blocksuite/global/gfx';
+import { assertType, keys, last, noop, pick } from '@blocksuite/global/utils';
 import { generateKeyBetween } from 'fractional-indexing';
 import * as Y from 'yjs';
 import { z } from 'zod';

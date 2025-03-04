@@ -6,6 +6,7 @@ import { computed, signal } from '@preact/signals-core';
 import type { ExtensionType } from '../../extension/extension.js';
 import {
   BlockSchemaIdentifier,
+  StoreExtensionIdentifier,
   StoreSelectionExtension,
 } from '../../extension/index.js';
 import { Schema } from '../../schema/index.js';
@@ -313,6 +314,17 @@ export class Store {
   }
 
   constructor({ doc, readonly, query, provider, extensions }: StoreOptions) {
+    this._doc = doc;
+    this.slots = {
+      ready: new Slot(),
+      rootAdded: new Slot(),
+      rootDeleted: new Slot(),
+      blockUpdated: new Slot(),
+      historyUpdated: this._doc.slots.historyUpdated,
+      yBlockUpdated: this._doc.slots.yBlockUpdated,
+    };
+    this._schema = new Schema();
+
     const container = new Container();
     container.addImpl(StoreIdentifier, () => this);
 
@@ -327,18 +339,6 @@ export class Store {
     });
 
     this._provider = container.provider(undefined, provider);
-    this._doc = doc;
-
-    this.slots = {
-      ready: new Slot(),
-      rootAdded: new Slot(),
-      rootDeleted: new Slot(),
-      blockUpdated: new Slot(),
-      historyUpdated: this._doc.slots.historyUpdated,
-      yBlockUpdated: this._doc.slots.yBlockUpdated,
-    };
-
-    this._schema = new Schema();
     this._provider.getAll(BlockSchemaIdentifier).forEach(schema => {
       this._schema.register([schema]);
     });
@@ -698,6 +698,7 @@ export class Store {
 
   load(initFn?: () => void) {
     this._doc.load(initFn);
+    this._provider.getAll(StoreExtensionIdentifier);
     this.slots.ready.emit();
     return this;
   }

@@ -10,13 +10,9 @@ import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 
 import { EmbedBlockComponent } from '../common/embed-block-element.js';
-import type { EmbedFigmaBlockService } from './embed-figma-service.js';
 import { FigmaIcon, styles } from './styles.js';
 
-export class EmbedFigmaBlockComponent extends EmbedBlockComponent<
-  EmbedFigmaModel,
-  EmbedFigmaBlockService
-> {
+export class EmbedFigmaBlockComponent extends EmbedBlockComponent<EmbedFigmaModel> {
   static override styles = styles;
 
   override _cardStyle: (typeof EmbedFigmaStyles)[number] = 'figma';

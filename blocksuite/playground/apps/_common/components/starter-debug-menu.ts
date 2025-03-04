@@ -46,7 +46,7 @@ import {
   ZipTransformer,
 } from '@blocksuite/blocks';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import type { SerializedXYWH } from '@blocksuite/global/utils';
+import type { SerializedXYWH } from '@blocksuite/global/gfx';
 import type { DeltaInsert } from '@blocksuite/inline/types';
 import { TestAffineEditorContainer } from '@blocksuite/integration-test';
 import { Text, type Workspace } from '@blocksuite/store';

@@ -19,8 +19,8 @@ import {
 import { TelemetryProvider } from '@blocksuite/affine-shared/services';
 import type { PointerEventState } from '@blocksuite/block-std';
 import { BaseTool, type GfxModel } from '@blocksuite/block-std/gfx';
-import type { IBound, IVec } from '@blocksuite/global/utils';
-import { Bound } from '@blocksuite/global/utils';
+import type { IBound, IVec } from '@blocksuite/global/gfx';
+import { Bound } from '@blocksuite/global/gfx';
 
 enum ConnectorToolMode {
   // Dragging connect

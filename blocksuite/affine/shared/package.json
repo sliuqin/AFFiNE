@@ -59,7 +59,6 @@
     "./consts": "./src/consts/index.ts",
     "./types": "./src/types/index.ts",
     "./commands": "./src/commands/index.ts",
-    "./mixins": "./src/mixins/index.ts",
     "./theme": "./src/theme/index.ts",
     "./styles": "./src/styles/index.ts",
     "./services": "./src/services/index.ts",
@@ -75,7 +74,7 @@
   "devDependencies": {
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/lodash.mergewith": "^4",
-    "vitest": "3.0.6"
+    "vitest": "3.0.7"
   },
   "version": "0.20.0"
 }

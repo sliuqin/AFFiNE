@@ -1,5 +1,5 @@
 import { DEFAULT_ROUGHNESS } from '@blocksuite/affine-model';
-import type { SerializedXYWH } from '@blocksuite/global/utils';
+import type { SerializedXYWH } from '@blocksuite/global/gfx';
 import {
   Boxed,
   nanoid,

@@ -23,7 +23,7 @@ import {
   Bound,
   getCommonBoundWithRotation,
   type SerializedXYWH,
-} from '@blocksuite/affine/global/utils';
+} from '@blocksuite/affine/global/gfx';
 import type { Store } from '@blocksuite/affine/store';
 import type { TemplateResult } from 'lit';
 

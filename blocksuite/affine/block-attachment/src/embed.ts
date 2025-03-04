@@ -12,7 +12,7 @@ import {
 import { type BlockStdScope, StdIdentifier } from '@blocksuite/block-std';
 import type { Container } from '@blocksuite/global/di';
 import { createIdentifier } from '@blocksuite/global/di';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import type { ExtensionType } from '@blocksuite/store';
 import { Extension } from '@blocksuite/store';
 import type { TemplateResult } from 'lit';

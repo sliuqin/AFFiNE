@@ -1,5 +1,5 @@
 import type * as BlocksuiteBlocks from '@blocksuite/affine/blocks';
-import type { IVec, XYWH } from '@blocksuite/global/utils';
+import type { IVec, XYWH } from '@blocksuite/affine/global/gfx';
 import { expect, type Locator, type Page } from '@playwright/test';
 
 declare type _GLOBAL_ = typeof BlocksuiteBlocks;

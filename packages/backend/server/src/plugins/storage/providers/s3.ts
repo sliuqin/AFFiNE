@@ -35,7 +35,7 @@ export class S3StorageProvider implements StorageProvider {
   ) {
     this.client = new S3Client({
       region: 'auto',
-      // s3 client uses keep-alive by default to accelrate requests, and max requests queue is 50.
+      // s3 client uses keep-alive by default to accelerate requests, and max requests queue is 50.
       // If some of them are long holding or dead without response, the whole queue will block.
       // By default no timeout is set for requests or connections, so we set them here.
       requestHandler: { requestTimeout: 60_000, connectionTimeout: 10_000 },
@@ -70,16 +70,14 @@ export class S3StorageProvider implements StorageProvider {
 
       this.logger.verbose(`Object \`${key}\` put`);
     } catch (e) {
-      throw new Error(
+      this.logger.error(
         `Failed to put object (${JSON.stringify({
           key,
           bucket: this.bucket,
           metadata,
-        })})`,
-        {
-          cause: e,
-        }
+        })})`
       );
+      throw e;
     }
   }
 
@@ -103,11 +101,9 @@ export class S3StorageProvider implements StorageProvider {
       if (e instanceof NoSuchKey) {
         this.logger.verbose(`Object \`${key}\` not found`);
         return undefined;
-      } else {
-        throw new Error(`Failed to head object \`${key}\``, {
-          cause: e,
-        });
       }
+      this.logger.error(`Failed to head object \`${key}\``);
+      throw e;
     }
   }
 
@@ -145,11 +141,9 @@ export class S3StorageProvider implements StorageProvider {
       if (e instanceof NoSuchKey) {
         this.logger.verbose(`Object \`${key}\` not found`);
         return {};
-      } else {
-        throw new Error(`Failed to read object \`${key}\``, {
-          cause: e,
-        });
       }
+      this.logger.error(`Failed to read object \`${key}\``);
+      throw e;
     }
   }
 
@@ -191,9 +185,8 @@ export class S3StorageProvider implements StorageProvider {
       );
       return result;
     } catch (e) {
-      throw new Error(`Failed to list objects with prefix \`${prefix}\``, {
-        cause: e,
-      });
+      this.logger.error(`Failed to list objects with prefix \`${prefix}\``);
+      throw e;
     }
   }
 
@@ -205,10 +198,11 @@ export class S3StorageProvider implements StorageProvider {
           Key: key,
         })
       );
+
+      this.logger.verbose(`Deleted object \`${key}\``);
     } catch (e) {
-      throw new Error(`Failed to delete object \`${key}\``, {
-        cause: e,
-      });
+      this.logger.error(`Failed to delete object \`${key}\``);
+      throw e;
     }
   }
 }

@@ -12,8 +12,8 @@ import {
 import { hasClassNameInList } from '@blocksuite/affine-shared/utils';
 import type { PointerEventState } from '@blocksuite/block-std';
 import { BaseTool } from '@blocksuite/block-std/gfx';
-import type { IBound } from '@blocksuite/global/utils';
-import { Bound } from '@blocksuite/global/utils';
+import type { IBound } from '@blocksuite/global/gfx';
+import { Bound } from '@blocksuite/global/gfx';
 import { effect } from '@preact/signals-core';
 
 import {

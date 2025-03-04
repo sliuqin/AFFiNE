@@ -1,5 +1,4 @@
 // control coords are not relative to start or end
-import { assertExists } from './assert.js';
 import { CURVETIME_EPSILON, isZero } from './math.js';
 import { Bound, type IVec, PointLocation, Vec } from './model/index.js';
 
@@ -111,7 +110,7 @@ export function getBezierNearestTime(
   function refine(t: number) {
     if (t >= 0 && t <= 1) {
       const tmpPoint = getBezierPoint(values, t);
-      assertExists(tmpPoint);
+      if (!tmpPoint) return false;
       const dist = Vec.dist2(point, tmpPoint);
       if (dist < minDist) {
         minDist = dist;
@@ -137,7 +136,6 @@ export function getBezierNearestPoint(
 ) {
   const t = getBezierNearestTime(values, point);
   const pointOnCurve = getBezierPoint(values, t);
-  assertExists(pointOnCurve);
   return pointOnCurve;
 }
 

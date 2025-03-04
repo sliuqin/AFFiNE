@@ -4,8 +4,8 @@ import {
   type MindmapNode,
   type MindmapRoot,
 } from '@blocksuite/affine-model';
-import type { SerializedXYWH } from '@blocksuite/global/utils';
-import { Bound } from '@blocksuite/global/utils';
+import type { SerializedXYWH } from '@blocksuite/global/gfx';
+import { Bound } from '@blocksuite/global/gfx';
 
 export const NODE_VERTICAL_SPACING = 45;
 export const NODE_HORIZONTAL_SPACING = 110;

@@ -7,12 +7,12 @@ import type {
   BezierCurveParameters,
   IVec,
   PointLocation,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 import {
   getBezierParameters,
   getBezierTangent,
   Vec,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 
 import type { RoughCanvas } from '../../../utils/rough/canvas.js';
 

@@ -1,11 +1,7 @@
 import type { NoteBlockModel } from '@blocksuite/affine-model';
 import { type EditorHost, ShadowlessElement } from '@blocksuite/block-std';
-import {
-  almostEqual,
-  Bound,
-  SignalWatcher,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+import { almostEqual, Bound } from '@blocksuite/global/gfx';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
 import { html } from 'lit';
 import { property } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';

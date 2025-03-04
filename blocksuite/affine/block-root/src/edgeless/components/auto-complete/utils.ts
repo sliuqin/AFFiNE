@@ -15,8 +15,8 @@ import {
 } from '@blocksuite/affine-model';
 import type { GfxController, GfxModel } from '@blocksuite/block-std/gfx';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import type { XYWH } from '@blocksuite/global/utils';
-import { assertType, Bound, normalizeDegAngle } from '@blocksuite/global/utils';
+import { Bound, normalizeDegAngle, type XYWH } from '@blocksuite/global/gfx';
+import { assertType } from '@blocksuite/global/utils';
 import * as Y from 'yjs';
 
 import type { EdgelessRootBlockComponent } from '../../edgeless-root-block.js';

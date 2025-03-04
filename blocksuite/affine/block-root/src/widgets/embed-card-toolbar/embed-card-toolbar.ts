@@ -44,7 +44,6 @@ import {
 import {
   EmbedOptionProvider,
   type EmbedOptions,
-  FeatureFlagService,
   GenerateDocUrlProvider,
   type GenerateDocUrlService,
   type LinkEventType,
@@ -236,16 +235,6 @@ export class EmbedCardToolbar extends WidgetComponent<
     cloneGroups(BUILT_IN_GROUPS);
 
   private get _canConvertToEmbedView() {
-    // synced doc entry controlled by awareness flag
-    if (this.focusModel && isEmbedLinkedDocBlock(this.focusModel)) {
-      const isSyncedDocEnabled = this.doc
-        .get(FeatureFlagService)
-        .getFlag('enable_synced_doc_block');
-      if (!isSyncedDocEnabled) {
-        return false;
-      }
-    }
-
     if (!this.focusBlock) return false;
 
     return (

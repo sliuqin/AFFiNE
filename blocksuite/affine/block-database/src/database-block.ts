@@ -36,7 +36,7 @@ import {
   uniMap,
 } from '@blocksuite/data-view';
 import { widgetPresets } from '@blocksuite/data-view/widget-presets';
-import { Rect } from '@blocksuite/global/utils';
+import { Rect } from '@blocksuite/global/gfx';
 import {
   CopyIcon,
   DeleteIcon,

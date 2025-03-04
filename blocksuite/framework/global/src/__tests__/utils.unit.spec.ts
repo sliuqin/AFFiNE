@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { isEqual } from '../utils.js';
+import { isEqual } from '../utils/index.js';
 
 describe('isEqual', () => {
   test('number', () => {

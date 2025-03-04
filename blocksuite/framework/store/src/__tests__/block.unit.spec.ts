@@ -10,6 +10,7 @@ import {
   internalPrimitives,
 } from '../model/block/index.js';
 import type { YBlock } from '../model/block/types.js';
+import type { Text } from '../reactive/text.js';
 import { createAutoIncrementIdGenerator } from '../test/index.js';
 import { TestWorkspace } from '../test/test-workspace.js';
 
@@ -47,6 +48,7 @@ const flatTableSchema = defineBlockSchema({
   props: internal => ({
     title: internal.Text(),
     cols: { internal: { color: 'white' } } as Record<string, { color: string }>,
+    textCols: {} as Record<string, Text>,
     rows: {} as Record<string, { color: string }>,
     labels: [] as Array<string>,
   }),
@@ -265,35 +267,20 @@ test('on change', () => {
   const model = block.model as RootModel;
 
   model.title = internalPrimitives.Text('abc');
-  expect(onPropsUpdated).toHaveBeenCalledWith(
-    expect.anything(),
-    'title',
-    expect.anything()
-  );
+  expect(onPropsUpdated).toHaveBeenCalledWith(expect.anything(), 'title');
   expect(model.title$.value.toDelta()).toEqual([{ insert: 'abc' }]);
 
   onPropsUpdated.mockClear();
 
   model.title.insert('d', 1);
-  expect(onPropsUpdated).toHaveBeenCalledWith(
-    expect.anything(),
-    'title',
-    expect.anything()
-  );
+  expect(onPropsUpdated).toHaveBeenCalledWith(expect.anything(), 'title');
 
   expect(model.title$.value.toDelta()).toEqual([{ insert: 'adbc' }]);
 
   onPropsUpdated.mockClear();
 
   model.boxed.getValue()!.set('foo', 0);
-  expect(onPropsUpdated).toHaveBeenCalledWith(
-    expect.anything(),
-    'boxed',
-    expect.anything()
-  );
-  expect(onPropsUpdated.mock.calls[0][2].toJSON().value).toMatchObject({
-    foo: 0,
-  });
+  expect(onPropsUpdated).toHaveBeenCalledWith(expect.anything(), 'boxed');
   expect(model.boxed$.value.getValue()!.toJSON()).toEqual({
     foo: 0,
   });
@@ -356,11 +343,7 @@ test('deep sync', () => {
   const map = new Y.Map();
   map.set('color', 'green');
   getColsMap().set('3', map);
-  expect(onPropsUpdated).toHaveBeenCalledWith(
-    expect.anything(),
-    'cols',
-    expect.anything()
-  );
+  expect(onPropsUpdated).toHaveBeenCalledWith(expect.anything(), 'cols');
   expect(onColsUpdated).toHaveBeenCalledWith({
     '1': { color: 'red' },
     '2': { color: 'blue' },
@@ -373,11 +356,7 @@ test('deep sync', () => {
   onRowsUpdated.mockClear();
 
   model.rows.push({ color: 'yellow' });
-  expect(onPropsUpdated).toHaveBeenCalledWith(
-    expect.anything(),
-    'rows',
-    expect.anything()
-  );
+  expect(onPropsUpdated).toHaveBeenCalledWith(expect.anything(), 'rows');
   expect(onRowsUpdated).toHaveBeenCalledWith([{ color: 'yellow' }]);
   expect(onPropsUpdated).toHaveBeenCalledTimes(1);
   expect(onRowsUpdated).toHaveBeenCalledTimes(1);
@@ -388,11 +367,7 @@ test('deep sync', () => {
   const row1 = getRowsArr().get(0) as Y.Map<string>;
   row1.set('color', 'green');
   expect(onRowsUpdated).toHaveBeenCalledWith([{ color: 'green' }]);
-  expect(onPropsUpdated).toHaveBeenCalledWith(
-    expect.anything(),
-    'rows',
-    expect.anything()
-  );
+  expect(onPropsUpdated).toHaveBeenCalledWith(expect.anything(), 'rows');
   expect(model.rows$.value).toEqual([{ color: 'green' }]);
   expect(onPropsUpdated).toHaveBeenCalledTimes(1);
   expect(onRowsUpdated).toHaveBeenCalledTimes(1);
@@ -438,11 +413,7 @@ describe('flat', () => {
     });
     expect(onColUpdated).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange).toHaveBeenCalledWith(
-      expect.anything(),
-      'cols',
-      expect.anything()
-    );
+    expect(onChange).toHaveBeenCalledWith(expect.anything(), 'cols');
 
     model.props.cols.a.color = 'black';
     expect(yBlock.get('prop:cols.a.color')).toBe('black');
@@ -461,11 +432,7 @@ describe('flat', () => {
     });
     expect(onColUpdated).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange).toHaveBeenCalledWith(
-      expect.anything(),
-      'cols',
-      expect.anything()
-    );
+    expect(onChange).toHaveBeenCalledWith(expect.anything(), 'cols');
 
     onChange.mockClear();
     onColUpdated.mockClear();
@@ -475,11 +442,7 @@ describe('flat', () => {
     expect(model.props.cols$.value).toEqual({ a: {} });
     expect(onColUpdated).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange).toHaveBeenCalledWith(
-      expect.anything(),
-      'cols',
-      expect.anything()
-    );
+    expect(onChange).toHaveBeenCalledWith(expect.anything(), 'cols');
 
     model.props.cols = {
       a: { color: 'red' },
@@ -499,11 +462,7 @@ describe('flat', () => {
     expect((yBlock.get('prop:title') as Y.Text).toJSON()).toBe('test');
     expect(model.props.title$.value.toDelta()).toEqual([{ insert: 'test' }]);
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange).toHaveBeenCalledWith(
-      expect.anything(),
-      'title',
-      expect.anything()
-    );
+    expect(onChange).toHaveBeenCalledWith(expect.anything(), 'title');
 
     onChange.mockClear();
     model.props.labels.push('test');
@@ -511,30 +470,30 @@ describe('flat', () => {
     expect(getLabels().toJSON()).toEqual(['test']);
     expect(model.props.labels$.value).toEqual(['test']);
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange).toHaveBeenCalledWith(
-      expect.anything(),
-      'labels',
-      expect.anything()
-    );
+    expect(onChange).toHaveBeenCalledWith(expect.anything(), 'labels');
 
     onChange.mockClear();
     model.props.labels$.value = ['test2'];
     expect(getLabels().toJSON()).toEqual(['test2']);
-    expect(onChange).toHaveBeenCalledWith(
-      expect.anything(),
-      'labels',
-      expect.anything()
-    );
+    expect(onChange).toHaveBeenCalledWith(expect.anything(), 'labels');
 
     onChange.mockClear();
     model.props.labels.splice(0, 1);
     expect(getLabels().toJSON()).toEqual([]);
     expect(model.props.labels$.value).toEqual([]);
-    expect(onChange).toHaveBeenCalledWith(
-      expect.anything(),
-      'labels',
-      expect.anything()
-    );
+    expect(onChange).toHaveBeenCalledWith(expect.anything(), 'labels');
+
+    model.props.textCols = {
+      a: internalPrimitives.Text(),
+    };
+    onChange.mockClear();
+    model.props.textCols.a.insert('test', 0);
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(expect.anything(), 'textCols');
+    expect((yBlock.get('prop:textCols.a') as Y.Text).toJSON()).toBe('test');
+    expect(model.props.textCols$.value.a.toDelta()).toEqual([
+      { insert: 'test' },
+    ]);
   });
 
   test('stash and pop', () => {

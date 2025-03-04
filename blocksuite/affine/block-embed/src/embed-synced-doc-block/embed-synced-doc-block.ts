@@ -34,7 +34,8 @@ import {
   GfxControllerIdentifier,
   GfxExtension,
 } from '@blocksuite/block-std/gfx';
-import { assertExists, Bound, getCommonBound } from '@blocksuite/global/utils';
+import { Bound, getCommonBound } from '@blocksuite/global/gfx';
+import { assertExists } from '@blocksuite/global/utils';
 import { type GetBlocksOptions, type Query, Text } from '@blocksuite/store';
 import { computed, signal } from '@preact/signals-core';
 import { html, nothing, type PropertyValues } from 'lit';

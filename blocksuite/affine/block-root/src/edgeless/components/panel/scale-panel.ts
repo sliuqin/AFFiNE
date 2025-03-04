@@ -1,7 +1,8 @@
-import { clamp, stopPropagation } from '@blocksuite/affine-shared/utils';
+import { stopPropagation } from '@blocksuite/affine-shared/utils';
 import { css, html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
+import clamp from 'lodash-es/clamp';
 
 const MIN_SCALE = 0;
 const MAX_SCALE = 400;

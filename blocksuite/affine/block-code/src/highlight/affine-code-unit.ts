@@ -1,3 +1,4 @@
+import { affineTextStyles } from '@blocksuite/affine-components/rich-text';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import { ShadowlessElement } from '@blocksuite/block-std';
 import { type DeltaInsert, ZERO_WIDTH_SPACE } from '@blocksuite/inline';
@@ -16,7 +17,25 @@ export class AffineCodeUnit extends ShadowlessElement {
   }
 
   override render() {
-    const plainContent = html`<span
+    if (this.delta.attributes?.link && this.codeBlock) {
+      return html`<affine-link
+        .std=${this.codeBlock.std}
+        .delta=${this.delta}
+      ></affine-link>`;
+    }
+
+    let style = this.delta.attributes
+      ? affineTextStyles(this.delta.attributes)
+      : {};
+    if (this.delta.attributes?.code) {
+      style = {
+        ...style,
+        'font-size': 'calc(var(--affine-font-base) - 3px)',
+        padding: '0px 4px 2px',
+      };
+    }
+
+    const plainContent = html`<span style=${styleMap(style)}
       ><v-text .str=${this.delta.insert}></v-text
     ></span>`;
 
@@ -53,12 +72,13 @@ export class AffineCodeUnit extends ShadowlessElement {
         endOffset - token.offset
       );
 
-      return html`<v-text
-        .str=${content}
+      return html`<span
         style=${styleMap({
           color: token.color,
+          ...style,
         })}
-      ></v-text>`;
+        ><v-text .str=${content}></v-text
+      ></span>`;
     } else {
       const firstToken = includedTokens[0];
       const lastToken = includedTokens[includedTokens.length - 1];
@@ -79,6 +99,7 @@ export class AffineCodeUnit extends ShadowlessElement {
           .str=${token.content}
           style=${styleMap({
             color: token.color,
+            ...style,
           })}
         ></v-text>`;
       });

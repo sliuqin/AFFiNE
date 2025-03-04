@@ -208,11 +208,11 @@ export function useAFFiNEI18N(): {
       */
     ["Export Description"](): string;
     /**
-      * `You can export the entire Workspace data for backup, and the exported data can be re-imported, but you are offline now which will cause the exported data not up to date.`
+      * `You can export the entire Workspace data for backup, and the exported data can be re-imported. But you are offline now which will cause the exported data not up to date.`
       */
     ["Export Description(Offline)"](): string;
     /**
-      * `You can export the entire Workspace data for backup, and the exported data can be re-imported, but you must sync all cloud data first to keep your exported data up to date.`
+      * `You can export the entire Workspace data for backup, and the exported data can be re-imported. But you must sync all cloud data first to keep your exported data up to date.`
       */
     ["Full Sync Description"](): string;
     /**
@@ -5361,6 +5361,14 @@ export function useAFFiNEI18N(): {
       * `Enables mind map import.`
       */
     ["com.affine.settings.workspace.experimental-features.enable-mind-map-import.description"](): string;
+    /**
+      * `Block Meta`
+      */
+    ["com.affine.settings.workspace.experimental-features.enable-block-meta.name"](): string;
+    /**
+      * `Once enabled, all blocks will have created time, updated time, created by and updated by.`
+      */
+    ["com.affine.settings.workspace.experimental-features.enable-block-meta.description"](): string;
     /**
       * `Emoji Folder Icon`
       */

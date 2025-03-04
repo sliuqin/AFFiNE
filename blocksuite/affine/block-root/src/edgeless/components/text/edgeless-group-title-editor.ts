@@ -9,7 +9,8 @@ import {
   RANGE_SYNC_EXCLUDE_ATTR,
   ShadowlessElement,
 } from '@blocksuite/block-std';
-import { assertExists, Bound, WithDisposable } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
+import { assertExists, WithDisposable } from '@blocksuite/global/utils';
 import { html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';

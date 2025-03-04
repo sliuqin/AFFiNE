@@ -1,5 +1,6 @@
 import { IS_IPAD } from '@blocksuite/global/env';
-import { nextTick, Vec } from '@blocksuite/global/utils';
+import { Vec } from '@blocksuite/global/gfx';
+import { nextTick } from '@blocksuite/global/utils';
 
 import { UIEventState, UIEventStateContext } from '../base.js';
 import type { UIEventDispatcher } from '../dispatcher.js';

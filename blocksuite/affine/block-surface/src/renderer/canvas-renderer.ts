@@ -6,14 +6,9 @@ import type {
   SurfaceBlockModel,
   Viewport,
 } from '@blocksuite/block-std/gfx';
-import type { IBound } from '@blocksuite/global/utils';
-import {
-  DisposableGroup,
-  getBoundWithRotation,
-  intersects,
-  last,
-  Slot,
-} from '@blocksuite/global/utils';
+import type { IBound } from '@blocksuite/global/gfx';
+import { getBoundWithRotation, intersects } from '@blocksuite/global/gfx';
+import { DisposableGroup, last, Slot } from '@blocksuite/global/utils';
 
 import type { SurfaceElementModel } from '../element-model/base.js';
 import { RoughCanvas } from '../utils/rough/canvas.js';

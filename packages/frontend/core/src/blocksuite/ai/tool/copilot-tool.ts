@@ -9,8 +9,8 @@ import { IS_MAC } from '@blocksuite/affine/global/env';
 import {
   Bound,
   getCommonBoundWithRotation,
-  Slot,
-} from '@blocksuite/affine/global/utils';
+} from '@blocksuite/affine/global/gfx';
+import { Slot } from '@blocksuite/affine/global/utils';
 
 import {
   AFFINE_AI_PANEL_WIDGET,

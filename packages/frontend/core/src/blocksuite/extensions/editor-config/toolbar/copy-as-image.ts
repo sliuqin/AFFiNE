@@ -12,7 +12,7 @@ import {
   isGfxGroupCompatibleModel,
 } from '@blocksuite/affine/block-std/gfx';
 import type { MenuContext } from '@blocksuite/affine/blocks';
-import { Bound, getCommonBound } from '@blocksuite/affine/global/utils';
+import { Bound, getCommonBound } from '@blocksuite/affine/global/gfx';
 import { CopyAsImgaeIcon } from '@blocksuite/icons/lit';
 import type { FrameworkProvider } from '@toeverything/infra';
 

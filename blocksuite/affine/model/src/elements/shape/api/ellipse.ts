@@ -12,7 +12,7 @@ import {
   rotatePoints,
   toRadian,
   Vec,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 
 import { DEFAULT_CENTRAL_AREA_RATIO } from '../../../consts/index.js';
 import type { ShapeElementModel } from '../shape.js';

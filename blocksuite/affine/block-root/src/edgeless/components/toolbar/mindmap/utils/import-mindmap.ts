@@ -1,6 +1,6 @@
 import { openFileOrFiles } from '@blocksuite/affine-shared/utils';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import type { Bound } from '@blocksuite/global/utils';
+import type { Bound } from '@blocksuite/global/gfx';
 import c from 'simple-xml-to-json';
 
 type MindMapNode = {

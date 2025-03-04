@@ -1,5 +1,5 @@
 import { GfxLocalElementModel } from '@blocksuite/block-std/gfx';
-import type { PointLocation } from '@blocksuite/global/utils';
+import type { PointLocation } from '@blocksuite/global/gfx';
 
 import {
   ConnectorMode,

@@ -1,4 +1,4 @@
-import { Bound } from '@blocksuite/affine/global/utils';
+import { Bound } from '@blocksuite/affine/global/gfx';
 import { nanoid } from '@blocksuite/affine/store';
 
 import { AIProvider } from '../provider';

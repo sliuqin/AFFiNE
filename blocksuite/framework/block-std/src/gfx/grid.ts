@@ -1,9 +1,9 @@
-import type { IBound } from '@blocksuite/global/utils';
+import type { IBound } from '@blocksuite/global/gfx';
 import {
   Bound,
   getBoundWithRotation,
   intersects,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 import type { BlockModel, Store } from '@blocksuite/store';
 
 import { compare } from '../utils/layer.js';

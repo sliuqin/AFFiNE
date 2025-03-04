@@ -8,7 +8,8 @@ import {
   NoteBlockModel,
   NoteDisplayMode,
 } from '@blocksuite/affine/blocks';
-import { assertExists, Bound } from '@blocksuite/affine/global/utils';
+import { Bound } from '@blocksuite/affine/global/gfx';
+import { assertExists } from '@blocksuite/affine/global/utils';
 import type { FrameworkProvider } from '@toeverything/infra';
 import type { TemplateResult } from 'lit';
 

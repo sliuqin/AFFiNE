@@ -30,13 +30,8 @@ import { ThemeProvider } from '@blocksuite/affine-shared/services';
 import { requestConnectedFrame } from '@blocksuite/affine-shared/utils';
 import { WidgetComponent } from '@blocksuite/block-std';
 import type { GfxModel } from '@blocksuite/block-std/gfx';
-import {
-  atLeastNMatches,
-  clamp,
-  getCommonBoundWithRotation,
-  groupBy,
-  pickValues,
-} from '@blocksuite/global/utils';
+import { clamp, getCommonBoundWithRotation } from '@blocksuite/global/gfx';
+import { atLeastNMatches, groupBy, pickValues } from '@blocksuite/global/utils';
 import { ConnectorCIcon } from '@blocksuite/icons/lit';
 import { css, html, nothing, type TemplateResult, unsafeCSS } from 'lit';
 import { property, state } from 'lit/decorators.js';

@@ -10,13 +10,8 @@ import {
   RANGE_SYNC_EXCLUDE_ATTR,
   ShadowlessElement,
 } from '@blocksuite/block-std';
-import {
-  assertExists,
-  Bound,
-  toRadian,
-  Vec,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+import { Bound, toRadian, Vec } from '@blocksuite/global/gfx';
+import { assertExists, WithDisposable } from '@blocksuite/global/utils';
 import { css, html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';

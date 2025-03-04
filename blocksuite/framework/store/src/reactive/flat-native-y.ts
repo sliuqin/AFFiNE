@@ -22,13 +22,13 @@ const keyWithoutPrefix = (key: string) => key.replace(/(prop|sys):/, '');
 const keyWithPrefix = (key: string) =>
   SYS_KEYS.has(key) ? `sys:${key}` : `prop:${key}`;
 
-type OnChange = (key: string, value: unknown) => void;
+type OnChange = (key: string) => void;
 type Transform = (key: string, value: unknown, origin: unknown) => unknown;
 
 type CreateProxyOptions = {
   basePath?: string;
   onChange?: OnChange;
-  transform?: Transform;
+  transform: Transform;
   onDispose: Slot;
   shouldByPassSignal: () => boolean;
   shouldByPassYjs: () => boolean;
@@ -64,7 +64,7 @@ function createProxy(
     basePath,
     onChange,
     initialized,
-    transform = (_key, value) => value,
+    transform,
     stashed,
   } = options;
   const isRoot = !basePath;
@@ -120,7 +120,7 @@ function createProxy(
                 }
                 byPassSignalUpdate(() => {
                   proxy[p] = next;
-                  onChange?.(firstKey, next);
+                  onChange?.(firstKey);
                 });
               })
             );
@@ -137,7 +137,7 @@ function createProxy(
                   : prev;
             // @ts-expect-error allow magic props
             root[signalKey].value = next;
-            onChange?.(firstKey, next);
+            onChange?.(firstKey);
           });
         };
 
@@ -158,6 +158,11 @@ function createProxy(
                   run(value, fullPath);
                 } else {
                   list.push(() => {
+                    if (value instanceof Text || Boxed.is(value)) {
+                      value.bind(() => {
+                        onChange?.(firstKey);
+                      });
+                    }
                     yMap.set(keyWithPrefix(fullPath), native2Y(value));
                   });
                 }
@@ -188,6 +193,11 @@ function createProxy(
           return result;
         }
 
+        if (value instanceof Text || Boxed.is(value)) {
+          value.bind(() => {
+            onChange?.(firstKey);
+          });
+        }
         const yValue = native2Y(value);
         const next = transform(firstKey, value, yValue);
         if (!isStashed && initialized() && !shouldByPassYjs()) {
@@ -239,7 +249,7 @@ function createProxy(
                   : prev;
             // @ts-expect-error allow magic props
             root[signalKey].value = next;
-            onChange?.(firstKey, next);
+            onChange?.(firstKey);
           });
         };
 
@@ -303,7 +313,11 @@ export class ReactiveFlatYMap extends BaseReactiveYData<
                 acc[key] = {};
               }
               if (index === arr.length - 1) {
-                acc[key] = y2Native(value);
+                acc[key] = y2Native(value, {
+                  transform: (value, origin) => {
+                    return this._transform(firstKey, value, origin);
+                  },
+                });
               }
               return acc[key] as UnRecord;
             }, proxy as UnRecord);
@@ -375,8 +389,7 @@ export class ReactiveFlatYMap extends BaseReactiveYData<
 
   private readonly _getPropOnChange = (key: string) => {
     return () => {
-      const value = this._proxy[key];
-      this._onChange?.(key, value);
+      this._onChange?.(key);
     };
   };
 
@@ -471,7 +484,7 @@ export class ReactiveFlatYMap extends BaseReactiveYData<
           }
           this._updateWithSkip(() => {
             proxy[key] = next;
-            this._onChange?.(key, next);
+            this._onChange?.(key);
           });
         })
       );

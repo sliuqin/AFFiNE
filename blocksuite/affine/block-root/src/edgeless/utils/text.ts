@@ -12,8 +12,9 @@ import type {
 import { ShapeElementModel, TextElementModel } from '@blocksuite/affine-model';
 import type { PointerEventState } from '@blocksuite/block-std';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import type { IVec } from '@blocksuite/global/utils';
-import { assertInstanceOf, Bound } from '@blocksuite/global/utils';
+import type { IVec } from '@blocksuite/global/gfx';
+import { Bound } from '@blocksuite/global/gfx';
+import { assertInstanceOf } from '@blocksuite/global/utils';
 import * as Y from 'yjs';
 
 import { EdgelessConnectorLabelEditor } from '../components/text/edgeless-connector-label-editor.js';

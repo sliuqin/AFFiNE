@@ -146,6 +146,8 @@ export async function enterPlaygroundRoom(
         'Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.',
         // Figma embed:
         'Running frontend commit',
+        // Github timeout:
+        'Failed to load resource: the server responded with a status of 403',
       ].some(text => message.text().startsWith(text))
     ) {
       return;

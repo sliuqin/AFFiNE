@@ -28,8 +28,8 @@ import {
   type GfxPrimitiveElementModel,
 } from '@blocksuite/block-std/gfx';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import type { IBound } from '@blocksuite/global/utils';
-import { Bound, deserializeXYWH } from '@blocksuite/global/utils';
+import type { IBound } from '@blocksuite/global/gfx';
+import { Bound, deserializeXYWH } from '@blocksuite/global/gfx';
 import type { ExtensionType, Store } from '@blocksuite/store';
 
 import { SurfaceElementModel } from '../../element-model/base.js';

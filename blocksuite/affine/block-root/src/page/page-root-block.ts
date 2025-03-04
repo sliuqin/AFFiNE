@@ -23,7 +23,7 @@ import {
   BlockSelection,
   TextSelection,
 } from '@blocksuite/block-std';
-import { Point } from '@blocksuite/global/utils';
+import { Point } from '@blocksuite/global/gfx';
 import type { BlockModel, Text } from '@blocksuite/store';
 import { css, html } from 'lit';
 import { query } from 'lit/decorators.js';

@@ -16,7 +16,7 @@ import {
   OpenDocExtensionIdentifier,
   TelemetryProvider,
 } from '@blocksuite/affine-shared/services';
-import { Bound, getCommonBoundWithRotation } from '@blocksuite/global/utils';
+import { Bound, getCommonBoundWithRotation } from '@blocksuite/global/gfx';
 import {
   ArrowDownBigBottomIcon,
   ArrowDownBigIcon,

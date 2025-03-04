@@ -57,7 +57,7 @@ export class SyncController {
               }
             });
           });
-          this.onChange?.(keyName, value);
+          this.onChange?.(keyName);
           return;
         }
         if (type.action === 'delete') {
@@ -70,7 +70,7 @@ export class SyncController {
               this.model[`${keyName}$`].value = undefined;
             }
           });
-          this.onChange?.(keyName, undefined);
+          this.onChange?.(keyName);
           return;
         }
       });
@@ -105,7 +105,7 @@ export class SyncController {
     readonly schema: Schema,
     readonly yBlock: YBlock,
     readonly doc?: Store,
-    readonly onChange?: (key: string, value: unknown) => void
+    readonly onChange?: (key: string) => void
   ) {
     const { id, flavour, version, yChildren, props } = this._parseYBlock();
 
@@ -175,7 +175,7 @@ export class SyncController {
           if (this._stashed.has(p)) {
             setValue(target, p, value);
             const result = Reflect.set(target, p, value, receiver);
-            this.onChange?.(p, value);
+            this.onChange?.(p);
             return result;
           }
 
@@ -220,7 +220,7 @@ export class SyncController {
   private _getPropsProxy(name: string, value: unknown) {
     return createYProxy(value, {
       onChange: () => {
-        this.onChange?.(name, value);
+        this.onChange?.(name);
         const signalKey = `${name}$`;
         if (signalKey in this.model) {
           this._mutex(() => {
@@ -339,12 +339,12 @@ export class SyncController {
               },
               set: (target, p, value, receiver) => {
                 const result = Reflect.set(target, p, value, receiver);
-                this.onChange?.(prop, value);
+                this.onChange?.(prop);
                 return result;
               },
               deleteProperty: (target, p) => {
                 const result = Reflect.deleteProperty(target, p);
-                this.onChange?.(prop, undefined);
+                this.onChange?.(prop);
                 return result;
               },
             });
@@ -360,12 +360,12 @@ export class SyncController {
                   return Reflect.set(target, p, value, receiver);
                 }
                 const result = Reflect.set(target, p, value, receiver);
-                this.onChange?.(prop, value);
+                this.onChange?.(prop);
                 return result;
               },
               deleteProperty: (target, p) => {
                 const result = Reflect.deleteProperty(target, p);
-                this.onChange?.(p as string, undefined);
+                this.onChange?.(p as string);
                 return result;
               },
             });

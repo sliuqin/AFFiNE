@@ -6,11 +6,8 @@ import {
   type GfxModel,
   isGfxGroupCompatibleModel,
 } from '@blocksuite/block-std/gfx';
-import {
-  assertType,
-  type IVec,
-  type SerializedXYWH,
-} from '@blocksuite/global/utils';
+import type { IVec, SerializedXYWH } from '@blocksuite/global/gfx';
+import { assertType } from '@blocksuite/global/utils';
 import type { TransformerMiddleware } from '@blocksuite/store';
 
 /**

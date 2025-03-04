@@ -18,11 +18,11 @@ test.describe('snap', () => {
 
     await assertSelectedBound(page, [300, 0, 100, 100]);
 
-    await dragBetweenViewCoords(page, [300 + 5, 50], [300 + 5, 50 + 5]);
-    await assertSelectedBound(page, [300, 5, 100, 100]);
+    await dragBetweenViewCoords(page, [350, 50], [350, 50 + 10]);
+    await assertSelectedBound(page, [300, 10, 100, 100]);
 
     await undoByClick(page);
-    await dragBetweenViewCoords(page, [300 + 5, 50], [300 + 5, 50 + 3]);
+    await dragBetweenViewCoords(page, [350, 50], [350, 50 + 7]);
     await assertSelectedBound(page, [300, 0, 100, 100]);
   });
 

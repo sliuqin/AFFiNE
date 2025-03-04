@@ -1,4 +1,4 @@
-import type { IPoint } from '@blocksuite/global/utils';
+import type { IPoint } from '@blocksuite/global/gfx';
 import type { Store } from '@blocksuite/store';
 import type { Page } from '@playwright/test';
 

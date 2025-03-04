@@ -10,7 +10,7 @@ import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
 import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
 import { type NoteBlockModel } from '@blocksuite/affine/blocks';
-import { Bound } from '@blocksuite/affine/global/utils';
+import { Bound } from '@blocksuite/affine/global/gfx';
 import {
   InformationIcon,
   LinkedPageIcon,

@@ -49,15 +49,19 @@ import {
   SortOrder,
 } from '@blocksuite/block-std/gfx';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import type { IBound, IVec, SerializedXYWH } from '@blocksuite/global/utils';
+import {
+  Bound,
+  getCommonBound,
+  type IBound,
+  type IVec,
+  type SerializedXYWH,
+  Vec,
+} from '@blocksuite/global/gfx';
 import {
   assertExists,
   assertType,
-  Bound,
   DisposableGroup,
-  getCommonBound,
   nToLast,
-  Vec,
 } from '@blocksuite/global/utils';
 import {
   type BlockSnapshot,

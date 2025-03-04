@@ -1,6 +1,7 @@
 import type { PointerEventState } from '@blocksuite/block-std';
 import type { GfxElementModelView } from '@blocksuite/block-std/gfx';
-import { Bound, last } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
+import { last } from '@blocksuite/global/utils';
 
 import { DefaultModeDragType, DefaultToolExt } from './ext.js';
 

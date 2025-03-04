@@ -1,4 +1,4 @@
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import { describe, expect, it } from 'vitest';
 
 import { Graph } from '../utils/graph.js';

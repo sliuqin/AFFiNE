@@ -8,7 +8,6 @@ import {
   getMoreMenuConfig,
 } from '@blocksuite/affine-components/toolbar';
 import type { CodeBlockModel } from '@blocksuite/affine-model';
-import { PAGE_HEADER_HEIGHT } from '@blocksuite/affine-shared/consts';
 import {
   BlockSelection,
   TextSelection,
@@ -92,7 +91,6 @@ export class AffineCodeToolbarWidget extends WidgetComponent<
               shift({
                 crossAxis: true,
                 padding: {
-                  top: PAGE_HEADER_HEIGHT + 12,
                   bottom: 12,
                   right: 12,
                 },

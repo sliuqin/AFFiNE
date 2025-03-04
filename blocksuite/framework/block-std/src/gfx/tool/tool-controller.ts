@@ -1,11 +1,7 @@
 import type { ServiceIdentifier } from '@blocksuite/global/di';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import {
-  DisposableGroup,
-  type IBound,
-  type IPoint,
-  Slot,
-} from '@blocksuite/global/utils';
+import type { IBound, IPoint } from '@blocksuite/global/gfx';
+import { DisposableGroup, Slot } from '@blocksuite/global/utils';
 import { Signal } from '@preact/signals-core';
 
 import type { PointerEventState } from '../../event/index.js';

@@ -14,7 +14,7 @@ import {
   TextSelection,
 } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { Bound, Vec } from '@blocksuite/global/utils';
+import { Bound, Vec } from '@blocksuite/global/gfx';
 
 interface EmbedCardProperties {
   flavour: string;

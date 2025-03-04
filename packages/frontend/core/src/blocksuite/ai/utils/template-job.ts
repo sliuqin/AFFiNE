@@ -5,11 +5,8 @@ import {
   TemplateJob,
   TemplateMiddlewares,
 } from '@blocksuite/affine/blocks';
-import {
-  assertExists,
-  Bound,
-  getCommonBound,
-} from '@blocksuite/affine/global/utils';
+import { Bound, getCommonBound } from '@blocksuite/affine/global/gfx';
+import { assertExists } from '@blocksuite/affine/global/utils';
 
 export function createTemplateJob(host: EditorHost) {
   const surface = getSurfaceBlock(host.doc);

@@ -53,16 +53,6 @@ export const AFFINE_FLAGS = {
       'com.affine.settings.workspace.experimental-features.enable-block-query.description',
     configurable: isCanaryBuild,
   },
-  enable_synced_doc_block: {
-    category: 'blocksuite',
-    bsFlag: 'enable_synced_doc_block',
-    displayName:
-      'com.affine.settings.workspace.experimental-features.enable-synced-doc-block.name',
-    description:
-      'com.affine.settings.workspace.experimental-features.enable-synced-doc-block.description',
-    configurable: false,
-    defaultState: true,
-  },
   enable_edgeless_text: {
     category: 'blocksuite',
     bsFlag: 'enable_edgeless_text',
@@ -112,6 +102,16 @@ export const AFFINE_FLAGS = {
       'com.affine.settings.workspace.experimental-features.enable-mind-map-import.description',
     configurable: false,
     defaultState: true,
+  },
+  enable_block_meta: {
+    category: 'blocksuite',
+    bsFlag: 'enable_block_meta',
+    displayName:
+      'com.affine.settings.workspace.experimental-features.enable-block-meta.name',
+    description:
+      'com.affine.settings.workspace.experimental-features.enable-block-meta.description',
+    configurable: isCanaryBuild,
+    defaultState: false,
   },
   enable_emoji_folder_icon: {
     category: 'affine',
@@ -236,6 +236,13 @@ export const AFFINE_FLAGS = {
     displayName: 'Enable AI Button',
     description: 'Enable AI Button on mobile',
     configurable: BUILD_CONFIG.isMobileEdition,
+    defaultState: false,
+  },
+  enable_turbo_renderer: {
+    category: 'affine',
+    displayName: 'Enable Turbo Renderer',
+    description: 'Enable experimental edgeless turbo renderer',
+    configurable: isCanaryBuild,
     defaultState: false,
   },
 } satisfies { [key in string]: FlagInfo };

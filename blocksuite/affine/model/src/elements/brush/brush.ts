@@ -26,7 +26,7 @@ import {
   type SerializedXYWH,
   transformPointsToNewBound,
   Vec,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 
 import { type Color, DefaultTheme } from '../../themes/index';
 

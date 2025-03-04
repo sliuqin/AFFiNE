@@ -5,7 +5,7 @@ import { EDGELESS_BLOCK_CHILD_PADDING } from '@blocksuite/affine-shared/consts';
 import { TelemetryProvider } from '@blocksuite/affine-shared/services';
 import { stopPropagation } from '@blocksuite/affine-shared/utils';
 import { toGfxBlockComponent } from '@blocksuite/block-std';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import { html, nothing, type PropertyValues } from 'lit';
 import { query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';

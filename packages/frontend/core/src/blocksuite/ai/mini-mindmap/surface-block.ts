@@ -12,7 +12,7 @@ import {
   fitContent,
   ThemeProvider,
 } from '@blocksuite/affine/blocks';
-import type { Bound } from '@blocksuite/affine/global/utils';
+import type { Bound } from '@blocksuite/affine/global/gfx';
 import { html } from 'lit';
 import { query } from 'lit/decorators.js';
 

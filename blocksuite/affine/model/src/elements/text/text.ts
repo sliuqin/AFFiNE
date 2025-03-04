@@ -1,13 +1,13 @@
 import type { BaseElementProps } from '@blocksuite/block-std/gfx';
 import { field, GfxPrimitiveElementModel } from '@blocksuite/block-std/gfx';
-import type { IVec, SerializedXYWH } from '@blocksuite/global/utils';
+import type { IVec, SerializedXYWH } from '@blocksuite/global/gfx';
 import {
   Bound,
   getPointsFromBoundWithRotation,
   linePolygonIntersects,
   pointInPolygon,
   polygonNearestPoint,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 import * as Y from 'yjs';
 
 import {

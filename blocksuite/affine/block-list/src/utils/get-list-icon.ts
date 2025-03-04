@@ -1,11 +1,14 @@
-import {
-  BulletIcons,
-  checkboxChecked,
-  checkboxUnchecked,
-  toggleDown,
-  toggleRight,
-} from '@blocksuite/affine-components/icons';
 import type { ListBlockModel } from '@blocksuite/affine-model';
+import {
+  BulletedList01Icon,
+  BulletedList02Icon,
+  BulletedList03Icon,
+  BulletedList04Icon,
+  CheckBoxCheckSolidIcon,
+  CheckBoxUnIcon,
+  ToggleDownIcon,
+  ToggleRightIcon,
+} from '@blocksuite/icons/lit';
 import { html } from 'lit';
 
 import { getNumberPrefix } from './get-number-prefix.js';
@@ -19,6 +22,13 @@ const getListDeep = (model: ListBlockModel): number => {
   }
   return deep;
 };
+
+const BulletIcons = [
+  BulletedList01Icon({ width: '24px', height: '24px' }),
+  BulletedList02Icon({ width: '24px', height: '24px' }),
+  BulletedList03Icon({ width: '24px', height: '24px' }),
+  BulletedList04Icon({ width: '24px', height: '24px' }),
+];
 
 export function getListIcon(
   model: ListBlockModel,
@@ -49,7 +59,9 @@ export function getListIcon(
         class=${`affine-list-block__prefix affine-list-block__todo-prefix ${model.doc.readonly ? 'readonly' : ''}`}
         @click=${onClick}
       >
-        ${model.checked ? checkboxChecked() : checkboxUnchecked()}
+        ${model.checked
+          ? CheckBoxCheckSolidIcon({ style: 'color: #1E96EB' })
+          : CheckBoxUnIcon()}
       </div>`;
     case 'toggle':
       return html`<div
@@ -57,7 +69,7 @@ export function getListIcon(
         class="affine-list-block__prefix"
         @click=${onClick}
       >
-        ${showChildren ? toggleDown : toggleRight}
+        ${showChildren ? ToggleDownIcon() : ToggleRightIcon()}
       </div>`;
     default:
       console.error('Unknown list type', model.type, model);

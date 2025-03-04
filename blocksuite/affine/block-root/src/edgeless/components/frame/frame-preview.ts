@@ -7,10 +7,9 @@ import {
   ShadowlessElement,
 } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
+import { Bound, deserializeXYWH } from '@blocksuite/global/gfx';
 import {
-  Bound,
   debounce,
-  deserializeXYWH,
   DisposableGroup,
   WithDisposable,
 } from '@blocksuite/global/utils';

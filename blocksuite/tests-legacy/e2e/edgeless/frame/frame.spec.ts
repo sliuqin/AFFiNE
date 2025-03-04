@@ -1,4 +1,4 @@
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import { expect, type Page } from '@playwright/test';
 
 import { clickView } from '../../utils/actions/click.js';

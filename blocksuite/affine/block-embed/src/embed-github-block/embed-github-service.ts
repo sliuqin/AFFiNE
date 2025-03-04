@@ -4,7 +4,7 @@ import {
   EmbedGithubStyles,
 } from '@blocksuite/affine-model';
 import {
-  EmbedOptionProvider,
+  EmbedOptionConfig,
   LinkPreviewerService,
 } from '@blocksuite/affine-shared/services';
 import { BlockService } from '@blocksuite/block-std';
@@ -26,15 +26,11 @@ export class EmbedGithubBlockService extends BlockService {
       signal
     );
   };
-
-  override mounted() {
-    super.mounted();
-
-    this.std.get(EmbedOptionProvider).registerEmbedBlockOptions({
-      flavour: this.flavour,
-      urlRegex: githubUrlRegex,
-      styles: EmbedGithubStyles,
-      viewType: 'card',
-    });
-  }
 }
+
+export const EmbedGithubBlockOptionConfig = EmbedOptionConfig({
+  flavour: EmbedGithubBlockSchema.model.flavour,
+  urlRegex: githubUrlRegex,
+  styles: EmbedGithubStyles,
+  viewType: 'card',
+});

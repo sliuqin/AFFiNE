@@ -1,3 +1,5 @@
+import { clamp } from '@blocksuite/global/gfx';
+
 export const BLOCK_CHILDREN_CONTAINER_PADDING_LEFT = 24;
 export const NOTE_MIN_WIDTH = 450 + 24 * 2;
 export const NOTE_MIN_HEIGHT = 92;
@@ -10,9 +12,6 @@ export enum NoteDisplayMode {
   DocOnly = 'doc',
   EdgelessOnly = 'edgeless',
 }
-
-export const clamp = (min: number, val: number, max: number) =>
-  Math.min(Math.max(min, val), max);
 
 export const bound01 = (n: number, max: number) => {
   n = clamp(0, n, max);

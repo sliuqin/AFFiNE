@@ -1,12 +1,10 @@
 import {
-  assertType,
   Bound,
-  DisposableGroup,
   getCommonBound,
   getCommonBoundWithRotation,
   type IBound,
-  last,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
+import { assertType, DisposableGroup, last } from '@blocksuite/global/utils';
 import type { BlockModel } from '@blocksuite/store';
 import { Signal } from '@preact/signals-core';
 

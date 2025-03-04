@@ -10,8 +10,9 @@ import {
   local,
   observe,
 } from '@blocksuite/block-std/gfx';
-import type { IVec, PointLocation } from '@blocksuite/global/utils';
-import { Bound, keys, linePolygonIntersects } from '@blocksuite/global/utils';
+import type { IVec, PointLocation } from '@blocksuite/global/gfx';
+import { Bound, linePolygonIntersects } from '@blocksuite/global/gfx';
+import { keys } from '@blocksuite/global/utils';
 import * as Y from 'yjs';
 
 type GroupElementProps = BaseElementProps & {

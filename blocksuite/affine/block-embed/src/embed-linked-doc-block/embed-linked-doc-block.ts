@@ -14,7 +14,6 @@ import {
 import {
   DocDisplayMetaProvider,
   DocModeProvider,
-  FeatureFlagService,
   OpenDocExtensionIdentifier,
   type OpenDocMode,
   ThemeProvider,
@@ -28,7 +27,8 @@ import {
   referenceToNode,
 } from '@blocksuite/affine-shared/utils';
 import { BlockSelection } from '@blocksuite/block-std';
-import { Bound, throttle } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
+import { throttle } from '@blocksuite/global/utils';
 import { Text } from '@blocksuite/store';
 import { computed } from '@preact/signals-core';
 import { html, nothing } from 'lit';
@@ -130,14 +130,6 @@ export class EmbedLinkedDocBlockComponent extends EmbedBlockComponent<EmbedLinke
     if (this._referenceToNode) return;
 
     const { doc, caption } = this.model;
-
-    // synced doc entry controlled by flag
-    const isSyncedDocEnabled = doc
-      .get(FeatureFlagService)
-      .getFlag('enable_synced_doc_block');
-    if (!isSyncedDocEnabled) {
-      return;
-    }
 
     const parent = doc.getParent(this.model);
     if (!parent) {

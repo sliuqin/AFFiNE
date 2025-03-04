@@ -96,8 +96,6 @@ export class GfxViewportElement extends WithDisposable(ShadowlessElement) {
 
   private _updatingChildrenFlag = false;
 
-  renderingBlocks = new Set<string>();
-
   override connectedCallback(): void {
     super.connectedCallback();
 

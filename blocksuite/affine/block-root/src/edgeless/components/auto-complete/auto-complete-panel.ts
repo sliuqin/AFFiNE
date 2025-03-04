@@ -29,17 +29,16 @@ import {
 import { captureEventTarget } from '@blocksuite/affine-shared/utils';
 import { type BlockStdScope, stdContext } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import type { XYWH } from '@blocksuite/global/utils';
+import type { XYWH } from '@blocksuite/global/gfx';
 import {
-  assertInstanceOf,
   Bound,
   clamp,
   normalizeDegAngle,
   serializeXYWH,
   toDegree,
   Vec,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
+import { assertInstanceOf, WithDisposable } from '@blocksuite/global/utils';
 import { FrameIcon, PageIcon } from '@blocksuite/icons/lit';
 import { consume } from '@lit/context';
 import { baseTheme } from '@toeverything/theme';

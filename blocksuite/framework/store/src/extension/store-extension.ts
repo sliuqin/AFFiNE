@@ -11,6 +11,8 @@ export const StoreExtensionIdentifier =
 export const storeExtensionSymbol = Symbol('StoreExtension');
 
 export class StoreExtension extends Extension {
+  static readonly key: string;
+
   constructor(readonly store: Store) {
     super();
   }
@@ -30,8 +32,6 @@ export class StoreExtension extends Extension {
       provider.get(this)
     );
   }
-
-  static readonly key: string;
 }
 
 export function isStoreExtensionConstructor(

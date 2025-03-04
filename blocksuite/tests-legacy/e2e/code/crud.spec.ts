@@ -597,7 +597,21 @@ test('format text in code block', async ({ page }, testInfo) => {
   await type(page, 'https://www.baidu.com');
   await pressEnter(page);
 
-  expect(await line.innerText()).toBe('const aaa = 1000;');
+  const linkLocator = page.locator('[data-block-id="3"] affine-link a');
+  expect(await linkLocator.count()).toBe(3);
+  await expect(linkLocator.nth(0)).toHaveAttribute(
+    'href',
+    'https://www.baidu.com'
+  );
+  await expect(linkLocator.nth(1)).toHaveAttribute(
+    'href',
+    'https://www.baidu.com'
+  );
+  await expect(linkLocator.nth(2)).toHaveAttribute(
+    'href',
+    'https://www.baidu.com'
+  );
+
   expect(await getPageSnapshot(page, true)).toMatchSnapshot(
     `${testInfo.title}_link.json`
   );

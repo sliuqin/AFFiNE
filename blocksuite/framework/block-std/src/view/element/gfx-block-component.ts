@@ -1,5 +1,5 @@
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import { computed } from '@preact/signals-core';
 import { nothing } from 'lit';
 

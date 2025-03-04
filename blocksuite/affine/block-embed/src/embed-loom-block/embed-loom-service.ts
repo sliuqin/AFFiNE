@@ -3,7 +3,7 @@ import {
   type EmbedLoomModel,
   EmbedLoomStyles,
 } from '@blocksuite/affine-model';
-import { EmbedOptionProvider } from '@blocksuite/affine-shared/services';
+import { EmbedOptionConfig } from '@blocksuite/affine-shared/services';
 import { BlockService } from '@blocksuite/block-std';
 
 import { loomUrlRegex } from './embed-loom-model.js';
@@ -15,15 +15,11 @@ export class EmbedLoomBlockService extends BlockService {
   queryUrlData = (embedLoomModel: EmbedLoomModel, signal?: AbortSignal) => {
     return queryEmbedLoomData(embedLoomModel, signal);
   };
-
-  override mounted() {
-    super.mounted();
-
-    this.std.get(EmbedOptionProvider).registerEmbedBlockOptions({
-      flavour: this.flavour,
-      urlRegex: loomUrlRegex,
-      styles: EmbedLoomStyles,
-      viewType: 'embed',
-    });
-  }
 }
+
+export const EmbedLoomBlockOptionConfig = EmbedOptionConfig({
+  flavour: EmbedLoomBlockSchema.model.flavour,
+  urlRegex: loomUrlRegex,
+  styles: EmbedLoomStyles,
+  viewType: 'embed',
+});

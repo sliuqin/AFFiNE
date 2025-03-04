@@ -18,7 +18,8 @@ import {
   type GfxModel,
   type SerializedElement,
 } from '@blocksuite/block-std/gfx';
-import { getCommonBoundWithRotation, groupBy } from '@blocksuite/global/utils';
+import { getCommonBoundWithRotation } from '@blocksuite/global/gfx';
+import { groupBy } from '@blocksuite/global/utils';
 import { type BlockSnapshot, BlockSnapshotSchema } from '@blocksuite/store';
 
 import type { EdgelessRootBlockComponent } from '../edgeless-root-block.js';

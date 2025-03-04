@@ -22,13 +22,8 @@ import { FeatureFlagService } from '@blocksuite/affine-shared/services';
 import type { ColorEvent } from '@blocksuite/affine-shared/utils';
 import { matchModels } from '@blocksuite/affine-shared/utils';
 import { GfxExtensionIdentifier } from '@blocksuite/block-std/gfx';
-import {
-  countBy,
-  deserializeXYWH,
-  maxBy,
-  serializeXYWH,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+import { deserializeXYWH, serializeXYWH } from '@blocksuite/global/gfx';
+import { countBy, maxBy, WithDisposable } from '@blocksuite/global/utils';
 import { EditIcon, PageIcon, UngroupIcon } from '@blocksuite/icons/lit';
 import { html, LitElement, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';

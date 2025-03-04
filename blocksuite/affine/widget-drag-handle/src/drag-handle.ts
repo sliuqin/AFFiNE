@@ -7,12 +7,8 @@ import {
 } from '@blocksuite/affine-shared/utils';
 import { type BlockComponent, WidgetComponent } from '@blocksuite/block-std';
 import type { GfxModel } from '@blocksuite/block-std/gfx';
-import {
-  DisposableGroup,
-  type IVec,
-  type Point,
-  type Rect,
-} from '@blocksuite/global/utils';
+import type { IVec, Point, Rect } from '@blocksuite/global/gfx';
+import { DisposableGroup } from '@blocksuite/global/utils';
 import { computed, type ReadonlySignal, signal } from '@preact/signals-core';
 import { html, nothing } from 'lit';
 import { query, state } from 'lit/decorators.js';

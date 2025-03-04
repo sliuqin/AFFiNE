@@ -2,7 +2,7 @@ import type { FrameBlockModel, RootBlockModel } from '@blocksuite/affine-model';
 import { EditPropsStore } from '@blocksuite/affine-shared/services';
 import { WidgetComponent } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import { effect } from '@preact/signals-core';
 import { css, html, nothing } from 'lit';
 import { state } from 'lit/decorators.js';

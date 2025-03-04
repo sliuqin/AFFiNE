@@ -5,7 +5,7 @@ import {
 import { focusTextModel } from '@blocksuite/affine-components/rich-text';
 import type { Command } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 
 import {
   EDGELESS_TEXT_BLOCK_MIN_HEIGHT,

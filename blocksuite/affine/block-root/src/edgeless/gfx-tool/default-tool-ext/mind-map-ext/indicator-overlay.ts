@@ -15,11 +15,11 @@ import {
   type Bound,
   isVecZero,
   type IVec,
-  last,
   PointLocation,
   toRadian,
   Vec,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
+import { last } from '@blocksuite/global/utils';
 
 export class MindMapIndicatorOverlay extends Overlay {
   static INDICATOR_SIZE = [48, 22];

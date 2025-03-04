@@ -3,7 +3,7 @@ import {
   type SurfaceBlockModel,
   ZipTransformer,
 } from '@blocksuite/blocks';
-import type { PointLocation } from '@blocksuite/global/utils';
+import type { PointLocation } from '@blocksuite/global/gfx';
 import { Schema } from '@blocksuite/store';
 import { beforeEach, expect, test } from 'vitest';
 

@@ -5,7 +5,7 @@ import type {
   TextVerticalAlign,
 } from '@blocksuite/affine-model';
 import { FeatureFlagService } from '@blocksuite/affine-shared/services';
-import type { Bound, SerializedXYWH } from '@blocksuite/global/utils';
+import type { Bound, SerializedXYWH } from '@blocksuite/global/gfx';
 import { deltaInsertsToChunks } from '@blocksuite/inline';
 
 import type { CanvasRenderer } from '../../canvas-renderer.js';

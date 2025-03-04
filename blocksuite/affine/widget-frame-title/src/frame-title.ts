@@ -12,12 +12,8 @@ import {
   stdContext,
 } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import {
-  Bound,
-  type SerializedXYWH,
-  SignalWatcher,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+import { Bound, type SerializedXYWH } from '@blocksuite/global/gfx';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
 import { consume } from '@lit/context';
 import { themeToVar } from '@toeverything/theme/v2';
 import { LitElement } from 'lit';

@@ -1,4 +1,3 @@
-import { clamp } from '@blocksuite/affine-shared/utils';
 import {
   createPropertyConvert,
   getTagColor,
@@ -6,6 +5,7 @@ import {
 } from '@blocksuite/data-view';
 import { presetPropertyConverts } from '@blocksuite/data-view/property-presets';
 import { propertyModelPresets } from '@blocksuite/data-view/property-pure-presets';
+import { clamp } from '@blocksuite/global/gfx';
 import { nanoid, Text } from '@blocksuite/store';
 
 import { richTextPropertyModelConfig } from './rich-text/define.js';

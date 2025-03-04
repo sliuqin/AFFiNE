@@ -12,12 +12,9 @@ import type {
   GfxLocalElementModel,
   GfxModel,
 } from '@blocksuite/block-std/gfx';
-import type { IBound, IVec, IVec3 } from '@blocksuite/global/utils';
+import type { IBound, IVec, IVec3 } from '@blocksuite/global/gfx';
 import {
   almostEqual,
-  assertEquals,
-  assertExists,
-  assertType,
   Bound,
   clamp,
   getBezierCurveBoundingBox,
@@ -27,13 +24,18 @@ import {
   getPointFromBoundsWithRotation,
   isOverlap,
   isVecZero,
-  last,
   lineIntersects,
   PI2,
   PointLocation,
   sign,
   toRadian,
   Vec,
+} from '@blocksuite/global/gfx';
+import {
+  assertEquals,
+  assertExists,
+  assertType,
+  last,
 } from '@blocksuite/global/utils';
 import { effect } from '@preact/signals-core';
 

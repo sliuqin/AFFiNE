@@ -3,7 +3,10 @@ import type { ExtensionType } from '@blocksuite/store';
 import { literal } from 'lit/static-html.js';
 
 import { EmbedGithubBlockAdapterExtensions } from './adapters/extension.js';
-import { EmbedGithubBlockService } from './embed-github-service.js';
+import {
+  EmbedGithubBlockOptionConfig,
+  EmbedGithubBlockService,
+} from './embed-github-service.js';
 
 export const EmbedGithubBlockSpec: ExtensionType[] = [
   FlavourExtension('affine:embed-github'),
@@ -14,4 +17,5 @@ export const EmbedGithubBlockSpec: ExtensionType[] = [
       : literal`affine-embed-github-block`;
   }),
   EmbedGithubBlockAdapterExtensions,
+  EmbedGithubBlockOptionConfig,
 ].flat();

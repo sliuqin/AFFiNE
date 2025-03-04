@@ -15,7 +15,7 @@ import type {
   IVec,
   PointLocation,
   SerializedXYWH,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 import * as Y from 'yjs';
 
 import {

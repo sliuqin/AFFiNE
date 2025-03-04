@@ -14,8 +14,8 @@ import {
   getTopElements,
   GfxExtensionIdentifier,
 } from '@blocksuite/block-std/gfx';
-import type { IPoint, IVec } from '@blocksuite/global/utils';
-import { Bound, Vec } from '@blocksuite/global/utils';
+import type { IPoint, IVec } from '@blocksuite/global/gfx';
+import { Bound, Vec } from '@blocksuite/global/gfx';
 import { Text } from '@blocksuite/store';
 import * as Y from 'yjs';
 

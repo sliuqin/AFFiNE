@@ -17,7 +17,7 @@ import {
   type GfxPrimitiveElementModel,
   isGfxGroupCompatibleModel,
 } from '@blocksuite/block-std/gfx';
-import type { Bound, IVec } from '@blocksuite/global/utils';
+import type { Bound, IVec } from '@blocksuite/global/gfx';
 
 import { isSingleMindMapNode } from '../../../utils/mindmap.js';
 import { isMindmapNode } from '../../../utils/query.js';

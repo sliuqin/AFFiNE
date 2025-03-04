@@ -1,6 +1,5 @@
 import {
   almostEqual,
-  assertExists,
   isPointOnLineSegment,
   type IVec,
   lineEllipseIntersects,
@@ -12,7 +11,8 @@ import {
   rotatePoints,
   toDegree,
   toRadian,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
+import { assertExists } from '@blocksuite/global/utils';
 import { describe, expect, it } from 'vitest';
 
 describe('Line', () => {

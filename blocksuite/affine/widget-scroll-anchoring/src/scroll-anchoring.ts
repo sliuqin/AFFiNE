@@ -5,7 +5,7 @@ import {
   GfxControllerIdentifier,
   type GfxModel,
 } from '@blocksuite/block-std/gfx';
-import { Bound, deserializeXYWH } from '@blocksuite/global/utils';
+import { Bound, deserializeXYWH } from '@blocksuite/global/gfx';
 import { computed, signal } from '@preact/signals-core';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { css, html, nothing, unsafeCSS } from 'lit';

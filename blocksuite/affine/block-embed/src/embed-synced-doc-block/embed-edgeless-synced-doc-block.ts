@@ -12,7 +12,7 @@ import {
   ThemeProvider,
 } from '@blocksuite/affine-shared/services';
 import { BlockStdScope } from '@blocksuite/block-std';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import { html, nothing } from 'lit';
 import { choose } from 'lit/directives/choose.js';
 import { classMap } from 'lit/directives/class-map.js';

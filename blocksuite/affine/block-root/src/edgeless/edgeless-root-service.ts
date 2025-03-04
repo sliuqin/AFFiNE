@@ -14,7 +14,6 @@ import {
   MindmapElementModel,
   RootBlockSchema,
 } from '@blocksuite/affine-model';
-import { clamp } from '@blocksuite/affine-shared/utils';
 import type { BlockStdScope } from '@blocksuite/block-std';
 import type {
   GfxController,
@@ -33,8 +32,9 @@ import {
   ZOOM_STEP,
 } from '@blocksuite/block-std/gfx';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { Bound, getCommonBound } from '@blocksuite/global/utils';
+import { Bound, getCommonBound } from '@blocksuite/global/gfx';
 import { effect } from '@preact/signals-core';
+import clamp from 'lodash-es/clamp';
 
 import { RootService } from '../root-service.js';
 import { TemplateJob } from './services/template.js';

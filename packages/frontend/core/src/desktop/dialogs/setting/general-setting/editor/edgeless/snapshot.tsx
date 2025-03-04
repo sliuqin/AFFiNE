@@ -12,7 +12,7 @@ import {
   type EdgelessRootPreviewBlockComponent,
   SpecProvider,
 } from '@blocksuite/affine/blocks';
-import { Bound } from '@blocksuite/affine/global/utils';
+import { Bound } from '@blocksuite/affine/global/gfx';
 import type { Block, Store } from '@blocksuite/affine/store';
 import { useFramework } from '@toeverything/infra';
 import { isEqual } from 'lodash-es';

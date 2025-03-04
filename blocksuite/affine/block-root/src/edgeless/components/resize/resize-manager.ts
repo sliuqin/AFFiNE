@@ -1,13 +1,13 @@
 import { NOTE_MIN_WIDTH } from '@blocksuite/affine-model';
 import {
-  assertExists,
   Bound,
   getQuadBoundWithRotation,
   type IPoint,
   type IVec,
   type PointLocation,
   rotatePoints,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
+import { assertExists } from '@blocksuite/global/utils';
 
 import type { SelectableProps } from '../../utils/query.js';
 import { HandleDirection, type ResizeMode } from './resize-handles.js';

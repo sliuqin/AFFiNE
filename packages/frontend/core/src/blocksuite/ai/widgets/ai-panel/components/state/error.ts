@@ -164,7 +164,8 @@ export class AIPanelError extends WithDisposable(LitElement) {
           () =>
             html` <div class="error-info">
                 You've reached the current usage cap for AFFiNE AI. You can
-                subscribe to AFFiNE AI to continue the AI experience!
+                subscribe to AFFiNE AI(with free 7-day-trial) to continue the AI
+                experience!
               </div>
               <div class="action-button-group">
                 <div @click=${this.config.cancel} class="action-button">

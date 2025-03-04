@@ -133,7 +133,6 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
 
   private readonly _updateHistory = async () => {
     const { doc } = this;
-    this.isLoading = true;
 
     const currentRequest = ++this._updateHistoryCounter;
 
@@ -164,7 +163,6 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
       ),
     };
 
-    this.isLoading = false;
     this._scrollToEnd();
   };
 
@@ -253,7 +251,7 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
   accessor previewSpecBuilder!: SpecBuilder;
 
   @state()
-  accessor isLoading = false;
+  accessor isLoading = true;
 
   @state()
   accessor chatContextValue: ChatContextValue = DEFAULT_CHAT_CONTEXT_VALUE;
@@ -297,24 +295,30 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
   };
 
   private readonly _initPanel = async () => {
-    const userId = (await AIProvider.userInfo)?.id;
-    if (!userId) return;
+    try {
+      const userId = (await AIProvider.userInfo)?.id;
+      if (!userId) return;
 
-    const sessions = await AIProvider.session?.getSessions(
-      this.doc.workspace.id,
-      this.doc.id
-    );
-    if (sessions?.length) {
-      this._chatSessionId = sessions?.[0].id;
-      await this._updateHistory();
-    }
-    if (this._chatSessionId) {
-      this._chatContextId = await AIProvider.context?.getContextId(
+      this.isLoading = true;
+      const sessions = await AIProvider.session?.getSessions(
         this.doc.workspace.id,
-        this._chatSessionId
+        this.doc.id
       );
+      if (sessions?.length) {
+        this._chatSessionId = sessions?.[0].id;
+        await this._updateHistory();
+      }
+      this.isLoading = false;
+      if (this._chatSessionId) {
+        this._chatContextId = await AIProvider.context?.getContextId(
+          this.doc.workspace.id,
+          this._chatSessionId
+        );
+      }
+      await this._updateChips();
+    } catch (error) {
+      console.error(error);
     }
-    await this._updateChips();
   };
 
   protected override updated(_changedProperties: PropertyValues) {

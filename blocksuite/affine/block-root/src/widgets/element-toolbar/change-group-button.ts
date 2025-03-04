@@ -7,11 +7,8 @@ import {
   NoteDisplayMode,
 } from '@blocksuite/affine-model';
 import { matchModels } from '@blocksuite/affine-shared/utils';
-import {
-  deserializeXYWH,
-  serializeXYWH,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+import { deserializeXYWH, serializeXYWH } from '@blocksuite/global/gfx';
+import { WithDisposable } from '@blocksuite/global/utils';
 import { EditIcon, PageIcon, UngroupIcon } from '@blocksuite/icons/lit';
 import { html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';

@@ -4,7 +4,7 @@ import {
   EmbedYoutubeStyles,
 } from '@blocksuite/affine-model';
 import {
-  EmbedOptionProvider,
+  EmbedOptionConfig,
   LinkPreviewerService,
 } from '@blocksuite/affine-shared/services';
 import { BlockService } from '@blocksuite/block-std';
@@ -25,15 +25,11 @@ export class EmbedYoutubeBlockService extends BlockService {
       signal
     );
   };
-
-  override mounted() {
-    super.mounted();
-
-    this.std.get(EmbedOptionProvider).registerEmbedBlockOptions({
-      flavour: this.flavour,
-      urlRegex: youtubeUrlRegex,
-      styles: EmbedYoutubeStyles,
-      viewType: 'embed',
-    });
-  }
 }
+
+export const EmbedYoutubeBlockOptionConfig = EmbedOptionConfig({
+  flavour: EmbedYoutubeBlockSchema.model.flavour,
+  urlRegex: youtubeUrlRegex,
+  styles: EmbedYoutubeStyles,
+  viewType: 'embed',
+});

@@ -1,10 +1,7 @@
 import { type Container, createIdentifier } from '@blocksuite/global/di';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import {
-  type Bound,
-  DisposableGroup,
-  type IVec,
-} from '@blocksuite/global/utils';
+import type { Bound, IVec } from '@blocksuite/global/gfx';
+import { DisposableGroup } from '@blocksuite/global/utils';
 import type { Extension } from '@blocksuite/store';
 
 import type { PointerEventState } from '../../event/index.js';

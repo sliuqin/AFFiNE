@@ -36,6 +36,7 @@ use screencapturekit::shareable_content::SCShareableContent;
 use uuid::Uuid;
 
 use crate::{
+  error::CoreAudioError,
   pid::{audio_process_list, get_process_property},
   tap_audio::{AggregateDevice, AudioTapStream},
 };
@@ -73,11 +74,15 @@ unsafe impl Encode for NSRect {
   const ENCODING: Encoding = Encoding::Struct("NSRect", &[<NSPoint>::ENCODING, <NSSize>::ENCODING]);
 }
 
-static RUNNING_APPLICATIONS: LazyLock<RwLock<Vec<AudioObjectID>>> =
-  LazyLock::new(|| RwLock::new(audio_process_list().expect("Failed to get running applications")));
+static RUNNING_APPLICATIONS: LazyLock<
+  RwLock<std::result::Result<Vec<AudioObjectID>, CoreAudioError>>,
+> = LazyLock::new(|| RwLock::new(audio_process_list()));
+
+type ApplicationStateChangedSubscriberMap =
+  HashMap<AudioObjectID, HashMap<Uuid, Arc<ThreadsafeFunction<(), ()>>>>;
 
 static APPLICATION_STATE_CHANGED_SUBSCRIBERS: LazyLock<
-  RwLock<HashMap<AudioObjectID, HashMap<Uuid, Arc<ThreadsafeFunction<(), ()>>>>>,
+  RwLock<ApplicationStateChangedSubscriberMap>,
 > = LazyLock::new(|| RwLock::new(HashMap::new()));
 
 static APPLICATION_STATE_CHANGED_LISTENER_BLOCKS: LazyLock<
@@ -348,10 +353,7 @@ impl TappableApplication {
   #[napi(constructor)]
   pub fn new(object_id: AudioObjectID) -> Result<Self> {
     // Get process ID from object_id
-    let process_id = match get_process_property(&object_id, kAudioProcessPropertyPID) {
-      Ok(pid) => pid,
-      Err(_) => -1,
-    };
+    let process_id = get_process_property(&object_id, kAudioProcessPropertyPID).unwrap_or(-1);
 
     // Create base Application
     let app = Application::new(process_id)?;
@@ -545,9 +547,8 @@ impl ShareableContent {
             )
           })
           .and_then(|mut running_applications| {
-            audio_process_list().map_err(From::from).map(|apps| {
-              *running_applications = apps;
-            })
+            *running_applications = audio_process_list();
+            Ok(())
           })
         {
           callback.call(Err(err), ThreadsafeFunctionCallMode::NonBlocking);
@@ -666,6 +667,7 @@ impl ShareableContent {
         )
       })?
       .iter()
+      .flatten()
       .filter_map(|id| {
         let tappable_app = match TappableApplication::new(*id) {
           Ok(app) => app,
@@ -686,10 +688,7 @@ impl ShareableContent {
   #[napi]
   pub fn application_with_process_id(&self, process_id: u32) -> Option<Application> {
     // Get NSRunningApplication class
-    let running_app_class = match NSRUNNING_APPLICATION_CLASS.as_ref() {
-      Some(class) => class,
-      None => return None,
-    };
+    let running_app_class = NSRUNNING_APPLICATION_CLASS.as_ref()?;
 
     // Get running application with PID
     let running_app: *mut AnyObject = unsafe {

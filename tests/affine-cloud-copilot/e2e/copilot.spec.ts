@@ -106,7 +106,7 @@ const clearChat = async (page: Page) => {
 const collectChat = async (page: Page) => {
   await page.waitForTimeout(ONE_SECOND);
   const chatPanel = await page.waitForSelector('.chat-panel-messages');
-  if (await chatPanel.$('.chat-panel-messages-placeholder')) {
+  if (await chatPanel.$('.messages-placeholder')) {
     return [];
   }
   // wait ai response

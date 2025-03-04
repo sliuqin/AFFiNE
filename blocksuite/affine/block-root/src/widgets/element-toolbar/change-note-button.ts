@@ -30,12 +30,8 @@ import {
   TelemetryProvider,
   ThemeProvider,
 } from '@blocksuite/affine-shared/services';
-import {
-  Bound,
-  countBy,
-  maxBy,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
+import { countBy, maxBy, WithDisposable } from '@blocksuite/global/utils';
 import {
   AutoHeightIcon,
   CornerIcon,

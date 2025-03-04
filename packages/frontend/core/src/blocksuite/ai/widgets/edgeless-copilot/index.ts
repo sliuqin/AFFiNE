@@ -12,7 +12,7 @@ import {
 import {
   Bound,
   getCommonBoundWithRotation,
-} from '@blocksuite/affine/global/utils';
+} from '@blocksuite/affine/global/gfx';
 import {
   autoUpdate,
   computePosition,

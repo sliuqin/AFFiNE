@@ -1,4 +1,4 @@
-import type { IVec } from '@blocksuite/global/utils';
+import type { IVec } from '@blocksuite/global/gfx';
 import { html, nothing } from 'lit';
 
 export enum HandleDirection {

@@ -3,7 +3,7 @@ import type { GfxBlockElementModel, GfxModel } from '@blocksuite/block-std/gfx';
 import {
   deserializeXYWH,
   getQuadBoundWithRotation,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 import type { BlockModel } from '@blocksuite/store';
 
 export function getSelectedRect(selected: GfxModel[]): DOMRect {

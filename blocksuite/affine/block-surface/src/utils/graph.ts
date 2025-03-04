@@ -1,9 +1,9 @@
-import type { Bound, IVec, IVec3 } from '@blocksuite/global/utils';
+import type { Bound, IVec, IVec3 } from '@blocksuite/global/gfx';
 import {
   almostEqual,
   isOverlap as _isOverlap,
   linePolygonIntersects,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 
 function isOverlap(line: IVec[], line2: IVec[]) {
   if (

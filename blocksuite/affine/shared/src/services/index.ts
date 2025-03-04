@@ -1,3 +1,4 @@
+export * from './block-meta-service';
 export * from './doc-display-meta-service';
 export * from './doc-mode-service';
 export * from './drag-handle-config';
@@ -18,4 +19,5 @@ export * from './quick-search-service';
 export * from './sidebar-service';
 export * from './telemetry-service';
 export * from './theme-service';
+export * from './user-service';
 export * from './virtual-keyboard-service';

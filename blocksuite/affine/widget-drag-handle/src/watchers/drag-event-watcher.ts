@@ -48,15 +48,13 @@ import {
   SurfaceBlockModel,
 } from '@blocksuite/block-std/gfx';
 import {
-  assertType,
   Bound,
-  groupBy,
   type IVec,
-  last,
   Point,
   Rect,
   type SerializedXYWH,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
+import { assertType, groupBy, last } from '@blocksuite/global/utils';
 import {
   type BlockModel,
   type BlockSnapshot,

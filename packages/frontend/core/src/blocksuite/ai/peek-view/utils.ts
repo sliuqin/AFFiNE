@@ -3,7 +3,7 @@ import {
   EdgelessCRUDIdentifier,
   getSurfaceBlock,
 } from '@blocksuite/affine/blocks';
-import { Bound } from '@blocksuite/affine/global/utils';
+import { Bound } from '@blocksuite/affine/global/gfx';
 
 import {
   type AIChatBlockModel,

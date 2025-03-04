@@ -92,6 +92,7 @@ export class DocModel extends BaseModel {
       orderBy: {
         createdAt: 'asc',
       },
+      take: 100,
     });
     return rows.map(r => this.updateToDocRecord(r));
   }

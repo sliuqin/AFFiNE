@@ -3,7 +3,7 @@ import {
   getCommonBound,
   inflateBound,
   transformPointsToNewBound,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
 import { describe, expect, it } from 'vitest';
 
 describe('bound utils', () => {

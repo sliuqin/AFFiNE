@@ -11,7 +11,8 @@ import type {
   ImageBlockModel,
 } from '@blocksuite/affine-model';
 import { ShadowlessElement } from '@blocksuite/block-std';
-import { Bound, WithDisposable } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
+import { WithDisposable } from '@blocksuite/global/utils';
 import type { BlockModel } from '@blocksuite/store';
 import { css, type TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';

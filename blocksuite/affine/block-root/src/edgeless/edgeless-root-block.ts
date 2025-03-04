@@ -39,7 +39,8 @@ import {
   type GfxViewportElement,
 } from '@blocksuite/block-std/gfx';
 import { IS_WINDOWS } from '@blocksuite/global/env';
-import { assertExists, Bound, Point, Vec } from '@blocksuite/global/utils';
+import { Bound, Point, Vec } from '@blocksuite/global/gfx';
+import { assertExists } from '@blocksuite/global/utils';
 import { effect } from '@preact/signals-core';
 import { css, html } from 'lit';
 import { query } from 'lit/decorators.js';
@@ -447,7 +448,7 @@ export class EdgelessRootBlockComponent extends BlockComponent<
           );
 
           const zoom = normalizeWheelDeltaY(e.deltaY, viewport.zoom);
-          viewport.setZoom(zoom, new Point(baseX, baseY));
+          viewport.setZoom(zoom, new Point(baseX, baseY), true);
           e.stopPropagation();
         }
         // pan

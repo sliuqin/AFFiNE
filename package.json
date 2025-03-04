@@ -64,9 +64,9 @@
     "@types/node": "^22.0.0",
     "@typescript-eslint/parser": "^8.18.0",
     "@vanilla-extract/vite-plugin": "^5.0.0",
-    "@vitest/browser": "3.0.6",
-    "@vitest/coverage-istanbul": "3.0.6",
-    "@vitest/ui": "3.0.6",
+    "@vitest/browser": "3.0.7",
+    "@vitest/coverage-istanbul": "3.0.7",
+    "@vitest/ui": "3.0.7",
     "cross-env": "^7.0.3",
     "electron": "^34.0.0",
     "eslint": "^9.16.0",
@@ -82,7 +82,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.2.11",
     "msw": "^2.6.8",
-    "oxlint": "0.15.10",
+    "oxlint": "0.15.12",
     "prettier": "^3.4.2",
     "semver": "^7.6.3",
     "serve": "^14.2.4",
@@ -90,7 +90,7 @@
     "typescript-eslint": "^8.18.0",
     "unplugin-swc": "^1.5.1",
     "vite": "^6.0.3",
-    "vitest": "3.0.6"
+    "vitest": "3.0.7"
   },
   "packageManager": "yarn@4.6.0",
   "resolutions": {

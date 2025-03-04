@@ -37,12 +37,11 @@ import {
 } from '@blocksuite/block-std/gfx';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
 import {
-  assertExists,
   Bound,
   deserializeXYWH,
-  DisposableGroup,
   type SerializedXYWH,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
+import { assertExists, DisposableGroup } from '@blocksuite/global/utils';
 import { DeleteIcon, EdgelessIcon, FrameIcon } from '@blocksuite/icons/lit';
 import type { BaseSelection, Store } from '@blocksuite/store';
 import { css, html, nothing, type TemplateResult } from 'lit';

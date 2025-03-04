@@ -14,16 +14,24 @@ export class Slot<T = void> implements Disposable {
   }
 
   emit(v: T) {
+    // Prevent recursive emit calls
+    if (this._emitting) {
+      return;
+    }
+
     const prevEmitting = this._emitting;
     this._emitting = true;
-    this._callbacks.forEach(f => {
-      try {
-        f(v);
-      } catch (err) {
-        console.error(err);
-      }
-    });
-    this._emitting = prevEmitting;
+    try {
+      this._callbacks.forEach(f => {
+        try {
+          f(v);
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    } finally {
+      this._emitting = prevEmitting;
+    }
   }
 
   on(callback: (v: T) => unknown): Disposable {

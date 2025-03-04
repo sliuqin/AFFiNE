@@ -1,5 +1,6 @@
-import type { Bound, IVec3 } from '@blocksuite/global/utils';
-import { almostEqual, assertExists } from '@blocksuite/global/utils';
+import type { Bound, IVec3 } from '@blocksuite/global/gfx';
+import { almostEqual } from '@blocksuite/global/gfx';
+import { assertExists } from '@blocksuite/global/utils';
 
 import { Graph } from './graph.js';
 import { PriorityQueue } from './priority-queue.js';

@@ -194,6 +194,7 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
       'affine:code',
       'affine:list',
       'affine:divider',
+      'affine:latex',
     ].map(flavour => ({ flavour, viewType: 'display' })),
   };
 
@@ -312,6 +313,11 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
         );
         // Apply min-height to prevent shrinking
         this._container.style.minHeight = `${this._maxContainerHeight}px`;
+      } else {
+        setTimeout(() => {
+          this._maxContainerHeight = 0;
+          this._container.style.minHeight = '';
+        }, 500);
       }
     });
   }

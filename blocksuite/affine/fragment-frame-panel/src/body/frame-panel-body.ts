@@ -9,8 +9,8 @@ import {
   generateKeyBetweenV2,
   GfxControllerIdentifier,
 } from '@blocksuite/block-std/gfx';
+import { Bound } from '@blocksuite/global/gfx';
 import {
-  Bound,
   DisposableGroup,
   SignalWatcher,
   WithDisposable,

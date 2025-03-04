@@ -1,6 +1,6 @@
 import { DatabaseBlockModel } from '@blocksuite/affine-model';
 import { BLOCK_ID_ATTR } from '@blocksuite/block-std';
-import type { Point } from '@blocksuite/global/utils';
+import type { Point } from '@blocksuite/global/gfx';
 import type { BlockModel } from '@blocksuite/store';
 
 import { getRectByBlockComponent } from '../dom/index.js';

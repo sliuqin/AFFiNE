@@ -1,10 +1,5 @@
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import type {
-  Constructor,
-  IVec,
-  SerializedXYWH,
-  XYWH,
-} from '@blocksuite/global/utils';
+import type { IVec, SerializedXYWH, XYWH } from '@blocksuite/global/gfx';
 import {
   Bound,
   deserializeXYWH,
@@ -15,7 +10,8 @@ import {
   polygonGetPointTangent,
   polygonNearestPoint,
   rotatePoints,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/gfx';
+import type { Constructor } from '@blocksuite/global/utils';
 import { BlockModel } from '@blocksuite/store';
 
 import {

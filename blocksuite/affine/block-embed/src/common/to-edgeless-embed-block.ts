@@ -10,7 +10,7 @@ import type {
   GfxBlockElementModel,
   GfxCompatibleProps,
 } from '@blocksuite/block-std/gfx';
-import { Bound } from '@blocksuite/global/utils';
+import { Bound } from '@blocksuite/global/gfx';
 import type { StyleInfo } from 'lit/directives/style-map.js';
 
 import type { EmbedBlockComponent } from './embed-block-element.js';

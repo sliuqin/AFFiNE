@@ -142,12 +142,6 @@ window.addEventListener('unload', () => {
     .catch(console.error);
 });
 
-events?.applicationMenu.openAboutPageInSettingModal(() =>
-  frameworkProvider.get(WorkspaceDialogService).open('setting', {
-    activeTab: 'about',
-  })
-);
-
 function getCurrentWorkspace() {
   const currentWorkspaceId = frameworkProvider
     .get(GlobalContextService)
@@ -166,6 +160,18 @@ function getCurrentWorkspace() {
     dispose,
   };
 }
+
+events?.applicationMenu.openAboutPageInSettingModal(() => {
+  const currentWorkspace = getCurrentWorkspace();
+  if (!currentWorkspace) {
+    return;
+  }
+  const { workspace, dispose } = currentWorkspace;
+  workspace.scope.get(WorkspaceDialogService).open('setting', {
+    activeTab: 'about',
+  });
+  dispose();
+});
 
 events?.applicationMenu.onNewPageAction(type => {
   const currentWorkspace = getCurrentWorkspace();

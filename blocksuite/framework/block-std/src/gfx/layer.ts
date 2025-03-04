@@ -1,6 +1,6 @@
+import { Bound } from '@blocksuite/global/gfx';
 import {
   assertType,
-  Bound,
   DisposableGroup,
   last,
   Slot,
@@ -514,7 +514,8 @@ export class LayerManager {
     const isLocalElem = element instanceof GfxLocalElementModel;
 
     const indexChanged = !props || 'index' in props;
-    const childIdsChanged = props && 'childIds' in props;
+    const childIdsChanged =
+      props && ('childIds' in props || 'childElementIds' in props);
     const shouldUpdateGroupChildren =
       isGfxGroupCompatibleModel(element) && (indexChanged || childIdsChanged);
     const updateArray = (array: GfxModel[], element: GfxModel) => {
@@ -798,7 +799,7 @@ export class LayerManager {
 
             if (
               (payload.props.key === 'index' ||
-                payload.props.key === 'childIds') &&
+                payload.props.key === 'childElementIds') &&
               block instanceof GfxBlockElementModel &&
               (block.parent instanceof SurfaceBlockModel ||
                 block.parent?.role === 'root')

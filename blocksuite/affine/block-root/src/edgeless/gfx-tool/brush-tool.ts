@@ -3,7 +3,7 @@ import type { BrushElementModel } from '@blocksuite/affine-model';
 import { TelemetryProvider } from '@blocksuite/affine-shared/services';
 import type { PointerEventState } from '@blocksuite/block-std';
 import { BaseTool } from '@blocksuite/block-std/gfx';
-import type { IVec } from '@blocksuite/global/utils';
+import type { IVec } from '@blocksuite/global/gfx';
 import { assertExists } from '@blocksuite/global/utils';
 
 export class BrushTool extends BaseTool {
