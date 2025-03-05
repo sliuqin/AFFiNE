@@ -20,7 +20,7 @@ import { flip, offset, shift } from '@floating-ui/dom';
 import { computed, type ReadonlySignal, signal } from '@preact/signals-core';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { nothing } from 'lit';
-import { property, query, state } from 'lit/decorators.js';
+import { property, query } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -70,23 +70,23 @@ class TagManager {
     );
   };
 
-  color = signal(getTagColor());
+  color$ = signal(getTagColor());
 
   createOption = () => {
-    const value = this.text.value.trim();
+    const value = this.text$.value.trim();
     if (value === '') return;
     const id = nanoid();
     this.ops.onOptionsChange([
       {
         id: id,
         value: value,
-        color: this.color.value,
+        color: this.color$.value,
       },
       ...this.ops.options.value,
     ]);
     this.selectTag(id);
-    this.text.value = '';
-    this.color.value = getTagColor();
+    this.text$.value = '';
+    this.color$.value = getTagColor();
     if (this.isSingleMode) {
       this.ops.onComplete?.();
     }
@@ -101,12 +101,12 @@ class TagManager {
   filteredOptions$ = computed(() => {
     let matched = false;
     const options: RenderOption[] = [];
-    for (const option of this.options.value) {
+    for (const option of this.options$.value) {
       if (
-        !this.text.value ||
+        !this.text$.value ||
         option.value
           .toLocaleLowerCase()
-          .includes(this.text.value.toLocaleLowerCase())
+          .includes(this.text$.value.toLocaleLowerCase())
       ) {
         options.push({
           ...option,
@@ -114,15 +114,15 @@ class TagManager {
           select: () => this.selectTag(option.id),
         });
       }
-      if (option.value === this.text.value) {
+      if (option.value === this.text$.value) {
         matched = true;
       }
     }
-    if (this.text.value && !matched) {
+    if (this.text$.value && !matched) {
       options.push({
         id: 'create',
-        color: this.color.value,
-        value: this.text.value,
+        color: this.color$.value,
+        value: this.text$.value,
         isCreate: true,
         select: this.createOption,
       });
@@ -136,37 +136,37 @@ class TagManager {
     );
   });
 
-  text = signal('');
+  text$ = signal('');
 
   get isSingleMode() {
     return this.ops.mode === 'single';
   }
 
-  get options() {
+  get options$() {
     return this.ops.options;
   }
 
-  get value() {
+  get value$() {
     return this.ops.value;
   }
 
   constructor(private readonly ops: TagManagerOptions) {}
 
   deleteTag(id: string) {
-    this.ops.onChange(this.value.value.filter(item => item !== id));
+    this.ops.onChange(this.value$.value.filter(item => item !== id));
   }
 
   isSelected(id: string) {
-    return this.value.value.includes(id);
+    return this.value$.value.includes(id);
   }
 
   selectTag(id: string) {
     if (this.isSelected(id)) {
       return;
     }
-    const newValue = this.isSingleMode ? [id] : [...this.value.value, id];
+    const newValue = this.isSingleMode ? [id] : [...this.value$.value, id];
     this.ops.onChange(newValue);
-    this.text.value = '';
+    this.text$.value = '';
     if (this.isSingleMode) {
       requestAnimationFrame(() => {
         this.ops.onComplete?.();
@@ -236,7 +236,7 @@ export class MultiTagSelect extends SignalWatcher(
   };
 
   private readonly _onInput = (event: KeyboardEvent) => {
-    this.tagManager.text.value = (event.target as HTMLInputElement).value;
+    this.tagManager.text$.value = (event.target as HTMLInputElement).value;
   };
 
   private readonly _onInputKeydown = (event: KeyboardEvent) => {
@@ -251,10 +251,10 @@ export class MultiTagSelect extends SignalWatcher(
       this.selectedTag$.value?.select();
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
-      this.setSelectedOption(this.selectedIndex - 1);
+      this.setSelectedOption(this.selectedIndex$.value - 1);
     } else if (event.key === 'ArrowDown') {
       event.preventDefault();
-      this.setSelectedOption(this.selectedIndex + 1);
+      this.setSelectedOption(this.selectedIndex$.value + 1);
     } else if (event.key === 'Escape') {
       this.onComplete();
     }
@@ -263,7 +263,7 @@ export class MultiTagSelect extends SignalWatcher(
   private readonly tagManager = new TagManager(this);
 
   private readonly selectedTag$ = computed(() => {
-    return this.tagManager.filteredOptions$.value[this.selectedIndex];
+    return this.tagManager.filteredOptions$.value[this.selectedIndex$.value];
   });
 
   sortContext = createSortContext({
@@ -301,7 +301,7 @@ export class MultiTagSelect extends SignalWatcher(
   });
 
   private get text() {
-    return this.tagManager.text;
+    return this.tagManager.text$;
   }
 
   private renderInput() {
@@ -355,7 +355,7 @@ export class MultiTagSelect extends SignalWatcher(
           this.tagManager.filteredOptions$.value,
           select => select.id,
           (select, index) => {
-            const isSelected = index === this.selectedIndex;
+            const isSelected = index === this.selectedIndex$.value;
             const mouseenter = () => {
               this.setSelectedOption(index);
             };
@@ -402,7 +402,7 @@ export class MultiTagSelect extends SignalWatcher(
   }
 
   private setSelectedOption(index: number) {
-    this.selectedIndex = rangeWrap(
+    this.selectedIndex$.value = rangeWrap(
       index,
       0,
       this.tagManager.filteredOptions$.value.length
@@ -426,7 +426,7 @@ export class MultiTagSelect extends SignalWatcher(
   }
 
   override render() {
-    this.setSelectedOption(this.selectedIndex);
+    this.setSelectedOption(this.selectedIndex$.value);
     return html` ${this.renderInput()} ${this.renderTags()} `;
   }
 
@@ -448,8 +448,7 @@ export class MultiTagSelect extends SignalWatcher(
   @property({ attribute: false })
   accessor options!: ReadonlySignal<SelectTag[]>;
 
-  @state()
-  private accessor selectedIndex = 0;
+  private readonly selectedIndex$ = signal(0);
 
   @property({ attribute: false })
   accessor value!: ReadonlySignal<string[]>;
@@ -464,7 +463,7 @@ declare global {
 const popMobileTagSelect = (target: PopupTarget, ops: TagSelectOptions) => {
   const tagManager = new TagManager(ops);
   const onInput = (e: InputEvent) => {
-    tagManager.text.value = (e.target as HTMLInputElement).value;
+    tagManager.text$.value = (e.target as HTMLInputElement).value;
   };
   return popMenu(target, {
     options: {
@@ -496,7 +495,7 @@ const popMobileTagSelect = (target: PopupTarget, ops: TagSelectOptions) => {
                 </div>`;
               })}
               <input
-                .value="${tagManager.text.value}"
+                .value="${tagManager.text$.value}"
                 @input="${onInput}"
                 placeholder="Type here..."
                 type="text"

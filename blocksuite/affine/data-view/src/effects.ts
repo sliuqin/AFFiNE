@@ -19,10 +19,7 @@ import {
   DateCellEditing,
 } from './property-presets/date/cell-renderer.js';
 import { TextCell as ImageTextCell } from './property-presets/image/cell-renderer.js';
-import {
-  MultiSelectCell,
-  MultiSelectCellEditing,
-} from './property-presets/multi-select/cell-renderer.js';
+import { MultiSelectCell } from './property-presets/multi-select/cell-renderer.js';
 import { NumberCell } from './property-presets/number/cell-renderer.js';
 import { ProgressCell } from './property-presets/progress/cell-renderer.js';
 import { SelectCell } from './property-presets/select/cell-renderer.js';
@@ -91,10 +88,6 @@ export function effects() {
   customElements.define('affine-database-text-cell', TextCell);
   customElements.define('affine-database-select-cell', SelectCell);
   customElements.define('affine-database-multi-select-cell', MultiSelectCell);
-  customElements.define(
-    'affine-database-multi-select-cell-editing',
-    MultiSelectCellEditing
-  );
   customElements.define('affine-data-view-record-field', RecordField);
   customElements.define('data-view-drag-to-fill', DragToFillElement);
   customElements.define('affine-data-view-table-group', TableGroup);
