@@ -2,7 +2,6 @@ import { Popover, uniReactRoot } from '@affine/component';
 import { Button } from '@affine/component/ui/button';
 import { Menu, MenuItem } from '@affine/component/ui/menu';
 import { Upload } from '@affine/core/components/pure/file-upload';
-import { signalToLiveData } from '@affine/core/modules/doc-info/utils';
 import type {
   CellRenderProps,
   DataViewCellLifeCycle,
@@ -15,10 +14,7 @@ import {
   MoreVerticalIcon,
   PlusIcon,
 } from '@blocksuite/icons/rc';
-import {
-  generateFractionalIndexingKeyBetween,
-  useLiveData,
-} from '@toeverything/infra';
+import { generateFractionalIndexingKeyBetween } from '@toeverything/infra';
 import type { ForwardRefRenderFunction, MouseEvent, ReactNode } from 'react';
 import {
   forwardRef,
@@ -29,6 +25,7 @@ import {
   useState,
 } from 'react';
 
+import { useSignal } from '../../../../modules/doc-info/utils';
 import type { FileCellType } from './define';
 import { filePropertyModelConfig } from './define';
 import * as styles from './style.css';
@@ -52,8 +49,8 @@ const FileCellComponent: ForwardRefRenderFunction<
 > = (props, ref): ReactNode => {
   const { selectCurrentCell, cell } = props;
 
-  const value = useLiveData(signalToLiveData(cell.value$));
-  const isEditing = useLiveData(signalToLiveData(props.isEditing$));
+  const value = useSignal(cell.value$);
+  const isEditing = useSignal(props.isEditing$);
   const fileList = useMemo(
     () =>
       Object.values(value ?? {}).sort((a, b) => (a.order > b.order ? 1 : -1)),

@@ -26,7 +26,7 @@ const UniReactNode = memo(
       return props.dataRef.subscribe(() => {
         setData(props.dataRef.value);
       });
-    }, []);
+    }, [props.dataRef]);
     return createPortal(<Component ref={props.expose} {...data} />, props.ele);
   },
   () => true
