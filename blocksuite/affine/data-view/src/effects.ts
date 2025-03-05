@@ -24,10 +24,7 @@ import {
   MultiSelectCellEditing,
 } from './property-presets/multi-select/cell-renderer.js';
 import { NumberCell } from './property-presets/number/cell-renderer.js';
-import {
-  ProgressCell,
-  ProgressCellEditing,
-} from './property-presets/progress/cell-renderer.js';
+import { ProgressCell } from './property-presets/progress/cell-renderer.js';
 import {
   SelectCell,
   SelectCellEditing,
@@ -80,10 +77,6 @@ import { DataViewHeaderViews } from './widget-presets/views-bar/views-view.js';
 
 export function effects() {
   customElements.define('affine-database-progress-cell', ProgressCell);
-  customElements.define(
-    'affine-database-progress-cell-editing',
-    ProgressCellEditing
-  );
   customElements.define('data-view-header-tools', DataViewHeaderTools);
   customElements.define('affine-database-number-cell', NumberCell);
   customElements.define(
