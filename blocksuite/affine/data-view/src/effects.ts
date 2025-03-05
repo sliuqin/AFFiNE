@@ -25,10 +25,7 @@ import {
 } from './property-presets/multi-select/cell-renderer.js';
 import { NumberCell } from './property-presets/number/cell-renderer.js';
 import { ProgressCell } from './property-presets/progress/cell-renderer.js';
-import {
-  SelectCell,
-  SelectCellEditing,
-} from './property-presets/select/cell-renderer.js';
+import { SelectCell } from './property-presets/select/cell-renderer.js';
 import {
   TextCell,
   TextCellEditing,
@@ -97,10 +94,6 @@ export function effects() {
   customElements.define('affine-database-text-cell', TextCell);
   customElements.define('affine-database-text-cell-editing', TextCellEditing);
   customElements.define('affine-database-select-cell', SelectCell);
-  customElements.define(
-    'affine-database-select-cell-editing',
-    SelectCellEditing
-  );
   customElements.define('affine-database-multi-select-cell', MultiSelectCell);
   customElements.define(
     'affine-database-multi-select-cell-editing',
