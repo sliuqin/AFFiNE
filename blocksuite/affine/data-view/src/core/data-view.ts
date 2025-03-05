@@ -5,7 +5,7 @@ import type {
 import { ShadowlessElement } from '@blocksuite/block-std';
 import { IS_MOBILE } from '@blocksuite/global/env';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
-import { computed, type ReadonlySignal } from '@preact/signals-core';
+import { computed, type ReadonlySignal, signal } from '@preact/signals-core';
 import { css, unsafeCSS } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
@@ -63,7 +63,7 @@ export class DataViewRenderer extends SignalWatcher(
     }
   `;
 
-  private readonly _view = createRef<{
+  private readonly _view = signal<{
     expose: DataViewInstance;
   }>();
 

@@ -229,7 +229,7 @@ export class LinkCellEditing extends BaseCellRenderer<string> {
     this._focusEnd();
   }
 
-  override onExitEditMode() {
+  override beforeExitEditingMode() {
     this._setValue();
   }
 

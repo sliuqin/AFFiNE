@@ -103,7 +103,7 @@ export class KanbanSelectionController implements ReactiveController {
       if (cell?.blurCell()) {
         container.blur();
       }
-      container.editing = false;
+      container.isEditing$.value = false;
     } else {
       container.blur();
     }
@@ -147,7 +147,7 @@ export class KanbanSelectionController implements ReactiveController {
       if (cell?.focusCell()) {
         container.focus();
       }
-      container.editing = true;
+      container.isEditing$.value = true;
     } else {
       container.focus();
     }

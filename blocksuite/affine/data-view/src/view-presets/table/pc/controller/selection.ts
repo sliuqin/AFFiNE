@@ -191,11 +191,9 @@ export class TableSelectionController implements ReactiveController {
           if (container) {
             const cell = container.cell;
             if (old.isEditing) {
-              requestAnimationFrame(() => {
-                cell?.onExitEditMode();
-              });
+              cell?.beforeExitEditingMode();
               cell?.blurCell();
-              container.isEditing = false;
+              container.isEditing$.value = false;
             }
           }
         }
@@ -210,9 +208,11 @@ export class TableSelectionController implements ReactiveController {
           if (container) {
             const cell = container.cell;
             if (newSelection.isEditing) {
-              cell?.onEnterEditMode();
-              container.isEditing = true;
-              cell?.focusCell();
+              container.isEditing$.value = true;
+              requestAnimationFrame(() => {
+                cell?.afterEnterEditingMode();
+                cell?.focusCell();
+              });
             }
           }
         }

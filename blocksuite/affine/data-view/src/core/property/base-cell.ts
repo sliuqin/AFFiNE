@@ -1,6 +1,6 @@
 import { ShadowlessElement } from '@blocksuite/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
-import { computed } from '@preact/signals-core';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { property } from 'lit/decorators.js';
 
 import type { Cell } from '../view-manager/cell.js';
@@ -13,6 +13,9 @@ export abstract class BaseCellRenderer<
   extends SignalWatcher(WithDisposable(ShadowlessElement))
   implements DataViewCellLifeCycle, CellRenderProps<Data, Value>
 {
+  get expose() {
+    return this;
+  }
   @property({ attribute: false })
   accessor cell!: Cell<Value, Data>;
 
@@ -56,25 +59,25 @@ export abstract class BaseCellRenderer<
     super.connectedCallback();
     this.style.width = '100%';
     this._disposables.addFromEvent(this, 'click', e => {
-      if (this.isEditing) {
+      if (this.isEditing$.value) {
         e.stopPropagation();
       }
     });
 
     this._disposables.addFromEvent(this, 'copy', e => {
-      if (!this.isEditing) return;
+      if (!this.isEditing$.value) return;
       e.stopPropagation();
       this.onCopy(e);
     });
 
     this._disposables.addFromEvent(this, 'cut', e => {
-      if (!this.isEditing) return;
+      if (!this.isEditing$.value) return;
       e.stopPropagation();
       this.onCut(e);
     });
 
     this._disposables.addFromEvent(this, 'paste', e => {
-      if (!this.isEditing) return;
+      if (!this.isEditing$.value) return;
       e.stopPropagation();
       this.onPaste(e);
     });
@@ -96,18 +99,18 @@ export abstract class BaseCellRenderer<
 
   onCut(_e: ClipboardEvent) {}
 
-  onEnterEditMode(): void {
+  afterEnterEditingMode(): void {
     // do nothing
   }
 
-  onExitEditMode() {
+  beforeExitEditingMode() {
     // do nothing
   }
 
   onPaste(_e: ClipboardEvent) {}
 
   @property({ attribute: false })
-  accessor isEditing!: boolean;
+  accessor isEditing$!: ReadonlySignal<boolean>;
 
   @property({ attribute: false })
   accessor selectCurrentCell!: (editing: boolean) => void;

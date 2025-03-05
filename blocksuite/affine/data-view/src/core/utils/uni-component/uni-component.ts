@@ -8,14 +8,13 @@ import type { Signal } from '@preact/signals-core';
 import type { LitElement, PropertyValues, TemplateResult } from 'lit';
 import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';
-import type { Ref } from 'lit/directives/ref.js';
 import { type StyleInfo, styleMap } from 'lit/directives/style-map.js';
 
 export const renderUniLit = <Props, Expose extends NonNullable<unknown>>(
   uni: UniComponent<Props, Expose> | undefined,
   props?: Props,
   options?: {
-    ref?: Ref<Expose>;
+    ref?: Signal<Expose | undefined>;
     style?: Readonly<StyleInfo>;
     class?: string;
   }
@@ -49,7 +48,6 @@ export class UniLit<
   private mount() {
     this.uniReturn = this.uni?.(this, this.props, value => {
       if (this.ref) {
-        // @ts-expect-error readonly
         this.ref.value = value;
         this._expose = value;
       }
@@ -88,7 +86,7 @@ export class UniLit<
   accessor props!: Props;
 
   @property({ attribute: false })
-  accessor ref: Signal<Expose> | undefined = undefined;
+  accessor ref: Signal<Expose | undefined> | undefined = undefined;
 
   @property({ attribute: false })
   accessor uni: UniComponent<Props, Expose> | undefined = undefined;
@@ -138,12 +136,13 @@ export class UniAnyRender<
 export const defineUniComponent = <T, Expose extends NonNullable<unknown>>(
   renderTemplate: (props: T, expose: Expose) => TemplateResult
 ): UniComponent<T, Expose> => {
-  return (ele, props) => {
+  return (ele, props, expose) => {
     const ins = new UniAnyRender<T, Expose>();
     ins.props = props;
     ins.expose = {} as Expose;
     ins.renderTemplate = renderTemplate;
     ele.append(ins);
+    expose(ins.expose);
     return {
       update: props => {
         ins.props = props;
@@ -152,7 +151,6 @@ export const defineUniComponent = <T, Expose extends NonNullable<unknown>>(
       unmount: () => {
         ins.remove();
       },
-      expose: ins.expose,
     };
   };
 };

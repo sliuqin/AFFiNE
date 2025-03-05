@@ -155,7 +155,7 @@ export class KanbanDragController implements ReactiveController {
         const target = event.target;
         if (target instanceof Element) {
           const cell = target.closest('affine-data-view-kanban-cell');
-          if (cell?.editing) {
+          if (cell?.isEditing$.value) {
             return;
           }
           cell?.selectCurrentCell(false);

@@ -198,7 +198,7 @@ height: 46px;
     this.openDatePicker();
   }
 
-  override onExitEditMode() {
+  override beforeExitEditingMode() {
     this.updateValue();
     this._prevPortalAbortController?.abort();
   }

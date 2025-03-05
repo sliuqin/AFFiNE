@@ -368,11 +368,11 @@ export class HeaderAreaTextCellEditing extends BaseTextCell {
           effect(() => {
             const inlineRange = this.inlineEditor?.inlineRange$.value;
             if (inlineRange) {
-              if (!this.isEditing) {
+              if (!this.isEditing$.value) {
                 this.selectCurrentCell(true);
               }
             } else {
-              if (this.isEditing) {
+              if (this.isEditing$.value) {
                 this.selectCurrentCell(false);
               }
             }

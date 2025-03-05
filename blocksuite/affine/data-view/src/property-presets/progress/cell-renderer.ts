@@ -168,7 +168,7 @@ export class ProgressCellEditing extends BaseCellRenderer<number> {
     _e.preventDefault();
   }
 
-  override onExitEditMode() {
+  override beforeExitEditingMode() {
     this.onChange(this._value);
   }
 

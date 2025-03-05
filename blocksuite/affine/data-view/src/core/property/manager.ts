@@ -1,4 +1,5 @@
 import type { UniComponent } from '@blocksuite/affine-shared/types';
+import type { ReadonlySignal } from '@preact/signals-core';
 
 import type { Cell } from '../view-manager/cell.js';
 
@@ -7,16 +8,15 @@ export interface CellRenderProps<
   Value = unknown,
 > {
   cell: Cell<Value, Data>;
-  isEditing: boolean;
+  isEditing$: ReadonlySignal<boolean>;
   selectCurrentCell: (editing: boolean) => void;
 }
 
 export interface DataViewCellLifeCycle {
   beforeEnterEditMode(): boolean;
+  beforeExitEditingMode(): void;
 
-  onEnterEditMode(): void;
-
-  onExitEditMode(): void;
+  afterEnterEditingMode(): void;
 
   focusCell(): boolean;
 

@@ -4,10 +4,9 @@ import {
   SignalWatcher,
   WithDisposable,
 } from '@blocksuite/global/utils';
-import { computed } from '@preact/signals-core';
+import { computed, signal } from '@preact/signals-core';
 import { css } from 'lit';
-import { property, state } from 'lit/decorators.js';
-import { createRef } from 'lit/directives/ref.js';
+import { property } from 'lit/decorators.js';
 
 import { renderUniLit } from '../../../core/index.js';
 import type {
@@ -43,7 +42,7 @@ export class DatabaseCellContainer extends SignalWatcher(
     }
   `;
 
-  private readonly _cell = createRef<DataViewCellLifeCycle>();
+  private readonly _cell = signal<DataViewCellLifeCycle>();
 
   @property({ attribute: false })
   accessor column!: TableColumn;
@@ -109,7 +108,7 @@ export class DatabaseCellContainer extends SignalWatcher(
   override connectedCallback() {
     super.connectedCallback();
     this._disposables.addFromEvent(this, 'click', () => {
-      if (!this.isEditing) {
+      if (!this.isEditing$.value) {
         this.selectCurrentCell(!this.column.readonly$.value);
       }
     });
@@ -134,12 +133,13 @@ export class DatabaseCellContainer extends SignalWatcher(
       return;
     }
     const { edit, view } = renderer;
-    const uni = !this.readonly && this.isEditing && edit != null ? edit : view;
-    this.view.lockRows(this.isEditing);
-    this.dataset['editing'] = `${this.isEditing}`;
+    const uni =
+      !this.readonly && this.isEditing$.value && edit != null ? edit : view;
+    this.view.lockRows(this.isEditing$.value);
+    this.dataset['editing'] = `${this.isEditing$.value}`;
     const props: CellRenderProps = {
       cell: this.cell$.value,
-      isEditing: this.isEditing,
+      isEditing$: this.isEditing$,
       selectCurrentCell: this.selectCurrentCell,
     };
 
@@ -157,8 +157,7 @@ export class DatabaseCellContainer extends SignalWatcher(
   @property({ attribute: false })
   accessor columnIndex!: number;
 
-  @state()
-  accessor isEditing = false;
+  isEditing$ = signal(false);
 
   @property({ attribute: false })
   accessor rowIndex!: number;

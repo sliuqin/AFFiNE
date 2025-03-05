@@ -94,7 +94,7 @@ export class TextCellEditing extends BaseCellRenderer<string> {
     this.focusEnd();
   }
 
-  override onExitEditMode() {
+  override beforeExitEditingMode() {
     this._setValue();
   }
 

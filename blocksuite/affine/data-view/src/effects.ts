@@ -23,10 +23,7 @@ import {
   MultiSelectCell,
   MultiSelectCellEditing,
 } from './property-presets/multi-select/cell-renderer.js';
-import {
-  NumberCell,
-  NumberCellEditing,
-} from './property-presets/number/cell-renderer.js';
+import { NumberCell } from './property-presets/number/cell-renderer.js';
 import {
   ProgressCell,
   ProgressCellEditing,
@@ -89,10 +86,6 @@ export function effects() {
   );
   customElements.define('data-view-header-tools', DataViewHeaderTools);
   customElements.define('affine-database-number-cell', NumberCell);
-  customElements.define(
-    'affine-database-number-cell-editing',
-    NumberCellEditing
-  );
   customElements.define(
     'affine-database-cell-container',
     DatabaseCellContainer
