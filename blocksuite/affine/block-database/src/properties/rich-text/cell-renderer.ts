@@ -21,7 +21,7 @@ import { IS_MAC } from '@blocksuite/global/env';
 import type { DeltaInsert } from '@blocksuite/inline';
 import type { BlockSnapshot } from '@blocksuite/store';
 import { Text } from '@blocksuite/store';
-import { query } from 'lit/decorators.js';
+import { createRef, ref } from 'lit/directives/ref.js';
 import { html } from 'lit/static-html.js';
 
 import { HostContextKey } from '../../context/host-context.js';
@@ -82,7 +82,7 @@ function toggleStyle(
 
 export class RichTextCell extends BaseCellRenderer<Text> {
   get inlineEditor() {
-    return this.richText?.inlineEditor;
+    return this.richText.value?.inlineEditor;
   }
 
   get inlineManager() {
@@ -97,23 +97,11 @@ export class RichTextCell extends BaseCellRenderer<Text> {
     return databaseBlock?.topContenteditableElement;
   }
 
-  get attributeRenderer() {
-    return this.inlineManager?.getRenderer();
-  }
-
-  get attributesSchema() {
-    return this.inlineManager?.getSchema();
-  }
-
   get host() {
     return this.view.contextGet(HostContextKey);
   }
 
-  @query('rich-text')
-  accessor richText!: RichText;
-
-  @query('.affine-database-rich-text')
-  accessor _richTextElement!: HTMLElement;
+  private readonly richText = createRef<RichText>();
 
   private changeUserSelectAccordToReadOnly() {
     if (this && this instanceof HTMLElement) {
@@ -347,7 +335,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
   }
 
   override firstUpdated() {
-    this.richText?.updateComplete
+    this.richText.value?.updateComplete
       .then(() => {
         const inlineEditor = this.inlineEditor;
         if (!inlineEditor) return;
@@ -357,17 +345,13 @@ export class RichTextCell extends BaseCellRenderer<Text> {
         );
 
         this.disposables.addFromEvent(
-          this._richTextElement!,
+          this.richText.value,
           'copy',
           this._onCopy
         );
+        this.disposables.addFromEvent(this.richText.value, 'cut', this._onCut);
         this.disposables.addFromEvent(
-          this._richTextElement!,
-          'cut',
-          this._onCut
-        );
-        this.disposables.addFromEvent(
-          this._richTextElement!,
+          this.richText.value,
           'paste',
           this._onPaste
         );
@@ -391,12 +375,13 @@ export class RichTextCell extends BaseCellRenderer<Text> {
       return html` <div class="${richTextContainerStyle}"></div>`;
     }
     return html` <rich-text
+      ${ref(this.richText)}
       data-disable-ask-ai
       data-not-block-text
       .yText="${this.value}"
       .inlineEventSource="${this.topContenteditableElement}"
-      .attributesSchema="${this.attributesSchema}"
-      .attributeRenderer="${this.attributeRenderer}"
+      .attributesSchema="${this.inlineManager?.getSchema()}"
+      .attributeRenderer="${this.inlineManager?.getRenderer()}"
       .embedChecker="${this.inlineManager?.embedChecker}"
       .markdownMatches="${this.inlineManager?.markdownMatches}"
       .readonly="${!this.isEditing$.value}"

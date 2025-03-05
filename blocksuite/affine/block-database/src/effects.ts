@@ -7,20 +7,13 @@ import { NoteRenderer } from './detail-panel/note-renderer';
 import { LinkCell } from './properties/link/cell-renderer';
 import { RichTextCell } from './properties/rich-text/cell-renderer';
 import { IconCell } from './properties/title/icon';
-import {
-  HeaderAreaTextCell,
-  HeaderAreaTextCellEditing,
-} from './properties/title/text';
+import { HeaderAreaTextCell } from './properties/title/text';
 
 export function effects() {
   customElements.define('affine-database-title', DatabaseTitle);
   customElements.define('data-view-header-area-icon', IconCell);
   customElements.define('affine-database-link-cell', LinkCell);
   customElements.define('data-view-header-area-text', HeaderAreaTextCell);
-  customElements.define(
-    'data-view-header-area-text-editing',
-    HeaderAreaTextCellEditing
-  );
   customElements.define('affine-database-rich-text-cell', RichTextCell);
   customElements.define('center-peek', CenterPeek);
   customElements.define('database-datasource-note-renderer', NoteRenderer);
