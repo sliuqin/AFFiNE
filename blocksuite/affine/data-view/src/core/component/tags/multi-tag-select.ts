@@ -20,8 +20,9 @@ import { flip, offset, shift } from '@floating-ui/dom';
 import { computed, type ReadonlySignal, signal } from '@preact/signals-core';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { nothing } from 'lit';
-import { property, query } from 'lit/decorators.js';
+import { property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
+import { createRef, ref } from 'lit/directives/ref.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { html } from 'lit/static-html.js';
@@ -37,7 +38,22 @@ import {
 import { verticalListSortingStrategy } from '../../utils/wc-dnd/sort/strategies/index.js';
 import { arrayMove } from '../../utils/wc-dnd/utils/array-move.js';
 import { getTagColor, selectOptionColors } from './colors.js';
-import { styles } from './styles.js';
+import {
+  selectedStyle,
+  selectOptionContentStyle,
+  selectOptionDragHandlerStyle,
+  selectOptionIconStyle,
+  selectOptionNewIconStyle,
+  selectOptionsContainerStyle,
+  selectOptionsTipsStyle,
+  selectOptionStyle,
+  tagContainerStyle,
+  tagDeleteIconStyle,
+  tagSelectContainerStyle,
+  tagSelectInputContainerStyle,
+  tagSelectInputStyle,
+  tagTextStyle,
+} from './styles.css.js';
 
 type RenderOption = {
   value: string;
@@ -178,8 +194,6 @@ class TagManager {
 export class MultiTagSelect extends SignalWatcher(
   WithDisposable(ShadowlessElement)
 ) {
-  static override styles = styles;
-
   private readonly _clickItemOption = (e: MouseEvent, id: string) => {
     e.stopPropagation();
     const option = this.options.value.find(v => v.id === id);
@@ -306,7 +320,7 @@ export class MultiTagSelect extends SignalWatcher(
 
   private renderInput() {
     return html`
-      <div class="tag-select-input-container">
+      <div class="${tagSelectInputContainerStyle}">
         ${this.value.value.map(id => {
           const option = this.tagManager.optionsMap$.value.get(id);
           if (!option) {
@@ -317,7 +331,8 @@ export class MultiTagSelect extends SignalWatcher(
           );
         })}
         <input
-          class="tag-select-input"
+          class="${tagSelectInputStyle}"
+          ${ref(this._selectInput)}
           placeholder="Type here..."
           .value="${this.text.value}"
           @input="${this._onInput}"
@@ -332,10 +347,10 @@ export class MultiTagSelect extends SignalWatcher(
     const style = styleMap({
       backgroundColor: color,
     });
-    return html` <div class="tag-container" style=${style}>
-      <div class="tag-text">${name}</div>
+    return html` <div class="${tagContainerStyle}" style=${style}>
+      <div class="${tagTextStyle}">${name}</div>
       ${onDelete
-        ? html` <div class="tag-delete-icon" @click="${onDelete}">
+        ? html` <div class="${tagDeleteIconStyle}" @click="${onDelete}">
             ${CloseIcon()}
           </div>`
         : nothing}
@@ -349,8 +364,8 @@ export class MultiTagSelect extends SignalWatcher(
           'layer/insideBorder/border'
         )};margin: 4px 0;"
       ></div>
-      <div class="select-options-tips">Select tag or create one</div>
-      <div class="select-options-container">
+      <div class="${selectOptionsTipsStyle}">Select tag or create one</div>
+      <div class="${selectOptionsContainerStyle}">
         ${repeat(
           this.tagManager.filteredOptions$.value,
           select => select.id,
@@ -360,8 +375,8 @@ export class MultiTagSelect extends SignalWatcher(
               this.setSelectedOption(index);
             };
             const classes = classMap({
-              'select-option': true,
-              selected: isSelected,
+              [selectOptionStyle]: true,
+              [selectedStyle]: isSelected,
             });
             const clickOption = (e: MouseEvent) => {
               e.stopPropagation();
@@ -374,20 +389,22 @@ export class MultiTagSelect extends SignalWatcher(
                 @mouseenter="${mouseenter}"
                 @click="${select.select}"
               >
-                <div class="select-option-content">
+                <div class="${selectOptionContentStyle}">
                   ${select.isCreate
-                    ? html` <div class="select-option-new-icon">Create</div>`
+                    ? html` <div class="${selectOptionNewIconStyle}">
+                        Create
+                      </div>`
                     : html`
                         <div
                           ${dragHandler(select.id)}
-                          class="select-option-drag-handler"
+                          class="${selectOptionDragHandlerStyle}"
                         ></div>
                       `}
                   ${this.renderTag(select.value, select.color)}
                 </div>
                 ${!select.isCreate
                   ? html` <div
-                      class="select-option-icon"
+                      class="${selectOptionIconStyle}"
                       @click="${clickOption}"
                     >
                       ${MoreHorizontalIcon()}
@@ -410,17 +427,19 @@ export class MultiTagSelect extends SignalWatcher(
   }
 
   protected override firstUpdated() {
+    const disposables = this.disposables;
+    this.classList.add(tagSelectContainerStyle);
     requestAnimationFrame(() => {
-      this._selectInput.focus();
+      this._selectInput.value?.focus();
     });
-    this._disposables.addFromEvent(this, 'click', () => {
-      this._selectInput.focus();
+    disposables.addFromEvent(this, 'click', () => {
+      this._selectInput.value?.focus();
     });
 
-    this._disposables.addFromEvent(this._selectInput, 'copy', e => {
+    disposables.addFromEvent(this._selectInput.value, 'copy', e => {
       e.stopPropagation();
     });
-    this._disposables.addFromEvent(this._selectInput, 'cut', e => {
+    disposables.addFromEvent(this._selectInput.value, 'cut', e => {
       e.stopPropagation();
     });
   }
@@ -430,8 +449,7 @@ export class MultiTagSelect extends SignalWatcher(
     return html` ${this.renderInput()} ${this.renderTags()} `;
   }
 
-  @query('.tag-select-input')
-  private accessor _selectInput!: HTMLInputElement;
+  private readonly _selectInput = createRef<HTMLInputElement>();
 
   @property()
   accessor mode: 'multi' | 'single' = 'multi';
@@ -490,8 +508,8 @@ const popMobileTagSelect = (target: PopupTarget, ops: TagSelectOptions) => {
                   backgroundColor: option.color,
                   width: 'max-content',
                 });
-                return html` <div class="tag-container" style=${style}>
-                  <div class="tag-text">${option.value}</div>
+                return html` <div class="${tagContainerStyle}" style=${style}>
+                  <div class="${tagTextStyle}">${option.value}</div>
                 </div>`;
               })}
               <input
@@ -521,8 +539,8 @@ const popMobileTagSelect = (target: PopupTarget, ops: TagSelectOptions) => {
                         ${option.isCreate
                           ? html` <div style="margin-right: 8px;">Create</div>`
                           : ''}
-                        <div class="tag-container" style=${style}>
-                          <div class="tag-text">${option.value}</div>
+                        <div class="${tagContainerStyle}" style=${style}>
+                          <div class="${tagTextStyle}">${option.value}</div>
                         </div>
                       </div>
                     `;
