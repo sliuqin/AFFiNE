@@ -5,10 +5,7 @@ import { DatabaseDndPreviewBlockComponent } from './database-dnd-preview-block';
 import { BlockRenderer } from './detail-panel/block-renderer';
 import { NoteRenderer } from './detail-panel/note-renderer';
 import { LinkCell } from './properties/link/cell-renderer';
-import {
-  RichTextCell,
-  RichTextCellEditing,
-} from './properties/rich-text/cell-renderer';
+import { RichTextCell } from './properties/rich-text/cell-renderer';
 import { IconCell } from './properties/title/icon';
 import {
   HeaderAreaTextCell,
@@ -25,10 +22,6 @@ export function effects() {
     HeaderAreaTextCellEditing
   );
   customElements.define('affine-database-rich-text-cell', RichTextCell);
-  customElements.define(
-    'affine-database-rich-text-cell-editing',
-    RichTextCellEditing
-  );
   customElements.define('center-peek', CenterPeek);
   customElements.define('database-datasource-note-renderer', NoteRenderer);
   customElements.define('database-datasource-block-renderer', BlockRenderer);

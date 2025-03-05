@@ -21,13 +21,15 @@ import { IS_MAC } from '@blocksuite/global/env';
 import type { DeltaInsert } from '@blocksuite/inline';
 import type { BlockSnapshot } from '@blocksuite/store';
 import { Text } from '@blocksuite/store';
-import { css } from 'lit';
 import { query } from 'lit/decorators.js';
-import { keyed } from 'lit/directives/keyed.js';
 import { html } from 'lit/static-html.js';
 
 import { HostContextKey } from '../../context/host-context.js';
 import type { DatabaseBlockComponent } from '../../database-block.js';
+import {
+  richTextCellStyle,
+  richTextContainerStyle,
+} from './cell-renderer.css.js';
 import { richTextPropertyModelConfig } from './define.js';
 
 function toggleStyle(
@@ -78,58 +80,7 @@ function toggleStyle(
   inlineEditor.syncInlineRange();
 }
 
-abstract class BaseRichTextCell extends BaseCellRenderer<Text> {
-  static override styles = css`
-    affine-database-rich-text-cell,
-    affine-database-rich-text-cell-editing {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      user-select: none;
-    }
-
-    .affine-database-rich-text {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      outline: none;
-      font-size: var(--data-view-cell-text-size);
-      line-height: var(--data-view-cell-text-line-height);
-      word-break: break-all;
-    }
-
-    .affine-database-rich-text v-line {
-      display: flex !important;
-      align-items: center;
-      height: 100%;
-      width: 100%;
-    }
-
-    .affine-database-rich-text v-line > div {
-      flex-grow: 1;
-    }
-
-    .data-view-header-area-icon {
-      height: max-content;
-      display: flex;
-      align-items: center;
-      margin-right: 8px;
-      padding: 2px;
-      border-radius: 4px;
-      margin-top: 2px;
-      background-color: var(--affine-background-secondary-color);
-    }
-
-    .data-view-header-area-icon svg {
-      width: 14px;
-      height: 14px;
-      fill: var(--affine-icon-color);
-      color: var(--affine-icon-color);
-    }
-  `;
-
+export class RichTextCell extends BaseCellRenderer<Text> {
   get inlineEditor() {
     return this.richText?.inlineEditor;
   }
@@ -163,101 +114,12 @@ abstract class BaseRichTextCell extends BaseCellRenderer<Text> {
 
   @query('.affine-database-rich-text')
   accessor _richTextElement!: HTMLElement;
-}
-
-export class RichTextCell extends BaseRichTextCell {
-  static override styles = css`
-    affine-database-rich-text-cell {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      user-select: none;
-    }
-
-    .affine-database-rich-text {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      outline: none;
-      font-size: var(--data-view-cell-text-size);
-      line-height: var(--data-view-cell-text-line-height);
-      word-break: break-all;
-    }
-
-    .affine-database-rich-text v-line {
-      display: flex !important;
-      align-items: center;
-      height: 100%;
-      width: 100%;
-    }
-
-    .affine-database-rich-text v-line > div {
-      flex-grow: 1;
-    }
-  `;
 
   private changeUserSelectAccordToReadOnly() {
     if (this && this instanceof HTMLElement) {
       this.style.userSelect = this.readonly ? 'text' : 'none';
     }
   }
-
-  override connectedCallback() {
-    super.connectedCallback();
-    this.changeUserSelectAccordToReadOnly();
-  }
-
-  override render() {
-    if (!this.value || !(this.value instanceof Text)) {
-      return html`<div class="affine-database-rich-text"></div>`;
-    }
-    return keyed(
-      this.value,
-      html`<rich-text
-        .yText=${this.value}
-        .attributesSchema=${this.attributesSchema}
-        .attributeRenderer=${this.attributeRenderer}
-        .embedChecker=${this.inlineManager?.embedChecker}
-        .markdownMatches=${this.inlineManager?.markdownMatches}
-        .readonly=${true}
-        class="affine-database-rich-text inline-editor"
-      ></rich-text>`
-    );
-  }
-}
-
-export class RichTextCellEditing extends BaseRichTextCell {
-  static override styles = css`
-    affine-database-rich-text-cell-editing {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      min-width: 1px;
-      cursor: text;
-    }
-
-    .affine-database-rich-text {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      outline: none;
-    }
-
-    .affine-database-rich-text v-line {
-      display: flex !important;
-      align-items: center;
-      height: 100%;
-      width: 100%;
-    }
-
-    .affine-database-rich-text v-line > div {
-      flex-grow: 1;
-    }
-  `;
 
   private readonly _handleKeyDown = (event: KeyboardEvent) => {
     if (event.key !== 'Escape') {
@@ -469,9 +331,9 @@ export class RichTextCellEditing extends BaseRichTextCell {
 
   override connectedCallback() {
     super.connectedCallback();
-    if (!this.value || typeof this.value === 'string') {
-      this._initYText(this.value);
-    }
+    this.classList.add(richTextCellStyle);
+
+    this.changeUserSelectAccordToReadOnly();
 
     const selectAll = (e: KeyboardEvent) => {
       if (e.key === 'a' && (IS_MAC ? e.metaKey : e.ctrlKey)) {
@@ -509,27 +371,40 @@ export class RichTextCellEditing extends BaseRichTextCell {
           'paste',
           this._onPaste
         );
-
-        inlineEditor.focusEnd();
       })
       .catch(console.error);
   }
 
+  override beforeEnterEditMode() {
+    if (!this.value || typeof this.value === 'string') {
+      this._initYText(this.value);
+    }
+    return true;
+  }
+
+  override afterEnterEditingMode() {
+    this.inlineEditor?.focusEnd();
+  }
+
   override render() {
-    return html`<rich-text
+    if (!this.value || !(this.value instanceof Text)) {
+      return html` <div class="${richTextContainerStyle}"></div>`;
+    }
+    return html` <rich-text
       data-disable-ask-ai
       data-not-block-text
-      .yText=${this.value}
-      .inlineEventSource=${this.topContenteditableElement}
-      .attributesSchema=${this.attributesSchema}
-      .attributeRenderer=${this.attributeRenderer}
-      .embedChecker=${this.inlineManager?.embedChecker}
-      .markdownMatches=${this.inlineManager?.markdownMatches}
-      .verticalScrollContainerGetter=${() =>
+      .yText="${this.value}"
+      .inlineEventSource="${this.topContenteditableElement}"
+      .attributesSchema="${this.attributesSchema}"
+      .attributeRenderer="${this.attributeRenderer}"
+      .embedChecker="${this.inlineManager?.embedChecker}"
+      .markdownMatches="${this.inlineManager?.markdownMatches}"
+      .readonly="${!this.isEditing$.value}"
+      .verticalScrollContainerGetter="${() =>
         this.topContenteditableElement?.host
           ? getViewportElement(this.topContenteditableElement.host)
-          : null}
-      class="affine-database-rich-text inline-editor"
+          : null}"
+      class="${richTextContainerStyle} inline-editor"
     ></rich-text>`;
   }
 
@@ -553,7 +428,7 @@ export class RichTextCellEditing extends BaseRichTextCell {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'affine-database-rich-text-cell-editing': RichTextCellEditing;
+    'affine-database-rich-text-cell': RichTextCell;
   }
 }
 
@@ -563,6 +438,5 @@ export const richTextColumnConfig =
 
     cellRenderer: {
       view: createFromBaseCellRenderer(RichTextCell),
-      edit: createFromBaseCellRenderer(RichTextCellEditing),
     },
   });
