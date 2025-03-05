@@ -32,8 +32,6 @@ import { getOrCreateCustomThemeWindow } from '../windows-manager/custom-theme-wi
 import { getChallengeResponse } from './challenge';
 import { uiSubjects } from './subject';
 
-export let isOnline = true;
-
 export const uiHandlers = {
   isMaximized: async () => {
     const window = await getMainWindow();
@@ -74,9 +72,6 @@ export const uiHandlers = {
   handleHideApp: async () => {
     const window = await getMainWindow();
     window?.hide();
-  },
-  handleNetworkChange: async (_, _isOnline: boolean) => {
-    isOnline = _isOnline;
   },
   getChallengeResponse: async (_, challenge: string) => {
     return getChallengeResponse(challenge);

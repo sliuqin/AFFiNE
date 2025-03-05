@@ -1,6 +1,5 @@
 import type { LatexProps } from '@blocksuite/affine-model';
 import type { Command } from '@blocksuite/block-std';
-import { assertInstanceOf } from '@blocksuite/global/utils';
 import type { BlockModel } from '@blocksuite/store';
 
 import { LatexBlockComponent } from './latex-block.js';
@@ -46,9 +45,10 @@ export const insertLatexBlockCommand: Command<
     insertedLatexBlockId: std.host.updateComplete.then(async () => {
       if (!latex) {
         const blockComponent = std.view.getBlock(result[0]);
-        assertInstanceOf(blockComponent, LatexBlockComponent);
-        await blockComponent.updateComplete;
-        blockComponent.toggleEditor();
+        if (blockComponent instanceof LatexBlockComponent) {
+          await blockComponent.updateComplete;
+          blockComponent.toggleEditor();
+        }
       }
       return result[0];
     }),

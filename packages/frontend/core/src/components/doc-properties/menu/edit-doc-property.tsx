@@ -157,7 +157,7 @@ export const EditDocPropertyMenuItems = ({
             placeholder={t['unnamed']()}
             onKeyDown={onKeyDown}
             size="large"
-            style={{ borderRadius: 4 }}
+            style={{ borderRadius: 4, height: 30 }}
           />
         )}
       </div>

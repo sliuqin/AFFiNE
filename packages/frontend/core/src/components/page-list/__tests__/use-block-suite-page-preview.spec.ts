@@ -17,6 +17,11 @@ const extensions = StoreExtensions;
 
 beforeEach(async () => {
   vi.useFakeTimers({ toFake: ['requestIdleCallback'] });
+  vi.mock('emoji-mart', () => {
+    return {
+      Picker: vi.fn(),
+    };
+  });
   docCollection = new TestWorkspace({ id: 'test' });
   docCollection.meta.initialize();
   const initPage = async (page: Store) => {

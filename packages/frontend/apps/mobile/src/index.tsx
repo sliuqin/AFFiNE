@@ -33,6 +33,7 @@ function main() {
       ],
     });
     setTags({
+      distribution: BUILD_CONFIG.distribution,
       appVersion: BUILD_CONFIG.appVersion,
       editorVersion: BUILD_CONFIG.editorVersion,
     });

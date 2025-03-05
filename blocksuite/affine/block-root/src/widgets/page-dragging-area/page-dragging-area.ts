@@ -11,7 +11,6 @@ import {
   type PointerEventState,
   WidgetComponent,
 } from '@blocksuite/block-std';
-import { assertInstanceOf } from '@blocksuite/global/utils';
 import { html, nothing } from 'lit';
 import { state } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -443,9 +442,14 @@ function getSelectingBlockPaths(blockInfos: BlockInfo[], userRect: Rect) {
 
 function isDragArea(e: PointerEventState) {
   const el = e.raw.target;
-  assertInstanceOf(el, Element);
+  if (!(el instanceof Element)) {
+    return false;
+  }
   const block = el.closest<BlockComponent>(`[${BLOCK_ID_ATTR}]`);
-  return block && matchModels(block.model, [RootBlockModel, NoteBlockModel]);
+  if (!block) {
+    return false;
+  }
+  return matchModels(block.model, [RootBlockModel, NoteBlockModel]);
 }
 
 declare global {

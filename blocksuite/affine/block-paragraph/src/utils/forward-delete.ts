@@ -1,6 +1,7 @@
 import {
   AttachmentBlockModel,
   BookmarkBlockModel,
+  CalloutBlockModel,
   CodeBlockModel,
   DatabaseBlockModel,
   DividerBlockModel,
@@ -25,7 +26,12 @@ export function forwardDelete(std: BlockStdScope) {
   if (!text) return;
   const isCollapsed = text.isCollapsed();
   const model = store.getBlock(text.from.blockId)?.model;
-  if (!model || !matchModels(model, [ParagraphBlockModel])) return;
+  if (
+    !model ||
+    !matchModels(model, [ParagraphBlockModel]) ||
+    matchModels(model.parent, [CalloutBlockModel])
+  )
+    return;
   const isEnd = isCollapsed && text.from.index === model.text.length;
   if (!isEnd) return;
   const parent = store.getParent(model);

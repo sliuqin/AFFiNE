@@ -11,10 +11,11 @@ type ModelList<T> =
 export function matchModels<
   const Model extends ConstructorType<BlockModel>[],
   U extends ModelList<Model>[number] = ModelList<Model>[number],
->(model: BlockModel | null, expected: Model): model is U {
-  return (
-    !!model && expected.some(expectedModel => model instanceof expectedModel)
-  );
+>(model: BlockModel | null | undefined, expected: Model): model is U {
+  if (model === null || model === undefined) {
+    return false;
+  }
+  return expected.some(expectedModel => model instanceof expectedModel);
 }
 
 export function isInsideBlockByFlavour(

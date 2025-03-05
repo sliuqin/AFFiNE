@@ -1,4 +1,8 @@
-import { CodeBlockModel, ParagraphBlockModel } from '@blocksuite/affine-model';
+import {
+  CalloutBlockModel,
+  CodeBlockModel,
+  ParagraphBlockModel,
+} from '@blocksuite/affine-model';
 import {
   isHorizontalRuleMarkdown,
   isMarkdownPrefix,
@@ -37,7 +41,13 @@ export function markdownInput(
   const isHeading = isParagraph && model.type.startsWith('h');
   const isParagraphQuoteBlock = isParagraph && model.type === 'quote';
   const isCodeBlock = matchModels(model, [CodeBlockModel]);
-  if (isHeading || isParagraphQuoteBlock || isCodeBlock) return;
+  if (
+    isHeading ||
+    isParagraphQuoteBlock ||
+    isCodeBlock ||
+    matchModels(model.parent, [CalloutBlockModel])
+  )
+    return;
 
   const lineInfo = inline.getLine(range.index);
   if (!lineInfo) return;

@@ -88,6 +88,7 @@ export const NoteBlockSchema = defineBlockSchema({
       'affine:surface-ref',
       'affine:embed-*',
       'affine:latex',
+      'affine:callout',
       TableModelFlavour,
     ],
   },

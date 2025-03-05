@@ -1,4 +1,3 @@
-import { assertInstanceOf } from '@blocksuite/global/utils';
 import { effect } from '@preact/signals-core';
 import * as Y from 'yjs';
 
@@ -47,7 +46,9 @@ export class RangeService<TextAttributes extends BaseTextAttributes> {
       return null;
     }
     const textNode = text.childNodes[1];
-    assertInstanceOf(textNode, Text);
+    if (!(textNode instanceof Text)) {
+      return null;
+    }
     range.setStart(textNode, 0);
     range.setEnd(textNode, textNode.textContent?.length ?? 0);
     const inlineRange = this.toInlineRange(range);

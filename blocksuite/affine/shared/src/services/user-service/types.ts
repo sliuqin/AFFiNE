@@ -5,8 +5,8 @@ export type RemovedUserInfo = {
 
 export type ExistedUserInfo = {
   id: string;
-  name: string;
-  avatar: string;
+  name?: string | null;
+  avatar?: string | null;
   removed?: false;
 };
 

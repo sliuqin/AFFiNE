@@ -5392,6 +5392,14 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.settings.workspace.experimental-features.enable-block-meta.description"](): string;
     /**
+      * `Callout`
+      */
+    ["com.affine.settings.workspace.experimental-features.enable-callout.name"](): string;
+    /**
+      * `Let your words stand out.`
+      */
+    ["com.affine.settings.workspace.experimental-features.enable-callout.description"](): string;
+    /**
       * `Emoji Folder Icon`
       */
     ["com.affine.settings.workspace.experimental-features.enable-emoji-folder-icon.name"](): string;

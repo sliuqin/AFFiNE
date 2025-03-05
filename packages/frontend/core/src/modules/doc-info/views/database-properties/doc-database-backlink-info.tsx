@@ -162,7 +162,7 @@ const DatabaseBacklinkRow = ({
 };
 
 export const DocDatabaseBacklinkInfo = ({
-  defaultOpen = [],
+  defaultOpen,
   onChange,
 }: {
   defaultOpen?: {
@@ -198,12 +198,14 @@ export const DocDatabaseBacklinkInfo = ({
       {rows.map(({ docId, databaseBlockId, rowId, row$ }) => (
         <Fragment key={`${docId}-${rowId}`}>
           <DatabaseBacklinkRow
-            defaultOpen={defaultOpen?.some(
-              backlink =>
-                backlink.databaseBlockId === databaseBlockId &&
-                backlink.rowId === rowId &&
-                backlink.docId === docId
-            )}
+            defaultOpen={
+              defaultOpen?.some(
+                backlink =>
+                  backlink.databaseBlockId === databaseBlockId &&
+                  backlink.rowId === rowId &&
+                  backlink.docId === docId
+              ) ?? false
+            }
             row$={row$}
             onChange={onChange}
           />

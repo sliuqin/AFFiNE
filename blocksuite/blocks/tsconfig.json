@@ -9,6 +9,7 @@
   "references": [
     { "path": "../affine/block-attachment" },
     { "path": "../affine/block-bookmark" },
+    { "path": "../affine/block-callout" },
     { "path": "../affine/block-code" },
     { "path": "../affine/block-data-view" },
     { "path": "../affine/block-database" },

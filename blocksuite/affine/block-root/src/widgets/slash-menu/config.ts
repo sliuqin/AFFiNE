@@ -9,6 +9,7 @@ import {
 } from '@blocksuite/affine-block-embed';
 import { insertImagesCommand } from '@blocksuite/affine-block-image';
 import { insertLatexBlockCommand } from '@blocksuite/affine-block-latex';
+import { focusBlockEnd } from '@blocksuite/affine-block-note';
 import { getSurfaceBlock } from '@blocksuite/affine-block-surface';
 import { insertSurfaceRefBlockCommand } from '@blocksuite/affine-block-surface-ref';
 import { insertTableBlockCommand } from '@blocksuite/affine-block-table';
@@ -61,6 +62,7 @@ import { assertType } from '@blocksuite/global/utils';
 import {
   DualLinkIcon,
   ExportToPdfIcon,
+  FontIcon,
   FrameIcon,
   GroupingIcon,
   ImageIcon,
@@ -170,6 +172,37 @@ export const defaultSlashMenuConfig: SlashMenuConfig = {
           model.doc.schema.flavourSchemaMap.has(config.flavour) &&
           !insideEdgelessText(model),
       })),
+
+    {
+      name: 'Callout',
+      description: 'Let your words stand out.',
+      icon: FontIcon(),
+      alias: ['callout'],
+      showWhen: ({ model }) => {
+        return model.doc.get(FeatureFlagService).getFlag('enable_callout');
+      },
+      action: ({ model, rootComponent }) => {
+        const { doc } = model;
+        const parent = doc.getParent(model);
+        if (!parent) return;
+
+        const index = parent.children.indexOf(model);
+        if (index === -1) return;
+        const calloutId = doc.addBlock('affine:callout', {}, parent, index + 1);
+        if (!calloutId) return;
+        const paragraphId = doc.addBlock('affine:paragraph', {}, calloutId);
+        if (!paragraphId) return;
+        rootComponent.updateComplete
+          .then(() => {
+            const paragraph = rootComponent.std.view.getBlock(paragraphId);
+            if (!paragraph) return;
+            rootComponent.std.command.exec(focusBlockEnd, {
+              focusBlock: paragraph,
+            });
+          })
+          .catch(console.error);
+      },
+    },
 
     {
       name: 'Inline equation',

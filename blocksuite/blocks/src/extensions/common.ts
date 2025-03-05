@@ -1,5 +1,6 @@
 import { AttachmentBlockSpec } from '@blocksuite/affine-block-attachment';
 import { BookmarkBlockSpec } from '@blocksuite/affine-block-bookmark';
+import { CalloutBlockSpec } from '@blocksuite/affine-block-callout';
 import { CodeBlockSpec } from '@blocksuite/affine-block-code';
 import { DataViewBlockSpec } from '@blocksuite/affine-block-data-view';
 import { DatabaseBlockSpec } from '@blocksuite/affine-block-database';
@@ -55,6 +56,7 @@ export const CommonBlockSpecs: ExtensionType[] = [
   ParagraphBlockSpec,
   DefaultOpenDocExtension,
   FontLoaderService,
+  CalloutBlockSpec,
 ].flat();
 
 export const PageFirstPartyBlockSpecs: ExtensionType[] = [

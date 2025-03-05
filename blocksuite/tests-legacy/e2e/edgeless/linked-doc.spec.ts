@@ -1,4 +1,3 @@
-import { assertNotExists } from '@blocksuite/global/utils';
 import { expect } from '@playwright/test';
 
 import {
@@ -90,7 +89,7 @@ test.describe('note to linked doc', () => {
     const moreButton = locatorComponentToolbarMoreButton(page);
     await moreButton.click();
     const turnButton = page.locator('.turn-into-linked-doc');
-    assertNotExists(turnButton);
+    expect(turnButton).toBeNull();
   });
 
   // TODO FIX ME
@@ -111,7 +110,7 @@ test.describe('note to linked doc', () => {
     const moreButton = locatorComponentToolbarMoreButton(page);
     await moreButton.click();
     const turnButton = page.locator('.turn-into-linked-doc');
-    assertNotExists(turnButton);
+    expect(turnButton).toBeNull();
   });
 });
 

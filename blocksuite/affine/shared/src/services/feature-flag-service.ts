@@ -17,6 +17,7 @@ export interface BlockSuiteFlags {
   enable_mobile_keyboard_toolbar: boolean;
   enable_mobile_linked_doc_menu: boolean;
   enable_block_meta: boolean;
+  enable_callout: boolean;
 }
 
 export class FeatureFlagService extends StoreExtension {
@@ -38,6 +39,7 @@ export class FeatureFlagService extends StoreExtension {
     enable_mobile_keyboard_toolbar: false,
     enable_mobile_linked_doc_menu: false,
     enable_block_meta: false,
+    enable_callout: false,
   });
 
   setFlag(key: keyof BlockSuiteFlags, value: boolean) {

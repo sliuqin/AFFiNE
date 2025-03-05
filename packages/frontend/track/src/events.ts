@@ -549,6 +549,9 @@ export type EventArgs = {
   modifyUserDocRole: {
     control: DocRoleControlType;
   };
+  modifyDocDefaultRole: {
+    control: DocRoleControlType;
+  };
   inviteUserDocRole: {
     control: 'member list';
   };

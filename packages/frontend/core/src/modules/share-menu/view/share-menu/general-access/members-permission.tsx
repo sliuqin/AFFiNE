@@ -56,7 +56,9 @@ export const MembersPermission = ({
   const changePermission = useAsyncCallback(
     async (docRole: DocRole) => {
       try {
-        track.$.sharePanel.$.modifyDocDefaultRole();
+        track.$.sharePanel.$.modifyDocDefaultRole({
+          control: docRole,
+        });
         await docGrantedUsersService.updateDocDefaultRole(docRole);
         shareInfoService.shareInfo.revalidate();
       } catch (error) {

@@ -1,4 +1,3 @@
-import { assertEquals } from '@blocksuite/affine/global/utils';
 import { Service } from '@toeverything/infra';
 import { applyUpdate } from 'yjs';
 
@@ -26,7 +25,11 @@ export class WorkspaceTransformService extends Service {
     accountId: string,
     flavour: string
   ): Promise<WorkspaceMetadata> => {
-    assertEquals(local.flavour, 'local');
+    if (local.flavour !== 'local') {
+      throw new Error(
+        'Only local workspace can be transformed to cloud workspace'
+      );
+    }
 
     const localDocStorage = local.engine.doc.storage;
     const localDocList = Array.from(local.docCollection.docs.keys());

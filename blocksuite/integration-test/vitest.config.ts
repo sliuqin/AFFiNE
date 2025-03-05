@@ -33,7 +33,7 @@ export default defineConfig(_configEnv =>
       coverage: {
         provider: 'istanbul', // or 'c8'
         reporter: ['lcov'],
-        reportsDirectory: '../../.coverage/presets',
+        reportsDirectory: '../../.coverage/integration-test',
       },
       deps: {
         interopDefault: true,

@@ -14,7 +14,6 @@ import { registerEvents } from './events';
 import { registerHandlers } from './handlers';
 import { logger } from './logger';
 import { registerProtocol } from './protocol';
-import { isOnline } from './ui';
 import { launch } from './windows-manager/launcher';
 import { launchStage } from './windows-manager/stage';
 
@@ -38,7 +37,7 @@ if (overrideSession) {
   app.setPath('sessionData', userDataPath);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// oxlint-disable-next-line @typescript-eslint/no-var-requires
 if (require('electron-squirrel-startup')) app.quit();
 
 if (process.env.SKIP_ONBOARDING) {
@@ -97,8 +96,10 @@ if (process.env.SENTRY_RELEASE) {
     transportOptions: {
       maxAgeDays: 30,
       maxQueueSize: 100,
-      shouldStore: () => !isOnline,
-      shouldSend: () => isOnline,
     },
+  });
+  Sentry.setTags({
+    distribution: 'electron',
+    appVersion: app.getVersion(),
   });
 }

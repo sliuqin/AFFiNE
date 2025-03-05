@@ -23,6 +23,7 @@ import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { JournalService } from '@affine/core/modules/journal';
 import { toURLSearchParams } from '@affine/core/modules/navigation';
 import { PeekViewService } from '@affine/core/modules/peek-view/services/peek-view';
+import { MemberSearchService } from '@affine/core/modules/permissions';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import track from '@affine/track';
 import {
@@ -74,6 +75,7 @@ import {
   type ReferenceReactRenderer,
 } from '../extensions/reference-renderer';
 import { patchSideBarService } from '../extensions/side-bar-service';
+import { patchUserListExtensions } from '../extensions/user-list';
 import { BiDirectionalLinkPanel } from './bi-directional-link-panel';
 import { BlocksuiteEditorJournalDocTitle } from './journal-doc-title';
 import { StarterBar } from './starter-bar';
@@ -95,6 +97,7 @@ const usePatchSpecs = (mode: DocMode) => {
     editorService,
     workspaceService,
     featureFlagService,
+    memberSearchService,
   } = useServices({
     PeekViewService,
     DocService,
@@ -102,6 +105,7 @@ const usePatchSpecs = (mode: DocMode) => {
     WorkspaceService,
     EditorService,
     FeatureFlagService,
+    MemberSearchService,
   });
   const framework = useFramework();
   const referenceRenderer: ReferenceReactRenderer = useMemo(() => {
@@ -156,6 +160,7 @@ const usePatchSpecs = (mode: DocMode) => {
         patchPeekViewService(peekViewService),
         patchOpenDocExtension(),
         EdgelessClipboardWatcher,
+        patchUserListExtensions(memberSearchService),
         patchDocUrlExtensions(framework),
         patchQuickSearchService(framework),
         patchSideBarService(framework),
@@ -179,18 +184,19 @@ const usePatchSpecs = (mode: DocMode) => {
 
     return builder.value;
   }, [
+    framework,
     mode,
+    enableAI,
+    reactToLit,
+    referenceRenderer,
     confirmModal,
+    peekViewService,
+    memberSearchService,
     docService,
     docsService,
     editorService,
-    framework,
-    peekViewService,
-    reactToLit,
-    referenceRenderer,
-    featureFlagService,
-    enableAI,
     enableTurboRenderer,
+    featureFlagService.flags.enable_pdf_embed_preview.value,
   ]);
 
   return [

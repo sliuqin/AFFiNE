@@ -4,6 +4,7 @@ import { enableFootnoteConfigExtension } from '@affine/core/blocksuite/extension
 import { AINetworkSearchService } from '@affine/core/modules/ai-button/services/network-search';
 import { DocDisplayMetaService } from '@affine/core/modules/doc-display-meta';
 import { DocSearchMenuService } from '@affine/core/modules/doc-search-menu/services';
+import { WorkbenchService } from '@affine/core/modules/workbench';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import {
   createSignalFromObservable,
@@ -58,6 +59,17 @@ export const EditorChatPanel = forwardRef(function EditorChatPanel(
       const docDisplayMetaService = framework.get(DocDisplayMetaService);
       const workspaceService = framework.get(WorkspaceService);
       const docSearchMenuService = framework.get(DocSearchMenuService);
+      const workbench = framework.get(WorkbenchService).workbench;
+      chatPanelRef.current.appSidebarConfig = {
+        getWidth: () => {
+          const width$ = workbench.sidebarWidth$;
+          return createSignalFromObservable(width$, 0);
+        },
+        isOpen: () => {
+          const open$ = workbench.sidebarOpen$;
+          return createSignalFromObservable(open$, true);
+        },
+      };
       chatPanelRef.current.networkSearchConfig = {
         visible: searchService.visible,
         enabled: searchService.enabled,

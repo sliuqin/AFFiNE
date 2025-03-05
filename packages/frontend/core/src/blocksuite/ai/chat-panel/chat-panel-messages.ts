@@ -8,7 +8,7 @@ import {
 } from '@blocksuite/affine/blocks';
 import { WithDisposable } from '@blocksuite/affine/global/utils';
 import type { BaseSelection } from '@blocksuite/affine/store';
-import { css, html, nothing } from 'lit';
+import { css, html, nothing, type PropertyValues } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { debounce } from 'lodash-es';
@@ -196,17 +196,6 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
     return this.messagesContainer;
   }
 
-  get showDownIndicator() {
-    if (!this.messagesContainer) return false;
-    const { clientHeight, scrollTop, scrollHeight } = this.messagesContainer;
-    const canScrollDown = scrollHeight - scrollTop - clientHeight > 200;
-    const showDownIndicator =
-      canScrollDown &&
-      this.chatContextValue.items.length > 0 &&
-      this.chatContextValue.status !== 'transmitting';
-    return showDownIndicator;
-  }
-
   private _renderAIOnboarding() {
     return this.isLoading ||
       !this.host?.doc.get(FeatureFlagService).getFlag('enable_ai_onboarding')
@@ -239,6 +228,11 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
     100
   );
 
+  private readonly _onDownIndicatorClick = () => {
+    this.canScrollDown = false;
+    this.scrollToEnd();
+  };
+
   protected override render() {
     const { items } = this.chatContextValue;
     const { isLoading } = this;
@@ -250,6 +244,11 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
           item.messages?.length === 2)
       );
     });
+
+    const showDownIndicator =
+      this.canScrollDown &&
+      filteredItems.length > 0 &&
+      this.chatContextValue.status !== 'transmitting';
 
     return html`
       <div
@@ -284,8 +283,8 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
               }
             )}
       </div>
-      ${this.showDownIndicator && filteredItems.length > 0
-        ? html`<div class="down-indicator" @click=${this.scrollToEnd}>
+      ${showDownIndicator && filteredItems.length > 0
+        ? html`<div class="down-indicator" @click=${this._onDownIndicatorClick}>
             ${DownArrowIcon}
           </div>`
         : nothing}
@@ -327,6 +326,12 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
         this.host.doc.id
       )
     );
+  }
+
+  protected override updated(_changedProperties: PropertyValues) {
+    if (_changedProperties.has('isLoading')) {
+      this.canScrollDown = false;
+    }
   }
 
   renderItem(item: ChatItem, isLast: boolean) {

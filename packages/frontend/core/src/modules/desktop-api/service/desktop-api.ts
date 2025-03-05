@@ -1,19 +1,7 @@
 import { notify } from '@affine/component';
 import { I18n } from '@affine/i18n';
-import {
-  init,
-  reactRouterV6BrowserTracingIntegration,
-  setTags,
-} from '@sentry/react';
 import { OnEvent, Service } from '@toeverything/infra';
 import { debounce } from 'lodash-es';
-import { useEffect } from 'react';
-import {
-  createRoutesFromChildren,
-  matchRoutes,
-  useLocation,
-  useNavigationType,
-} from 'react-router-dom';
 
 import { AuthService, DefaultServerService, ServersService } from '../../cloud';
 import { ApplicationStarted } from '../../lifecycle';
@@ -45,46 +33,8 @@ export class DesktopApiService extends Service {
   }
 
   private setupStartListener() {
-    this.setupSentry();
     this.setupCommonUIEvents();
     this.setupAuthRequestEvent();
-  }
-
-  private setupSentry() {
-    if (
-      BUILD_CONFIG.debug ||
-      window.SENTRY_RELEASE ||
-      this.api.appInfo.windowName !== 'main'
-    ) {
-      // https://docs.sentry.io/platforms/javascript/guides/electron/
-      init({
-        dsn: process.env.SENTRY_DSN,
-        environment: process.env.BUILD_TYPE ?? 'development',
-        integrations: [
-          reactRouterV6BrowserTracingIntegration({
-            useEffect,
-            useLocation,
-            useNavigationType,
-            createRoutesFromChildren,
-            matchRoutes,
-          }),
-        ],
-      });
-      setTags({
-        appVersion: BUILD_CONFIG.appVersion,
-        editorVersion: BUILD_CONFIG.editorVersion,
-      });
-
-      this.api.handler.ui
-        .handleNetworkChange(navigator.onLine)
-        .catch(console.error);
-      window.addEventListener('offline', () => {
-        this.api.handler.ui.handleNetworkChange(false).catch(console.error);
-      });
-      window.addEventListener('online', () => {
-        this.api.handler.ui.handleNetworkChange(true).catch(console.error);
-      });
-    }
   }
 
   private setupCommonUIEvents() {

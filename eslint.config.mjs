@@ -188,11 +188,6 @@ export default tseslint.config(
               message: "Don't import from src",
               allowTypeImports: false,
             },
-            {
-              group: ['@blocksuite/store'],
-              message: "Import from '@blocksuite/global/utils'",
-              importNames: ['assertEquals'],
-            },
           ],
         },
       ],
@@ -255,6 +250,8 @@ export default tseslint.config(
 
           types: {
             '^LiveData$': true,
+            '^Signal$': true,
+            '^ReadonlySignal$': true,
             '^Doc$': false,
             '^Awareness$': false,
             '^UndoManager$': false,

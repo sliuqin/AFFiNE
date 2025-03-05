@@ -1,4 +1,5 @@
 import { DebugLogger } from '@affine/debug';
+import { type ReadonlySignal, type Signal, signal } from '@preact/signals-core';
 import type {
   InteropObservable,
   Observer,
@@ -138,6 +139,17 @@ export class LiveData<T = unknown>
     );
 
     return data$;
+  }
+
+  static fromSignal<T>(signal: ReadonlySignal<T>): LiveData<T> {
+    return LiveData.from(
+      new Observable(subscriber => {
+        signal.subscribe(value => {
+          subscriber.next(value);
+        });
+      }),
+      signal.value
+    );
   }
 
   private static GLOBAL_COMPUTED_RECURSIVE_COUNT = 0;
@@ -286,6 +298,19 @@ export class LiveData<T = unknown>
     this.next(v);
   }
 
+  private _signal: Signal<T> | undefined;
+
+  get signal(): ReadonlySignal<T> {
+    if (!this._signal) {
+      this._signal = signal(this.value);
+      this.subscribe(v => {
+        // oxlint-disable-next-line no-non-null-assertion
+        this._signal!.value = v;
+      });
+    }
+    return this._signal;
+  }
+
   next = (v: T) => {
     if (this.isPoisoned) {
       throw this.poisonedError;
@@ -379,7 +404,6 @@ export class LiveData<T = unknown>
     );
   }
 
-  // eslint-disable-next-line rxjs/finnish
   asObservable(): Observable<T> {
     return new Observable<T>(subscriber => {
       return this.subscribe(subscriber);
@@ -421,7 +445,7 @@ export class LiveData<T = unknown>
   override pipe(...args: any[]) {
     return new Observable(subscriber => {
       this.ops$.next('watch');
-      // eslint-disable-next-line prefer-spread
+
       const subscription = this.raw$.pipe
         .apply(this.raw$, args as any)
         .subscribe(subscriber);

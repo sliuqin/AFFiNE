@@ -2,7 +2,6 @@ import { DebugLogger } from '@affine/debug';
 import { BlockStdScope } from '@blocksuite/affine/block-std';
 import { PageEditorBlockSpecs } from '@blocksuite/affine/blocks';
 import type { Store } from '@blocksuite/affine/store';
-import { LiveData } from '@toeverything/infra';
 import { useMemo } from 'react';
 import { Observable } from 'rxjs';
 
@@ -23,22 +22,6 @@ export function signalToObservable<T>(
       unsub();
     };
   });
-}
-
-export function signalToLiveData<T>(
-  signal: ReadonlySignal<T>,
-  defaultValue: T
-): LiveData<T>;
-
-export function signalToLiveData<T>(
-  signal: ReadonlySignal<T>
-): LiveData<T | undefined>;
-
-export function signalToLiveData<T>(
-  signal: ReadonlySignal<T>,
-  defaultValue?: T
-) {
-  return LiveData.from(signalToObservable(signal), defaultValue);
 }
 
 // todo(pengx17): use rc pool?

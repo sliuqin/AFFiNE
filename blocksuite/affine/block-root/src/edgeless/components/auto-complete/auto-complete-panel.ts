@@ -26,7 +26,10 @@ import {
   FeatureFlagService,
   ThemeProvider,
 } from '@blocksuite/affine-shared/services';
-import { captureEventTarget } from '@blocksuite/affine-shared/utils';
+import {
+  captureEventTarget,
+  matchModels,
+} from '@blocksuite/affine-shared/utils';
 import { type BlockStdScope, stdContext } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
 import type { XYWH } from '@blocksuite/global/gfx';
@@ -38,7 +41,7 @@ import {
   toDegree,
   Vec,
 } from '@blocksuite/global/gfx';
-import { assertInstanceOf, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/utils';
 import { FrameIcon, PageIcon } from '@blocksuite/icons/lit';
 import { consume } from '@lit/context';
 import { baseTheme } from '@toeverything/theme';
@@ -192,7 +195,9 @@ export class EdgelessAutoCompletePanel extends WithDisposable(LitElement) {
       doc.root?.id
     );
     const note = doc.getBlock(id)?.model;
-    assertInstanceOf(note, NoteBlockModel);
+    if (!matchModels(note, [NoteBlockModel])) {
+      return;
+    }
     doc.addBlock('affine:paragraph', { type: 'text' }, id);
     const group = this.currentSource.group;
 
@@ -285,7 +290,9 @@ export class EdgelessAutoCompletePanel extends WithDisposable(LitElement) {
       });
       if (!textId) return;
       const textElement = this.crud.getElementById(textId);
-      assertInstanceOf(textElement, TextElementModel);
+      if (!(textElement instanceof TextElementModel)) {
+        return;
+      }
 
       this.crud.updateElement(this.connector.id, {
         target: { id: textId, position },

@@ -5,6 +5,7 @@ import {
   textKeymap,
 } from '@blocksuite/affine-components/rich-text';
 import {
+  CalloutBlockModel,
   ParagraphBlockModel,
   ParagraphBlockSchema,
 } from '@blocksuite/affine-model';
@@ -40,7 +41,12 @@ export const ParagraphKeymapExtension = KeymapExtension(
 
         const { store } = std;
         const model = store.getBlock(text.from.blockId)?.model;
-        if (!model || !matchModels(model, [ParagraphBlockModel])) return;
+        if (
+          !model ||
+          !matchModels(model, [ParagraphBlockModel]) ||
+          matchModels(model.parent, [CalloutBlockModel])
+        )
+          return;
 
         const event = ctx.get('defaultState').event;
         event.preventDefault();
@@ -71,7 +77,12 @@ export const ParagraphKeymapExtension = KeymapExtension(
         const text = std.selection.find(TextSelection);
         if (!text) return;
         const model = store.getBlock(text.from.blockId)?.model;
-        if (!model || !matchModels(model, [ParagraphBlockModel])) return;
+        if (
+          !model ||
+          !matchModels(model, [ParagraphBlockModel]) ||
+          matchModels(model.parent, [CalloutBlockModel])
+        )
+          return;
         const inlineEditor = getInlineEditorByModel(
           std.host,
           text.from.blockId
@@ -98,16 +109,21 @@ export const ParagraphKeymapExtension = KeymapExtension(
         const text = std.selection.find(TextSelection);
         if (!text) return;
         const model = store.getBlock(text.from.blockId)?.model;
-        if (!model || !matchModels(model, [ParagraphBlockModel])) return;
+        if (
+          !model ||
+          !matchModels(model, [ParagraphBlockModel]) ||
+          matchModels(model.parent, [CalloutBlockModel])
+        )
+          return;
         const inlineEditor = getInlineEditorByModel(
           std.host,
           text.from.blockId
         );
-        const range = inlineEditor?.getInlineRange();
-        if (!range || !inlineEditor) return;
+        const inlineRange = inlineEditor?.getInlineRange();
+        if (!inlineRange || !inlineEditor) return;
 
         const raw = ctx.get('keyboardState').raw;
-        const isEnd = model.text.length === range.index;
+        const isEnd = model.text.length === inlineRange.index;
 
         if (model.type === 'quote') {
           const textStr = model.text.toString();
@@ -129,7 +145,7 @@ export const ParagraphKeymapExtension = KeymapExtension(
           if (isEnd && endWithTwoBlankLines) {
             raw.preventDefault();
             store.captureSync();
-            model.text.delete(range.index - 1, 1);
+            model.text.delete(inlineRange.index - 1, 1);
             std.command.chain().pipe(addParagraphCommand).run();
             return true;
           }
@@ -149,7 +165,7 @@ export const ParagraphKeymapExtension = KeymapExtension(
           if (index === -1) return true;
           const collapsedSiblings = calculateCollapsedSiblings(model);
 
-          const rightText = model.text.split(range.index);
+          const rightText = model.text.split(inlineRange.index);
           const newId = store.addBlock(
             model.flavour,
             { type: model.type, text: rightText },

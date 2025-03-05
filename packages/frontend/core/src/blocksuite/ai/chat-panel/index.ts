@@ -7,11 +7,12 @@ import {
   NotificationProvider,
   type SpecBuilder,
 } from '@blocksuite/affine/blocks';
-import { WithDisposable } from '@blocksuite/affine/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/utils';
 import type { Store } from '@blocksuite/affine/store';
 import { css, html, type PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { createRef, type Ref, ref } from 'lit/directives/ref.js';
+import { styleMap } from 'lit/directives/style-map.js';
 import { throttle } from 'lodash-es';
 
 import { AIHelpIcon, SmallHintIcon } from '../_common/icons';
@@ -23,6 +24,7 @@ import {
 } from '../utils/selection-utils';
 import type {
   AINetworkSearchConfig,
+  AppSidebarConfig,
   DocDisplayConfig,
   DocSearchMenuConfig,
 } from './chat-config';
@@ -47,7 +49,9 @@ const DEFAULT_CHAT_CONTEXT_VALUE: ChatContextValue = {
   markdown: '',
 };
 
-export class ChatPanel extends WithDisposable(ShadowlessElement) {
+export class ChatPanel extends SignalWatcher(
+  WithDisposable(ShadowlessElement)
+) {
   static override styles = css`
     chat-panel {
       width: 100%;
@@ -56,8 +60,6 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
     .chat-panel-container {
       display: flex;
       flex-direction: column;
-      padding: 0 16px;
-      padding-top: 8px;
       height: 100%;
     }
 
@@ -242,6 +244,9 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
   accessor networkSearchConfig!: AINetworkSearchConfig;
 
   @property({ attribute: false })
+  accessor appSidebarConfig!: AppSidebarConfig;
+
+  @property({ attribute: false })
   accessor docSearchMenuConfig!: DocSearchMenuConfig;
 
   @property({ attribute: false })
@@ -296,6 +301,9 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
 
   private readonly _initPanel = async () => {
     try {
+      const isOpen = !!this.appSidebarConfig.isOpen().signal.value;
+      if (!isOpen) return;
+
       const userId = (await AIProvider.userInfo)?.id;
       if (!userId) return;
 
@@ -326,6 +334,7 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
       this._chatSessionId = null;
       this._chatContextId = null;
       this.chatContextValue = DEFAULT_CHAT_CONTEXT_VALUE;
+      this.isLoading = true;
 
       requestAnimationFrame(async () => {
         await this._initPanel();
@@ -365,6 +374,14 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
         })
         .catch(console.error);
     }
+
+    this._disposables.add(
+      this.appSidebarConfig.isOpen().signal.subscribe(isOpen => {
+        if (isOpen && this.isLoading) {
+          this._initPanel().catch(console.error);
+        }
+      })
+    );
   }
 
   override connectedCallback() {
@@ -414,7 +431,13 @@ export class ChatPanel extends WithDisposable(ShadowlessElement) {
   };
 
   override render() {
-    return html` <div class="chat-panel-container">
+    const panelWidth = this.appSidebarConfig.getWidth().signal.value;
+    const style = styleMap({
+      padding:
+        panelWidth && panelWidth > 540 ? '8px 24px 0 24px' : '8px 12px 0 12px',
+    });
+
+    return html`<div class="chat-panel-container" style=${style}>
       <div class="chat-panel-title">
         <div>AFFiNE AI</div>
         <div

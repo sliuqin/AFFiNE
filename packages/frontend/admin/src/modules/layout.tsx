@@ -243,7 +243,7 @@ export const RightPanel = ({
 
   return (
     <>
-      <ResizableHandle />
+      {isOpen ? <ResizableHandle /> : null}
       <ResizablePanel
         id="1"
         order={1}

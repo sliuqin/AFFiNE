@@ -1,3 +1,4 @@
+import { type CalloutBlockComponent } from '@blocksuite/affine-block-callout';
 import {
   AFFINE_EDGELESS_NOTE,
   type EdgelessNoteBlockComponent,
@@ -6,7 +7,7 @@ import { ParagraphBlockComponent } from '@blocksuite/affine-block-paragraph';
 import {
   DatabaseBlockModel,
   ListBlockModel,
-  type ParagraphBlockModel,
+  ParagraphBlockModel,
 } from '@blocksuite/affine-model';
 import { DocModeProvider } from '@blocksuite/affine-shared/services';
 import {
@@ -207,6 +208,14 @@ export const getClosestBlockByPoint = (
 
   if (!closestBlock || !!closestBlock.closest('.surface-ref-note-portal')) {
     return null;
+  }
+
+  if (matchModels(closestBlock.model, [ParagraphBlockModel])) {
+    const callout =
+      closestBlock.closest<CalloutBlockComponent>('affine-callout');
+    if (callout) {
+      return callout;
+    }
   }
 
   return closestBlock;
