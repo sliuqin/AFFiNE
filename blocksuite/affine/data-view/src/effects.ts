@@ -14,10 +14,7 @@ import { GroupSetting } from './core/group-by/setting.js';
 import { AffineLitIcon, UniAnyRender, UniLit } from './core/index.js';
 import { AnyRender } from './core/utils/uni-component/render-template.js';
 import { CheckboxCell } from './property-presets/checkbox/cell-renderer.js';
-import {
-  DateCell,
-  DateCellEditing,
-} from './property-presets/date/cell-renderer.js';
+import { DateCell } from './property-presets/date/cell-renderer.js';
 import { TextCell as ImageTextCell } from './property-presets/image/cell-renderer.js';
 import { MultiSelectCell } from './property-presets/multi-select/cell-renderer.js';
 import { NumberCell } from './property-presets/number/cell-renderer.js';
@@ -79,7 +76,6 @@ export function effects() {
   customElements.define('any-render', AnyRender);
   customElements.define('affine-database-image-cell', ImageTextCell);
   customElements.define('affine-database-date-cell', DateCell);
-  customElements.define('affine-database-date-cell-editing', DateCellEditing);
   customElements.define(
     'data-view-properties-setting',
     DataViewPropertiesSettingView
