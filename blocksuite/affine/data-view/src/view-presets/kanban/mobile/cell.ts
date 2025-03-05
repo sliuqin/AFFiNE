@@ -111,7 +111,9 @@ export class MobileKanbanCell extends SignalWatcher(
         const isEditing = this.isSelectionEditing$.value;
         if (isEditing) {
           this.isEditing$.value = true;
-          this._cell.value?.afterEnterEditingMode();
+          requestAnimationFrame(() => {
+            this._cell.value?.afterEnterEditingMode();
+          });
         } else {
           this._cell.value?.beforeExitEditingMode();
           this.isEditing$.value = false;

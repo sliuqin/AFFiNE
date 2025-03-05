@@ -61,9 +61,7 @@ export class DetailSelection {
     const cell = container.cell;
 
     if (selection.isEditing) {
-      requestAnimationFrame(() => {
-        cell?.beforeExitEditingMode();
-      });
+      cell?.beforeExitEditingMode();
       if (cell?.blurCell()) {
         container.blur();
       }
@@ -85,11 +83,13 @@ export class DetailSelection {
     container.isFocus = true;
     const cell = container.cell;
     if (selection.isEditing) {
-      cell?.afterEnterEditingMode();
       if (cell?.focusCell()) {
         container.focus();
       }
       container.isEditing$.value = true;
+      requestAnimationFrame(() => {
+        cell?.afterEnterEditingMode();
+      });
     } else {
       container.focus();
     }

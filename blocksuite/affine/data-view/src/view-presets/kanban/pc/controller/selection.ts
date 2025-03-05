@@ -97,9 +97,8 @@ export class KanbanSelectionController implements ReactiveController {
     const cell = container?.cell;
 
     if (selection.isEditing) {
-      requestAnimationFrame(() => {
-        cell?.onExitEditMode();
-      });
+      console.log(cell);
+      cell?.beforeExitEditingMode();
       if (cell?.blurCell()) {
         container.blur();
       }
@@ -143,7 +142,7 @@ export class KanbanSelectionController implements ReactiveController {
     container.isFocus = true;
     const cell = container?.cell;
     if (selection.isEditing) {
-      cell?.onEnterEditMode();
+      cell?.beforeEnterEditMode();
       if (cell?.focusCell()) {
         container.focus();
       }

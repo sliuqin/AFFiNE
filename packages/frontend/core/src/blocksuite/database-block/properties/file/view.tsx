@@ -50,9 +50,10 @@ const FileCellComponent: ForwardRefRenderFunction<
   DataViewCellLifeCycle,
   CellRenderProps<{}, FileCellType>
 > = (props, ref): ReactNode => {
-  const { isEditing, selectCurrentCell, cell } = props;
+  const { selectCurrentCell, cell } = props;
 
   const value = useLiveData(signalToLiveData(cell.value$));
+  const isEditing = useLiveData(signalToLiveData(props.isEditing$));
   const fileList = useMemo(
     () =>
       Object.values(value ?? {}).sort((a, b) => (a.order > b.order ? 1 : -1)),
@@ -125,8 +126,8 @@ const FileCellComponent: ForwardRefRenderFunction<
       beforeEnterEditMode: () => {
         return true;
       },
-      onEnterEditMode: () => {},
-      onExitEditMode: () => {},
+      beforeExitEditingMode: () => {},
+      afterEnterEditingMode: () => {},
       focusCell: () => true,
       blurCell: () => true,
       forceUpdate: () => {},
