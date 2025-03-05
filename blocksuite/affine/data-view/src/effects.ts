@@ -26,10 +26,7 @@ import {
 import { NumberCell } from './property-presets/number/cell-renderer.js';
 import { ProgressCell } from './property-presets/progress/cell-renderer.js';
 import { SelectCell } from './property-presets/select/cell-renderer.js';
-import {
-  TextCell,
-  TextCellEditing,
-} from './property-presets/text/cell-renderer.js';
+import { TextCell } from './property-presets/text/cell-renderer.js';
 import { DataViewKanban, DataViewTable } from './view-presets/index.js';
 import { MobileKanbanCard } from './view-presets/kanban/mobile/card.js';
 import { MobileKanbanCell } from './view-presets/kanban/mobile/cell.js';
@@ -92,7 +89,6 @@ export function effects() {
   );
   customElements.define('affine-database-checkbox-cell', CheckboxCell);
   customElements.define('affine-database-text-cell', TextCell);
-  customElements.define('affine-database-text-cell-editing', TextCellEditing);
   customElements.define('affine-database-select-cell', SelectCell);
   customElements.define('affine-database-multi-select-cell', MultiSelectCell);
   customElements.define(
