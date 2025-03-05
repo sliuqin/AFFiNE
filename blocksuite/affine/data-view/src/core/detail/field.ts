@@ -244,7 +244,7 @@ export class RecordField extends SignalWatcher(
     if (!renderer) {
       return;
     }
-    const { view, edit } = renderer;
+    const { view } = renderer;
     const contentClass = classMap({
       'field-content': true,
       empty: !this.isEditing$.value && this.cell$.value.isEmpty$.value,
@@ -261,7 +261,7 @@ export class RecordField extends SignalWatcher(
         </div>
       </div>
       <div @click="${this._click}" class="${contentClass}">
-        ${renderUniLit(this.isEditing$.value && edit ? edit : view, props, {
+        ${renderUniLit(view, props, {
           ref: this._cell,
           class: 'kanban-cell',
         })}

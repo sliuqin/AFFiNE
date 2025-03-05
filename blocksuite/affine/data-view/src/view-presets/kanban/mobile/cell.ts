@@ -136,11 +136,11 @@ export class MobileKanbanCell extends SignalWatcher(
     };
     const renderer = this.column.renderer$.value;
     if (!renderer) return;
-    const { view, edit } = renderer;
+    const { view } = renderer;
     this.view.lockRows(this.isEditing$.value);
     this.dataset['editing'] = `${this.isEditing$.value}`;
     return html` ${this.renderIcon()}
-    ${renderUniLit(this.isEditing$.value && edit ? edit : view, props, {
+    ${renderUniLit(view, props, {
       ref: this._cell,
       class: 'mobile-kanban-cell',
       style: { display: 'block', flex: '1', overflow: 'hidden' },

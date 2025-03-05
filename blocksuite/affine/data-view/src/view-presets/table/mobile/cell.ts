@@ -97,10 +97,6 @@ export class MobileTableCell extends SignalWatcher(
     return this.closest('mobile-table-group')?.group?.key;
   }
 
-  private get readonly() {
-    return this.column.readonly$.value;
-  }
-
   private get table() {
     return this.closest('mobile-data-view-table');
   }
@@ -135,9 +131,7 @@ export class MobileTableCell extends SignalWatcher(
     if (!renderer) {
       return;
     }
-    const { edit, view } = renderer;
-    const uni =
-      !this.readonly && this.isEditing$.value && edit != null ? edit : view;
+    const { view } = renderer;
     this.view.lockRows(this.isEditing$.value);
     this.dataset['editing'] = `${this.isEditing$.value}`;
     const props: CellRenderProps = {
@@ -146,7 +140,7 @@ export class MobileTableCell extends SignalWatcher(
       selectCurrentCell: this.selectCurrentCell,
     };
 
-    return renderUniLit(uni, props, {
+    return renderUniLit(view, props, {
       ref: this._cell,
       style: {
         display: 'contents',

@@ -35,5 +35,4 @@ export type CellRenderer<
   Value = unknown,
 > = {
   view: DataViewCellComponent<Data, Value>;
-  edit?: DataViewCellComponent<Data, Value>;
 };

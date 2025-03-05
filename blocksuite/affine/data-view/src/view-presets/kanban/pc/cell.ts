@@ -135,7 +135,7 @@ export class KanbanCell extends SignalWatcher(
     };
     const renderer = this.column.renderer$.value;
     if (!renderer) return;
-    const { view, edit } = renderer;
+    const { view } = renderer;
     this.view.lockRows(this.isEditing$.value);
     this.dataset['editing'] = `${this.isEditing$.value}`;
     this.style.border = this.isFocus
@@ -145,7 +145,7 @@ export class KanbanCell extends SignalWatcher(
       ? '0px 0px 0px 2px rgba(30, 150, 235, 0.30)'
       : '';
     return html` ${this.renderIcon()}
-    ${renderUniLit(this.isEditing$.value && edit ? edit : view, props, {
+    ${renderUniLit(view, props, {
       ref: this._cell,
       class: 'kanban-cell',
       style: { display: 'block', flex: '1', overflow: 'hidden' },
