@@ -431,10 +431,9 @@ test.describe('switch column type', () => {
     await pressEnter(page);
     await type(page, linkText);
     await pressEscape(page);
-    const link = cell.locator('affine-database-link-node > a');
-    const linkContent = link.locator('.link-node-text');
+    const link = cell.getByTestId('property-link-a');
     await expect(link).toHaveAttribute('href', linkText);
-    expect(await linkContent.textContent()).toBe(linkText);
+    expect(await link.textContent()).toBe(linkText);
 
     // not link text
     await cell.hover();
