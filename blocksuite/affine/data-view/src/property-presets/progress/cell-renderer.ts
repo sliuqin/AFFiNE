@@ -124,11 +124,16 @@ export class ProgressCell extends BaseCellRenderer<number> {
       <div class="${progressCellStyle}">
         <div class="${progressContainerStyle}">
           <div class="${progressBarStyle}">
-            <div class="${progressBgStyle}" style=${bgStyles}>
+            <div
+              class="${progressBgStyle}"
+              data-testid="progress-background"
+              style=${bgStyles}
+            >
               <div class="${progressFgStyle}" style=${fgStyles}></div>
               ${this.isEditing$.value
                 ? html`<div
                     class="${progressDragHandleStyle}"
+                    data-testid="progress-drag-handle"
                     style=${styleMap({
                       left: `calc(${progress}% - 3px)`,
                     })}
@@ -136,7 +141,9 @@ export class ProgressCell extends BaseCellRenderer<number> {
                 : ''}
             </div>
           </div>
-          <div class="${progressNumberStyle} progress">${progress}</div>
+          <div class="${progressNumberStyle}" data-testid="progress">
+            ${progress}
+          </div>
         </div>
       </div>
     `;

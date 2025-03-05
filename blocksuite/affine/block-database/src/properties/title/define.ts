@@ -1,13 +1,15 @@
 import { propertyType, t } from '@blocksuite/data-view';
 import { Text } from '@blocksuite/store';
+import zod from 'zod';
 
 import { HostContextKey } from '../../context/host-context.js';
 import { isLinkedDoc } from '../../utils/title-doc.js';
 
 export const titleColumnType = propertyType('title');
 
-export const titlePropertyModelConfig = titleColumnType.modelConfig<Text>({
+export const titlePropertyModelConfig = titleColumnType.modelConfig({
   name: 'Title',
+  valueSchema: zod.custom<Text>(data => data instanceof Text).optional(),
   fixed: {
     defaultData: {},
     defaultShow: true,
@@ -42,22 +44,22 @@ export const titlePropertyModelConfig = titleColumnType.modelConfig<Text>({
   cellFromJson: ({ value }) =>
     typeof value !== 'string' ? undefined : new Text(value),
   onUpdate: ({ value, callback }) => {
-    value.yText.observe(callback);
+    value?.yText.observe(callback);
     callback();
     return {
       dispose: () => {
-        value.yText.unobserve(callback);
+        value?.yText.unobserve(callback);
       },
     };
   },
   valueUpdate: ({ value, newValue }) => {
     const v = newValue as unknown;
     if (typeof v === 'string') {
-      value.replace(0, value.length, v);
+      value?.replace(0, value.length, v);
       return value;
     }
     if (v == null) {
-      value.replace(0, value.length, '');
+      value?.replace(0, value.length, '');
       return value;
     }
     return newValue;

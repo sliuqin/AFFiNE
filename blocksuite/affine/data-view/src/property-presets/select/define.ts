@@ -1,19 +1,20 @@
 import { nanoid } from '@blocksuite/store';
+import zod from 'zod';
 
 import { getTagColor } from '../../core/component/tags/colors.js';
 import { type SelectTag, t } from '../../core/index.js';
 import { propertyType } from '../../core/property/property-config.js';
-
 export const selectPropertyType = propertyType('select');
 
 export type SelectPropertyData = {
   options: SelectTag[];
 };
 export const selectPropertyModelConfig = selectPropertyType.modelConfig<
-  string,
+  string | undefined,
   SelectPropertyData
 >({
   name: 'Select',
+  valueSchema: zod.string().optional(),
   type: ({ data }) => t.tag.instance(data.options),
   defaultData: () => ({
     options: [],

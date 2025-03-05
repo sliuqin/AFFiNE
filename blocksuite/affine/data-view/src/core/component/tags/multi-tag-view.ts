@@ -60,7 +60,10 @@ export class MultiTagView extends WithDisposable(ShadowlessElement) {
           const style = styleMap({
             backgroundColor: getColorByColor(option.color),
           });
-          return html`<span class="select-selected" style=${style}
+          return html`<span
+            data-testid="tag-selected"
+            class="select-selected"
+            style=${style}
             >${option.value}</span
           >`;
         })}

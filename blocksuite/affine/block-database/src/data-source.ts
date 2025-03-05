@@ -195,7 +195,14 @@ export class DatabaseBlockDataSource extends DataSourceBase {
       const model = this.getModelById(rowId);
       return model?.text;
     }
-    return getCell(this._model, rowId, propertyId)?.value;
+    const value = getCell(this._model, rowId, propertyId)?.value;
+    const meta = this.propertyMetaGet(type);
+    const result = meta.config.valueSchema.safeParse(value);
+    if (!result.success) {
+      console.error(result.error);
+      return undefined;
+    }
+    return result.data;
   }
 
   propertyAdd(insertToPosition: InsertToPosition, type?: string): string {

@@ -1,4 +1,5 @@
 import type { Disposable } from '@blocksuite/global/utils';
+import type { ZodType } from 'zod';
 
 import type { DataSource } from '../data-source/base.js';
 import type { TypeInstance } from '../logical/type.js';
@@ -15,6 +16,7 @@ export type PropertyConfig<
   Value = unknown,
 > = {
   name: string;
+  valueSchema: ZodType<Value>;
   hide?: boolean;
   fixed?: {
     defaultData: Data;

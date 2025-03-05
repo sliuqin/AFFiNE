@@ -1,14 +1,16 @@
+import zod from 'zod';
+
 import { t } from '../../core/logical/type-presets.js';
 import { propertyType } from '../../core/property/property-config.js';
 import type { NumberPropertyDataType } from './types.js';
-
 export const numberPropertyType = propertyType('number');
 
 export const numberPropertyModelConfig = numberPropertyType.modelConfig<
-  number,
+  number | undefined,
   NumberPropertyDataType
 >({
   name: 'Number',
+  valueSchema: zod.number().optional(),
   type: () => t.number.instance(),
   defaultData: () => ({ decimal: 0, format: 'number' }),
   cellToString: ({ value }) => value?.toString() ?? '',

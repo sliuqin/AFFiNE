@@ -33,7 +33,7 @@ import {
   assertRowsSelection,
   clickKanbanCardHeader,
   focusKanbanCardHeader,
-  getDatabaseBodyCell,
+  getDatabaseCell,
   getKanbanCard,
   initDatabaseColumn,
   switchColumnType,
@@ -62,7 +62,7 @@ test.describe('focus', () => {
     await switchColumnType(page, 'Number');
     await initDatabaseDynamicRowWithData(page, '123', true);
 
-    const selectColumn = getDatabaseBodyCell(page, {
+    const selectColumn = getDatabaseCell(page, {
       rowIndex: 1,
       columnIndex: 1,
     });
@@ -139,7 +139,7 @@ test.describe('row-level selection', () => {
     await switchColumnType(page, 'Number');
     await initDatabaseDynamicRowWithData(page, '123', true);
 
-    const selectColumn = getDatabaseBodyCell(page, {
+    const selectColumn = getDatabaseCell(page, {
       rowIndex: 1,
       columnIndex: 1,
     });
@@ -250,11 +250,11 @@ test.describe('cell-level selection', () => {
     await switchColumnType(page, 'Number');
     await initDatabaseDynamicRowWithData(page, '123', true);
 
-    const startCell = getDatabaseBodyCell(page, {
+    const startCell = getDatabaseCell(page, {
       rowIndex: 0,
       columnIndex: 0,
     });
-    const endCell = getDatabaseBodyCell(page, {
+    const endCell = getDatabaseCell(page, {
       rowIndex: 1,
       columnIndex: 1,
     });
@@ -293,11 +293,11 @@ test.describe('cell-level selection', () => {
     await initDatabaseDynamicRowWithData(page, '123', false);
     await pressEscape(page);
 
-    const startCell = getDatabaseBodyCell(page, {
+    const startCell = getDatabaseCell(page, {
       rowIndex: 0,
       columnIndex: 0,
     });
-    const endCell = getDatabaseBodyCell(page, {
+    const endCell = getDatabaseCell(page, {
       rowIndex: 1,
       columnIndex: 1,
     });
@@ -319,12 +319,12 @@ test.describe('cell-level selection', () => {
     await pressBackspace(page);
     await assertDatabaseTitleColumnText(page, '', 0);
     await assertDatabaseTitleColumnText(page, '', 1);
-    const selectCell1 = getDatabaseBodyCell(page, {
+    const selectCell1 = getDatabaseCell(page, {
       rowIndex: 0,
       columnIndex: 1,
     });
     expect(await selectCell1.innerText()).toBe('');
-    const selectCell2 = getDatabaseBodyCell(page, {
+    const selectCell2 = getDatabaseCell(page, {
       rowIndex: 1,
       columnIndex: 1,
     });

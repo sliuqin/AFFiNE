@@ -1,10 +1,12 @@
+import zod from 'zod';
+
 import { t } from '../../core/index.js';
 import { propertyType } from '../../core/property/property-config.js';
-
 export const textPropertyType = propertyType('text');
 
-export const textPropertyModelConfig = textPropertyType.modelConfig<string>({
+export const textPropertyModelConfig = textPropertyType.modelConfig({
   name: 'Plain-Text',
+  valueSchema: zod.string().optional(),
   type: () => t.string.instance(),
   defaultData: () => ({}),
   cellToString: ({ value }) => value ?? '',

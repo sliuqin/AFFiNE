@@ -1,6 +1,7 @@
 import { ShadowlessElement } from '@blocksuite/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
 import { computed, type ReadonlySignal } from '@preact/signals-core';
+import type { PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 
 import type { Cell } from '../view-manager/cell.js';
@@ -16,6 +17,7 @@ export abstract class BaseCellRenderer<
   get expose() {
     return this;
   }
+
   @property({ attribute: false })
   accessor cell!: Cell<Value, Data>;
 
@@ -55,8 +57,16 @@ export abstract class BaseCellRenderer<
     return true;
   }
 
+  type: string | undefined;
+
+  protected override shouldUpdate(_changedProperties: PropertyValues): boolean {
+    return this.cell.property.type$.value === this.type;
+  }
+
   override connectedCallback() {
     super.connectedCallback();
+    this.type = this.cell.property.type$.value;
+    this.dataset.testid = this.type;
     this.style.width = '100%';
     this._disposables.addFromEvent(this, 'click', e => {
       if (this.isEditing$.value) {

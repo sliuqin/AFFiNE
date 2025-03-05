@@ -1,7 +1,4 @@
-import type {
-  RichTextCell,
-  RichTextCellEditing,
-} from '@blocksuite/affine-block-database';
+import type { RichTextCell } from '@blocksuite/affine-block-database';
 import { ZERO_WIDTH_SPACE } from '@blocksuite/inline';
 import { expect, type Locator, type Page } from '@playwright/test';
 
@@ -77,17 +74,12 @@ export function clickColumnType(page: Page, columnType: string) {
 
 export function getDatabaseBodyRows(page: Page) {
   const rowContainer = page.locator('.affine-database-block-rows');
-  return rowContainer.locator('.database-row');
+  return rowContainer.locator('data-view-table-row');
 }
 
 export function getDatabaseBodyRow(page: Page, rowIndex = 0) {
   const rows = getDatabaseBodyRows(page);
   return rows.nth(rowIndex);
-}
-
-export function getDatabaseTableContainer(page: Page) {
-  const container = page.locator('.affine-database-table-container');
-  return container;
 }
 
 export async function assertDatabaseTitleColumnText(
@@ -115,46 +107,31 @@ export async function assertDatabaseTitleColumnText(
   }
 }
 
-export function getDatabaseBodyCell(
+export function getDatabaseCell(
   page: Page,
   {
     rowIndex,
+    columnType,
     columnIndex,
   }: {
-    rowIndex: number;
-    columnIndex: number;
+    rowIndex?: number;
+    columnType?: string;
+    columnIndex?: number;
   }
 ) {
   const row = getDatabaseBodyRow(page, rowIndex);
-  const cell = row.locator('.database-cell').nth(columnIndex);
-  return cell;
+  const index = columnIndex ?? 0;
+  const columns = columnType
+    ? row.getByTestId(columnType)
+    : row.locator('affine-database-cell-container');
+  return columns.nth(index);
 }
 
-export function getDatabaseBodyCellContent(
-  page: Page,
-  {
-    rowIndex,
-    columnIndex,
-    cellClass,
-  }: {
-    rowIndex: number;
-    columnIndex: number;
-    cellClass: string;
-  }
-) {
-  const cell = getDatabaseBodyCell(page, { rowIndex, columnIndex });
-  const cellContent = cell.locator(`.${cellClass}`);
-  return cellContent;
-}
-
-export function getFirstColumnCell(page: Page, cellClass: string) {
-  const cellContent = getDatabaseBodyCellContent(page, {
-    rowIndex: 0,
-    columnIndex: 1,
-    cellClass,
-  });
-  return cellContent;
-}
+export const getDatabaseColumnCells = (page: Page, columnIndex: number) => {
+  return page.locator(
+    `affine-database-cell-container[data-column-index="${columnIndex}"]`
+  );
+};
 
 export async function clickSelectOption(page: Page, index = 0) {
   await page.locator('.select-option-icon').nth(index).click();
@@ -214,7 +191,7 @@ export async function assertDatabaseCellRichTexts(
 
   const richText = (await cellEditing.count()) === 0 ? cell : cellEditing;
   const actualTexts = await richText.evaluate(ele => {
-    return (ele as RichTextCellEditing).inlineEditor?.yTextString;
+    return (ele as RichTextCell).inlineEditor?.yTextString;
   });
   expect(actualTexts).toEqual(text);
 }
@@ -265,9 +242,7 @@ export async function assertDatabaseCellLink(
       );
       const richText =
         cell?.querySelector<RichTextCell>('affine-database-link-cell') ??
-        cell?.querySelector<RichTextCellEditing>(
-          'affine-database-link-cell-editing'
-        );
+        cell?.querySelector<RichTextCell>('affine-database-link-cell');
       if (!richText) throw new Error('Missing database rich text cell');
       return richText.inlineEditor!.yText.toString();
     },
@@ -381,7 +356,7 @@ export async function assertCellsSelection(
     const focusBox = await getBoundingBox(focus);
 
     const [rowIndex, columnIndex] = start;
-    const cell = getDatabaseBodyCell(page, { rowIndex, columnIndex });
+    const cell = getDatabaseCell(page, { rowIndex, columnIndex: columnIndex });
     const cellBox = await getBoundingBox(cell);
     expect(focusBox).toEqual({
       x: cellBox.x,
@@ -407,7 +382,7 @@ export async function assertCellsSelection(
     let x = 0;
     let y = 0;
     for (let i = rowIndexStart; i <= rowIndexEnd; i++) {
-      const cell = getDatabaseBodyCell(page, {
+      const cell = getDatabaseCell(page, {
         rowIndex: i,
         columnIndex: columnIndexStart,
       });
@@ -419,7 +394,7 @@ export async function assertCellsSelection(
     }
 
     for (let j = columnIndexStart; j <= columnIndexEnd; j++) {
-      const cell = getDatabaseBodyCell(page, {
+      const cell = getDatabaseCell(page, {
         rowIndex: rowIndexStart,
         columnIndex: j,
       });
@@ -563,6 +538,7 @@ export function getKanbanCard(
   const card = group.locator('affine-data-view-kanban-card').nth(cardIndex);
   return card;
 }
+
 export const moveToCenterOf = async (page: Page, locator: Locator) => {
   const box = (await locator.boundingBox())!;
   expect(box).toBeDefined();
