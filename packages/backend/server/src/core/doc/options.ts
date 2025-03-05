@@ -9,7 +9,6 @@ import {
   metrics,
   Runtime,
 } from '../../base';
-import { PermissionService } from '../permission';
 import { QuotaService } from '../quota';
 import { DocStorageOptions as IDocStorageOptions } from './storage';
 
@@ -37,7 +36,6 @@ export class DocStorageOptions implements IDocStorageOptions {
   constructor(
     private readonly config: Config,
     private readonly runtime: Runtime,
-    private readonly permission: PermissionService,
     private readonly quota: QuotaService
   ) {}
 
@@ -87,8 +85,7 @@ export class DocStorageOptions implements IDocStorageOptions {
   };
 
   historyMaxAge = async (spaceId: string) => {
-    const owner = await this.permission.getWorkspaceOwner(spaceId);
-    const quota = await this.quota.getUserQuota(owner.id);
+    const quota = await this.quota.getWorkspaceQuota(spaceId);
     return quota.historyPeriod;
   };
 

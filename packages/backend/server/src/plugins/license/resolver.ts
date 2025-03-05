@@ -11,7 +11,7 @@ import {
 
 import { ActionForbidden, Config } from '../../base';
 import { CurrentUser } from '../../core/auth';
-import { PermissionService, WorkspaceRole } from '../../core/permission';
+import { AccessController } from '../../core/permission';
 import { WorkspaceType } from '../../core/workspaces';
 import { SubscriptionRecurring } from '../payment/types';
 import { LicenseService } from './service';
@@ -39,7 +39,7 @@ export class LicenseResolver {
   constructor(
     private readonly config: Config,
     private readonly service: LicenseService,
-    private readonly permission: PermissionService
+    private readonly ac: AccessController
   ) {}
 
   @ResolveField(() => License, {
@@ -58,12 +58,10 @@ export class LicenseResolver {
       return null;
     }
 
-    await this.permission.checkWorkspaceIs(
-      workspace.id,
-      user.id,
-      WorkspaceRole.Owner
-    );
-
+    await this.ac
+      .user(user.id)
+      .workspace(workspace.id)
+      .assert('Workspace.Payment.Manage');
     return this.service.getLicense(workspace.id);
   }
 
@@ -77,11 +75,10 @@ export class LicenseResolver {
       throw new ActionForbidden();
     }
 
-    await this.permission.checkWorkspaceIs(
-      workspaceId,
-      user.id,
-      WorkspaceRole.Owner
-    );
+    await this.ac
+      .user(user.id)
+      .workspace(workspaceId)
+      .assert('Workspace.Payment.Manage');
 
     return this.service.activateTeamLicense(workspaceId, license);
   }
@@ -95,11 +92,10 @@ export class LicenseResolver {
       throw new ActionForbidden();
     }
 
-    await this.permission.checkWorkspaceIs(
-      workspaceId,
-      user.id,
-      WorkspaceRole.Owner
-    );
+    await this.ac
+      .user(user.id)
+      .workspace(workspaceId)
+      .assert('Workspace.Payment.Manage');
 
     return this.service.deactivateTeamLicense(workspaceId);
   }
@@ -113,11 +109,10 @@ export class LicenseResolver {
       throw new ActionForbidden();
     }
 
-    await this.permission.checkWorkspaceIs(
-      workspaceId,
-      user.id,
-      WorkspaceRole.Owner
-    );
+    await this.ac
+      .user(user.id)
+      .workspace(workspaceId)
+      .assert('Workspace.Payment.Manage');
 
     const { url } = await this.service.createCustomerPortal(workspaceId);
 

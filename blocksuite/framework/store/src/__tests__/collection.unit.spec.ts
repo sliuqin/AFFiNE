@@ -13,7 +13,6 @@ import {
   ParagraphBlockSchemaExtension,
   RootBlockSchemaExtension,
 } from './test-schema.js';
-import { assertExists } from './test-utils-dom.js';
 
 function createTestOptions() {
   const idGenerator = createAutoIncrementIdGenerator();
@@ -207,7 +206,9 @@ describe('basic', () => {
       const doc2 = collection2.getDoc('space:0', {
         extensions,
       });
-      assertExists(doc2);
+      if (!doc2) {
+        throw new Error('doc2 is not found');
+      }
       applyUpdate(doc2.spaceDoc, update);
       expect(serializCollection(collection2.doc)['spaces']).toEqual({
         'space:0': {

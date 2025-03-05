@@ -191,7 +191,7 @@ export default tseslint.config(
             {
               group: ['@blocksuite/store'],
               message: "Import from '@blocksuite/global/utils'",
-              importNames: ['assertExists', 'assertEquals'],
+              importNames: ['assertEquals'],
             },
           ],
         },

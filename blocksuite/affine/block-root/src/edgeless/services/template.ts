@@ -4,7 +4,7 @@ import type {
 } from '@blocksuite/affine-block-surface';
 import type { ConnectorElementModel } from '@blocksuite/affine-model';
 import { Bound, getCommonBound } from '@blocksuite/global/gfx';
-import { assertExists, assertType, Slot } from '@blocksuite/global/utils';
+import { assertType, Slot } from '@blocksuite/global/utils';
 import {
   type BlockModel,
   type BlockSnapshot,
@@ -194,7 +194,9 @@ export class TemplateJob {
           return;
         }
 
-        assertExists(modelData);
+        if (!modelData) {
+          return;
+        }
 
         doc.addBlock(
           modelData.flavour,

@@ -4,7 +4,6 @@ import type {
 } from '@blocksuite/affine-model';
 import type { LinkPreviewerService } from '@blocksuite/affine-shared/services';
 import { isAbortError } from '@blocksuite/affine-shared/utils';
-import { assertExists } from '@blocksuite/global/utils';
 import { nothing } from 'lit';
 
 import type { EmbedGithubBlockComponent } from './embed-github-block.js';
@@ -89,8 +88,14 @@ export async function refreshEmbedGithubUrlData(
   try {
     embedGithubElement.loading = true;
 
+    // TODO(@mirone): remove service
     const queryUrlData = embedGithubElement.service?.queryUrlData;
-    assertExists(queryUrlData);
+    if (!queryUrlData) {
+      console.error(
+        `Trying to refresh github url data, but the queryUrlData is not found.`
+      );
+      return;
+    }
 
     const githubUrlData = await queryUrlData(embedGithubElement.model);
     ({
@@ -126,8 +131,15 @@ export async function refreshEmbedGithubStatus(
   embedGithubElement: EmbedGithubBlockComponent,
   signal?: AbortSignal
 ) {
+  // TODO(@mirone): remove service
   const queryApiData = embedGithubElement.service?.queryApiData;
-  assertExists(queryApiData);
+  if (!queryApiData) {
+    console.error(
+      `Trying to refresh github status, but the queryApiData is not found.`
+    );
+    return;
+  }
+
   const githubApiData = await queryApiData(embedGithubElement.model, signal);
 
   if (!githubApiData.status || signal?.aborted) return;

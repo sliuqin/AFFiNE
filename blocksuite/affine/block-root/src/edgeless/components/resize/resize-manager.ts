@@ -7,7 +7,6 @@ import {
   type PointLocation,
   rotatePoints,
 } from '@blocksuite/global/gfx';
-import { assertExists } from '@blocksuite/global/utils';
 
 import type { SelectableProps } from '../../utils/query.js';
 import { HandleDirection, type ResizeMode } from './resize-handles.js';
@@ -113,7 +112,9 @@ export class HandleResizeManager {
       const rect = this._target
         .closest('.affine-edgeless-selected-rect')
         ?.getBoundingClientRect();
-      assertExists(rect);
+      if (!rect) {
+        return;
+      }
       const { left, top, right, bottom } = rect;
       const x = (left + right) / 2;
       const y = (top + bottom) / 2;
@@ -207,12 +208,10 @@ export class HandleResizeManager {
       _rotate,
       _resizeMode,
       _zoom,
-      _target,
       _originalRect,
       _currentRect,
     } = this;
     proportion ||= this._proportion;
-    assertExists(_target);
 
     const isAll = _resizeMode === 'all';
     const isCorner = _resizeMode === 'corner';

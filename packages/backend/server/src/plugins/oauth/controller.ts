@@ -3,7 +3,9 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Logger,
   Post,
+  type RawBodyRequest,
   Req,
   Res,
 } from '@nestjs/common';
@@ -27,6 +29,8 @@ import { OAuthService } from './service';
 
 @Controller('/api/oauth')
 export class OAuthController {
+  private readonly logger = new Logger(OAuthController.name);
+
   constructor(
     private readonly auth: AuthService,
     private readonly oauth: OAuthService,
@@ -69,7 +73,7 @@ export class OAuthController {
   @Post('/callback')
   @HttpCode(HttpStatus.OK)
   async callback(
-    @Req() req: Request,
+    @Req() req: RawBodyRequest<Request>,
     @Res() res: Response,
     @Body('code') code?: string,
     @Body('state') stateStr?: string
@@ -102,7 +106,20 @@ export class OAuthController {
       throw new UnknownOauthProvider({ name: state.provider ?? 'unknown' });
     }
 
-    const tokens = await provider.getToken(code);
+    let tokens: Tokens;
+    try {
+      tokens = await provider.getToken(code);
+    } catch (err) {
+      let rayBodyString = '';
+      if (req.rawBody) {
+        // only log the first 4096 bytes of the raw body
+        rayBodyString = req.rawBody.subarray(0, 4096).toString('utf-8');
+      }
+      this.logger.warn(
+        `Error getting oauth token for ${state.provider}, callback code: ${code}, stateStr: ${stateStr}, rawBody: ${rayBodyString}, error: ${err}`
+      );
+      throw err;
+    }
     const externAccount = await provider.getUser(tokens.accessToken);
     const user = await this.loginFromOauth(
       state.provider,

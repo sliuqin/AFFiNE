@@ -175,7 +175,11 @@ export class CopilotController implements BeforeApplicationShutdown {
 
   private getSignal(req: Request) {
     const controller = new AbortController();
-    req.on('close', () => controller.abort());
+    req.socket.on('close', hasError => {
+      if (hasError) {
+        controller.abort();
+      }
+    });
     return controller.signal;
   }
 

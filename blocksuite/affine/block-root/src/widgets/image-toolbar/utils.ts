@@ -4,7 +4,6 @@ import {
   isInsidePageEditor,
 } from '@blocksuite/affine-shared/utils';
 import { BlockSelection } from '@blocksuite/block-std';
-import { assertExists } from '@blocksuite/global/utils';
 
 export function duplicate(
   block: ImageBlockComponent,
@@ -23,7 +22,10 @@ export function duplicate(
 
   const { doc } = model;
   const parent = doc.getParent(model);
-  assertExists(parent, 'Parent not found');
+  if (!parent) {
+    console.error(`Parent not found for block(${model.flavour}) ${model.id}`);
+    return;
+  }
 
   const index = parent?.children.indexOf(model);
   const duplicateId = doc.addBlock(

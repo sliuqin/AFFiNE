@@ -39,8 +39,8 @@ import {
   type GfxViewportElement,
 } from '@blocksuite/block-std/gfx';
 import { IS_WINDOWS } from '@blocksuite/global/env';
+import { BlockSuiteError } from '@blocksuite/global/exceptions';
 import { Bound, Point, Vec } from '@blocksuite/global/gfx';
-import { assertExists } from '@blocksuite/global/utils';
 import { effect } from '@preact/signals-core';
 import { css, html } from 'lit';
 import { query } from 'lit/decorators.js';
@@ -191,7 +191,12 @@ export class EdgelessRootBlockComponent extends BlockComponent<
     this._viewportElement = this.host.closest(
       '.affine-edgeless-viewport'
     ) as HTMLElement | null;
-    assertExists(this._viewportElement);
+    if (!this._viewportElement) {
+      throw new BlockSuiteError(
+        BlockSuiteError.ErrorCode.ValueNotExists,
+        'EdgelessRootBlockComponent.viewportElement: viewport element is not found'
+      );
+    }
     return this._viewportElement;
   }
 

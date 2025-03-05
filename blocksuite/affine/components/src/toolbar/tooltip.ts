@@ -1,5 +1,4 @@
 import { requestConnectedFrame } from '@blocksuite/affine-shared/utils';
-import { assertExists } from '@blocksuite/global/utils';
 import {
   arrow,
   type ComputePositionReturn,
@@ -193,7 +192,10 @@ export class Tooltip extends LitElement {
     );
 
     const parent = this.parentElement;
-    assertExists(parent, 'Tooltip must have a parent element');
+    if (!parent) {
+      console.error('Tooltip must have a parent element');
+      return;
+    }
 
     // Wait for render
     requestConnectedFrame(() => {

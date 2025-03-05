@@ -1,6 +1,5 @@
 import { notify } from '@affine/component';
 import { GraphQLError } from '@affine/graphql';
-import { assertExists } from '@blocksuite/affine/global/utils';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { useCallback } from 'react';
 import type { SWRConfiguration } from 'swr';
@@ -12,7 +11,9 @@ const swrConfig: SWRConfiguration = {
     useSWRNext => (key, fetcher, config) => {
       const fetcherWrapper = useCallback(
         async (...args: any[]) => {
-          assertExists(fetcher);
+          if (!fetcher) {
+            throw new Error('fetcher is not found');
+          }
           const d = fetcher(...args);
           if (d instanceof Promise) {
             return d.catch(e => {

@@ -12,7 +12,6 @@ import type {
   RichText,
   RootBlockModel,
 } from '@blocksuite/blocks';
-import { assertExists } from '@blocksuite/global/utils';
 import type { InlineRootElement } from '@blocksuite/inline';
 import type { BlockModel } from '@blocksuite/store';
 import { expect, type Locator, type Page } from '@playwright/test';
@@ -52,8 +51,6 @@ import {
   inlineEditorInnerTextToString,
 } from './actions/misc.js';
 import { getStringFromRichText } from './inline-editor.js';
-
-export { assertExists };
 
 const BLOCK_ID_ATTR = 'data-block-id';
 

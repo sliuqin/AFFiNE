@@ -10,23 +10,6 @@ export function isPrimitive(
 
 export function assertType<T>(_: unknown): asserts _ is T {}
 
-/**
- * @deprecated Avoid using this util as escape hatch of error handling.
- * For non-framework code, please handle error in application level instead.
- */
-export function assertExists<T>(
-  val: T | null | undefined,
-  message: string | Error = 'val does not exist',
-  errorCode = ErrorCode.ValueNotExists
-): asserts val is T {
-  if (val === null || val === undefined) {
-    if (message instanceof Error) {
-      throw message;
-    }
-    throw new BlockSuiteError(errorCode, message);
-  }
-}
-
 export function assertNotExists<T>(
   val: T | null | undefined,
   message = 'val exists',

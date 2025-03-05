@@ -51,7 +51,6 @@ import {
   assertBlockTypes,
   assertEdgelessNoteBackground,
   assertEdgelessSelectedModelRect,
-  assertExists,
   assertRichTextModelType,
   assertRichTexts,
   assertText,
@@ -111,7 +110,9 @@ test('copy a nested list by clicking button, the clipboard data should be comple
   await pasteContent(page, clipData);
 
   const rootListBound = await page.locator('affine-list').first().boundingBox();
-  assertExists(rootListBound);
+  if (!rootListBound) {
+    throw new Error('rootListBound is not found');
+  }
 
   // use drag element to test.
   await dragBetweenCoords(

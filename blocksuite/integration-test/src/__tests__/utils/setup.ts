@@ -19,7 +19,6 @@ import {
   StoreExtensions,
 } from '@blocksuite/blocks';
 import { AffineSchemas } from '@blocksuite/blocks/schemas';
-import { assertExists } from '@blocksuite/global/utils';
 import { Schema, Text } from '@blocksuite/store';
 import {
   createAutoIncrementIdGenerator,
@@ -67,7 +66,9 @@ async function createEditor(
 ) {
   const app = document.createElement('div');
   const blockCollection = collection.docs.values().next().value;
-  assertExists(blockCollection, 'Need to create a doc first');
+  if (!blockCollection) {
+    throw new Error('Need to create a doc first');
+  }
   const doc = blockCollection.getStore();
   const editor = new TestAffineEditorContainer();
   editor.doc = doc;

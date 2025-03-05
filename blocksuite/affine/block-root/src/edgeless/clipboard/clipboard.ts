@@ -57,12 +57,7 @@ import {
   type SerializedXYWH,
   Vec,
 } from '@blocksuite/global/gfx';
-import {
-  assertExists,
-  assertType,
-  DisposableGroup,
-  nToLast,
-} from '@blocksuite/global/utils';
+import { assertType, DisposableGroup, nToLast } from '@blocksuite/global/utils';
 import {
   type BlockSnapshot,
   BlockSnapshotSchema,
@@ -519,17 +514,19 @@ export class EdgelessClipboardController extends PageClipboard {
     clipboardData: SerializedElement,
     context: CreationContext,
     newXYWH: SerializedXYWH
-  ) {
+  ): GfxPrimitiveElementModel | null {
     if (clipboardData.type === GROUP) {
       const yMap = new Y.Map();
       const children = clipboardData.children ?? {};
 
       for (const [key, value] of Object.entries(children)) {
         const newKey = context.oldToNewIdMap.get(key);
-        assertExists(
-          newKey,
-          'Copy failed: cannot find the copied child in group'
-        );
+        if (!newKey) {
+          console.error(
+            `Copy failed: cannot find the copied child in group, key: ${key}`
+          );
+          return null;
+        }
         yMap.set(newKey, value);
       }
       clipboardData.children = yMap;
@@ -543,17 +540,21 @@ export class EdgelessClipboardController extends PageClipboard {
         const newValue = {
           ...oldValue,
         };
-        assertExists(
-          newKey,
-          'Copy failed: cannot find the copied node in mind map'
-        );
+        if (!newKey) {
+          console.error(
+            `Copy failed: cannot find the copied node in mind map, key: ${oldKey}`
+          );
+          return null;
+        }
 
         if (oldValue.parent) {
           const newParent = context.oldToNewIdMap.get(oldValue.parent);
-          assertExists(
-            newParent,
-            'Copy failed: cannot find the copied node in mind map'
-          );
+          if (!newParent) {
+            console.error(
+              `Copy failed: cannot find the copied node in mind map, parent: ${oldValue.parent}`
+            );
+            return null;
+          }
           newValue.parent = newParent;
         }
 
@@ -603,7 +604,10 @@ export class EdgelessClipboardController extends PageClipboard {
       type: clipboardData.type as string,
     });
     const element = this.crud.getElementById(id) as GfxPrimitiveElementModel;
-    assertExists(element);
+    if (!element) {
+      console.error(`Copy failed: cannot find the copied element, id: ${id}`);
+      return null;
+    }
     return element;
   }
 
@@ -898,7 +902,7 @@ export class EdgelessClipboardController extends PageClipboard {
     const editorMode = isInsidePageEditor(host);
 
     const rootComponent = getRootByEditorHost(host);
-    assertExists(rootComponent);
+    if (!rootComponent) return;
 
     const container = rootComponent.querySelector(
       '.affine-block-children-container'
@@ -1355,7 +1359,10 @@ export class EdgelessClipboardController extends PageClipboard {
       bounds.push(shape.elementBound);
     });
     const bound = getCommonBound(bounds);
-    assertExists(bound, 'bound not exist');
+    if (!bound) {
+      console.error('bound not exist');
+      return;
+    }
 
     const canvas = await this._edgelessToCanvas(
       this.host,

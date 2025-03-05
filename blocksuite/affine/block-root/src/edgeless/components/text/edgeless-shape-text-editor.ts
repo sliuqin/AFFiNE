@@ -12,7 +12,7 @@ import {
   ShadowlessElement,
 } from '@blocksuite/block-std';
 import { Bound, toRadian, Vec } from '@blocksuite/global/gfx';
-import { assertExists, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/utils';
 import { html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -32,12 +32,11 @@ export class EdgelessShapeTextEditor extends WithDisposable(ShadowlessElement) {
   private _resizeObserver: ResizeObserver | null = null;
 
   get inlineEditor() {
-    assertExists(this.richText.inlineEditor);
     return this.richText.inlineEditor;
   }
 
   get inlineEditorContainer() {
-    return this.inlineEditor.rootElement;
+    return this.inlineEditor?.rootElement;
   }
 
   get isMindMapNode() {
@@ -175,7 +174,6 @@ export class EdgelessShapeTextEditor extends WithDisposable(ShadowlessElement) {
 
   override firstUpdated(): void {
     const dispatcher = this.edgeless.dispatcher;
-    assertExists(dispatcher);
 
     this.element.textDisplay = false;
 
@@ -202,6 +200,7 @@ export class EdgelessShapeTextEditor extends WithDisposable(ShadowlessElement) {
 
     this.updateComplete
       .then(() => {
+        if (!this.inlineEditor) return;
         if (this.element.group instanceof MindmapElementModel) {
           this.inlineEditor.selectAll();
         } else {

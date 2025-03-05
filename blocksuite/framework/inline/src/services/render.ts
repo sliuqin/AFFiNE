@@ -1,5 +1,4 @@
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { assertExists } from '@blocksuite/global/utils';
 import { html, render } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import * as Y from 'yjs';
@@ -36,7 +35,10 @@ export class RenderService<TextAttributes extends BaseTextAttributes> {
     if (!lastStartRelativePosition || !lastEndRelativePosition) return;
 
     const doc = this.editor.yText.doc;
-    assertExists(doc);
+    if (!doc) {
+      console.error('doc is not found when syncing yText');
+      return;
+    }
     const absoluteStart = Y.createAbsolutePositionFromRelativePosition(
       lastStartRelativePosition,
       doc

@@ -5,8 +5,8 @@ import {
   Models,
   type UserQuota,
   WorkspaceQuota as BaseWorkspaceQuota,
+  WorkspaceRole,
 } from '../../models';
-import { PermissionService } from '../permission';
 import { WorkspaceBlobStorage } from '../storage';
 import {
   UserQuotaHumanReadableType,
@@ -28,7 +28,6 @@ export class QuotaService {
 
   constructor(
     private readonly models: Models,
-    private readonly permissions: PermissionService,
     private readonly storage: WorkspaceBlobStorage
   ) {}
 
@@ -73,12 +72,20 @@ export class QuotaService {
   }
 
   async getUserStorageUsage(userId: string) {
-    const workspaces = await this.permissions.getOwnedWorkspaces(userId);
+    const workspaces = await this.models.workspaceUser.getUserActiveRoles(
+      userId,
+      {
+        role: WorkspaceRole.Owner,
+      }
+    );
+
+    const ids = workspaces.map(w => w.workspaceId);
+
     const workspacesWithQuota =
-      await this.models.workspaceFeature.batchHasQuota(workspaces);
+      await this.models.workspaceFeature.batchHasQuota(ids);
 
     const sizes = await Promise.allSettled(
-      workspaces
+      ids
         .filter(w => !workspacesWithQuota.includes(w))
         .map(workspace => this.storage.totalSize(workspace))
     );
@@ -116,8 +123,7 @@ export class QuotaService {
 
     if (!quota) {
       // get and convert to workspace quota from owner's quota
-      // TODO(@forehalo): replace it with `WorkspaceRoleModel` when it's ready
-      const owner = await this.permissions.getWorkspaceOwner(workspaceId);
+      const owner = await this.models.workspaceUser.getOwner(workspaceId);
       const ownerQuota = await this.getUserQuota(owner.id);
 
       return {
@@ -136,8 +142,7 @@ export class QuotaService {
     const usedStorageQuota = quota.ownerQuota
       ? await this.getUserStorageUsage(quota.ownerQuota)
       : await this.getWorkspaceStorageUsage(workspaceId);
-    const memberCount =
-      await this.permissions.getWorkspaceMemberCount(workspaceId);
+    const memberCount = await this.models.workspaceUser.count(workspaceId);
 
     return {
       ...quota,
@@ -165,8 +170,7 @@ export class QuotaService {
 
   async getWorkspaceSeatQuota(workspaceId: string) {
     const quota = await this.getWorkspaceQuota(workspaceId);
-    const memberCount =
-      await this.permissions.getWorkspaceMemberCount(workspaceId);
+    const memberCount = await this.models.workspaceUser.count(workspaceId);
 
     return {
       memberCount,

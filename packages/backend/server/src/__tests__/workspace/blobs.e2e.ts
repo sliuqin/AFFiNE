@@ -77,7 +77,7 @@ test('should list blobs', async t => {
   const ret = await listBlobs(app, workspace.id);
   t.is(ret.length, 2, 'failed to list blobs');
   // list blob result is not ordered
-  t.deepEqual(ret.sort(), [hash1, hash2].sort());
+  t.deepEqual(ret.map(x => x.key).sort(), [hash1, hash2].sort());
 });
 
 test('should auto delete blobs when workspace is deleted', async t => {

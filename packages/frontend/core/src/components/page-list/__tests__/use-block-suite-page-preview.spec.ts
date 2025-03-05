@@ -4,7 +4,6 @@
 import 'fake-indexeddb/auto';
 
 import { StoreExtensions } from '@blocksuite/affine/blocks';
-import { assertExists } from '@blocksuite/affine/global/utils';
 import { type Store, Text } from '@blocksuite/affine/store';
 import { TestWorkspace } from '@blocksuite/affine/store/test';
 import { renderHook } from '@testing-library/react';
@@ -23,7 +22,6 @@ beforeEach(async () => {
   const initPage = async (page: Store) => {
     page.load();
     expect(page).not.toBeNull();
-    assertExists(page);
     const pageBlockId = page.addBlock('affine:page', {
       title: new Text(''),
     });

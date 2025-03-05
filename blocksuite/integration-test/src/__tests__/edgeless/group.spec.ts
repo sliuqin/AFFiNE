@@ -5,7 +5,6 @@ import {
   LayoutType,
   NoteDisplayMode,
 } from '@blocksuite/blocks';
-import { assertExists } from '@blocksuite/global/utils';
 import { beforeEach, describe, expect, test } from 'vitest';
 import * as Y from 'yjs';
 
@@ -68,12 +67,16 @@ describe('group', () => {
     const shapeId = service.crud.addElement('shape', {
       shapeType: 'rect',
     });
-    assertExists(shapeId);
+    if (!shapeId) {
+      throw new Error('shapeId is not found');
+    }
 
     map.set(noteId, true);
     map.set(shapeId, true);
     const groupId = service.crud.addElement('group', { children: map });
-    assertExists(groupId);
+    if (!groupId) {
+      throw new Error('groupId is not found');
+    }
     expect(service.elements.length).toBe(2);
     expect(doc.getBlock(noteId)).toBeDefined();
     doc.captureSync();
@@ -92,12 +95,16 @@ describe('group', () => {
       shapeType: 'rect',
       xywh: '[0,0,100,100]',
     });
-    assertExists(shape1);
+    if (!shape1) {
+      throw new Error('shape1 is not found');
+    }
     const shape2 = service.crud.addElement('shape', {
       shapeType: 'rect',
       xywh: '[100,100,100,100]',
     });
-    assertExists(shape2);
+    if (!shape2) {
+      throw new Error('shape2 is not found');
+    }
     const note1 = addNote(doc, {
       displayMode: NoteDisplayMode.DocAndEdgeless,
       xywh: '[200,200,800,100]',
@@ -119,7 +126,9 @@ describe('group', () => {
     children.set(note1, true);
 
     const groupId = service.crud.addElement('group', { children });
-    assertExists(groupId);
+    if (!groupId) {
+      throw new Error('groupId is not found');
+    }
 
     const group = service.crud.getElementById(groupId) as GroupElementModel;
     const assertInitial = () => {
@@ -189,7 +198,9 @@ describe('group', () => {
   test('empty group should have all zero xywh', () => {
     const map = new Y.Map<boolean>();
     const groupId = service.crud.addElement('group', { children: map });
-    assertExists(groupId);
+    if (!groupId) {
+      throw new Error('groupId is not found');
+    }
     const group = service.crud.getElementById(groupId) as GroupElementModel;
 
     expect(group.x).toBe(0);
@@ -253,7 +264,9 @@ describe('mindmap', () => {
       ],
     };
     const mindmapId = service.crud.addElement('mindmap', { children: tree });
-    assertExists(mindmapId);
+    if (!mindmapId) {
+      throw new Error('mindmapId is not found');
+    }
     const mindmap = () =>
       service.crud.getElementById(mindmapId) as MindmapElementModel;
 
@@ -304,7 +317,9 @@ describe('mindmap', () => {
       type: LayoutType.RIGHT,
       children: tree,
     });
-    assertExists(mindmapId);
+    if (!mindmapId) {
+      throw new Error('mindmapId is not found');
+    }
     const mindmap = () =>
       service.crud.getElementById(mindmapId) as MindmapElementModel;
 
@@ -349,7 +364,10 @@ describe('mindmap', () => {
       type: LayoutType.RIGHT,
       children: tree,
     });
-    assertExists(mindmapId);
+    if (!mindmapId) {
+      throw new Error('mindmapId is not found');
+    }
+
     const mindmap = () =>
       service.crud.getElementById(mindmapId) as MindmapElementModel;
 

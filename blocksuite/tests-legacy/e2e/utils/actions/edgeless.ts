@@ -2,7 +2,7 @@ import '../declare-test-window.js';
 
 import type { NoteBlockModel, NoteDisplayMode } from '@blocksuite/affine-model';
 import type { IPoint, IVec } from '@blocksuite/global/gfx';
-import { assertExists, sleep } from '@blocksuite/global/utils';
+import { sleep } from '@blocksuite/global/utils';
 import type { Locator, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
@@ -253,8 +253,7 @@ export async function locatorEdgelessZoomToolButton(
     fitToScreen: 'Fit to screen',
   }[type];
 
-  const screenWidth = page.viewportSize()?.width;
-  assertExists(screenWidth);
+  const screenWidth = page.viewportSize()?.width ?? 0;
   let zoomBarClass = 'horizontal';
   if (screenWidth < ZOOM_BAR_RESPONSIVE_SCREEN_WIDTH) {
     await toggleZoomBarWhenSmallScreenWidth(page);
@@ -958,8 +957,7 @@ export async function zoomInByKeyboard(page: Page) {
 }
 
 export async function getZoomLevel(page: Page) {
-  const screenWidth = page.viewportSize()?.width;
-  assertExists(screenWidth);
+  const screenWidth = page.viewportSize()?.width ?? 0;
   let zoomBarClass = 'horizontal';
   if (screenWidth < ZOOM_BAR_RESPONSIVE_SCREEN_WIDTH) {
     await toggleZoomBarWhenSmallScreenWidth(page);
@@ -1456,7 +1454,9 @@ export function getEdgelessLineWidthPanel(page: Page) {
 export async function changeShapeStrokeWidth(page: Page) {
   const lineWidthPanel = getEdgelessLineWidthPanel(page);
   const lineWidthPanelRect = await lineWidthPanel.boundingBox();
-  assertExists(lineWidthPanelRect);
+  if (!lineWidthPanelRect) {
+    throw new Error('lineWidthPanelRect is not found');
+  }
   // click line width panel by position
   const x = lineWidthPanelRect.x + 40;
   const y = lineWidthPanelRect.y + 10;
@@ -1907,7 +1907,9 @@ export async function createNote(
 export async function hoverOnNote(page: Page, id: string, offset = [0, 0]) {
   const blockRect = await page.locator(`[data-block-id="${id}"]`).boundingBox();
 
-  assertExists(blockRect);
+  if (!blockRect) {
+    throw new Error('blockRect is not found');
+  }
 
   await page.mouse.move(
     blockRect.x + blockRect.width / 2 + offset[0],

@@ -12,7 +12,7 @@ import {
   TelemetryProvider,
   ThemeProvider,
 } from '@blocksuite/affine-shared/services';
-import { assertExists, SignalWatcher } from '@blocksuite/global/utils';
+import { SignalWatcher } from '@blocksuite/global/utils';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
@@ -248,7 +248,10 @@ export class EdgelessToolbarShapeDraggable extends EdgelessToolbarToolMixin(
           const el = this.shapeContainer.querySelector(
             `.shape.${this.draggingShape}`
           ) as HTMLElement;
-          assertExists(el, 'Edgeless toolbar Shape element not found');
+          if (!el) {
+            console.error('Edgeless toolbar Shape element not found');
+            return;
+          }
           const { x, y } = service.gfx.tool.lastMousePos$.peek();
           const { left, top } = this.edgeless.viewport;
           const clientPos = { x: x + left, y: y + top };

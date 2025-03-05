@@ -17,7 +17,6 @@ import {
   Cache,
   DocActionDenied,
   DocDefaultRoleCanNotBeOwner,
-  DocIsNotPublic,
   ExpectToGrantDocUserRoles,
   ExpectToPublishDoc,
   ExpectToRevokeDocUserRoles,
@@ -28,21 +27,20 @@ import {
   PaginationInput,
   registerObjectType,
 } from '../../../base';
-import { Models } from '../../../models';
+import { Models, PublicDocMode } from '../../../models';
 import { CurrentUser } from '../../auth';
 import {
+  AccessController,
   DOC_ACTIONS,
   DocAction,
   DocRole,
-  fixupDocRole,
-  mapDocRoleToPermissions,
-  PermissionService,
-  PublicDocMode,
 } from '../../permission';
 import { PublicUserType } from '../../user';
-import { DocID } from '../../utils/doc';
 import { WorkspaceType } from '../types';
-import { DotToUnderline, mapPermissionToGraphqlPermissions } from './workspace';
+import {
+  DotToUnderline,
+  mapPermissionsToGraphqlPermissions,
+} from './workspace';
 
 registerEnumType(PublicDocMode, {
   name: 'PublicDocMode',
@@ -155,8 +153,11 @@ export class WorkspaceDocResolver {
   private readonly logger = new Logger(WorkspaceDocResolver.name);
 
   constructor(
+    /**
+     * @deprecated migrate to models
+     */
     private readonly prisma: PrismaClient,
-    private readonly permission: PermissionService,
+    private readonly ac: AccessController,
     private readonly models: Models,
     private readonly cache: Cache
   ) {}
@@ -174,12 +175,7 @@ export class WorkspaceDocResolver {
     complexity: 2,
   })
   async publicDocs(@Parent() workspace: WorkspaceType) {
-    return this.prisma.workspaceDoc.findMany({
-      where: {
-        workspaceId: workspace.id,
-        public: true,
-      },
-    });
+    return this.models.workspace.getPublicDocs(workspace.id);
   }
 
   @ResolveField(() => DocType, {
@@ -203,14 +199,7 @@ export class WorkspaceDocResolver {
     @Parent() workspace: WorkspaceType,
     @Args('docId') docId: string
   ): Promise<DocType> {
-    const doc = await this.prisma.workspaceDoc.findUnique({
-      where: {
-        workspaceId_docId: {
-          workspaceId: workspace.id,
-          docId,
-        },
-      },
-    });
+    const doc = await this.models.workspace.getDoc(workspace.id, docId);
 
     if (doc) {
       return doc;
@@ -249,7 +238,7 @@ export class WorkspaceDocResolver {
   async publishDoc(
     @CurrentUser() user: CurrentUser,
     @Args('workspaceId') workspaceId: string,
-    @Args('docId') rawDocId: string,
+    @Args('docId') docId: string,
     @Args({
       name: 'mode',
       type: () => PublicDocMode,
@@ -258,28 +247,27 @@ export class WorkspaceDocResolver {
     })
     mode: PublicDocMode
   ) {
-    const docId = new DocID(rawDocId, workspaceId);
-
-    if (docId.isWorkspace) {
+    if (workspaceId === docId) {
       this.logger.error('Expect to publish doc, but it is a workspace', {
         workspaceId,
-        docId: rawDocId,
+        docId,
       });
       throw new ExpectToPublishDoc();
     }
 
-    await this.permission.checkPagePermission(
-      docId.workspace,
-      docId.guid,
-      'Doc.Publish',
-      user.id
+    await this.ac.user(user.id).doc(workspaceId, docId).assert('Doc.Publish');
+
+    const doc = await this.models.workspace.publishDoc(
+      workspaceId,
+      docId,
+      mode
     );
 
     this.logger.log(
-      `Publish page ${rawDocId} with mode ${mode} in workspace ${workspaceId}`
+      `Publish page ${docId} with mode ${mode} in workspace ${workspaceId}`
     );
 
-    return this.permission.publishPage(docId.workspace, docId.guid, mode);
+    return doc;
   }
 
   @Mutation(() => DocType, {
@@ -297,44 +285,23 @@ export class WorkspaceDocResolver {
   async revokePublicDoc(
     @CurrentUser() user: CurrentUser,
     @Args('workspaceId') workspaceId: string,
-    @Args('docId') rawDocId: string
+    @Args('docId') docId: string
   ) {
-    const docId = new DocID(rawDocId, workspaceId);
-
-    if (docId.isWorkspace) {
+    if (workspaceId === docId) {
       this.logger.error('Expect to revoke public doc, but it is a workspace', {
         workspaceId,
-        docId: rawDocId,
+        docId,
       });
       throw new ExpectToRevokePublicDoc('Expect doc not to be workspace');
     }
 
-    await this.permission.checkPagePermission(
-      docId.workspace,
-      docId.guid,
-      'Doc.Publish',
-      user.id
-    );
+    await this.ac.user(user.id).doc(workspaceId, docId).assert('Doc.Publish');
 
-    const isPublic = await this.permission.isPublicPage(
-      docId.workspace,
-      docId.guid
-    );
+    const doc = await this.models.workspace.revokePublicDoc(workspaceId, docId);
 
-    const info = {
-      workspaceId,
-      docId: rawDocId,
-    };
-    if (!isPublic) {
-      this.logger.log(
-        `Expect to revoke public doc, but it is not public (${JSON.stringify(info)})`
-      );
-      throw new DocIsNotPublic('Doc is not public');
-    }
+    this.logger.log(`Revoke public doc ${docId} in workspace ${workspaceId}`);
 
-    this.logger.log(`Revoke public doc (${JSON.stringify(info)})`);
-
-    return this.permission.revokePublicPage(docId.workspace, docId.guid);
+    return doc;
   }
 
   private async tryFixDocOwner(workspaceId: string, docId: string) {
@@ -357,13 +324,7 @@ export class WorkspaceDocResolver {
       return;
     }
 
-    const owner = await this.prisma.workspaceDocUserPermission.findFirst({
-      where: {
-        workspaceId,
-        docId,
-        type: DocRole.Owner,
-      },
-    });
+    const owner = await this.models.docUser.getOwner(workspaceId, docId);
 
     // skip if owner already exists
     if (owner) {
@@ -387,18 +348,11 @@ export class WorkspaceDocResolver {
 
     // try workspace.owner
     if (!fixedOwner) {
-      const owner = await this.permission.getWorkspaceOwner(workspaceId);
+      const owner = await this.models.workspaceUser.getOwner(workspaceId);
       fixedOwner = owner.id;
     }
 
-    await this.prisma.workspaceDocUserPermission.createMany({
-      data: {
-        workspaceId,
-        docId,
-        userId: fixedOwner,
-        type: DocRole.Owner,
-      },
-    });
+    await this.models.docUser.setOwner(workspaceId, docId, fixedOwner);
 
     this.logger.debug(
       `Fixed doc owner for ${docId} in workspace ${workspaceId}, new owner: ${fixedOwner}`
@@ -411,8 +365,7 @@ export class DocResolver {
   private readonly logger = new Logger(DocResolver.name);
 
   constructor(
-    private readonly prisma: PrismaClient,
-    private readonly permission: PermissionService,
+    private readonly ac: AccessController,
     private readonly models: Models
   ) {}
 
@@ -421,33 +374,9 @@ export class DocResolver {
     @CurrentUser() user: CurrentUser,
     @Parent() doc: DocType
   ): Promise<InstanceType<typeof DocPermissions>> {
-    const [permission, workspacePermission] = await this.prisma.$transaction(
-      tx =>
-        Promise.all([
-          tx.workspaceDocUserPermission.findFirst({
-            where: {
-              workspaceId: doc.workspaceId,
-              docId: doc.docId,
-              userId: user.id,
-            },
-          }),
-          tx.workspaceUserPermission.findFirst({
-            where: {
-              workspaceId: doc.workspaceId,
-              userId: user.id,
-            },
-          }),
-        ])
-    );
+    const { permissions } = await this.ac.user(user.id).doc(doc).permissions();
 
-    return mapPermissionToGraphqlPermissions(
-      mapDocRoleToPermissions(
-        fixupDocRole(
-          workspacePermission?.type,
-          permission?.type ?? doc.defaultRole
-        )
-      )
-    );
+    return mapPermissionsToGraphqlPermissions(permissions);
   }
 
   @ResolveField(() => PaginatedGrantedDocUserType, {
@@ -459,61 +388,24 @@ export class DocResolver {
     @Parent() doc: DocType,
     @Args('pagination', PaginationInput.decode) pagination: PaginationInput
   ): Promise<PaginatedGrantedDocUserType> {
-    await this.permission.checkPagePermission(
+    await this.ac.user(user.id).doc(doc).assert('Doc.Users.Read');
+
+    const [permissions, totalCount] = await this.models.docUser.paginate(
       doc.workspaceId,
       doc.docId,
-      'Doc.Users.Read',
-      user.id
+      pagination
     );
 
-    const [permissions, totalCount] = await this.prisma.$transaction(tx => {
-      return Promise.all([
-        tx.workspaceDocUserPermission.findMany({
-          where: {
-            workspaceId: doc.workspaceId,
-            docId: doc.docId,
-            createdAt: pagination.after
-              ? {
-                  gt: pagination.after,
-                }
-              : undefined,
-          },
-          orderBy: [
-            {
-              type: 'desc',
-            },
-            {
-              createdAt: 'desc',
-            },
-          ],
-          take: pagination.first,
-          skip: pagination.offset,
-        }),
-        tx.workspaceDocUserPermission.count({
-          where: {
-            workspaceId: doc.workspaceId,
-            docId: doc.docId,
-          },
-        }),
-      ]);
-    });
-
-    const users = new Map<string, PublicUserType>(
-      await Promise.all(
-        permissions.map(
-          async p =>
-            [p.userId, await this.models.user.getPublicUser(p.userId)] as [
-              string,
-              PublicUserType,
-            ]
-        )
-      )
+    const publicUsers = await this.models.user.getPublicUsers(
+      permissions.map(p => p.userId)
     );
+
+    const publicUsersMap = new Map(publicUsers.map(pu => [pu.id, pu]));
 
     return paginate(
       permissions.map(p => ({
         ...p,
-        user: users.get(p.userId),
+        user: publicUsersMap.get(p.userId) as PublicUserType,
       })),
       'createdAt',
       pagination,
@@ -526,12 +418,12 @@ export class DocResolver {
     @CurrentUser() user: CurrentUser,
     @Args('input') input: GrantDocUserRolesInput
   ): Promise<boolean> {
-    const doc = new DocID(input.docId, input.workspaceId);
     const pairs = {
       spaceId: input.workspaceId,
       docId: input.docId,
     };
-    if (doc.isWorkspace) {
+
+    if (input.workspaceId === input.docId) {
       this.logger.error(
         'Expect to grant doc user roles, but it is a workspace',
         pairs
@@ -541,18 +433,16 @@ export class DocResolver {
         'Expect doc not to be workspace'
       );
     }
-    await this.permission.checkPagePermission(
-      doc.workspace,
-      doc.guid,
-      'Doc.Users.Manage',
-      user.id
-    );
-    await this.permission.batchGrantPage(
-      doc.workspace,
-      doc.guid,
+
+    await this.ac.user(user.id).doc(input).assert('Doc.Users.Manage');
+
+    await this.models.docUser.batchSetUserRoles(
+      input.workspaceId,
+      input.docId,
       input.userIds,
       input.role
     );
+
     const info = {
       ...pairs,
       userIds: input.userIds,
@@ -567,12 +457,11 @@ export class DocResolver {
     @CurrentUser() user: CurrentUser,
     @Args('input') input: RevokeDocUserRoleInput
   ): Promise<boolean> {
-    const doc = new DocID(input.docId, input.workspaceId);
     const pairs = {
       spaceId: input.workspaceId,
-      docId: doc.guid,
+      docId: input.docId,
     };
-    if (doc.isWorkspace) {
+    if (input.workspaceId === input.docId) {
       this.logger.error(
         'Expect to revoke doc user roles, but it is a workspace',
         pairs
@@ -582,13 +471,14 @@ export class DocResolver {
         'Expect doc not to be workspace'
       );
     }
-    await this.permission.checkPagePermission(
-      doc.workspace,
-      doc.guid,
-      'Doc.Users.Manage',
-      user.id
+    await this.ac.user(user.id).doc(input).assert('Doc.Users.Manage');
+
+    await this.models.docUser.delete(
+      input.workspaceId,
+      input.docId,
+      input.userId
     );
-    await this.permission.revokePage(doc.workspace, doc.guid, input.userId);
+
     const info = {
       ...pairs,
       userId: input.userId,
@@ -602,12 +492,11 @@ export class DocResolver {
     @CurrentUser() user: CurrentUser,
     @Args('input') input: UpdateDocUserRoleInput
   ): Promise<boolean> {
-    const doc = new DocID(input.docId, input.workspaceId);
     const pairs = {
-      spaceId: doc.workspace,
-      docId: doc.guid,
+      spaceId: input.workspaceId,
+      docId: input.docId,
     };
-    if (doc.isWorkspace) {
+    if (input.workspaceId === input.docId) {
       this.logger.error(
         'Expect to update doc user role, but it is a workspace',
         pairs
@@ -618,28 +507,28 @@ export class DocResolver {
       );
     }
 
-    await this.permission.checkPagePermission(
-      doc.workspace,
-      doc.guid,
-      input.role === DocRole.Owner ? 'Doc.TransferOwner' : 'Doc.Users.Manage',
-      user.id
-    );
-
-    await this.permission.grantPage(
-      doc.workspace,
-      doc.guid,
-      input.userId,
-      input.role
-    );
-
     const info = {
       ...pairs,
       userId: input.userId,
       role: input.role,
     };
+
     if (input.role === DocRole.Owner) {
+      await this.ac.user(user.id).doc(input).assert('Doc.TransferOwner');
+      await this.models.docUser.setOwner(
+        input.workspaceId,
+        input.docId,
+        input.userId
+      );
       this.logger.log(`Transfer doc owner (${JSON.stringify(info)})`);
     } else {
+      await this.ac.user(user.id).doc(input).assert('Doc.Users.Manage');
+      await this.models.docUser.set(
+        input.workspaceId,
+        input.docId,
+        input.userId,
+        input.role
+      );
       this.logger.log(`Update doc user role (${JSON.stringify(info)})`);
     }
 
@@ -657,12 +546,11 @@ export class DocResolver {
       );
       throw new DocDefaultRoleCanNotBeOwner();
     }
-    const doc = new DocID(input.docId, input.workspaceId);
     const pairs = {
-      spaceId: doc.workspace,
-      docId: doc.guid,
+      spaceId: input.workspaceId,
+      docId: input.docId,
     };
-    if (doc.isWorkspace) {
+    if (input.workspaceId === input.docId) {
       this.logger.error(
         'Expect to update page default role, but it is a workspace',
         pairs
@@ -673,12 +561,7 @@ export class DocResolver {
       );
     }
     try {
-      await this.permission.checkPagePermission(
-        doc.workspace,
-        doc.guid,
-        'Doc.Users.Manage',
-        user.id
-      );
+      await this.ac.user(user.id).doc(input).assert('Doc.Users.Manage');
     } catch (error) {
       if (error instanceof DocActionDenied) {
         this.logger.log(
@@ -692,22 +575,11 @@ export class DocResolver {
       }
       throw error;
     }
-    await this.prisma.workspaceDoc.upsert({
-      where: {
-        workspaceId_docId: {
-          workspaceId: doc.workspace,
-          docId: doc.guid,
-        },
-      },
-      update: {
-        defaultRole: input.role,
-      },
-      create: {
-        workspaceId: doc.workspace,
-        docId: doc.guid,
-        defaultRole: input.role,
-      },
-    });
+    await this.models.workspace.setDocDefaultRole(
+      input.workspaceId,
+      input.docId,
+      input.role
+    );
     return true;
   }
 }

@@ -301,6 +301,12 @@ export const USER_FRIENDLY_ERRORS = {
     type: 'bad_request',
     message: 'Invalid callback state parameter.',
   },
+  invalid_oauth_callback_code: {
+    type: 'bad_request',
+    args: { status: 'number', body: 'string' },
+    message: ({ status, body }) =>
+      `Invalid callback code parameter, provider response status: ${status} and body: ${body}.`,
+  },
   missing_oauth_query_parameter: {
     type: 'bad_request',
     args: { name: 'string' },
@@ -412,6 +418,14 @@ export const USER_FRIENDLY_ERRORS = {
     type: 'invalid_input',
     args: { spaceId: 'string' },
     message: 'Space should have only one owner.',
+  },
+  owner_can_not_leave_workspace: {
+    type: 'action_forbidden',
+    message: 'Owner can not leave the workspace.',
+  },
+  can_not_revoke_yourself: {
+    type: 'action_forbidden',
+    message: 'You can not revoke your own permission.',
   },
   doc_not_found: {
     type: 'resource_not_found',

@@ -38,7 +38,6 @@ import {
 import {
   assertAlmostEqual,
   assertBlockChildrenIds,
-  assertExists,
   assertLocatorVisible,
   assertRichImage,
   assertRichTextInlineRange,
@@ -85,7 +84,9 @@ test('should format quick bar show when clicking drag handle', async ({
   await locator.hover();
   const dragHandle = page.locator('.affine-drag-handle-grabber');
   const dragHandleRect = await dragHandle.boundingBox();
-  assertExists(dragHandleRect);
+  if (!dragHandleRect) {
+    throw new Error('dragHandleRect is not found');
+  }
   await dragHandle.click();
 
   const { formatBar } = getFormatBar(page);
@@ -534,8 +535,12 @@ test('should format quick bar work in single block selection', async ({
 
   const formatRect = await formatBar.boundingBox();
   const selectionRect = await blockSelections.boundingBox();
-  assertExists(formatRect);
-  assertExists(selectionRect);
+  if (!formatRect) {
+    throw new Error('formatRect is not found');
+  }
+  if (!selectionRect) {
+    throw new Error('selectionRect is not found');
+  }
   assertAlmostEqual(formatRect.x - selectionRect.x, 147.5, 10);
   assertAlmostEqual(formatRect.y - selectionRect.y, 33, 10);
 
@@ -588,7 +593,9 @@ test('should format quick bar work in multiple block selection', async ({
     throw new Error("formatBar doesn't exist");
   }
   const rect = await blockSelections.first().boundingBox();
-  assertExists(rect);
+  if (!rect) {
+    throw new Error('rect is not found');
+  }
   assertAlmostEqual(box.x - rect.x, 147.5, 10);
   assertAlmostEqual(box.y - rect.y, 99, 10);
 
@@ -955,7 +962,9 @@ test('create linked doc from block selection with format bar', async ({
   await expect(linkedDocBlock).toHaveCount(1);
 
   const linkedDocBox = await linkedDocBlock.boundingBox();
-  assertExists(linkedDocBox);
+  if (!linkedDocBox) {
+    throw new Error('linkedDocBox is not found');
+  }
   await page.mouse.dblclick(
     linkedDocBox.x + linkedDocBox.width / 2,
     linkedDocBox.y + linkedDocBox.height / 2

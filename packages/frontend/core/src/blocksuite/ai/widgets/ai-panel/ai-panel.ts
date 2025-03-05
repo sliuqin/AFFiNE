@@ -13,7 +13,6 @@ import {
   stopPropagation,
   ThemeProvider,
 } from '@blocksuite/affine/blocks';
-import { assertExists } from '@blocksuite/affine/global/utils';
 import type { BaseSelection } from '@blocksuite/affine/store';
 import {
   autoPlacement,
@@ -176,10 +175,16 @@ export class AffineAIPanelWidget extends WidgetComponent {
   generate = () => {
     this.restoreSelection();
 
-    assertExists(this.config);
     const text = this._inputText;
-    assertExists(text);
-    assertExists(this.config.generateAnswer);
+    if (!this.config) {
+      throw new Error('config is not found');
+    }
+    if (text === null || text === undefined) {
+      throw new Error('text is not found');
+    }
+    if (!this.config.generateAnswer) {
+      throw new Error('generateAnswer is not found');
+    }
 
     this._resetAbortController();
 
@@ -193,7 +198,9 @@ export class AffineAIPanelWidget extends WidgetComponent {
     const finish = (type: 'success' | 'error' | 'aborted', err?: AIError) => {
       if (type === 'aborted') return;
 
-      assertExists(this.config);
+      if (!this.config) {
+        throw new Error('config is not found when finish');
+      }
       if (type === 'error') {
         this.state = 'error';
         this.config.errorStateConfig.error = err;

@@ -92,7 +92,7 @@ export async function addUserToWorkspace(
     if (workspace == null) {
       throw new Error(`workspace ${workspaceId} not found`);
     }
-    await client.workspaceUserPermission.create({
+    await client.workspaceUserRole.create({
       data: {
         workspaceId: workspace.id,
         userId,

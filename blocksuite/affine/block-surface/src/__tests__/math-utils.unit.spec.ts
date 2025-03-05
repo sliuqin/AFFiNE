@@ -12,7 +12,6 @@ import {
   toDegree,
   toRadian,
 } from '@blocksuite/global/gfx';
-import { assertExists } from '@blocksuite/global/utils';
 import { describe, expect, it } from 'vitest';
 
 describe('Line', () => {
@@ -43,7 +42,7 @@ describe('Line', () => {
       [0, 1],
       [0, -1],
     ];
-    assertExists(rst);
+    if (!rst) throw new Error('Failed to get line ellipse intersects');
     expect(
       rst.every((point, index) => pointAlmostEqual(point, expected[index]))
     ).toBeTruthy();
@@ -76,7 +75,7 @@ describe('Line', () => {
         [0, 10],
       ]
     );
-    assertExists(rst);
+    if (!rst) throw new Error('Failed to get line polygon intersects');
     expect(pointAlmostEqual(rst[0], [10, 5])).toBeTruthy();
   });
 

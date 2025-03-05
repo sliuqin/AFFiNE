@@ -24,17 +24,17 @@ model User {
 
   features              UserFeature[]
   userStripeCustomer    UserStripeCustomer?
-  workspacePermissions  WorkspaceUserPermission[]
-  docPermissions        WorkspaceDocUserPermission[]
+  workspacePermissions  WorkspaceUserRole[]
+  docPermissions        WorkspaceDocUserRole[]
   connectedAccounts     ConnectedAccount[]
   sessions              UserSession[]
   aiSessions            AiSession[]
   updatedRuntimeConfigs RuntimeConfig[]
   userSnapshots         UserSnapshot[]
-  createdSnapshot       Snapshot[]                   @relation("createdSnapshot")
-  updatedSnapshot       Snapshot[]                   @relation("updatedSnapshot")
-  createdUpdate         Update[]                     @relation("createdUpdate")
-  createdHistory        SnapshotHistory[]            @relation("createdHistory")
+  createdSnapshot       Snapshot[]             @relation("createdSnapshot")
+  updatedSnapshot       Snapshot[]             @relation("updatedSnapshot")
+  createdUpdate         Update[]               @relation("createdUpdate")
+  createdHistory        SnapshotHistory[]      @relation("createdHistory")
 
   @@index([email])
   @@map("users")
@@ -104,8 +104,8 @@ model Workspace {
 
   features       WorkspaceFeature[]
   docs           WorkspaceDoc[]
-  permissions    WorkspaceUserPermission[]
-  docPermissions WorkspaceDocUserPermission[]
+  permissions    WorkspaceUserRole[]
+  docPermissions WorkspaceDocUserRole[]
   blobs          Blob[]
 
   @@map("workspaces")
@@ -139,7 +139,7 @@ enum WorkspaceMemberStatus {
   Accepted // 4. old state accepted = true
 }
 
-model WorkspaceUserPermission {
+model WorkspaceUserRole {
   id          String                @id @default(uuid()) @db.VarChar
   workspaceId String                @map("workspace_id") @db.VarChar
   userId      String                @map("user_id") @db.VarChar
@@ -162,7 +162,7 @@ model WorkspaceUserPermission {
   @@map("workspace_user_permissions")
 }
 
-model WorkspaceDocUserPermission {
+model WorkspaceDocUserRole {
   workspaceId String   @map("workspace_id") @db.VarChar
   docId       String   @map("page_id") @db.VarChar
   userId      String   @map("user_id") @db.VarChar

@@ -6,7 +6,7 @@ import type {
   ParagraphBlockModel,
   SurfaceRefBlockModel,
 } from '@blocksuite/affine-model';
-import { assertExists } from '@blocksuite/global/utils';
+import { BlockSuiteError } from '@blocksuite/global/exceptions';
 import type { DeltaOperation, TransformerMiddleware } from '@blocksuite/store';
 
 export const replaceIdMiddleware =
@@ -166,13 +166,23 @@ export const replaceIdMiddleware =
                 let connection = value.source as Record<string, string>;
                 if (idMap.has(connection.id)) {
                   const newId = idMap.get(connection.id);
-                  assertExists(newId, 'reference id must exist');
+                  if (!newId) {
+                    throw new BlockSuiteError(
+                      BlockSuiteError.ErrorCode.TransformerError,
+                      `reference id must exist: ${connection.id}`
+                    );
+                  }
                   connection.id = newId;
                 }
                 connection = value.target as Record<string, string>;
                 if (idMap.has(connection.id)) {
                   const newId = idMap.get(connection.id);
-                  assertExists(newId, 'reference id must exist');
+                  if (!newId) {
+                    throw new BlockSuiteError(
+                      BlockSuiteError.ErrorCode.TransformerError,
+                      `reference id must exist: ${connection.id}`
+                    );
+                  }
                   connection.id = newId;
                 }
                 break;
@@ -184,7 +194,12 @@ export const replaceIdMiddleware =
                   if (idMap.has(key)) {
                     delete json[key];
                     const newKey = idMap.get(key);
-                    assertExists(newKey, 'reference id must exist');
+                    if (!newKey) {
+                      throw new BlockSuiteError(
+                        BlockSuiteError.ErrorCode.TransformerError,
+                        `reference id must exist: ${key}`
+                      );
+                    }
                     json[newKey] = value;
                   }
                 });

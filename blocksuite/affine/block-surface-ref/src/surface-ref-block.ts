@@ -41,7 +41,7 @@ import {
   deserializeXYWH,
   type SerializedXYWH,
 } from '@blocksuite/global/gfx';
-import { assertExists, DisposableGroup } from '@blocksuite/global/utils';
+import { DisposableGroup } from '@blocksuite/global/utils';
 import { DeleteIcon, EdgelessIcon, FrameIcon } from '@blocksuite/icons/lit';
 import type { BaseSelection, Store } from '@blocksuite/store';
 import { css, html, nothing, type TemplateResult } from 'lit';
@@ -279,7 +279,7 @@ export class SurfaceRefBlockComponent extends BlockComponent<SurfaceRefBlockMode
         },
       ]);
       const model = this.doc.getBlockById(paragraphId);
-      assertExists(model, `Failed to add paragraph block.`);
+      if (!model) return;
 
       requestConnectedFrame(() => {
         selection.update(selList => {

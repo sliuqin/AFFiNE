@@ -31,9 +31,12 @@ interface Distance {
 
 const ALIGN_THRESHOLD = 8;
 const DISTRIBUTION_LINE_OFFSET = 1;
+const STROKE_WIDTH = 2;
 
 export class SnapManager extends Overlay {
   static override overlayName: string = 'snap-manager';
+
+  private _skippedElements: Set<GfxModel> = new Set();
 
   private _referenceBounds: {
     vertical: Bound[];
@@ -73,6 +76,7 @@ export class SnapManager extends Overlay {
     };
     this._intraGraphicAlignLines = [];
     this._distributedAlignLines = [];
+    this._skippedElements.clear();
   }
 
   private _alignDistributeHorizontally(
@@ -408,6 +412,12 @@ export class SnapManager extends Overlay {
     const bottomToTop = other.minY - bound.maxY;
     const bottomToBottom = other.maxY - bound.maxY;
 
+    // calculate side-to-center distances
+    const rightToCenter = other.center[0] - bound.maxX;
+    const leftToCenter = other.center[0] - bound.minX;
+    const topToCenter = other.center[1] - bound.minY;
+    const bottomToCenter = other.center[1] - bound.maxY;
+
     const xDistances = [
       centerXDistance,
       leftDistance,
@@ -416,6 +426,8 @@ export class SnapManager extends Overlay {
       leftToRight,
       rightToLeft,
       rightToRight,
+      rightToCenter,
+      leftToCenter,
     ];
 
     const yDistances = [
@@ -426,6 +438,8 @@ export class SnapManager extends Overlay {
       topToBottom,
       bottomToTop,
       bottomToBottom,
+      topToCenter,
+      bottomToCenter,
     ];
 
     // Get absolute distances
@@ -487,14 +501,17 @@ export class SnapManager extends Overlay {
 
     const { distance: dx, alignPositionIndices: distanceIndices } =
       distance.horiz;
+    const offset = STROKE_WIDTH / this.gfx.viewport.zoom / 2;
     const alignXPosition = [
       other.center[0],
-      other.minX,
-      other.maxX,
-      bound.minX + dx,
-      bound.minX + dx,
-      bound.maxX + dx,
-      bound.maxX + dx,
+      other.minX + offset,
+      other.maxX - offset,
+      bound.minX + dx + offset,
+      bound.minX + dx + offset,
+      bound.maxX + dx - offset,
+      bound.maxX + dx - offset,
+      other.center[0] - offset,
+      other.center[0] + offset,
     ];
 
     rst.dx = dx;
@@ -531,14 +548,17 @@ export class SnapManager extends Overlay {
     if (!distance.vert) return;
 
     const { distance: dy, alignPositionIndices } = distance.vert;
+    const offset = STROKE_WIDTH / this.gfx.viewport.zoom / 2;
     const alignXPosition = [
-      other.center[1],
-      other.minY,
-      other.maxY,
-      bound.minY + dy,
-      bound.minY + dy,
-      bound.maxY + dy,
-      bound.maxY + dy,
+      other.center[1] - offset,
+      other.minY + offset,
+      other.maxY - offset,
+      bound.minY + dy + offset,
+      bound.minY + dy + offset,
+      bound.maxY + dy - offset,
+      bound.maxY + dy - offset,
+      other.center[1] + offset,
+      other.center[1] - offset,
     ];
 
     rst.dy = dy;
@@ -566,6 +586,7 @@ export class SnapManager extends Overlay {
 
     this._intraGraphicAlignLines = [];
     this._distributedAlignLines = [];
+    this._updateAlignCandidates(bound);
 
     for (const other of this._referenceBounds.all) {
       const closestDistances = this._calculateClosestDistances(bound, other);
@@ -600,7 +621,7 @@ export class SnapManager extends Overlay {
     )
       return;
     const { viewport } = this.gfx;
-    const strokeWidth = 2 / viewport.zoom;
+    const strokeWidth = STROKE_WIDTH / viewport.zoom;
 
     ctx.strokeStyle = '#8B5CF6';
     ctx.lineWidth = strokeWidth;
@@ -645,22 +666,10 @@ export class SnapManager extends Overlay {
     });
   }
 
-  setMovingElements(
-    movingElements: GfxModel[],
-    excludes: GfxModel[] = []
-  ): Bound {
-    if (movingElements.length === 0) return new Bound();
-
-    const skipped = new Set(movingElements);
-    excludes.forEach(e => skipped.add(e));
+  private _updateAlignCandidates(movingBound: Bound) {
+    movingBound = movingBound.expand(ALIGN_THRESHOLD * this.gfx.viewport.zoom);
 
     const viewportBound = this.gfx.viewport.viewportBounds;
-    const movingBound = movingElements
-      .reduce(
-        (prev, element) => prev.unite(element.elementBound),
-        movingElements[0].elementBound
-      )
-      .expand(ALIGN_THRESHOLD * this.gfx.viewport.zoom);
     const horizAreaBound = new Bound(
       Math.min(movingBound.x, viewportBound.x),
       movingBound.y,
@@ -674,6 +683,7 @@ export class SnapManager extends Overlay {
       Math.max(movingBound.h, viewportBound.h)
     );
 
+    const { _skippedElements: skipped } = this;
     const vertCandidates = this.gfx.grid.search(vertAreaBound, {
       useSet: true,
     });
@@ -703,10 +713,22 @@ export class SnapManager extends Overlay {
       vertical: verticalBounds,
       all: allBounds,
     };
+  }
+
+  setMovingElements(
+    movingElements: GfxModel[],
+    excludes: GfxModel[] = []
+  ): Bound {
+    if (movingElements.length === 0) return new Bound();
+
+    const skipped = new Set(movingElements);
+    excludes.forEach(e => skipped.add(e));
+
+    this._skippedElements = skipped;
 
     return movingElements.reduce(
       (prev, element) => prev.unite(element.elementBound),
-      Bound.deserialize(movingElements[0].xywh)
+      movingElements[0].elementBound
     );
   }
 }

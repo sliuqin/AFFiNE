@@ -26,6 +26,7 @@ import { configureFavoriteModule } from './favorite';
 import { configureFeatureFlagModule } from './feature-flag';
 import { configureGlobalContextModule } from './global-context';
 import { configureI18nModule } from './i18n';
+import { configureImportClipperModule } from './import-clipper';
 import { configureImportTemplateModule } from './import-template';
 import { configureJournalModule } from './journal';
 import { configureLifecycleModule } from './lifecycle';
@@ -100,4 +101,5 @@ export function configureCommonModules(framework: Framework) {
   configureAIButtonModule(framework);
   configureTemplateDocModule(framework);
   configureBlobManagementModule(framework);
+  configureImportClipperModule(framework);
 }

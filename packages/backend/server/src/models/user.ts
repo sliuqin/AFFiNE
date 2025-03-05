@@ -10,6 +10,7 @@ import {
   WrongSignInMethod,
 } from '../base';
 import { BaseModel } from './base';
+import { WorkspaceRole } from './common';
 import type { Workspace } from './workspace';
 
 const publicUserSelect = {
@@ -59,6 +60,13 @@ export class UserModel extends BaseModel {
     return this.db.user.findUnique({
       where: { id },
     });
+  }
+
+  async exists(id: string) {
+    const count = await this.db.user.count({
+      where: { id },
+    });
+    return count > 0;
   }
 
   async getPublicUser(id: string): Promise<PublicUser | null> {
@@ -208,12 +216,17 @@ export class UserModel extends BaseModel {
   }
 
   async delete(id: string) {
-    const ownedWorkspaceIds = await this.models.workspace.findOwnedIds(id);
+    const ownedWorkspaces = await this.models.workspaceUser.getUserActiveRoles(
+      id,
+      {
+        role: WorkspaceRole.Owner,
+      }
+    );
     const user = await this.db.user.delete({ where: { id } });
 
     this.event.emit('user.deleted', {
       ...user,
-      ownedWorkspaces: ownedWorkspaceIds,
+      ownedWorkspaces: ownedWorkspaces.map(r => r.workspaceId),
     });
 
     return user;

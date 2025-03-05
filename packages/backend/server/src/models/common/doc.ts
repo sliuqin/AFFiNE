@@ -12,3 +12,8 @@ export interface Doc {
 }
 
 export type DocEditor = Pick<User, 'id' | 'name' | 'avatarUrl'>;
+
+export enum PublicDocMode {
+  Page,
+  Edgeless,
+}

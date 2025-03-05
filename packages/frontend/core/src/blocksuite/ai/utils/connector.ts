@@ -3,7 +3,6 @@ import {
   type EdgelessRootService,
   SurfaceBlockComponent,
 } from '@blocksuite/affine/blocks';
-import { assertExists } from '@blocksuite/affine/global/utils';
 
 export const getConnectorFromId = (
   id: string,
@@ -68,7 +67,9 @@ export const findTree = (
     };
   };
   const tree = run(rootId);
-  assertExists(tree);
+  if (!tree) {
+    throw new Error('tree is not found');
+  }
   return tree;
 };
 export const findLeaf = (

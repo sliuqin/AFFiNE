@@ -14,7 +14,6 @@ import {
   splitElements,
   TextElementModel,
 } from '@blocksuite/affine/blocks';
-import { assertExists } from '@blocksuite/affine/global/utils';
 import { Slice } from '@blocksuite/affine/store';
 import type { TemplateResult } from 'lit';
 
@@ -319,7 +318,7 @@ function updateEdgelessAIPanelConfig<
 ) {
   const host = aiPanel.host;
   const { config } = aiPanel;
-  assertExists(config);
+  if (!config) return;
   config.answerRenderer = actionToAnswerRenderer(id, host, ctx);
   config.generateAnswer = actionToGeneration(
     id,
@@ -414,7 +413,7 @@ export function actionToHandler<T extends keyof BlockSuitePresets.AIActions>(
       referenceElement = getElementToolbar(host);
     } else if (!isEmpty) {
       const lastSelected = selectedElements.at(-1)?.id;
-      assertExists(lastSelected);
+      if (!lastSelected) return;
       const noteAnchor = getSelectedNoteAnchor(host, lastSelected);
       referenceElement = noteAnchor;
     }

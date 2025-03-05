@@ -2222,6 +2222,28 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.import-template.dialog.errorLoad"](): string;
     /**
+      * `Create into a New Workspace`
+      */
+    ["com.affine.import-clipper.dialog.createDocToNewWorkspace"](): string;
+    /**
+      * `Create doc to "{{workspace}}"`
+      */
+    ["com.affine.import-clipper.dialog.createDocToWorkspace"](options: {
+        readonly workspace: string;
+    }): string;
+    /**
+      * `Create doc from Web Clipper`
+      */
+    ["com.affine.import-clipper.dialog.createDocFromClipper"](): string;
+    /**
+      * `Failed to import content, please try again.`
+      */
+    ["com.affine.import-clipper.dialog.errorImport"](): string;
+    /**
+      * `Failed to load content, please try again.`
+      */
+    ["com.affine.import-clipper.dialog.errorLoad"](): string;
+    /**
       * `Support Markdown/Notion`
       */
     ["com.affine.import_file"](): string;

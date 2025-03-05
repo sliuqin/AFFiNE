@@ -6,7 +6,7 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { PrismaClient, WorkspaceMemberStatus } from '@prisma/client';
+import { WorkspaceMemberStatus } from '@prisma/client';
 import { nanoid } from 'nanoid';
 
 import {
@@ -17,11 +17,10 @@ import {
   RequestMutex,
   TooManyRequest,
   URLHelper,
-  UserFriendlyError,
 } from '../../../base';
 import { Models } from '../../../models';
 import { CurrentUser } from '../../auth';
-import { PermissionService, WorkspaceRole } from '../../permission';
+import { AccessController, WorkspaceRole } from '../../permission';
 import { QuotaService } from '../../quota';
 import {
   InviteLink,
@@ -44,8 +43,7 @@ export class TeamWorkspaceResolver {
     private readonly cache: Cache,
     private readonly event: EventBus,
     private readonly url: URLHelper,
-    private readonly prisma: PrismaClient,
-    private readonly permissions: PermissionService,
+    private readonly ac: AccessController,
     private readonly models: Models,
     private readonly quota: QuotaService,
     private readonly mutex: RequestMutex,
@@ -68,21 +66,20 @@ export class TeamWorkspaceResolver {
     @Args({ name: 'emails', type: () => [String] }) emails: string[],
     @Args('sendInviteMail', { nullable: true }) sendInviteMail: boolean
   ) {
-    await this.permissions.checkWorkspace(
-      workspaceId,
-      user.id,
-      WorkspaceRole.Admin
-    );
+    await this.ac
+      .user(user.id)
+      .workspace(workspaceId)
+      .assert('Workspace.Users.Manage');
 
     if (emails.length > 512) {
-      return new TooManyRequest();
+      throw new TooManyRequest();
     }
 
     // lock to prevent concurrent invite
     const lockFlag = `invite:${workspaceId}`;
     await using lock = await this.mutex.acquire(lockFlag);
     if (!lock) {
-      return new TooManyRequest();
+      throw new TooManyRequest();
     }
 
     const quota = await this.quota.getWorkspaceSeatQuota(workspaceId);
@@ -93,13 +90,10 @@ export class TeamWorkspaceResolver {
       try {
         let target = await this.models.user.getUserByEmail(email);
         if (target) {
-          const originRecord =
-            await this.prisma.workspaceUserPermission.findFirst({
-              where: {
-                workspaceId,
-                userId: target.id,
-              },
-            });
+          const originRecord = await this.models.workspaceUser.get(
+            workspaceId,
+            target.id
+          );
           // only invite if the user is not already in the workspace
           if (originRecord) continue;
         } else {
@@ -110,7 +104,7 @@ export class TeamWorkspaceResolver {
         }
         const needMoreSeat = quota.memberCount + idx + 1 > quota.memberLimit;
 
-        ret.inviteId = await this.permissions.grant(
+        const role = await this.models.workspaceUser.set(
           workspaceId,
           target.id,
           WorkspaceRole.Collaborator,
@@ -118,6 +112,7 @@ export class TeamWorkspaceResolver {
             ? WorkspaceMemberStatus.NeedMoreSeat
             : WorkspaceMemberStatus.Pending
         );
+        ret.inviteId = role.id;
         // NOTE: we always send email even seat not enough
         // because at this moment we cannot know whether the seat increase charge was successful
         // after user click the invite link, we can check again and reject if charge failed
@@ -156,11 +151,10 @@ export class TeamWorkspaceResolver {
     @Parent() workspace: WorkspaceType,
     @CurrentUser() user: CurrentUser
   ) {
-    await this.permissions.checkWorkspace(
-      workspace.id,
-      user.id,
-      WorkspaceRole.Admin
-    );
+    await this.ac
+      .user(user.id)
+      .workspace(workspace.id)
+      .assert('Workspace.Users.Manage');
 
     const cacheId = `workspace:inviteLink:${workspace.id}`;
     const id = await this.cache.get<{ inviteId: string }>(cacheId);
@@ -183,11 +177,11 @@ export class TeamWorkspaceResolver {
     @Args('expireTime', { type: () => WorkspaceInviteLinkExpireTime })
     expireTime: WorkspaceInviteLinkExpireTime
   ): Promise<InviteLink> {
-    await this.permissions.checkWorkspace(
-      workspaceId,
-      user.id,
-      WorkspaceRole.Admin
-    );
+    await this.ac
+      .user(user.id)
+      .workspace(workspaceId)
+      .assert('Workspace.Users.Manage');
+
     const cacheWorkspaceId = `workspace:inviteLink:${workspaceId}`;
     const invite = await this.cache.get<{ inviteId: string }>(cacheWorkspaceId);
     if (typeof invite?.inviteId === 'string') {
@@ -219,134 +213,80 @@ export class TeamWorkspaceResolver {
     @CurrentUser() user: CurrentUser,
     @Args('workspaceId') workspaceId: string
   ) {
-    await this.permissions.checkWorkspace(
-      workspaceId,
-      user.id,
-      WorkspaceRole.Admin
-    );
+    await this.ac
+      .user(user.id)
+      .workspace(workspaceId)
+      .assert('Workspace.Users.Manage');
+
     const cacheId = `workspace:inviteLink:${workspaceId}`;
     return await this.cache.delete(cacheId);
   }
 
-  @Mutation(() => String)
+  @Mutation(() => Boolean)
   async approveMember(
     @CurrentUser() user: CurrentUser,
     @Args('workspaceId') workspaceId: string,
     @Args('userId') userId: string
   ) {
-    await this.permissions.checkWorkspace(
-      workspaceId,
-      user.id,
-      WorkspaceRole.Admin
-    );
+    await this.ac
+      .user(user.id)
+      .workspace(workspaceId)
+      .assert('Workspace.Users.Manage');
 
-    try {
-      // lock to prevent concurrent invite and grant
-      const lockFlag = `invite:${workspaceId}`;
-      await using lock = await this.mutex.acquire(lockFlag);
-      if (!lock) {
-        return new TooManyRequest();
+    const role = await this.models.workspaceUser.get(workspaceId, userId);
+
+    if (role) {
+      if (role.status === WorkspaceMemberStatus.UnderReview) {
+        const result = await this.models.workspaceUser.setStatus(
+          workspaceId,
+          userId,
+          WorkspaceMemberStatus.Accepted
+        );
+
+        this.event.emit('workspace.members.requestApproved', {
+          inviteId: result.id,
+        });
       }
-
-      const status = await this.permissions.getWorkspaceMemberStatus(
-        workspaceId,
-        userId
-      );
-      if (status) {
-        if (status === WorkspaceMemberStatus.UnderReview) {
-          const result = await this.permissions.grant(
-            workspaceId,
-            userId,
-            WorkspaceRole.Collaborator,
-            WorkspaceMemberStatus.Accepted
-          );
-
-          if (result) {
-            this.event.emit('workspace.members.requestApproved', {
-              inviteId: result,
-            });
-          }
-          return result;
-        }
-        return new TooManyRequest();
-      } else {
-        return new MemberNotFoundInSpace({ spaceId: workspaceId });
-      }
-    } catch (e) {
-      this.logger.error('failed to invite user', e);
-      return new TooManyRequest();
+      return true;
+    } else {
+      throw new MemberNotFoundInSpace({ spaceId: workspaceId });
     }
   }
 
-  @Mutation(() => String)
+  @Mutation(() => Boolean)
   async grantMember(
     @CurrentUser() user: CurrentUser,
     @Args('workspaceId') workspaceId: string,
     @Args('userId') userId: string,
-    @Args('permission', { type: () => WorkspaceRole }) permission: WorkspaceRole
+    @Args('permission', { type: () => WorkspaceRole }) newRole: WorkspaceRole
   ) {
-    // non-team workspace can only transfer ownership, but no detailed permission control
-    if (permission !== WorkspaceRole.Owner) {
+    await this.ac
+      .user(user.id)
+      .workspace(workspaceId)
+      .assert(
+        newRole === WorkspaceRole.Owner
+          ? 'Workspace.TransferOwner'
+          : 'Workspace.Users.Manage'
+      );
+
+    const role = await this.models.workspaceUser.get(workspaceId, userId);
+
+    if (!role) {
+      throw new MemberNotFoundInSpace({ spaceId: workspaceId });
+    }
+
+    if (newRole === WorkspaceRole.Owner) {
+      await this.models.workspaceUser.setOwner(workspaceId, userId);
+    } else {
+      // non-team workspace can only transfer ownership, but no detailed permission control
       const isTeam = await this.workspaceService.isTeamWorkspace(workspaceId);
       if (!isTeam) {
         throw new ActionForbiddenOnNonTeamWorkspace();
       }
+
+      await this.models.workspaceUser.set(workspaceId, userId, newRole);
     }
 
-    await this.permissions.checkWorkspace(
-      workspaceId,
-      user.id,
-      permission >= WorkspaceRole.Admin
-        ? WorkspaceRole.Owner
-        : WorkspaceRole.Admin
-    );
-
-    try {
-      // lock to prevent concurrent invite and grant
-      const lockFlag = `invite:${workspaceId}`;
-      await using lock = await this.mutex.acquire(lockFlag);
-      if (!lock) {
-        return new TooManyRequest();
-      }
-
-      const isMember = await this.permissions.isWorkspaceMember(
-        workspaceId,
-        userId
-      );
-      if (isMember) {
-        const result = await this.permissions.grant(
-          workspaceId,
-          userId,
-          permission
-        );
-
-        if (result) {
-          if (permission === WorkspaceRole.Owner) {
-            this.event.emit('workspace.members.ownershipTransferred', {
-              workspaceId,
-              from: user.id,
-              to: userId,
-            });
-          } else {
-            this.event.emit('workspace.members.roleChanged', {
-              userId,
-              workspaceId,
-              permission,
-            });
-          }
-        }
-
-        return result;
-      } else {
-        return new MemberNotFoundInSpace({ spaceId: workspaceId });
-      }
-    } catch (e) {
-      this.logger.error('failed to invite user', e);
-      // pass through user friendly error
-      if (e instanceof UserFriendlyError) {
-        return e;
-      }
-      return new TooManyRequest();
-    }
+    return true;
   }
 }

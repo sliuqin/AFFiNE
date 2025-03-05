@@ -217,6 +217,7 @@ export class DocFrontend {
 
       while (true) {
         throwIfAborted(signal);
+
         const docId = await this.status.jobDocQueue.asyncPop(signal);
         const jobs = this.status.jobMap.get(docId);
         this.status.jobMap.delete(docId);
@@ -244,6 +245,9 @@ export class DocFrontend {
         if (save?.length) {
           await this.jobs.save(docId, save as any, signal);
         }
+
+        this.status.currentJob = null;
+        this.statusUpdatedSubject$.next(docId);
       }
     } finally {
       dispose();
@@ -486,7 +490,7 @@ export class DocFrontend {
     return Promise.race([
       new Promise<void>(resolve => {
         sub = this.docState$(docId).subscribe(state => {
-          if (state.syncing) {
+          if (state.synced && !state.updating) {
             resolve();
           }
         });

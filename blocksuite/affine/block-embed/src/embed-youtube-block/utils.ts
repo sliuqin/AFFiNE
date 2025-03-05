@@ -4,7 +4,6 @@ import type {
 } from '@blocksuite/affine-model';
 import type { LinkPreviewerService } from '@blocksuite/affine-shared/services';
 import { isAbortError } from '@blocksuite/affine-shared/utils';
-import { assertExists } from '@blocksuite/global/utils';
 
 import type { EmbedYoutubeBlockComponent } from './embed-youtube-block.js';
 
@@ -73,8 +72,14 @@ export async function refreshEmbedYoutubeUrlData(
   try {
     embedYoutubeElement.loading = true;
 
+    // TODO(@mirone): remove service
     const queryUrlData = embedYoutubeElement.service?.queryUrlData;
-    assertExists(queryUrlData);
+    if (!queryUrlData) {
+      console.error(
+        `Trying to refresh youtube url data, but the queryUrlData is not found.`
+      );
+      return;
+    }
 
     const youtubeUrlData = await queryUrlData(
       embedYoutubeElement.model,

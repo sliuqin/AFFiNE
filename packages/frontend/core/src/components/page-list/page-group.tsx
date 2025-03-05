@@ -2,7 +2,6 @@ import { shallowEqual } from '@affine/component';
 import { DocDisplayMetaService } from '@affine/core/modules/doc-display-meta';
 import type { Tag } from '@affine/env/filter';
 import { useI18n } from '@affine/i18n';
-import { assertExists } from '@blocksuite/affine/global/utils';
 import type { DocMeta, Workspace } from '@blocksuite/affine/store';
 import { ToggleRightIcon, ViewLayersIcon } from '@blocksuite/icons/rc';
 import * as Collapsible from '@radix-ui/react-collapsible';
@@ -301,7 +300,9 @@ function pageMetaToListItemProp(
 ): PageListItemProps {
   const toggleSelection = props.onSelectedIdsChange
     ? () => {
-        assertExists(props.selectedIds);
+        if (!props.selectedIds) {
+          throw new Error('selectedIds is not found');
+        }
         const prevSelected = props.selectedIds.includes(item.id);
         const shouldAdd = !prevSelected;
         const shouldRemove = prevSelected;
@@ -345,7 +346,9 @@ function collectionMetaToListItemProp(
 ): CollectionListItemProps {
   const toggleSelection = props.onSelectedIdsChange
     ? () => {
-        assertExists(props.selectedIds);
+        if (!props.selectedIds) {
+          throw new Error('selectedIds is not found');
+        }
         const prevSelected = props.selectedIds.includes(item.id);
         const shouldAdd = !prevSelected;
         const shouldRemove = prevSelected;
@@ -382,7 +385,9 @@ function tagMetaToListItemProp(
 ): TagListItemProps {
   const toggleSelection = props.onSelectedIdsChange
     ? () => {
-        assertExists(props.selectedIds);
+        if (!props.selectedIds) {
+          throw new Error('selectedIds is not found');
+        }
         const prevSelected = props.selectedIds.includes(item.id);
         const shouldAdd = !prevSelected;
         const shouldRemove = prevSelected;

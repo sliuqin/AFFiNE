@@ -21,7 +21,6 @@ import {
   assertConnectorPath,
   assertEdgelessNonSelectedRect,
   assertEdgelessSelectedRect,
-  assertExists,
 } from '../../utils/asserts.js';
 import { test } from '../../utils/playwright.js';
 
@@ -223,7 +222,9 @@ test.describe('quick connect', () => {
     });
 
     const bounds = await quickConnectBtn.boundingBox();
-    assertExists(bounds);
+    if (!bounds) {
+      throw new Error('bounds is not found');
+    }
 
     await quickConnectBtn.click();
 
@@ -290,7 +291,9 @@ test.describe('quick connect', () => {
       name: 'Draw connector',
     });
     const bounds = await quickConnectBtn.boundingBox();
-    assertExists(bounds);
+    if (!bounds) {
+      throw new Error('bounds is not found');
+    }
     await quickConnectBtn.click();
 
     // at right

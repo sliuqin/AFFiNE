@@ -1,7 +1,6 @@
 import type { CursorType, StandardCursor } from '@blocksuite/block-std/gfx';
 import type { IVec } from '@blocksuite/global/gfx';
 import { normalizeDegAngle, Vec } from '@blocksuite/global/gfx';
-import { assertExists } from '@blocksuite/global/utils';
 import { css, html } from 'lit';
 
 export function generateCursorUrl(
@@ -89,7 +88,11 @@ export function calcAngle(target: HTMLElement, point: IVec, offset = 0) {
   const rect = target
     .closest('.affine-edgeless-selected-rect')
     ?.getBoundingClientRect();
-  assertExists(rect);
+
+  if (!rect) {
+    console.error('rect not found when calc angle');
+    return 0;
+  }
   const { left, top, right, bottom } = rect;
   const center = Vec.med([left, top], [right, bottom]);
   return normalizeDegAngle(
@@ -104,9 +107,7 @@ export function calcAngleWithRotation(
   rotate: number
 ) {
   const handle = target.parentElement;
-  assertExists(handle);
-  const ariaLabel = handle.getAttribute('aria-label');
-  assertExists(ariaLabel);
+  const ariaLabel = handle?.getAttribute('aria-label');
   const { left, top, right, bottom, width, height } = rect;
   const size = Math.min(width, height);
   const sx = size / width;
@@ -160,9 +161,7 @@ export function calcAngleWithRotation(
 export function calcAngleEdgeWithRotation(target: HTMLElement, rotate: number) {
   let angleWithEdge = 0;
   const handle = target.parentElement;
-  assertExists(handle);
-  const ariaLabel = handle.getAttribute('aria-label');
-  assertExists(ariaLabel);
+  const ariaLabel = handle?.getAttribute('aria-label');
   switch (ariaLabel) {
     case 'top': {
       angleWithEdge = 270;
@@ -187,9 +186,7 @@ export function calcAngleEdgeWithRotation(target: HTMLElement, rotate: number) {
 
 export function getResizeLabel(target: HTMLElement) {
   const handle = target.parentElement;
-  assertExists(handle);
-  const ariaLabel = handle.getAttribute('aria-label');
-  assertExists(ariaLabel);
+  const ariaLabel = handle?.getAttribute('aria-label');
   return ariaLabel;
 }
 

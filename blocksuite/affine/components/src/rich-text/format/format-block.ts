@@ -1,7 +1,6 @@
 import { getSelectedBlocksCommand } from '@blocksuite/affine-shared/commands';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import type { BlockSelection, Command } from '@blocksuite/block-std';
-import { assertExists } from '@blocksuite/global/utils';
 import { INLINE_ROOT_ATTR, type InlineRootElement } from '@blocksuite/inline';
 
 import { FORMAT_BLOCK_SUPPORT_FLAVOURS } from './consts.js';
@@ -14,10 +13,12 @@ export const formatBlockCommand: Command<{
   mode?: 'replace' | 'merge';
 }> = (ctx, next) => {
   const blockSelections = ctx.blockSelections ?? ctx.currentBlockSelections;
-  assertExists(
-    blockSelections,
-    '`blockSelections` is required, you need to pass it in args or use `getBlockSelections` command before adding this command to the pipeline.'
-  );
+  if (!blockSelections) {
+    console.error(
+      '`blockSelections` is required, you need to pass it in args or use `getBlockSelections` command before adding this command to the pipeline.'
+    );
+    return;
+  }
 
   if (blockSelections.length === 0) return;
 
@@ -33,7 +34,12 @@ export const formatBlockCommand: Command<{
     })
     .pipe((ctx, next) => {
       const { selectedBlocks } = ctx;
-      assertExists(selectedBlocks);
+      if (!selectedBlocks) {
+        console.error(
+          '`selectedBlocks` is required, you need to pass it in args or use `getSelectedBlocksCommand` command before adding this command to the pipeline.'
+        );
+        return;
+      }
 
       const selectedInlineEditors = selectedBlocks.flatMap(el => {
         const inlineRoot = el.querySelector<

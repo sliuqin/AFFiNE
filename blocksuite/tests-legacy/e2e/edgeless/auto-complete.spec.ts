@@ -28,7 +28,6 @@ import {
   assertConnectorStrokeColor,
   assertEdgelessCanvasText,
   assertEdgelessNoteBackground,
-  assertExists,
   assertRichTexts,
   assertSelectedBound,
 } from '../utils/asserts.js';
@@ -159,7 +158,9 @@ test.describe('auto-complete', () => {
         const note = document.body.querySelector('affine-edgeless-note');
         return note?.getAttribute('data-block-id');
       });
-      assertExists(noteId);
+      if (!noteId) {
+        throw new Error('noteId is not found');
+      }
       await assertEdgelessNoteBackground(
         page,
         noteId,
@@ -167,7 +168,9 @@ test.describe('auto-complete', () => {
       );
 
       const rect = await edgelessNote.boundingBox();
-      assertExists(rect);
+      if (!rect) {
+        throw new Error('rect is not found');
+      }
 
       // blur note block
       await page.mouse.click(rect.x + rect.width / 2, rect.y + rect.height * 3);
@@ -220,7 +223,9 @@ test.describe('auto-complete', () => {
         const note = document.body.querySelectorAll('affine-edgeless-note')[1];
         return note?.getAttribute('data-block-id');
       });
-      assertExists(noteId2);
+      if (!noteId2) {
+        throw new Error('noteId2 is not found');
+      }
       await assertEdgelessNoteBackground(
         page,
         noteId,

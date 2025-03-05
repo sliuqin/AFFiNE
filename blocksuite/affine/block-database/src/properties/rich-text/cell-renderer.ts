@@ -18,7 +18,6 @@ import {
   createIcon,
 } from '@blocksuite/data-view';
 import { IS_MAC } from '@blocksuite/global/env';
-import { assertExists } from '@blocksuite/global/utils';
 import type { DeltaInsert } from '@blocksuite/inline';
 import type { BlockSnapshot } from '@blocksuite/store';
 import { Text } from '@blocksuite/store';
@@ -338,7 +337,7 @@ export class RichTextCellEditing extends BaseRichTextCell {
   private readonly _onSoftEnter = () => {
     if (this.value && this.inlineEditor) {
       const inlineRange = this.inlineEditor.getInlineRange();
-      assertExists(inlineRange);
+      if (!inlineRange) return;
 
       const text = new Text(this.inlineEditor.yText);
       text.replace(inlineRange.index, inlineRange.length, '\n');
@@ -351,7 +350,7 @@ export class RichTextCellEditing extends BaseRichTextCell {
 
   private readonly _onCopy = (e: ClipboardEvent) => {
     const inlineEditor = this.inlineEditor;
-    assertExists(inlineEditor);
+    if (!inlineEditor) return;
 
     const inlineRange = inlineEditor.getInlineRange();
     if (!inlineRange) return;
@@ -368,7 +367,7 @@ export class RichTextCellEditing extends BaseRichTextCell {
 
   private readonly _onCut = (e: ClipboardEvent) => {
     const inlineEditor = this.inlineEditor;
-    assertExists(inlineEditor);
+    if (!inlineEditor) return;
 
     const inlineRange = inlineEditor.getInlineRange();
     if (!inlineRange) return;

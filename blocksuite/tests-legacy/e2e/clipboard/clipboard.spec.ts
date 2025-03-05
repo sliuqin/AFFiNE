@@ -34,7 +34,6 @@ import {
 import {
   assertBlockTypes,
   assertClipItems,
-  assertExists,
   assertRichTexts,
   assertText,
   assertTitle,
@@ -127,8 +126,12 @@ test(scoped`split block when paste`, async ({ page }) => {
   const bottomRight789 = await getEditorLocator(page)
     .locator('[data-block-id="4"] .inline-editor')
     .boundingBox();
-  assertExists(topLeft123);
-  assertExists(bottomRight789);
+  if (!topLeft123) {
+    throw new Error('topLeft123 is not found');
+  }
+  if (!bottomRight789) {
+    throw new Error('bottomRight789 is not found');
+  }
   await dragBetweenCoords(page, topLeft123, bottomRight789);
 
   // FIXME see https://github.com/toeverything/blocksuite/pull/878

@@ -15,7 +15,6 @@ import {
   TextSelection,
 } from '@blocksuite/block-std';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { assertExists } from '@blocksuite/global/utils';
 import {
   type BlockModel,
   type BlockSnapshot,
@@ -64,9 +63,14 @@ const findLast = (snapshot: SliceSnapshot): BlockSnapshot | null => {
 };
 
 class PointState {
-  private readonly _blockFromPath = (path: string) => {
-    const block = this.std.view.getBlock(path);
-    assertExists(block);
+  private readonly _blockFromPath = (id: string) => {
+    const block = this.std.view.getBlock(id);
+    if (!block) {
+      throw new BlockSuiteError(
+        ErrorCode.TransformerError,
+        `Block not found when pasting: ${id}`
+      );
+    }
     return block;
   };
 

@@ -3,7 +3,6 @@ import { ArrowDownIcon } from '@blocksuite/affine-components/icons';
 import { textConversionConfigs } from '@blocksuite/affine-components/rich-text';
 import type { ParagraphBlockModel } from '@blocksuite/affine-model';
 import type { EditorHost } from '@blocksuite/block-std';
-import { assertExists } from '@blocksuite/global/utils';
 import { computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { html } from 'lit';
 import { ref, type RefOrCallback } from 'lit/directives/ref.js';
@@ -85,13 +84,11 @@ export const ParagraphButton = (formatBar: AffineFormatBarWidget) => {
       return;
     }
     const formatQuickBarElement = formatBar.formatBarElement;
-    const button =
-      formatBar.shadowRoot?.querySelector<HTMLElement>('.paragraph-button');
     const panel =
       formatBar.shadowRoot?.querySelector<HTMLElement>('.paragraph-panel');
-    assertExists(button);
-    assertExists(panel);
-    assertExists(formatQuickBarElement, 'format quick bar should exist');
+    if (!panel || !formatQuickBarElement) {
+      return;
+    }
     panel.style.display = 'flex';
     computePosition(formatQuickBarElement, panel, {
       placement: 'top-start',

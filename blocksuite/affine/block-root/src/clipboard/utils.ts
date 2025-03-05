@@ -1,5 +1,4 @@
 import { toast } from '@blocksuite/affine-components/toast';
-import { assertExists } from '@blocksuite/global/utils';
 
 import type { FileSnapshot } from './adapter.js';
 
@@ -113,12 +112,17 @@ export function decodeClipboardBlobs(
   blobs: Record<string, FileSnapshot>,
   map: Map<string, Blob> | undefined
 ) {
+  if (!map) {
+    console.error(
+      `Trying to decode clipboard blobs, but the map is not found.`
+    );
+    return;
+  }
   Object.entries<FileSnapshot>(blobs).forEach(([sourceId, file]) => {
     const blob = new Blob([decode(file.content)]);
     const f = new File([blob], file.name, {
       type: file.type,
     });
-    assertExists(map);
     map.set(sourceId, f);
   });
 }

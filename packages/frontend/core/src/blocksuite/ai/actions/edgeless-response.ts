@@ -23,7 +23,6 @@ import {
   TelemetryProvider,
 } from '@blocksuite/affine/blocks';
 import { Bound } from '@blocksuite/affine/global/gfx';
-import { assertExists } from '@blocksuite/affine/global/utils';
 import { html, type TemplateResult } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 
@@ -238,7 +237,7 @@ function createBlockAndInsert(
   const doc = host.doc;
   const edgelessCopilot = getEdgelessCopilotWidget(host);
   doc.transact(() => {
-    assertExists(doc.root);
+    if (!doc.root) return;
     let blockId = '';
     const bounds = edgelessCopilot.determineInsertionBounds(
       EDGELESS_TEXT_BLOCK_MIN_WIDTH,
@@ -280,8 +279,7 @@ function createBlockAndInsert(
 const defaultHandler = (host: EditorHost) => {
   const panel = getAIPanelWidget(host);
   const selectedElements = getCopilotSelectedElems(host);
-
-  assertExists(panel.answer);
+  if (!panel.answer) return;
   if (
     selectedElements.length === 1 &&
     selectedElements[0] instanceof EdgelessTextBlockModel

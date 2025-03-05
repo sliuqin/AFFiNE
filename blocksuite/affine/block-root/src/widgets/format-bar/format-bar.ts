@@ -29,11 +29,7 @@ import {
   TextSelection,
   WidgetComponent,
 } from '@blocksuite/block-std';
-import {
-  assertExists,
-  DisposableGroup,
-  nextTick,
-} from '@blocksuite/global/utils';
+import { DisposableGroup, nextTick } from '@blocksuite/global/utils';
 import type { BaseSelection } from '@blocksuite/store';
 import {
   autoUpdate,
@@ -239,7 +235,9 @@ export class AffineFormatBarWidget extends WidgetComponent {
 
   private _listenFloatingElement() {
     const formatQuickBarElement = this.formatBarElement;
-    assertExists(formatQuickBarElement, 'format quick bar should exist');
+    if (!formatQuickBarElement) {
+      return;
+    }
 
     const listenFloatingElement = (
       getElement: () => ReferenceElement | void
@@ -249,7 +247,10 @@ export class AffineFormatBarWidget extends WidgetComponent {
         return;
       }
 
-      assertExists(this._floatDisposables);
+      if (!this._floatDisposables) {
+        return;
+      }
+
       HoverController.globalAbortController?.abort();
       this._floatDisposables.add(
         autoUpdate(
@@ -512,7 +513,9 @@ export class AffineFormatBarWidget extends WidgetComponent {
     this._abortController = new AbortController();
 
     const rootComponent = this.block;
-    assertExists(rootComponent);
+    if (!rootComponent) {
+      return;
+    }
     const widgets = rootComponent.widgets;
 
     // check if the host use the format bar widget

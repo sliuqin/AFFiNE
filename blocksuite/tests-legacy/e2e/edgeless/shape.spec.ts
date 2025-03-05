@@ -40,7 +40,6 @@ import {
   assertEdgelessColorSameWithHexColor,
   assertEdgelessNonSelectedRect,
   assertEdgelessSelectedRect,
-  assertExists,
   assertRichTexts,
 } from '../utils/asserts.js';
 import { test } from '../utils/playwright.js';
@@ -218,7 +217,9 @@ test('the tooltip of shape tool button should be hidden when the shape menu is s
   const shapeToolBox = await shapeTool.boundingBox();
   const tooltip = page.locator('.affine-tooltip');
 
-  assertExists(shapeToolBox);
+  if (!shapeToolBox) {
+    throw new Error('shapeToolBox is not found');
+  }
 
   await page.mouse.move(shapeToolBox.x + 2, shapeToolBox.y + 2);
   await expect(tooltip).toBeVisible();
@@ -275,7 +276,9 @@ test('edgeless toolbar shape menu shows up and close normally', async ({
   const shapeTool = await locatorEdgelessToolButton(page, 'shape');
   const shapeToolBox = await shapeTool.boundingBox();
 
-  assertExists(shapeToolBox);
+  if (!shapeToolBox) {
+    throw new Error('shapeToolBox is not found');
+  }
 
   await page.mouse.click(shapeToolBox.x + 2, shapeToolBox.y + 2);
 

@@ -1,6 +1,6 @@
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import { ShadowlessElement } from '@blocksuite/block-std';
-import { assertExists, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/utils';
 import {
   type AttributeRenderer,
   type DeltaInsert,
@@ -148,7 +148,6 @@ export class RichText extends WithDisposable(ShadowlessElement) {
   }
 
   get inlineEditorContainer() {
-    assertExists(this._inlineEditorContainer);
     return this._inlineEditorContainer;
   }
 

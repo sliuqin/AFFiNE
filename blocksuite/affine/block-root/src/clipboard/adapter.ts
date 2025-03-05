@@ -1,5 +1,4 @@
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { assertExists } from '@blocksuite/global/utils';
 import type {
   BlockSnapshot,
   DocSnapshot,
@@ -50,7 +49,12 @@ export class ClipboardAdapter extends BaseAdapter<string> {
   ): Promise<FromSliceSnapshotResult<string>> {
     const snapshot = payload.snapshot;
     const assets = payload.assets;
-    assertExists(assets);
+    if (!assets) {
+      throw new BlockSuiteError(
+        ErrorCode.ValueNotExists,
+        'ClipboardAdapter.fromSliceSnapshot: assets is not found'
+      );
+    }
     const map = assets.getAssets();
     const blobs: Record<string, FileSnapshot> = await encodeClipboardBlobs(map);
     return {

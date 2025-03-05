@@ -4,7 +4,7 @@ import type {
   MenuItemGroup,
 } from '@blocksuite/affine-components/toolbar';
 import { renderGroups } from '@blocksuite/affine-components/toolbar';
-import { assertExists, noop } from '@blocksuite/global/utils';
+import { noop } from '@blocksuite/global/utils';
 import { MoreVerticalIcon } from '@blocksuite/icons/lit';
 import { flip, offset } from '@floating-ui/dom';
 import { html, LitElement } from 'lit';
@@ -57,7 +57,9 @@ export class AffineImageToolbar extends LitElement {
 
     this._currentOpenMenu = this._popMenuAbortController;
 
-    assertExists(this._moreButton);
+    if (!this._moreButton) {
+      return;
+    }
 
     createLitPortal({
       template: html`

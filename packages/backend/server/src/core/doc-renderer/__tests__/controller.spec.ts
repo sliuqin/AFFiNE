@@ -10,14 +10,12 @@ import { Config } from '../../../base';
 import { ConfigModule } from '../../../base/config';
 import { Models } from '../../../models';
 import { PgWorkspaceDocStorageAdapter } from '../../doc';
-import { PermissionService } from '../../permission';
 
 const test = ava as TestFn<{
   models: Models;
   app: TestingApp;
   config: Config;
   adapter: PgWorkspaceDocStorageAdapter;
-  permission: PermissionService;
 }>;
 
 test.before(async t => {
@@ -38,7 +36,6 @@ test.before(async t => {
   t.context.models = app.get(Models);
   t.context.config = app.get(Config);
   t.context.adapter = app.get(PgWorkspaceDocStorageAdapter);
-  t.context.permission = app.get(PermissionService);
   t.context.app = app;
 });
 
@@ -60,7 +57,7 @@ test.after.always(async t => {
 
 test('should render page success', async t => {
   const docId = randomUUID();
-  const { app, adapter, permission } = t.context;
+  const { app, adapter, models } = t.context;
 
   const doc = new YDoc();
   const text = doc.getText('content');
@@ -75,7 +72,7 @@ test('should render page success', async t => {
   text.insert(5, ' ');
 
   await adapter.pushDocUpdates(workspace.id, docId, updates, user.id);
-  await permission.publishPage(workspace.id, docId);
+  await models.workspace.publishDoc(workspace.id, docId);
 
   await app.GET(`/workspace/${workspace.id}/${docId}`).expect(200);
   t.pass();

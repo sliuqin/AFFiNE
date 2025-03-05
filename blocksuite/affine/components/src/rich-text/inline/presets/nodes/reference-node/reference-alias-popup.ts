@@ -8,11 +8,7 @@ import {
 import { FONT_XS, PANEL_BASE } from '@blocksuite/affine-shared/styles';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import { type BlockStdScope, ShadowlessElement } from '@blocksuite/block-std';
-import {
-  assertExists,
-  SignalWatcher,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
 import { DoneIcon, ResetIcon } from '@blocksuite/icons/lit';
 import type { DeltaInsert, InlineRange } from '@blocksuite/inline';
 import { computePosition, inline, offset, shift } from '@floating-ui/dom';
@@ -211,7 +207,9 @@ export class ReferenceAliasPopup extends SignalWatcher(
 
   override updated() {
     const range = this.inlineEditor.toDomRange(this.inlineRange);
-    assertExists(range);
+    if (!range) {
+      return;
+    }
 
     const visualElement = {
       getBoundingClientRect: () => range.getBoundingClientRect(),

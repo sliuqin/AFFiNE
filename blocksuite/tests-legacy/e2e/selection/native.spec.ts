@@ -55,7 +55,6 @@ import {
   assertBlockSelections,
   assertClipItems,
   assertDivider,
-  assertExists,
   assertNativeSelectionRangeCount,
   assertRichTextInlineRange,
   assertRichTexts,
@@ -847,7 +846,9 @@ test('the cursor should move to closest editor block when clicking outside conta
 
   const text2 = page.locator('[data-block-id="3"] .inline-editor');
   const rect = await text2.boundingBox();
-  assertExists(rect);
+  if (!rect) {
+    throw new Error('rect is not found');
+  }
 
   // The behavior of mouse click is similar to touch in mobile device
   // await page.mouse.click(rect.x - 50, rect.y + 5);
@@ -1760,7 +1761,9 @@ test('unexpected scroll when clicking padding area', async ({ page }) => {
 
   const list = page.locator('[data-block-id="34"]');
   const listRect = await list.boundingBox();
-  assertExists(listRect);
+  if (!listRect) {
+    throw new Error('listRect is not found');
+  }
   await page.mouse.click(listRect.x - 30, listRect.y + 5);
   const newListRect = await list.boundingBox();
   // not scroll
@@ -1770,7 +1773,9 @@ test('unexpected scroll when clicking padding area', async ({ page }) => {
   await type(page, '/tableview\n');
   const database = page.locator('affine-database');
   const databaseRect = await database.boundingBox();
-  assertExists(databaseRect);
+  if (!databaseRect) {
+    throw new Error('databaseRect is not found');
+  }
   await page.mouse.click(
     databaseRect.x + databaseRect.width + 10,
     databaseRect.y + 100

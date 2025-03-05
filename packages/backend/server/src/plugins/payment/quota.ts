@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
 import { OnEvent } from '../../base';
-import { PermissionService } from '../../core/permission';
 import { WorkspaceService } from '../../core/workspaces/resolvers';
 import { Models } from '../../models';
 import { SubscriptionPlan } from './types';
@@ -9,7 +8,6 @@ import { SubscriptionPlan } from './types';
 @Injectable()
 export class QuotaOverride {
   constructor(
-    private readonly permission: PermissionService,
     private readonly workspace: WorkspaceService,
     private readonly models: Models
   ) {}
@@ -32,7 +30,7 @@ export class QuotaOverride {
             memberLimit: quantity,
           }
         );
-        await this.permission.refreshSeatStatus(workspaceId, quantity);
+        await this.models.workspaceUser.refresh(workspaceId, quantity);
         if (!isTeam) {
           // this event will triggered when subscription is activated or changed
           // we only send emails when the team workspace is activated

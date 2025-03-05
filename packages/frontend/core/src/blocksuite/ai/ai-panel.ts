@@ -9,7 +9,6 @@ import {
   NoteDisplayMode,
 } from '@blocksuite/affine/blocks';
 import { Bound } from '@blocksuite/affine/global/gfx';
-import { assertExists } from '@blocksuite/affine/global/utils';
 import type { FrameworkProvider } from '@toeverything/infra';
 import type { TemplateResult } from 'lit';
 
@@ -98,7 +97,7 @@ function createNewNote(host: EditorHost): AIItemConfig {
       const panel = getAIPanelWidget(host);
       const gfx = host.std.get(GfxControllerIdentifier);
       doc.transact(() => {
-        assertExists(doc.root);
+        if (!doc.root || !panel.answer) return;
         const noteBlockId = doc.addBlock(
           'affine:note',
           {
@@ -109,7 +108,6 @@ function createNewNote(host: EditorHost): AIItemConfig {
           doc.root.id
         );
 
-        assertExists(panel.answer);
         insertFromMarkdown(host, panel.answer, doc, noteBlockId)
           .then(() => {
             gfx.selection.set({

@@ -11,6 +11,7 @@ import {
   SubscriptionPlanNotFound,
   URLHelper,
 } from '../../../base';
+import { Models } from '../../../models';
 import {
   KnownStripeInvoice,
   KnownStripePrice,
@@ -48,7 +49,8 @@ export class WorkspaceSubscriptionManager extends SubscriptionManager {
     stripe: Stripe,
     db: PrismaClient,
     private readonly url: URLHelper,
-    private readonly event: EventBus
+    private readonly event: EventBus,
+    private readonly models: Models
   ) {
     super(stripe, db);
   }
@@ -101,11 +103,7 @@ export class WorkspaceSubscriptionManager extends SubscriptionManager {
       return { allow_promotion_codes: true };
     })();
 
-    const count = await this.db.workspaceUserPermission.count({
-      where: {
-        workspaceId: args.workspaceId,
-      },
-    });
+    const count = await this.models.workspaceUser.count(args.workspaceId);
 
     return this.stripe.checkout.sessions.create({
       customer: customer.stripeCustomerId,

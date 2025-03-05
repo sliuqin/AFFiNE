@@ -37,7 +37,7 @@ test(`should be able to fixup doc role from workspace role and doc role`, t => {
   for (const workspaceRole of workspaceRoles) {
     for (const docRole of docRoles) {
       t.snapshot(
-        DocRole[fixupDocRole(workspaceRole, docRole)],
+        DocRole[fixupDocRole(workspaceRole, docRole)!],
         `WorkspaceRole: ${WorkspaceRole[workspaceRole]}, DocRole: ${DocRole[docRole]}`
       );
     }

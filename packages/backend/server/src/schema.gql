@@ -324,7 +324,7 @@ type EditorType {
   name: String!
 }
 
-union ErrorDataUnion = AlreadyInSpaceDataType | BlobNotFoundDataType | CopilotContextFileNotSupportedDataType | CopilotDocNotFoundDataType | CopilotFailedToMatchContextDataType | CopilotFailedToModifyContextDataType | CopilotInvalidContextDataType | CopilotMessageNotFoundDataType | CopilotPromptNotFoundDataType | CopilotProviderSideErrorDataType | DocActionDeniedDataType | DocHistoryNotFoundDataType | DocNotFoundDataType | ExpectToGrantDocUserRolesDataType | ExpectToRevokeDocUserRolesDataType | ExpectToUpdateDocUserRoleDataType | GraphqlBadRequestDataType | InvalidEmailDataType | InvalidHistoryTimestampDataType | InvalidLicenseUpdateParamsDataType | InvalidPasswordLengthDataType | InvalidRuntimeConfigTypeDataType | MemberNotFoundInSpaceDataType | MissingOauthQueryParameterDataType | NotInSpaceDataType | QueryTooLongDataType | RuntimeConfigNotFoundDataType | SameSubscriptionRecurringDataType | SpaceAccessDeniedDataType | SpaceNotFoundDataType | SpaceOwnerNotFoundDataType | SpaceShouldHaveOnlyOneOwnerDataType | SubscriptionAlreadyExistsDataType | SubscriptionNotExistsDataType | SubscriptionPlanNotFoundDataType | UnknownOauthProviderDataType | UnsupportedClientVersionDataType | UnsupportedSubscriptionPlanDataType | VersionRejectedDataType | WorkspaceMembersExceedLimitToDowngradeDataType | WorkspacePermissionNotFoundDataType | WrongSignInCredentialsDataType
+union ErrorDataUnion = AlreadyInSpaceDataType | BlobNotFoundDataType | CopilotContextFileNotSupportedDataType | CopilotDocNotFoundDataType | CopilotFailedToMatchContextDataType | CopilotFailedToModifyContextDataType | CopilotInvalidContextDataType | CopilotMessageNotFoundDataType | CopilotPromptNotFoundDataType | CopilotProviderSideErrorDataType | DocActionDeniedDataType | DocHistoryNotFoundDataType | DocNotFoundDataType | ExpectToGrantDocUserRolesDataType | ExpectToRevokeDocUserRolesDataType | ExpectToUpdateDocUserRoleDataType | GraphqlBadRequestDataType | InvalidEmailDataType | InvalidHistoryTimestampDataType | InvalidLicenseUpdateParamsDataType | InvalidOauthCallbackCodeDataType | InvalidPasswordLengthDataType | InvalidRuntimeConfigTypeDataType | MemberNotFoundInSpaceDataType | MissingOauthQueryParameterDataType | NotInSpaceDataType | QueryTooLongDataType | RuntimeConfigNotFoundDataType | SameSubscriptionRecurringDataType | SpaceAccessDeniedDataType | SpaceNotFoundDataType | SpaceOwnerNotFoundDataType | SpaceShouldHaveOnlyOneOwnerDataType | SubscriptionAlreadyExistsDataType | SubscriptionNotExistsDataType | SubscriptionPlanNotFoundDataType | UnknownOauthProviderDataType | UnsupportedClientVersionDataType | UnsupportedSubscriptionPlanDataType | VersionRejectedDataType | WorkspaceMembersExceedLimitToDowngradeDataType | WorkspacePermissionNotFoundDataType | WrongSignInCredentialsDataType
 
 enum ErrorNames {
   ACCESS_DENIED
@@ -339,6 +339,7 @@ enum ErrorNames {
   CANNOT_DELETE_OWN_ACCOUNT
   CANT_UPDATE_ONETIME_PAYMENT_SUBSCRIPTION
   CAN_NOT_BATCH_GRANT_DOC_OWNER_PERMISSIONS
+  CAN_NOT_REVOKE_YOURSELF
   CAPTCHA_VERIFICATION_FAILED
   COPILOT_ACTION_TAKEN
   COPILOT_CONTEXT_FILE_NOT_SUPPORTED
@@ -382,6 +383,7 @@ enum ErrorNames {
   INVALID_LICENSE_SESSION_ID
   INVALID_LICENSE_TO_ACTIVATE
   INVALID_LICENSE_UPDATE_PARAMS
+  INVALID_OAUTH_CALLBACK_CODE
   INVALID_OAUTH_CALLBACK_STATE
   INVALID_PASSWORD_LENGTH
   INVALID_RUNTIME_CONFIG_TYPE
@@ -398,6 +400,7 @@ enum ErrorNames {
   NO_COPILOT_PROVIDER_AVAILABLE
   OAUTH_ACCOUNT_ALREADY_CONNECTED
   OAUTH_STATE_EXPIRED
+  OWNER_CAN_NOT_LEAVE_WORKSPACE
   PASSWORD_REQUIRED
   QUERY_TOO_LONG
   RUNTIME_CONFIG_NOT_FOUND
@@ -501,6 +504,11 @@ type InvalidHistoryTimestampDataType {
 
 type InvalidLicenseUpdateParamsDataType {
   reason: String!
+}
+
+type InvalidOauthCallbackCodeDataType {
+  body: String!
+  status: Int!
 }
 
 type InvalidPasswordLengthDataType {
@@ -671,7 +679,7 @@ type Mutation {
   """add a doc to context"""
   addContextDoc(options: AddContextDocInput!): [CopilotContextListItem!]!
   addWorkspaceFeature(feature: FeatureType!, workspaceId: String!): Boolean!
-  approveMember(userId: String!, workspaceId: String!): String!
+  approveMember(userId: String!, workspaceId: String!): Boolean!
   cancelSubscription(idempotencyKey: String @deprecated(reason: "use header `Idempotency-Key`"), plan: SubscriptionPlan = Pro, workspaceId: String): SubscriptionType!
   changeEmail(email: String!, token: String!): UserType!
   changePassword(newPassword: String!, token: String!, userId: String): Boolean!
@@ -719,7 +727,7 @@ type Mutation {
   forkCopilotSession(options: ForkChatSessionInput!): String!
   generateLicenseKey(sessionId: String!): String!
   grantDocUserRoles(input: GrantDocUserRolesInput!): Boolean!
-  grantMember(permission: Permission!, userId: String!, workspaceId: String!): String!
+  grantMember(permission: Permission!, userId: String!, workspaceId: String!): Boolean!
   invite(email: String!, permission: Permission @deprecated(reason: "never used"), sendInviteMail: Boolean, workspaceId: String!): String!
   inviteBatch(emails: [String!]!, sendInviteMail: Boolean, workspaceId: String!): [InviteResult!]!
   leaveWorkspace(sendLeaveMail: Boolean, workspaceId: String!, workspaceName: String @deprecated(reason: "no longer used")): Boolean!
@@ -848,13 +856,10 @@ type Query {
   getInviteInfo(inviteId: String!): InvitationType!
 
   """Get is admin of workspace"""
-  isAdmin(workspaceId: String!): Boolean!
+  isAdmin(workspaceId: String!): Boolean! @deprecated(reason: "use WorkspaceType[role] instead")
 
   """Get is owner of workspace"""
-  isOwner(workspaceId: String!): Boolean!
-
-  """List blobs of workspace"""
-  listBlobs(workspaceId: String!): [String!]! @deprecated(reason: "use `workspace.blobs` instead")
+  isOwner(workspaceId: String!): Boolean! @deprecated(reason: "use WorkspaceType[role] instead")
 
   """List all copilot prompts"""
   listCopilotPrompts: [CopilotPromptType!]!
@@ -886,7 +891,7 @@ type Query {
   workspace(id: String!): WorkspaceType!
 
   """Get workspace role permissions"""
-  workspaceRolePermissions(id: String!): WorkspaceRolePermissions!
+  workspaceRolePermissions(id: String!): WorkspaceRolePermissions! @deprecated(reason: "use WorkspaceType[permissions] instead")
 
   """Get all accessible workspaces for current user"""
   workspaces: [WorkspaceType!]!
@@ -1260,13 +1265,20 @@ type WorkspacePermissionNotFoundDataType {
 }
 
 type WorkspacePermissions {
+  Workspace_Adminitrators_Manage: Boolean!
+  Workspace_Blobs_List: Boolean!
+  Workspace_Blobs_Read: Boolean!
+  Workspace_Blobs_Write: Boolean!
+  Workspace_Copilot: Boolean!
   Workspace_CreateDoc: Boolean!
   Workspace_Delete: Boolean!
   Workspace_Organize_Read: Boolean!
+  Workspace_Payment_Manage: Boolean!
   Workspace_Properties_Create: Boolean!
   Workspace_Properties_Delete: Boolean!
   Workspace_Properties_Read: Boolean!
   Workspace_Properties_Update: Boolean!
+  Workspace_Read: Boolean!
   Workspace_Settings_Read: Boolean!
   Workspace_Settings_Update: Boolean!
   Workspace_Sync: Boolean!
@@ -1347,6 +1359,9 @@ type WorkspaceType {
 
   """Cloud page metadata of workspace"""
   pageMeta(pageId: String!): WorkspacePageMeta!
+
+  """map of action permissions"""
+  permissions: WorkspacePermissions!
 
   """is Public workspace"""
   public: Boolean!

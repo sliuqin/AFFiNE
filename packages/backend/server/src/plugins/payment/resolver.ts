@@ -27,7 +27,7 @@ import {
   WorkspaceIdRequiredToUpdateTeamSubscription,
 } from '../../base';
 import { CurrentUser, Public } from '../../core/auth';
-import { PermissionService, WorkspaceRole } from '../../core/permission';
+import { AccessController } from '../../core/permission';
 import { UserType } from '../../core/user';
 import { WorkspaceType } from '../../core/workspaces';
 import { Invoice, Subscription, WorkspaceSubscriptionManager } from './manager';
@@ -520,7 +520,7 @@ export class WorkspaceSubscriptionResolver {
   constructor(
     private readonly service: WorkspaceSubscriptionManager,
     private readonly db: PrismaClient,
-    private readonly permission: PermissionService
+    private readonly ac: AccessController
   ) {}
 
   @ResolveField(() => SubscriptionType, {
@@ -542,11 +542,11 @@ export class WorkspaceSubscriptionResolver {
     @CurrentUser() me: CurrentUser,
     @Parent() workspace: WorkspaceType
   ) {
-    await this.permission.checkWorkspace(
-      workspace.id,
-      me.id,
-      WorkspaceRole.Owner
-    );
+    await this.ac
+      .user(me.id)
+      .workspace(workspace.id)
+      .assert('Workspace.Payment.Manage');
+
     return this.db.invoice.count({
       where: {
         targetId: workspace.id,
@@ -562,11 +562,10 @@ export class WorkspaceSubscriptionResolver {
     take: number,
     @Args('skip', { type: () => Int, nullable: true }) skip?: number
   ) {
-    await this.permission.checkWorkspace(
-      workspace.id,
-      me.id,
-      WorkspaceRole.Owner
-    );
+    await this.ac
+      .user(me.id)
+      .workspace(workspace.id)
+      .assert('Workspace.Payment.Manage');
 
     return this.db.invoice.findMany({
       where: {

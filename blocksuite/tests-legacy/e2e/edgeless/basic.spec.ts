@@ -1,4 +1,3 @@
-import { assertExists } from '@blocksuite/global/utils';
 import { expect } from '@playwright/test';
 
 import {
@@ -323,7 +322,9 @@ test('the tooltip of more button should be hidden when the action menu is shown'
   const moreButtonBox = await moreButton.boundingBox();
   const tooltip = page.locator('.affine-tooltip');
 
-  assertExists(moreButtonBox);
+  if (!moreButtonBox) {
+    throw new Error('moreButtonBox is not found');
+  }
 
   // need to wait for previous tooltip to be hidden
   await page.waitForTimeout(100);
@@ -383,8 +384,7 @@ test('should close zoom bar when click blank area', async ({ page }) => {
   await initEmptyEdgelessState(page);
   await switchEditorMode(page);
 
-  const screenWidth = page.viewportSize()?.width;
-  assertExists(screenWidth);
+  const screenWidth = page.viewportSize()?.width ?? 0;
   if (screenWidth > ZOOM_BAR_RESPONSIVE_SCREEN_WIDTH) {
     await page.setViewportSize({
       width: 1000,

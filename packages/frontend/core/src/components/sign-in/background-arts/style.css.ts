@@ -11,4 +11,5 @@ export const wrapper = style({
 export const arts = style({
   position: 'absolute',
   top: '128px',
+  pointerEvents: 'none',
 });

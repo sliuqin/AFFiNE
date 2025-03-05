@@ -1,15 +1,24 @@
+import { type Blob } from '@prisma/client';
+
 import { TestingApp } from './testing-app';
 
 export async function listBlobs(
   app: TestingApp,
   workspaceId: string
-): Promise<string[]> {
+): Promise<Blob[]> {
   const res = await app.gql(`
     query {
-      listBlobs(workspaceId: "${workspaceId}")
+      workspace(id: "${workspaceId}") {
+        blobs {
+          key
+          mime
+          size
+          createdAt
+        }
+      }
     }
   `);
-  return res.listBlobs;
+  return res.workspace.blobs;
 }
 
 export async function getWorkspaceBlobsSize(

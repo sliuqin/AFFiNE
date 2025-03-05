@@ -10,7 +10,7 @@ import {
   ShadowlessElement,
 } from '@blocksuite/block-std';
 import { Bound } from '@blocksuite/global/gfx';
-import { assertExists, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/utils';
 import { html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -21,12 +21,11 @@ export class EdgelessGroupTitleEditor extends WithDisposable(
   ShadowlessElement
 ) {
   get inlineEditor() {
-    assertExists(this.richText.inlineEditor);
     return this.richText.inlineEditor;
   }
 
   get inlineEditorContainer() {
-    return this.inlineEditor.rootElement;
+    return this.inlineEditor?.rootElement;
   }
 
   private _unmount() {
@@ -47,10 +46,10 @@ export class EdgelessGroupTitleEditor extends WithDisposable(
 
   override firstUpdated(): void {
     const dispatcher = this.edgeless.dispatcher;
-    assertExists(dispatcher);
 
     this.updateComplete
       .then(() => {
+        if (!this.inlineEditor) return;
         this.inlineEditor.selectAll();
 
         this.group.showTitle = false;

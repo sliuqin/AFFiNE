@@ -27,7 +27,7 @@ import {
   PgUserspaceDocStorageAdapter,
   PgWorkspaceDocStorageAdapter,
 } from '../doc';
-import { PermissionService, WorkspaceRole } from '../permission';
+import { AccessController, WorkspaceAction } from '../permission';
 import { DocID } from '../utils/doc';
 
 const SubscribeMessage = (event: string) =>
@@ -144,7 +144,7 @@ export class SpaceSyncGateway
 
   constructor(
     private readonly runtime: Runtime,
-    private readonly permissions: PermissionService,
+    private readonly ac: AccessController,
     private readonly workspace: PgWorkspaceDocStorageAdapter,
     private readonly userspace: PgUserspaceDocStorageAdapter,
     private readonly docReader: DocReader
@@ -170,7 +170,7 @@ export class SpaceSyncGateway
       const workspace = new WorkspaceSyncAdapter(
         client,
         this.workspace,
-        this.permissions,
+        this.ac,
         this.docReader
       );
       const userspace = new UserspaceSyncAdapter(client, this.userspace);
@@ -248,12 +248,13 @@ export class SpaceSyncGateway
   ): Promise<
     EventResponse<{ missing: string; state: string; timestamp: number }>
   > {
+    const id = new DocID(docId, spaceId);
     const adapter = this.selectAdapter(client, spaceType);
     adapter.assertIn(spaceId);
 
     const doc = await adapter.diff(
       spaceId,
-      docId,
+      id.guid,
       stateVector ? Buffer.from(stateVector, 'base64') : undefined
     );
 
@@ -293,11 +294,12 @@ export class SpaceSyncGateway
   ): Promise<EventResponse<{ accepted: true; timestamp?: number }>> {
     const { spaceType, spaceId, docId, updates } = message;
     const adapter = this.selectAdapter(client, spaceType);
+    const id = new DocID(docId, spaceId);
 
-    // TODO(@forehalo): we might need to check write permission before push updates
+    await this.ac.user(user.id).doc(spaceId, id.guid).assert('Doc.Update');
     const timestamp = await adapter.push(
       spaceId,
-      docId,
+      id.guid,
       updates.map(update => Buffer.from(update, 'base64')),
       user.id
     );
@@ -334,7 +336,7 @@ export class SpaceSyncGateway
     const { spaceType, spaceId, docId, update } = message;
     const adapter = this.selectAdapter(client, spaceType);
 
-    // TODO(@forehalo): we might need to check write permission before push updates
+    await this.ac.user(user.id).doc(spaceId, docId).assert('Doc.Update');
     const timestamp = await adapter.push(
       spaceId,
       docId,
@@ -472,7 +474,7 @@ abstract class SyncSocketAdapter {
     if (this.in(spaceId, roomType)) {
       return;
     }
-    await this.assertAccessible(spaceId, userId, WorkspaceRole.Collaborator);
+    await this.assertAccessible(spaceId, userId, 'Workspace.Sync');
     return this.client.join(this.room(spaceId, roomType));
   }
 
@@ -496,7 +498,7 @@ abstract class SyncSocketAdapter {
   abstract assertAccessible(
     spaceId: string,
     userId: string,
-    permission?: WorkspaceRole
+    action: WorkspaceAction
   ): Promise<void>;
 
   push(spaceId: string, docId: string, updates: Buffer[], editorId: string) {
@@ -525,7 +527,7 @@ class WorkspaceSyncAdapter extends SyncSocketAdapter {
   constructor(
     client: Socket,
     storage: DocStorageAdapter,
-    private readonly permission: PermissionService,
+    private readonly ac: AccessController,
     private readonly docReader: DocReader
   ) {
     super(SpaceType.Workspace, client, storage);
@@ -537,8 +539,7 @@ class WorkspaceSyncAdapter extends SyncSocketAdapter {
     updates: Buffer[],
     editorId: string
   ) {
-    const id = new DocID(docId, spaceId);
-    return super.push(spaceId, id.guid, updates, editorId);
+    return super.push(spaceId, docId, updates, editorId);
   }
 
   override async diff(
@@ -546,20 +547,15 @@ class WorkspaceSyncAdapter extends SyncSocketAdapter {
     docId: string,
     stateVector?: Uint8Array
   ) {
-    const id = new DocID(docId, spaceId);
-    return await this.docReader.getDocDiff(spaceId, id.guid, stateVector);
+    return await this.docReader.getDocDiff(spaceId, docId, stateVector);
   }
 
   async assertAccessible(
     spaceId: string,
     userId: string,
-    permission: WorkspaceRole = WorkspaceRole.Collaborator
+    action: WorkspaceAction
   ) {
-    if (
-      !(await this.permission.isWorkspaceMember(spaceId, userId, permission))
-    ) {
-      throw new SpaceAccessDenied({ spaceId });
-    }
+    await this.ac.user(userId).workspace(spaceId).assert(action);
   }
 }
 
@@ -571,7 +567,7 @@ class UserspaceSyncAdapter extends SyncSocketAdapter {
   async assertAccessible(
     spaceId: string,
     userId: string,
-    _permission: WorkspaceRole = WorkspaceRole.Collaborator
+    _action: WorkspaceAction
   ) {
     if (spaceId !== userId) {
       throw new SpaceAccessDenied({ spaceId });

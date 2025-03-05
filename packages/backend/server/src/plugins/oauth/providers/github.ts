@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { Config, URLHelper } from '../../../base';
+import { Config, InvalidOauthCallbackCode, URLHelper } from '../../../base';
 import { OAuthProviderName } from '../config';
 import { AutoRegisteredOAuthProvider } from '../register';
 
@@ -64,10 +64,12 @@ export class GithubOAuthProvider extends AutoRegisteredOAuthProvider {
         scope: ghToken.scope,
       };
     } else {
+      const body = await response.text();
+      if (response.status < 500) {
+        throw new InvalidOauthCallbackCode({ status: response.status, body });
+      }
       throw new Error(
-        `Server responded with non-success code ${
-          response.status
-        }, ${JSON.stringify(await response.json())}`
+        `Server responded with non-success status ${response.status}, body: ${body}`
       );
     }
   }

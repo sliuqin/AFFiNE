@@ -1,4 +1,3 @@
-import { assertExists } from '@blocksuite/global/utils';
 import { expect, type Page } from '@playwright/test';
 
 import {
@@ -142,7 +141,9 @@ test.describe('auto-connect', () => {
     const noteBound = await getNoteBoundBoxInEdgeless(page, id2);
     const edgelessOnlyIndexLabelBound =
       await edgelessOnlyIndexLabel.boundingBox();
-    assertExists(edgelessOnlyIndexLabelBound);
+    if (!edgelessOnlyIndexLabelBound) {
+      throw new Error('edgelessOnlyIndexLabelBound is not found');
+    }
     const border = 1;
     const offset = 16;
     expect(edgelessOnlyIndexLabelBound.x).toBeCloseTo(
@@ -166,7 +167,9 @@ test.describe('auto-connect', () => {
     const newNoteBound = await getNoteBoundBoxInEdgeless(page, id2);
     const newEdgelessOnlyIndexLabelBound =
       await edgelessOnlyIndexLabel.boundingBox();
-    assertExists(newEdgelessOnlyIndexLabelBound);
+    if (!newEdgelessOnlyIndexLabelBound) {
+      throw new Error('newEdgelessOnlyIndexLabelBound is not found');
+    }
     expect(newEdgelessOnlyIndexLabelBound.x).toBeCloseTo(
       newNoteBound.x +
         newNoteBound.width / 2 -

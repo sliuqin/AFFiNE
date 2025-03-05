@@ -11,7 +11,6 @@ import {
   type EditorHost,
   type InitCommandCtx,
 } from '@blocksuite/block-std';
-import { assertExists } from '@blocksuite/global/utils';
 import {
   INLINE_ROOT_ATTR,
   type InlineEditor,
@@ -92,7 +91,12 @@ function handleCurrentSelection(
       })
       .pipe((ctx, next) => {
         const { selectedBlocks } = ctx;
-        assertExists(selectedBlocks);
+        if (!selectedBlocks) {
+          console.error(
+            '`selectedBlocks` is required, you need to pass it in args or use `getSelectedBlocksCommand` command before adding this command to the pipeline.'
+          );
+          return false;
+        }
 
         const selectedInlineEditors = getSelectedInlineEditors(
           selectedBlocks,
@@ -119,7 +123,12 @@ function handleCurrentSelection(
       })
       .pipe((ctx, next) => {
         const { selectedBlocks } = ctx;
-        assertExists(selectedBlocks);
+        if (!selectedBlocks) {
+          console.error(
+            '`selectedBlocks` is required, you need to pass it in args or use `getSelectedBlocksCommand` command before adding this command to the pipeline.'
+          );
+          return false;
+        }
 
         const selectedInlineEditors = getSelectedInlineEditors(
           selectedBlocks,

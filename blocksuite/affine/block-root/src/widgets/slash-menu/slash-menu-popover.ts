@@ -13,11 +13,7 @@ import {
   isFuzzyMatch,
   substringMatchScore,
 } from '@blocksuite/affine-shared/utils';
-import {
-  assertExists,
-  throttle,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+import { throttle, WithDisposable } from '@blocksuite/global/utils';
 import { autoPlacement, offset } from '@floating-ui/dom';
 import { html, LitElement, nothing, type PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
@@ -592,7 +588,11 @@ export class InnerSlashMenu extends WithDisposable(LitElement) {
   override willUpdate(changedProperties: PropertyValues<this>) {
     if (changedProperties.has('menu') && this.menu.length !== 0) {
       const firstItem = getFirstNotDividerItem(this.menu);
-      assertExists(firstItem);
+      if (!firstItem) {
+        console.error('No item found in slash menu');
+        return;
+      }
+
       this._activeItem = firstItem;
 
       // this case happen on query updated

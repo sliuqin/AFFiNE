@@ -27,11 +27,7 @@ import { type BlockStdScope, stdContext } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
 import type { Bound, IVec } from '@blocksuite/global/gfx';
 import { Vec } from '@blocksuite/global/gfx';
-import {
-  assertExists,
-  DisposableGroup,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+import { DisposableGroup, WithDisposable } from '@blocksuite/global/utils';
 import {
   ArrowUpBigIcon,
   PlusIcon,
@@ -194,7 +190,9 @@ export class EdgelessAutoComplete extends WithDisposable(LitElement) {
         );
       }
       if (this._isMoving) {
-        assertExists(connector);
+        if (!connector) {
+          return;
+        }
         const otherSideId = connector.source.id;
 
         connector.target = this.connectionOverlay.renderConnector(
@@ -382,7 +380,9 @@ export class EdgelessAutoComplete extends WithDisposable(LitElement) {
       );
     } else {
       const model = doc.getBlockById(id);
-      assertExists(model);
+      if (!model) {
+        return;
+      }
       const [x, y] = service.viewport.toViewCoord(
         bound.center[0],
         bound.y + DEFAULT_NOTE_HEIGHT / 2

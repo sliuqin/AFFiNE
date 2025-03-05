@@ -8,7 +8,6 @@ import { GlobalContextService } from '@affine/core/modules/global-context';
 import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
-import { assertExists } from '@blocksuite/affine/global/utils';
 import { DeleteIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 import { useEffect } from 'react';
@@ -44,7 +43,6 @@ export const TrashPage = () => {
   const isAdmin = useLiveData(permissionService.permission.isAdmin$);
   const isOwner = useLiveData(permissionService.permission.isOwner$);
   const docCollection = currentWorkspace.docCollection;
-  assertExists(docCollection);
 
   const pageMetas = useBlockSuiteDocMeta(docCollection);
   const filteredPageMetas = useFilteredPageMetas(pageMetas, {

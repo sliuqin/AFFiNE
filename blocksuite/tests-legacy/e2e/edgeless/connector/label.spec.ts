@@ -1,4 +1,3 @@
-import { assertExists } from '@blocksuite/global/utils';
 import { expect, type Page } from '@playwright/test';
 
 import {
@@ -28,7 +27,9 @@ test.describe('connector label with straight shape', () => {
     const bounds = await page
       .locator('edgeless-connector-label-editor rich-text')
       .boundingBox();
-    assertExists(bounds);
+    if (!bounds) {
+      throw new Error('bounds is not found');
+    }
     const cx = bounds.x + bounds.width / 2;
     const cy = bounds.y + bounds.height / 2;
     return [cx, cy];

@@ -62,7 +62,6 @@ import type {
   InitCommandCtx,
 } from '@blocksuite/block-std';
 import { tableViewMeta } from '@blocksuite/data-view/view-presets';
-import { assertExists } from '@blocksuite/global/utils';
 import { MoreVerticalIcon } from '@blocksuite/icons/lit';
 import { Slice, toDraftModel } from '@blocksuite/store';
 import { html, type TemplateResult } from 'lit';
@@ -377,13 +376,17 @@ export const BUILT_IN_GROUPS: MenuItemGroup<FormatBarContext>[] = [
             .try<{ currentSelectionPath: string }>(cmd => [
               cmd.pipe(getTextSelectionCommand).pipe((ctx, next) => {
                 const textSelection = ctx.currentTextSelection;
-                assertExists(textSelection);
+                if (!textSelection) {
+                  return;
+                }
                 const end = textSelection.to ?? textSelection.from;
                 next({ currentSelectionPath: end.blockId });
               }),
               cmd.pipe(getBlockSelectionsCommand).pipe((ctx, next) => {
                 const currentBlockSelections = ctx.currentBlockSelections;
-                assertExists(currentBlockSelections);
+                if (!currentBlockSelections) {
+                  return;
+                }
                 const blockSelection = currentBlockSelections.at(-1);
                 if (!blockSelection) {
                   return;

@@ -1,4 +1,4 @@
-import { assertExists } from '@blocksuite/global/utils';
+import { assertInstanceOf } from '@blocksuite/global/utils';
 import { effect } from '@preact/signals-core';
 import * as Y from 'yjs';
 
@@ -47,7 +47,7 @@ export class RangeService<TextAttributes extends BaseTextAttributes> {
       return null;
     }
     const textNode = text.childNodes[1];
-    assertExists(textNode instanceof Text);
+    assertInstanceOf(textNode, Text);
     range.setStart(textNode, 0);
     range.setEnd(textNode, textNode.textContent?.length ?? 0);
     const inlineRange = this.toInlineRange(range);
@@ -158,7 +158,10 @@ export class RangeService<TextAttributes extends BaseTextAttributes> {
     // can not in the first line because if we apply the inline ranage manually the
     // cursor will jump to the second line.
     const container = range.commonAncestorContainer.parentElement;
-    assertExists(container);
+    if (!container) {
+      console.error('failed to get container');
+      return false;
+    }
     const containerRect = container.getBoundingClientRect();
     // There will be two rects if the cursor is at the edge of the line:
     // aaaaaaaa| or aaaaaaaa
@@ -200,7 +203,10 @@ export class RangeService<TextAttributes extends BaseTextAttributes> {
     // can not in the first line because if we apply the inline range manually the
     // cursor will jump to the second line.
     const container = range.commonAncestorContainer.parentElement;
-    assertExists(container);
+    if (!container) {
+      console.error('failed to get container');
+      return false;
+    }
     const containerRect = container.getBoundingClientRect();
     // There will be two rects if the cursor is at the edge of the line:
     // aaaaaaaa| or aaaaaaaa

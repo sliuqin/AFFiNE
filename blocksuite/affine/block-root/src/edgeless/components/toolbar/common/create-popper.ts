@@ -1,4 +1,4 @@
-import { assertExists } from '@blocksuite/global/utils';
+import { BlockSuiteError } from '@blocksuite/global/exceptions';
 
 // more than 100% due to the shadow
 const leaveToPercent = `calc(100% + 10px)`;
@@ -28,26 +28,31 @@ export function createPopper<T extends keyof HTMLElementTagNameMap>(
     onDispose?: () => void;
     setProps?: (ele: HTMLElementTagNameMap[T]) => void;
   }
-) {
+): MenuPopper<HTMLElementTagNameMap[T]> {
   const duration = options?.duration ?? 230;
 
   if (!popMap.has(reference)) popMap.set(reference, new Map());
   const elMap = popMap.get(reference);
-  assertExists(elMap);
   // if there is already a popper, cancel leave transition and apply enter transition
-  if (elMap.has(tagName)) {
+  if (elMap && elMap.has(tagName)) {
     const popper = elMap.get(tagName);
-    assertExists(popper);
-    popper.cancel?.();
-    requestAnimationFrame(() => animateEnter(popper.element));
-    return popper as MenuPopper<HTMLElementTagNameMap[T]>;
+    if (popper) {
+      popper.cancel?.();
+      requestAnimationFrame(() => animateEnter(popper.element));
+      return popper as MenuPopper<HTMLElementTagNameMap[T]>;
+    }
   }
 
   const clipWrapper = document.createElement('div');
   const menu = document.createElement(tagName);
   options?.setProps?.(menu);
-  assertExists(reference.shadowRoot);
   clipWrapper.append(menu);
+  if (!reference.shadowRoot) {
+    throw new BlockSuiteError(
+      BlockSuiteError.ErrorCode.ValueNotExists,
+      'reference must be a shadow root'
+    );
+  }
   reference.shadowRoot.append(clipWrapper);
 
   // apply enter transition

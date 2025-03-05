@@ -94,7 +94,7 @@ test('should visit public page', async t => {
   const docs2 = await getWorkspacePublicDocs(app, workspace.id);
   t.is(docs2.length, 0, 'failed to get shared docs');
   await t.throwsAsync(revokePublicDoc(app, workspace.id, 'doc3'), {
-    message: 'Doc is not public',
+    message: 'Doc is not public.',
   });
 
   const docs3 = await getWorkspacePublicDocs(app, workspace.id);

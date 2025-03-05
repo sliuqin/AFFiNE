@@ -44,21 +44,21 @@ export class WorkspaceEvents {
   async onRoleChanged({
     userId,
     workspaceId,
-    permission,
+    role,
   }: Events['workspace.members.roleChanged']) {
     // send role changed mail
     await this.workspaceService.sendRoleChangedEmail(userId, {
       id: workspaceId,
-      role: permission,
+      role,
     });
   }
 
-  @OnEvent('workspace.members.ownershipTransferred')
+  @OnEvent('workspace.owner.changed')
   async onOwnerTransferred({
     workspaceId,
     from,
     to,
-  }: Events['workspace.members.ownershipTransferred']) {
+  }: Events['workspace.owner.changed']) {
     // send ownership transferred mail
     const fromUser = await this.models.user.getPublicUser(from);
     const toUser = await this.models.user.getPublicUser(to);

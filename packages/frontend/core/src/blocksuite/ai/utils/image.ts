@@ -1,5 +1,4 @@
 import { FetchUtils } from '@blocksuite/affine/blocks';
-import { assertExists } from '@blocksuite/affine/global/utils';
 
 export async function fetchImageToFile(
   url: string,
@@ -26,14 +25,17 @@ function fetchImageFallback(
   url: string,
   filename: string
 ): Promise<File | void> {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       const c = document.createElement('canvas');
       c.width = img.width;
       c.height = img.height;
       const ctx = c.getContext('2d');
-      assertExists(ctx);
+      if (!ctx) {
+        reject();
+        return;
+      }
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0);
@@ -51,7 +53,7 @@ function fetchImageFallback(
 }
 
 function convertToPng(blob: Blob): Promise<Blob | null> {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.addEventListener('load', _ => {
       const img = new Image();
@@ -60,7 +62,10 @@ function convertToPng(blob: Blob): Promise<Blob | null> {
         c.width = img.width;
         c.height = img.height;
         const ctx = c.getContext('2d');
-        assertExists(ctx);
+        if (!ctx) {
+          reject();
+          return;
+        }
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0);

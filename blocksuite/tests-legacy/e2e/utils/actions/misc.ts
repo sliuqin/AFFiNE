@@ -5,7 +5,6 @@ import type {
   ListType,
   RichText,
 } from '@blocksuite/blocks';
-import { assertExists } from '@blocksuite/global/utils';
 import type { InlineRange, InlineRootElement } from '@blocksuite/inline';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
 import type { BlockModel } from '@blocksuite/store';
@@ -42,7 +41,9 @@ export const getSelectionRect = async (page: Page): Promise<DOMRect> => {
   const rect = await page.evaluate(() => {
     return getSelection()?.getRangeAt(0).getBoundingClientRect();
   });
-  assertExists(rect);
+  if (!rect) {
+    throw new Error('rect is not found');
+  }
   return rect;
 };
 
@@ -864,7 +865,9 @@ export async function getClipboardSnapshot(page: Page) {
     page,
     'BLOCKSUITE/SNAPSHOT'
   );
-  assertExists(dataInClipboard);
+  if (!dataInClipboard) {
+    throw new Error('dataInClipboard is not found');
+  }
   const json = JSON.parse(dataInClipboard as string);
   return json;
 }

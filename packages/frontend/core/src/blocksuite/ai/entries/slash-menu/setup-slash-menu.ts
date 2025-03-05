@@ -7,14 +7,12 @@ import {
   AIStarIcon,
   DocModeProvider,
 } from '@blocksuite/affine/blocks';
-import { assertExists } from '@blocksuite/affine/global/utils';
 import { MoreHorizontalIcon } from '@blocksuite/icons/lit';
 import { html } from 'lit';
 
 import { pageAIGroups } from '../../_common/config';
 import { handleInlineAskAIAction } from '../../actions/doc-handler';
 import type { AIItemConfig } from '../../components/ai-item/types';
-import { AIProvider } from '../../provider';
 import {
   AFFINE_AI_PANEL_WIDGET,
   type AffineAIPanelWidget,
@@ -55,10 +53,9 @@ export function setupSlashMenuAIEntry(slashMenu: AffineSlashMenuWidget) {
   });
 
   const subMenuWrapper = (item: AIItemConfig): AffineSlashSubMenu => {
-    assertExists(item.subItem);
     return {
       ...basicItemConfig(item),
-      subMenu: item.subItem.map<AffineSlashMenuActionItem>(
+      subMenu: (item.subItem ?? []).map<AffineSlashMenuActionItem>(
         ({ type, handler }) => ({
           name: type,
           action: ({ rootComponent }) => handler?.(rootComponent.host),
@@ -87,9 +84,6 @@ export function setupSlashMenuAIEntry(slashMenu: AffineSlashMenuWidget) {
         AFFINE_AI_PANEL_WIDGET,
         rootComponent.model.id
       ) as AffineAIPanelWidget;
-      assertExists(affineAIPanelWidget);
-      assertExists(AIProvider.actions.chat);
-      assertExists(affineAIPanelWidget.host);
       handleInlineAskAIAction(affineAIPanelWidget.host);
     },
   });

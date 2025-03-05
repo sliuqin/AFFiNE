@@ -17,7 +17,7 @@ import {
   SurfaceSelection,
 } from '@blocksuite/block-std';
 import type { GfxViewportElement } from '@blocksuite/block-std/gfx';
-import { assertExists } from '@blocksuite/global/utils';
+import { BlockSuiteError } from '@blocksuite/global/exceptions';
 import { css, html } from 'lit';
 import { query, state } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -104,7 +104,12 @@ export class EdgelessRootPreviewBlockComponent
     this._viewportElement = this.host.closest(
       this.editorViewportSelector
     ) as HTMLElement | null;
-    assertExists(this._viewportElement);
+    if (!this._viewportElement) {
+      throw new BlockSuiteError(
+        BlockSuiteError.ErrorCode.ValueNotExists,
+        'EdgelessRootPreviewBlockComponent.viewportElement: viewport element is not found'
+      );
+    }
     return this._viewportElement;
   }
 

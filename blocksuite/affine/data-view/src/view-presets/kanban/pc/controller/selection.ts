@@ -1,5 +1,4 @@
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { assertExists } from '@blocksuite/global/utils';
 import type { ReactiveController } from 'lit';
 
 import type {
@@ -610,7 +609,7 @@ function getNextGroupFocusElement(
     selection.selectionType === 'cell'
       ? getFocusCell(viewElement, selection)
       : getSelectedCards(viewElement, selection)[0];
-  assertExists(element);
+  if (!element) return;
   const rect = element.getBoundingClientRect();
   const nextCards = Array.from(
     nextGroup.querySelectorAll('affine-data-view-kanban-card')

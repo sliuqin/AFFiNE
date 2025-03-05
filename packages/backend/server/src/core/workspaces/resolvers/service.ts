@@ -1,17 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
 import { getStreamAsBuffer } from 'get-stream';
 
 import {
   Cache,
   MailService,
+  NotFound,
   OnEvent,
   URLHelper,
   UserNotFound,
 } from '../../../base';
 import { Models } from '../../../models';
 import { DocReader } from '../../doc';
-import { PermissionService, WorkspaceRole } from '../../permission';
+import { WorkspaceRole } from '../../permission';
 import { WorkspaceBlobStorage } from '../../storage';
 
 export const defaultWorkspaceAvatar =
@@ -32,8 +32,6 @@ export class WorkspaceService {
     private readonly cache: Cache,
     private readonly doc: DocReader,
     private readonly mailer: MailService,
-    private readonly permission: PermissionService,
-    private readonly prisma: PrismaClient,
     private readonly models: Models,
     private readonly url: URLHelper
   ) {}
@@ -47,20 +45,16 @@ export class WorkspaceService {
       return invite;
     }
 
-    return await this.prisma.workspaceUserPermission
-      .findUniqueOrThrow({
-        where: {
-          id: inviteId,
-        },
-        select: {
-          workspaceId: true,
-          userId: true,
-        },
-      })
-      .then(r => ({
-        workspaceId: r.workspaceId,
-        inviteeUserId: r.userId,
-      }));
+    const workspaceUser = await this.models.workspaceUser.getById(inviteId);
+
+    if (!workspaceUser) {
+      throw new NotFound('Invitation not found');
+    }
+
+    return {
+      workspaceId: workspaceUser.workspaceId,
+      inviteeUserId: workspaceUser.userId,
+    };
   }
 
   async getWorkspaceInfo(workspaceId: string) {
@@ -115,7 +109,7 @@ export class WorkspaceService {
       : null;
     const inviter = inviterUserId
       ? await this.models.user.getPublicUser(inviterUserId)
-      : await this.permission.getWorkspaceOwner(workspaceId);
+      : await this.models.workspaceUser.getOwner(workspaceId);
 
     if (!inviter || !invitee) {
       this.logger.error(
@@ -138,7 +132,7 @@ export class WorkspaceService {
       return;
     }
 
-    const owner = await this.permission.getWorkspaceOwner(target.workspace.id);
+    const owner = await this.models.workspaceUser.getOwner(target.workspace.id);
 
     await this.mailer.sendMemberInviteMail(target.email, {
       workspace: target.workspace,
@@ -154,8 +148,8 @@ export class WorkspaceService {
 
   async sendTeamWorkspaceUpgradedEmail(workspaceId: string) {
     const workspace = await this.getWorkspaceInfo(workspaceId);
-    const owner = await this.permission.getWorkspaceOwner(workspaceId);
-    const admins = await this.permission.getWorkspaceAdmin(workspaceId);
+    const owner = await this.models.workspaceUser.getOwner(workspaceId);
+    const admins = await this.models.workspaceUser.getAdmins(workspaceId);
 
     await this.mailer.sendTeamWorkspaceUpgradedEmail(owner.email, {
       workspace,
@@ -188,8 +182,8 @@ export class WorkspaceService {
     }
 
     const workspace = await this.getWorkspaceInfo(workspaceId);
-    const owner = await this.permission.getWorkspaceOwner(workspaceId);
-    const admin = await this.permission.getWorkspaceAdmin(workspaceId);
+    const owner = await this.models.workspaceUser.getOwner(workspaceId);
+    const admin = await this.models.workspaceUser.getAdmins(workspaceId);
 
     for (const user of [owner, ...admin]) {
       await this.mailer.sendLinkInvitationReviewRequestMail(user.email, {
@@ -260,7 +254,7 @@ export class WorkspaceService {
     workspaceId,
   }: Events['workspace.members.leave']) {
     const workspace = await this.getWorkspaceInfo(workspaceId);
-    const owner = await this.permission.getWorkspaceOwner(workspaceId);
+    const owner = await this.models.workspaceUser.getOwner(workspaceId);
     await this.mailer.sendMemberLeaveEmail(owner.email, {
       workspace,
       user,
@@ -271,7 +265,7 @@ export class WorkspaceService {
   async onMemberRemoved({
     userId,
     workspaceId,
-  }: Events['workspace.members.requestDeclined']) {
+  }: Events['workspace.members.removed']) {
     const user = await this.models.user.get(userId);
     if (!user) return;
 

@@ -5,7 +5,6 @@ import {
 } from '@blocksuite/affine-shared/utils';
 import type { BlockComponent, PointerEventState } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { assertExists } from '@blocksuite/global/utils';
 
 export class ImageResizeManager {
   private _activeComponent: BlockComponent | null = null;
@@ -19,8 +18,9 @@ export class ImageResizeManager {
   private _zoom = 1;
 
   onEnd() {
-    assertExists(this._activeComponent);
-    assertExists(this._imageContainer);
+    if (!this._activeComponent || !this._imageContainer) {
+      return;
+    }
 
     const dragModel = getModelByElement(this._activeComponent);
     dragModel?.doc.captureSync();
@@ -32,12 +32,16 @@ export class ImageResizeManager {
   }
 
   onMove(e: PointerEventState) {
-    assertExists(this._activeComponent);
     const activeComponent = this._activeComponent;
     const activeImgContainer = this._imageContainer;
-    assertExists(activeImgContainer);
+    if (!activeComponent || !activeImgContainer) {
+      return;
+    }
+
     const activeImg = activeComponent.querySelector('img');
-    assertExists(activeImg);
+    if (!activeImg) {
+      return;
+    }
 
     let width = 0;
     if (this._dragMoveTarget === 'right') {
@@ -84,7 +88,9 @@ export class ImageResizeManager {
     }
 
     this._imageContainer = eventTarget.closest('.resizable-img');
-    assertExists(this._imageContainer);
+    if (!this._imageContainer) {
+      return;
+    }
     const rect = this._imageContainer.getBoundingClientRect() as DOMRect;
     this._imageCenterX = rect.left + rect.width / 2;
     if (eventTarget.className.includes('right')) {

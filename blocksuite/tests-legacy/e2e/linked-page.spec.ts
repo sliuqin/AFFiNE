@@ -32,7 +32,6 @@ import {
   waitNextFrame,
 } from './utils/actions/misc.js';
 import {
-  assertExists,
   assertParentBlockFlavour,
   assertRichTexts,
   assertTitle,
@@ -43,7 +42,9 @@ async function createAndConvertToEmbedLinkedDoc(page: Page) {
   const { createLinkedDoc } = getLinkedDocPopover(page);
   const linkedDoc = await createLinkedDoc('page1');
   const lickedDocBox = await linkedDoc.boundingBox();
-  assertExists(lickedDocBox);
+  if (!lickedDocBox) {
+    throw new Error('lickedDocBox is not found');
+  }
   await page.mouse.move(
     lickedDocBox.x + lickedDocBox.width / 2,
     lickedDocBox.y + lickedDocBox.height / 2

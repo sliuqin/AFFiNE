@@ -1,4 +1,4 @@
-import { assertExists } from '@blocksuite/global/utils';
+import { BlockSuiteError } from '@blocksuite/global/exceptions';
 import type { ExtensionType } from '@blocksuite/store';
 
 import { SpecBuilder } from './spec-builder.js';
@@ -45,7 +45,12 @@ export class SpecProvider {
 
   getSpec(id: SpecId) {
     const spec = this.specMap.get(id);
-    assertExists(spec, `Spec not found for ${id}`);
+    if (!spec) {
+      throw new BlockSuiteError(
+        BlockSuiteError.ErrorCode.ValueNotExists,
+        `Spec not found for ${id}`
+      );
+    }
     return new SpecBuilder(spec);
   }
 

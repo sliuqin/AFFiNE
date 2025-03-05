@@ -42,7 +42,6 @@ import {
   assertEdgelessNonSelectedRect,
   assertEdgelessNoteBackground,
   assertEdgelessSelectedRect,
-  assertExists,
   assertNoteSequence,
   assertNoteXYWH,
   assertRichTextInlineRange,
@@ -386,7 +385,9 @@ test.fixme(
     const paragraphBlock = await page
       .locator(`[data-block-id="3"]`)
       .boundingBox();
-    assertExists(paragraphBlock);
+    if (!paragraphBlock) {
+      throw new Error('paragraphBlock is not found');
+    }
     await page.mouse.dblclick(paragraphBlock.x, paragraphBlock.y);
     await waitNextFrame(page);
     await page.mouse.move(
@@ -397,7 +398,9 @@ test.fixme(
     const handle = await page
       .locator('.affine-drag-handle-container')
       .boundingBox();
-    assertExists(handle);
+    if (!handle) {
+      throw new Error('handle is not found');
+    }
     await page.mouse.move(
       handle.x + handle.width / 2,
       handle.y + handle.height / 2,
@@ -414,7 +417,9 @@ test.fixme(
 
     // Click at empty note block to add a paragraph block
     const emptyNote = await page.locator(`[data-block-id="2"]`).boundingBox();
-    assertExists(emptyNote);
+    if (!emptyNote) {
+      throw new Error('emptyNote is not found');
+    }
     await page.mouse.click(
       emptyNote.x + emptyNote.width / 2,
       emptyNote.y + emptyNote.height / 2
@@ -445,7 +450,9 @@ test('Should focus at closest text block when note collapse', async ({
   const notePortalBox = await page
     .locator('affine-edgeless-note')
     .boundingBox();
-  assertExists(notePortalBox);
+  if (!notePortalBox) {
+    throw new Error('notePortalBox is not found');
+  }
   await page.mouse.click(notePortalBox.x + 10, notePortalBox.y + 10);
   await waitNextFrame(page, 200);
   const selectedRect = page
@@ -455,7 +462,9 @@ test('Should focus at closest text block when note collapse', async ({
 
   // Collapse the note
   const selectedBox = await selectedRect.boundingBox();
-  assertExists(selectedBox);
+  if (!selectedBox) {
+    throw new Error('selectedBox is not found');
+  }
   await page.mouse.move(
     selectedBox.x + selectedBox.width / 2,
     selectedBox.y + selectedBox.height

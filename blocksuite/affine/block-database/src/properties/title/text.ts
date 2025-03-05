@@ -13,7 +13,6 @@ import {
 } from '@blocksuite/affine-shared/utils';
 import { BaseCellRenderer } from '@blocksuite/data-view';
 import { IS_MAC } from '@blocksuite/global/env';
-import { assertExists } from '@blocksuite/global/utils';
 import { LinkedPageIcon } from '@blocksuite/icons/lit';
 import type { DeltaInsert } from '@blocksuite/inline';
 import type { BlockSnapshot, Text } from '@blocksuite/store';
@@ -205,7 +204,7 @@ export class HeaderAreaTextCell extends BaseTextCell {
 export class HeaderAreaTextCellEditing extends BaseTextCell {
   private readonly _onCopy = (e: ClipboardEvent) => {
     const inlineEditor = this.inlineEditor;
-    assertExists(inlineEditor);
+    if (!inlineEditor) return;
 
     const inlineRange = inlineEditor.getInlineRange();
     if (!inlineRange) return;
@@ -222,7 +221,7 @@ export class HeaderAreaTextCellEditing extends BaseTextCell {
 
   private readonly _onCut = (e: ClipboardEvent) => {
     const inlineEditor = this.inlineEditor;
-    assertExists(inlineEditor);
+    if (!inlineEditor) return;
 
     const inlineRange = inlineEditor.getInlineRange();
     if (!inlineRange) return;

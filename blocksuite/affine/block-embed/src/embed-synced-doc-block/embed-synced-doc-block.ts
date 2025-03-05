@@ -35,7 +35,6 @@ import {
   GfxExtension,
 } from '@blocksuite/block-std/gfx';
 import { Bound, getCommonBound } from '@blocksuite/global/gfx';
-import { assertExists } from '@blocksuite/global/utils';
 import { type GetBlocksOptions, type Query, Text } from '@blocksuite/store';
 import { computed, signal } from '@preact/signals-core';
 import { html, nothing, type PropertyValues } from 'lit';
@@ -284,7 +283,12 @@ export class EmbedSyncedDocBlockComponent extends EmbedBlockComponent<EmbedSynce
     const { doc, caption } = this.model;
 
     const parent = doc.getParent(this.model);
-    assertExists(parent);
+    if (!parent) {
+      console.error(
+        `Trying to convert synced doc to card, but the parent is not found.`
+      );
+      return;
+    }
     const index = parent.children.indexOf(this.model);
 
     doc.addBlock(
@@ -301,7 +305,12 @@ export class EmbedSyncedDocBlockComponent extends EmbedBlockComponent<EmbedSynce
   covertToInline = () => {
     const { doc } = this.model;
     const parent = doc.getParent(this.model);
-    assertExists(parent);
+    if (!parent) {
+      console.error(
+        `Trying to convert synced doc to inline, but the parent is not found.`
+      );
+      return;
+    }
     const index = parent.children.indexOf(this.model);
 
     const yText = new Y.Text();

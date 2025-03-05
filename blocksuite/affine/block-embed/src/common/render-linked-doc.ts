@@ -11,7 +11,6 @@ import { EMBED_CARD_HEIGHT } from '@blocksuite/affine-shared/consts';
 import { NotificationProvider } from '@blocksuite/affine-shared/services';
 import { matchModels, SpecProvider } from '@blocksuite/affine-shared/utils';
 import { BlockStdScope } from '@blocksuite/block-std';
-import { assertExists } from '@blocksuite/global/utils';
 import {
   type BlockModel,
   type BlockSnapshot,
@@ -36,10 +35,12 @@ export function renderLinkedDocInCard(
   card: EmbedLinkedDocBlockComponent | EmbedSyncedDocCard
 ) {
   const linkedDoc = card.linkedDoc;
-  assertExists(
-    linkedDoc,
-    `Trying to load page ${card.model.pageId} in linked page block, but the page is not found.`
-  );
+  if (!linkedDoc) {
+    console.error(
+      `Trying to load page ${card.model.pageId} in linked page block, but the page is not found.`
+    );
+    return;
+  }
 
   // eslint-disable-next-line sonarjs/no-collapsible-if
   if ('bannerContainer' in card) {
@@ -59,10 +60,12 @@ export function renderLinkedDocInCard(
 
 async function renderPageAsBanner(card: EmbedSyncedDocCard) {
   const linkedDoc = card.linkedDoc;
-  assertExists(
-    linkedDoc,
-    `Trying to load page ${card.model.pageId} in linked page block, but the page is not found.`
-  );
+  if (!linkedDoc) {
+    console.error(
+      `Trying to load page ${card.model.pageId} in linked page block, but the page is not found.`
+    );
+    return;
+  }
 
   const notes = getNotesFromDoc(linkedDoc);
   if (!notes) {
@@ -126,10 +129,12 @@ async function renderNoteContent(
   card.isNoteContentEmpty = true;
 
   const doc = card.linkedDoc;
-  assertExists(
-    doc,
-    `Trying to load page ${card.model.pageId} in linked page block, but the page is not found.`
-  );
+  if (!doc) {
+    console.error(
+      `Trying to load page ${card.model.pageId} in linked page block, but the page is not found.`
+    );
+    return;
+  }
 
   const notes = getNotesFromDoc(doc);
   if (!notes) {

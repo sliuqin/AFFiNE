@@ -10,7 +10,7 @@ import {
   ShadowlessElement,
 } from '@blocksuite/block-std';
 import { Bound } from '@blocksuite/global/gfx';
-import { assertExists, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/utils';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { css, html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
@@ -63,7 +63,6 @@ export class EdgelessFrameTitleEditor extends WithDisposable(
 
   override firstUpdated(): void {
     const dispatcher = this.edgeless.dispatcher;
-    assertExists(dispatcher);
     this.updateComplete
       .then(() => {
         if (!this.inlineEditor) return;

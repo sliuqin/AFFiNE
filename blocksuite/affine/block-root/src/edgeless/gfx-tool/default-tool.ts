@@ -49,7 +49,6 @@ import clamp from 'lodash-es/clamp';
 
 import type { EdgelessRootBlockComponent } from '../edgeless-root-block.js';
 import { prepareCloneData } from '../utils/clone-utils.js';
-import { isSingleMindMapNode } from '../utils/mindmap.js';
 import { calPanDelta } from '../utils/panning-utils.js';
 import { isCanvasElement, isEdgelessTextBlock } from '../utils/query.js';
 import type { SnapManager } from '../utils/snap-manager.js';
@@ -561,22 +560,24 @@ export class DefaultTool extends BaseTool {
   ) {
     this.dragType = dragType;
 
-    if (
-      (this._toBeMoved.length &&
-        this._toBeMoved.every(
-          ele => !(ele.group instanceof MindmapElementModel)
-        )) ||
-      (isSingleMindMapNode(this._toBeMoved) &&
-        this._toBeMoved[0].id ===
-          (this._toBeMoved[0].group as MindmapElementModel).tree.id)
-    ) {
-      const mindmap = this._toBeMoved[0].group as MindmapElementModel;
+    const mindmaps: MindmapElementModel[] = this._toBeMoved.reduce(
+      (pre, elem) => {
+        if (
+          elem.group instanceof MindmapElementModel &&
+          !pre.includes(elem.group)
+        ) {
+          pre.push(elem.group);
+        }
 
-      this._alignBound = this.snapOverlay.setMovingElements(this._toBeMoved, [
-        mindmap,
-        ...(mindmap?.childElements || []),
-      ]);
-    }
+        return pre;
+      },
+      [] as MindmapElementModel[]
+    );
+
+    this._alignBound = this.snapOverlay.setMovingElements(this._toBeMoved, [
+      ...mindmaps,
+      ...mindmaps.flatMap(m => m.childElements),
+    ]);
 
     this._clearDisposable();
     this._disposables = new DisposableGroup();

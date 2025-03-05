@@ -7,8 +7,8 @@ import {
   GfxControllerIdentifier,
   type GfxModel,
 } from '@blocksuite/block-std/gfx';
+import { BlockSuiteError } from '@blocksuite/global/exceptions';
 import { Bound } from '@blocksuite/global/gfx';
-import { assertExists } from '@blocksuite/global/utils';
 
 export const edgelessToBlob = async (
   host: EditorHost,
@@ -24,24 +24,25 @@ export const edgelessToBlob = async (
   const isBlock = isTopLevelBlock(edgelessElement);
   const gfx = host.std.get(GfxControllerIdentifier);
 
-  return exportManager
-    .edgelessToCanvas(
-      options.surfaceRenderer,
-      bound,
-      gfx,
-      isBlock ? [edgelessElement] : undefined,
-      isBlock ? undefined : [edgelessElement],
-      { zoom: options.surfaceRenderer.viewport.zoom }
-    )
-    .then(canvas => {
-      assertExists(canvas);
-      return new Promise((resolve, reject) => {
-        canvas.toBlob(
-          blob => (blob ? resolve(blob) : reject(null)),
-          'image/png'
-        );
-      });
-    });
+  const canvas = await exportManager.edgelessToCanvas(
+    options.surfaceRenderer,
+    bound,
+    gfx,
+    isBlock ? [edgelessElement] : undefined,
+    isBlock ? undefined : [edgelessElement],
+    { zoom: options.surfaceRenderer.viewport.zoom }
+  );
+
+  if (!canvas) {
+    throw new BlockSuiteError(
+      BlockSuiteError.ErrorCode.ValueNotExists,
+      'Failed to export edgeless to canvas'
+    );
+  }
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(blob => (blob ? resolve(blob) : reject(null)), 'image/png');
+  });
 };
 
 export const writeImageBlobToClipboard = async (blob: Blob) => {

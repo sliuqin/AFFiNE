@@ -32,7 +32,6 @@ import {
 import {
   assertAlmostEqual,
   assertBlockCount,
-  assertExists,
   assertRichTexts,
 } from './utils/asserts.js';
 import { test } from './utils/playwright.js';
@@ -344,7 +343,9 @@ test.describe('slash menu should show and hide correctly', () => {
     const subMenu = page.locator('.slash-menu[data-testid=sub-menu-1]');
 
     let rect = await slashItems.nth(4).boundingBox();
-    assertExists(rect);
+    if (!rect) {
+      throw new Error('rect is not found');
+    }
     await page.mouse.move(rect.x + 10, rect.y + 10);
     await expect(slashMenu).toBeVisible();
     await expect(slashItems.nth(4)).toHaveAttribute('hover', 'true');
@@ -354,7 +355,9 @@ test.describe('slash menu should show and hide correctly', () => {
     await expect(subMenu).toBeVisible();
 
     rect = await slashItems.nth(3).boundingBox();
-    assertExists(rect);
+    if (!rect) {
+      throw new Error('rect is not found');
+    }
     await page.mouse.move(rect.x + 10, rect.y + 10);
     await expect(slashMenu).toBeVisible();
     await expect(slashItems.nth(3)).toHaveAttribute('hover', 'true');

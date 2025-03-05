@@ -11,7 +11,7 @@ import { AppModule } from '../app.module';
 import { EventBus } from '../base';
 import { AuthService } from '../core/auth';
 import { DocReader } from '../core/doc';
-import { DocRole, PermissionService, WorkspaceRole } from '../core/permission';
+import { DocRole, WorkspaceRole } from '../core/permission';
 import { WorkspaceType } from '../core/workspaces';
 import { Models } from '../models';
 import {
@@ -43,7 +43,6 @@ const test = ava as TestFn<{
   auth: AuthService;
   event: Sinon.SinonStubbedInstance<EventBus>;
   models: Models;
-  permissions: PermissionService;
 }>;
 
 test.before(async t => {
@@ -68,7 +67,6 @@ test.before(async t => {
   t.context.auth = app.get(AuthService);
   t.context.event = app.get(EventBus);
   t.context.models = app.get(Models);
-  t.context.permissions = app.get(PermissionService);
 });
 
 test.beforeEach(async t => {
@@ -256,7 +254,7 @@ test('should be able to invite multiple users', async t => {
 });
 
 test('should be able to check seat limit', async t => {
-  const { app, permissions, models } = t.context;
+  const { app, models } = t.context;
   const { invite, inviteBatch, teamWorkspace: ws } = await init(app, 5);
 
   {
@@ -284,10 +282,8 @@ test('should be able to check seat limit', async t => {
     );
 
     t.is(
-      await permissions.getWorkspaceMemberStatus(
-        ws.id,
-        (await members1)[0][0].id
-      ),
+      (await models.workspaceUser.get(ws.id, (await members1)[0][0].id))
+        ?.status,
       WorkspaceMemberStatus.NeedMoreSeat,
       'should be able to check member status'
     );
@@ -295,18 +291,16 @@ test('should be able to check seat limit', async t => {
     // refresh seat, fifo
     await sleep(1000);
     const [[members2]] = await inviteBatch(['member6@affine.pro']);
-    await permissions.refreshSeatStatus(ws.id, 7);
+    await models.workspaceUser.refresh(ws.id, 7);
 
     t.is(
-      await permissions.getWorkspaceMemberStatus(
-        ws.id,
-        (await members1)[0][0].id
-      ),
+      (await models.workspaceUser.get(ws.id, (await members1)[0][0].id))
+        ?.status,
       WorkspaceMemberStatus.Pending,
       'should become accepted after refresh'
     );
     t.is(
-      await permissions.getWorkspaceMemberStatus(ws.id, members2.id),
+      (await models.workspaceUser.get(ws.id, members2.id))?.status,
       WorkspaceMemberStatus.NeedMoreSeat,
       'should not change status'
     );
@@ -314,7 +308,7 @@ test('should be able to check seat limit', async t => {
 });
 
 test('should be able to grant team member permission', async t => {
-  const { app, permissions } = t.context;
+  const { app, models } = t.context;
   const { owner, teamWorkspace: ws, write, read } = await init(app);
 
   app.switchUser(read);
@@ -335,11 +329,8 @@ test('should be able to grant team member permission', async t => {
     // owner should be able to grant permission
     app.switchUser(owner);
     t.true(
-      await permissions.tryCheckWorkspaceIs(
-        ws.id,
-        read.id,
-        WorkspaceRole.Collaborator
-      ),
+      (await models.workspaceUser.get(ws.id, read.id))?.type ===
+        WorkspaceRole.Collaborator,
       'should be able to check permission'
     );
     t.truthy(
@@ -347,11 +338,8 @@ test('should be able to grant team member permission', async t => {
       'should be able to grant permission'
     );
     t.true(
-      await permissions.tryCheckWorkspaceIs(
-        ws.id,
-        read.id,
-        WorkspaceRole.Admin
-      ),
+      (await models.workspaceUser.get(ws.id, read.id))?.type ===
+        WorkspaceRole.Admin,
       'should be able to check permission'
     );
   }
@@ -362,10 +350,9 @@ test('should be able to leave workspace', async t => {
   const { owner, teamWorkspace: ws, admin, write, read } = await init(app);
 
   app.switchUser(owner);
-  t.false(
-    await leaveWorkspace(app, ws.id),
-    'owner should not be able to leave workspace'
-  );
+  await t.throwsAsync(leaveWorkspace(app, ws.id), {
+    message: 'Owner can not leave the workspace.',
+  });
 
   app.switchUser(admin);
   t.true(
@@ -425,10 +412,9 @@ test('should be able to revoke team member', async t => {
       'owner should be able to revoke member'
     );
 
-    t.false(
-      await revokeUser(app, ws.id, owner.id),
-      'should not be able to revoke themselves'
-    );
+    await t.throwsAsync(revokeUser(app, ws.id, owner.id), {
+      message: 'You can not revoke your own permission.',
+    });
 
     await revokeUser(app, ws.id, admin.id);
     app.switchUser(admin);
@@ -508,7 +494,7 @@ test('should be able to approve team member', async t => {
     const memberInvite = members.find(m => m.id === member.id)!;
     t.is(memberInvite.status, 'UnderReview', 'should be under review');
 
-    t.is(await approveMember(app, tws.id, member.id), memberInvite.inviteId);
+    t.true(await approveMember(app, tws.id, member.id));
   }
 
   {
@@ -536,7 +522,7 @@ test('should be able to approve team member', async t => {
 });
 
 test('should be able to invite by link', async t => {
-  const { app, permissions, models } = t.context;
+  const { app, models } = t.context;
   const {
     createInviteLink,
     owner,
@@ -562,10 +548,10 @@ test('should be able to invite by link', async t => {
     // invite link
     for (const [i] of Array.from({ length: 5 }).entries()) {
       const user = await invite(`test${i}@affine.pro`);
-      const status = await permissions.getWorkspaceMemberStatus(ws.id, user.id);
+      const status = (await models.workspaceUser.get(ws.id, user.id))?.status;
       t.is(
         status,
-        WorkspaceMemberStatus.Accepted,
+        WorkspaceMemberStatus.UnderReview,
         'should be able to check status'
       );
     }
@@ -587,12 +573,12 @@ test('should be able to invite by link', async t => {
     const [m3, m4] = members;
 
     t.is(
-      await permissions.getWorkspaceMemberStatus(tws.id, m3.id),
+      (await models.workspaceUser.get(tws.id, m3.id))?.status,
       WorkspaceMemberStatus.NeedMoreSeatAndReview,
       'should not change status'
     );
     t.is(
-      await permissions.getWorkspaceMemberStatus(tws.id, m4.id),
+      (await models.workspaceUser.get(tws.id, m4.id))?.status,
       WorkspaceMemberStatus.NeedMoreSeatAndReview,
       'should not change status'
     );
@@ -600,14 +586,14 @@ test('should be able to invite by link', async t => {
     models.workspaceFeature.add(tws.id, 'team_plan_v1', 'test', {
       memberLimit: 6,
     });
-    await permissions.refreshSeatStatus(tws.id, 6);
+    await models.workspaceUser.refresh(tws.id, 6);
     t.is(
-      await permissions.getWorkspaceMemberStatus(tws.id, m3.id),
+      (await models.workspaceUser.get(tws.id, m3.id))?.status,
       WorkspaceMemberStatus.UnderReview,
       'should not change status'
     );
     t.is(
-      await permissions.getWorkspaceMemberStatus(tws.id, m4.id),
+      (await models.workspaceUser.get(tws.id, m4.id))?.status,
       WorkspaceMemberStatus.NeedMoreSeatAndReview,
       'should not change status'
     );
@@ -615,9 +601,9 @@ test('should be able to invite by link', async t => {
     models.workspaceFeature.add(tws.id, 'team_plan_v1', 'test', {
       memberLimit: 7,
     });
-    await permissions.refreshSeatStatus(tws.id, 7);
+    await models.workspaceUser.refresh(tws.id, 7);
     t.is(
-      await permissions.getWorkspaceMemberStatus(tws.id, m4.id),
+      (await models.workspaceUser.get(tws.id, m4.id))?.status,
       WorkspaceMemberStatus.UnderReview,
       'should not change status'
     );
@@ -665,6 +651,7 @@ test('should be able to emit events', async t => {
     const { teamWorkspace: tws, owner, createInviteLink } = await init(app);
     const [, invite] = await createInviteLink(tws);
     const user = await invite('m3@affine.pro');
+    app.switchUser(owner);
     const { members } = await getWorkspace(app, tws.id);
     const memberInvite = members.find(m => m.id === user.id)!;
     t.deepEqual(
@@ -698,7 +685,7 @@ test('should be able to emit events', async t => {
         {
           userId: read.id,
           workspaceId: tws.id,
-          permission: WorkspaceRole.Admin,
+          role: WorkspaceRole.Admin,
         },
       ],
       'should emit role changed event'
@@ -712,7 +699,7 @@ test('should be able to emit events', async t => {
     t.deepEqual(
       ownershipTransferred,
       [
-        'workspace.members.ownershipTransferred',
+        'workspace.owner.changed',
         { from: owner.id, to: read.id, workspaceId: tws.id },
       ],
       'should emit owner transferred event'
@@ -880,20 +867,15 @@ test('should be able to grant and revoke doc user role', async t => {
     grantDocUserRoles: true,
   });
 
-  // external user now can manage the page
+  // external user can never be able to manage the page
   {
     app.switchUser(external);
-    const externalRes = await grantDocUserRoles(
-      app,
-      ws.id,
-      docId,
-      [read.id],
-      DocRole.Manager
+    await t.throwsAsync(
+      grantDocUserRoles(app, ws.id, docId, [read.id], DocRole.Manager),
+      {
+        message: `You do not have permission to perform Doc.Users.Manage action on doc ${docId}.`,
+      }
     );
-
-    t.deepEqual(externalRes, {
-      grantDocUserRoles: true,
-    });
   }
 
   // revoke the role of the external user

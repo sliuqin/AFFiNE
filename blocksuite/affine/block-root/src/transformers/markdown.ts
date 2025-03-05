@@ -8,7 +8,7 @@ import {
 import { SpecProvider } from '@blocksuite/affine-shared/utils';
 import { Container } from '@blocksuite/global/di';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { assertExists, sha } from '@blocksuite/global/utils';
+import { sha } from '@blocksuite/global/utils';
 import type { Schema, Store, Workspace } from '@blocksuite/store';
 import { extMimeMap, Transformer } from '@blocksuite/store';
 
@@ -112,7 +112,12 @@ async function importMarkdownToBlock({
     pageId: doc.id,
   });
 
-  assertExists(snapshot, 'import markdown failed, expected to get a snapshot');
+  if (!snapshot) {
+    throw new BlockSuiteError(
+      BlockSuiteError.ErrorCode.ValueNotExists,
+      'import markdown failed, expected to get a snapshot'
+    );
+  }
 
   const blocks = snapshot.content.flatMap(x => x.children);
 

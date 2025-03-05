@@ -1,4 +1,5 @@
-import { assertExists, Slot } from '@blocksuite/global/utils';
+import { BlockSuiteError } from '@blocksuite/global/exceptions';
+import { Slot } from '@blocksuite/global/utils';
 import {
   autoUpdate,
   computePosition,
@@ -39,7 +40,12 @@ export function createSimplePortal({
   });
 
   const root = shadowDom ? portalRoot.shadowRoot : portalRoot;
-  assertExists(root);
+  if (!root) {
+    throw new BlockSuiteError(
+      BlockSuiteError.ErrorCode.ValueNotExists,
+      'Failed to create portal root'
+    );
+  }
 
   let updateId = 0;
   const updatePortal: (id: number) => void = id => {
@@ -55,7 +61,6 @@ export function createSimplePortal({
       template instanceof Function
         ? template({ updatePortal: () => updatePortal(curId) })
         : template;
-    assertExists(templateResult);
     render(templateResult, root, renderOptions);
   };
 
@@ -173,7 +178,6 @@ export function createLitPortal({
       ? positionConfigOrFn(portalRoot)
       : positionConfigOrFn;
   const { referenceElement, ...options } = computePositionOptions;
-  assertExists(referenceElement, 'referenceElement is required');
   const update = () => {
     if (
       computePositionOptions.abortWhenRefRemoved !== false &&

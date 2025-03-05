@@ -3,7 +3,6 @@ import {
   AIStarIconWithAnimation,
   createLitPortal,
 } from '@blocksuite/affine/blocks';
-import { assertExists } from '@blocksuite/affine/global/utils';
 import { flip, offset } from '@floating-ui/dom';
 import { html, type TemplateResult } from 'lit';
 
@@ -169,7 +168,7 @@ function updateAIPanelConfig<T extends keyof BlockSuitePresets.AIActions>(
   trackerOptions?: BlockSuitePresets.TrackerOptions
 ) {
   const { config, host } = aiPanel;
-  assertExists(config);
+  if (!config) return;
   config.generateAnswer = actionToGenerateAnswer(
     host,
     id,
@@ -203,7 +202,7 @@ export function actionToHandler<T extends keyof BlockSuitePresets.AIActions>(
     const { selectedBlocks: blocks } = getSelections(aiPanel.host);
     if (!blocks || blocks.length === 0) return;
     const block = blocks.at(-1);
-    assertExists(block);
+    if (!block) return;
     aiPanel.toggle(block, '');
   };
 }

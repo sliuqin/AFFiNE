@@ -13,6 +13,19 @@ import {
   StorageProviderFactory,
 } from '../../../base';
 
+declare global {
+  interface Events {
+    'workspace.blob.sync': {
+      workspaceId: string;
+      key: string;
+    };
+    'workspace.blob.delete': {
+      workspaceId: string;
+      key: string;
+    };
+  }
+}
+
 @Injectable()
 export class WorkspaceBlobStorage {
   private readonly logger = new Logger(WorkspaceBlobStorage.name);

@@ -1,5 +1,4 @@
 import type { DatabaseBlockModel } from '@blocksuite/affine-model';
-import { assertExists } from '@blocksuite/global/utils';
 import { expect, type Page } from '@playwright/test';
 
 import { switchEditorMode } from './utils/actions/edgeless.js';
@@ -22,7 +21,9 @@ test.describe('Embed synced doc', () => {
     const { createLinkedDoc } = getLinkedDocPopover(page);
     const linkedDoc = await createLinkedDoc('page1');
     const lickedDocBox = await linkedDoc.boundingBox();
-    assertExists(lickedDocBox);
+    if (!lickedDocBox) {
+      throw new Error('lickedDocBox is not found');
+    }
     await page.mouse.move(
       lickedDocBox.x + lickedDocBox.width / 2,
       lickedDocBox.y + lickedDocBox.height / 2
@@ -60,7 +61,9 @@ test.describe('Embed synced doc', () => {
 
     const syncedDoc = page.locator(`affine-embed-synced-doc-block`);
     const syncedDocBox = await syncedDoc.boundingBox();
-    assertExists(syncedDocBox);
+    if (!syncedDocBox) {
+      throw new Error('syncedDocBox is not found');
+    }
     await page.mouse.click(
       syncedDocBox.x + syncedDocBox.width / 2,
       syncedDocBox.y + syncedDocBox.height / 2
@@ -95,7 +98,9 @@ test.describe('Embed synced doc', () => {
       // Focus on the embed synced doc
       const embedSyncedBlock = page.locator('affine-embed-synced-doc-block');
       let embedSyncedBox = await embedSyncedBlock.boundingBox();
-      assertExists(embedSyncedBox);
+      if (!embedSyncedBox) {
+        throw new Error('embedSyncedBox is not found');
+      }
       await page.mouse.click(
         embedSyncedBox.x + embedSyncedBox.width / 2,
         embedSyncedBox.y + embedSyncedBox.height / 2
@@ -108,13 +113,17 @@ test.describe('Embed synced doc', () => {
       // Double click on note to enter edit status
       const noteBlock = page.locator('affine-edgeless-note');
       const noteBlockBox = await noteBlock.boundingBox();
-      assertExists(noteBlockBox);
+      if (!noteBlockBox) {
+        throw new Error('noteBlockBox is not found');
+      }
       await page.mouse.dblclick(noteBlockBox.x + 10, noteBlockBox.y + 10);
       await waitNextFrame(page, 200);
 
       // Drag the embed synced doc to whiteboard
       embedSyncedBox = await embedSyncedBlock.boundingBox();
-      assertExists(embedSyncedBox);
+      if (!embedSyncedBox) {
+        throw new Error('embedSyncedBox is not found');
+      }
       const height = embedSyncedBox.height;
       await page.mouse.move(embedSyncedBox.x - 10, embedSyncedBox.y - 100);
       await page.mouse.move(embedSyncedBox.x - 10, embedSyncedBox.y + 10);
@@ -129,7 +138,9 @@ test.describe('Embed synced doc', () => {
       );
       const EmbedSyncedDocBlockBox = await EmbedSyncedDocBlock.boundingBox();
       const border = 1;
-      assertExists(EmbedSyncedDocBlockBox);
+      if (!EmbedSyncedDocBlockBox) {
+        throw new Error('EmbedSyncedDocBlockBox is not found');
+      }
       expect(EmbedSyncedDocBlockBox.height).toBeCloseTo(height + 2 * border, 1);
     }
   );

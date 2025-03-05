@@ -4,7 +4,6 @@ import { TelemetryProvider } from '@blocksuite/affine-shared/services';
 import type { PointerEventState } from '@blocksuite/block-std';
 import { BaseTool } from '@blocksuite/block-std/gfx';
 import type { IVec } from '@blocksuite/global/gfx';
-import { assertExists } from '@blocksuite/global/utils';
 
 export class BrushTool extends BaseTool {
   static BRUSH_POP_GAP = 20;
@@ -40,8 +39,10 @@ export class BrushTool extends BaseTool {
       : 'vertical';
   }
 
-  private _tryGetPressurePoints(e: PointerEventState) {
-    assertExists(this._draggingPathPressures);
+  private _tryGetPressurePoints(e: PointerEventState): number[][] {
+    if (!this._draggingPathPressures) {
+      return [];
+    }
     const pressures = [...this._draggingPathPressures, e.pressure];
     this._draggingPathPressures = pressures;
 
@@ -56,8 +57,10 @@ export class BrushTool extends BaseTool {
       this._pressureSupportedPointerIds.add(pointerId);
     }
 
-    assertExists(this._draggingPathPoints);
     const points = this._draggingPathPoints;
+    if (!points) {
+      return [];
+    }
     if (this._pressureSupportedPointerIds.has(pointerId)) {
       return points.map(([x, y], i) => [x, y, pressures[i]]);
     } else {
@@ -83,11 +86,13 @@ export class BrushTool extends BaseTool {
   }
 
   override dragMove(e: PointerEventState) {
-    if (!this._draggingElementId || !this._draggingElement || !this.gfx.surface)
+    if (
+      !this._draggingElementId ||
+      !this._draggingElement ||
+      !this.gfx.surface ||
+      !this._draggingPathPoints
+    )
       return;
-
-    assertExists(this._draggingElementId);
-    assertExists(this._draggingPathPoints);
 
     let pointX = e.point.x;
     let pointY = e.point.y;

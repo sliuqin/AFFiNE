@@ -12,6 +12,7 @@ import type {
   GfxLocalElementModel,
   GfxModel,
 } from '@blocksuite/block-std/gfx';
+import { BlockSuiteError } from '@blocksuite/global/exceptions';
 import type { IBound, IVec, IVec3 } from '@blocksuite/global/gfx';
 import {
   almostEqual,
@@ -31,12 +32,7 @@ import {
   toRadian,
   Vec,
 } from '@blocksuite/global/gfx';
-import {
-  assertEquals,
-  assertExists,
-  assertType,
-  last,
-} from '@blocksuite/global/utils';
+import { assertEquals, assertType, last } from '@blocksuite/global/utils';
 import { effect } from '@preact/signals-core';
 
 import { Overlay } from '../renderer/overlay.js';
@@ -153,7 +149,10 @@ export function getAnchors(ele: GfxModel) {
     )
     .forEach(vec => {
       const rst = ele.getLineIntersections(bound.center as IVec, vec as IVec);
-      assertExists(rst);
+      if (!rst) {
+        console.error(`Failed to get line intersections for ${ele.id}`);
+        return;
+      }
       const originPoint = getPointFromBoundsWithRotation(
         { ...bound, rotate: -rotate },
         rst[0]
@@ -497,9 +496,7 @@ function getConnectablePoints(
     pushOuterPoints(points, expandStartBound, expandEndBound, outerBound);
   }
 
-  if (startBound && endBound) {
-    assertExists(expandStartBound);
-    assertExists(expandEndBound);
+  if (startBound && endBound && expandStartBound && expandEndBound) {
     pushGapMidPoint(
       points,
       startPoint,
@@ -564,8 +561,12 @@ function getConnectablePoints(
         almostEqual(item[1], point[1], 0.02)
     );
   }) as IVec3[];
-  assertExists(startEnds[0]);
-  assertExists(startEnds[1]);
+  if (!startEnds[0] || !startEnds[1]) {
+    throw new BlockSuiteError(
+      BlockSuiteError.ErrorCode.ValueNotExists,
+      'Failed to get start and end points when getting connectable points'
+    );
+  }
   return { points, nextStartPoint: startEnds[0], lastEndPoint: startEnds[1] };
 }
 
@@ -709,7 +710,12 @@ function getNextPoint(
           result,
           [bound.maxX + 10, result[1]]
         );
-        assertExists(intersects);
+        if (!intersects) {
+          throw new BlockSuiteError(
+            BlockSuiteError.ErrorCode.ValueNotExists,
+            'Failed to get line intersections for getNextPoint'
+          );
+        }
         result[0] = intersects[0] + offsetX;
       } else {
         const intersects = lineIntersects(
@@ -718,7 +724,12 @@ function getNextPoint(
           result,
           [bound.x - 10, result[1]]
         );
-        assertExists(intersects);
+        if (!intersects) {
+          throw new BlockSuiteError(
+            BlockSuiteError.ErrorCode.ValueNotExists,
+            'Failed to get line intersections for getNextPoint'
+          );
+        }
         result[0] = intersects[0] - offsetX;
       }
     } else {
@@ -729,7 +740,12 @@ function getNextPoint(
           result,
           [result[0], bound.maxY + 10]
         );
-        assertExists(intersects);
+        if (!intersects) {
+          throw new BlockSuiteError(
+            BlockSuiteError.ErrorCode.ValueNotExists,
+            'Failed to get line intersections for getNextPoint'
+          );
+        }
         result[1] = intersects[1] + offsetY;
       } else {
         const intersects = lineIntersects(
@@ -738,7 +754,12 @@ function getNextPoint(
           result,
           [result[0], bound.y - 10]
         );
-        assertExists(intersects);
+        if (!intersects) {
+          throw new BlockSuiteError(
+            BlockSuiteError.ErrorCode.ValueNotExists,
+            'Failed to get line intersections for getNextPoint'
+          );
+        }
         result[1] = intersects[1] - offsetY;
       }
     }
@@ -1204,9 +1225,14 @@ export class ConnectorPathGenerator extends PathGenerator {
 
     let startPoint: PointLocation | null = null;
     let endPoint: PointLocation | null = null;
-    if (source.id && !source.position && target.id && !target.position) {
-      assertExists(start);
-      assertExists(end);
+    if (
+      source.id &&
+      !source.position &&
+      target.id &&
+      !target.position &&
+      start &&
+      end
+    ) {
       const startAnchors = getAnchors(start);
       const endAnchors = getAnchors(end);
       let minDist = Infinity;

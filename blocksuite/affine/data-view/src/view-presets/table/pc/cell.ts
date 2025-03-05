@@ -1,9 +1,5 @@
 import { ShadowlessElement } from '@blocksuite/block-std';
-import {
-  assertExists,
-  SignalWatcher,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
 import { computed, signal } from '@preact/signals-core';
 import { css } from 'lit';
 import { property } from 'lit/decorators.js';
@@ -101,7 +97,6 @@ export class DatabaseCellContainer extends SignalWatcher(
 
   get table() {
     const table = this.closest('affine-database-table');
-    assertExists(table);
     return table;
   }
 

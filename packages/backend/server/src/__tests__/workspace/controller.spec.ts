@@ -7,6 +7,7 @@ import Sinon from 'sinon';
 
 import { PgWorkspaceDocStorageAdapter } from '../../core/doc';
 import { WorkspaceBlobStorage } from '../../core/storage';
+import { Models, WorkspaceRole } from '../../models';
 import { createTestingApp, TestingApp, TestUser } from '../utils';
 
 const test = ava as TestFn<{
@@ -15,6 +16,7 @@ const test = ava as TestFn<{
   u1: TestUser;
   storage: Sinon.SinonStubbedInstance<WorkspaceBlobStorage>;
   workspace: Sinon.SinonStubbedInstance<PgWorkspaceDocStorageAdapter>;
+  models: Models;
 }>;
 
 test.before(async t => {
@@ -34,6 +36,7 @@ test.before(async t => {
   t.context.app = app;
   t.context.storage = app.get(WorkspaceBlobStorage);
   t.context.workspace = app.get(PgWorkspaceDocStorageAdapter);
+  t.context.models = app.get(Models);
 
   await db.workspaceDoc.create({
     data: {
@@ -155,17 +158,14 @@ test('should not be able to get private workspace with no public pages', async t
 });
 
 test('should be able to get permission granted workspace', async t => {
-  const { app, db, storage } = t.context;
+  const { app, storage } = t.context;
 
-  await db.workspaceUserPermission.create({
-    data: {
-      workspaceId: 'totally-private',
-      userId: t.context.u1.id,
-      type: 1,
-      accepted: true,
-      status: WorkspaceMemberStatus.Accepted,
-    },
-  });
+  await t.context.models.workspaceUser.set(
+    'totally-private',
+    t.context.u1.id,
+    WorkspaceRole.Collaborator,
+    WorkspaceMemberStatus.Accepted
+  );
 
   storage.get.resolves(blob());
   await app.login(t.context.u1);

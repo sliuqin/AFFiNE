@@ -1,5 +1,4 @@
 import type { DocModeProvider } from '@blocksuite/blocks';
-import { assertExists } from '@blocksuite/global/utils';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
 import type { Doc, Store, Workspace } from '@blocksuite/store';
 
@@ -13,14 +12,18 @@ export function getDocFromUrlParams(collection: Workspace, url: URL) {
   }
   if (!doc) {
     const blockCollection = collection.docs.values().next().value as Doc;
-    assertExists(blockCollection, 'Need to create a doc first');
+    if (!blockCollection) {
+      throw new Error('Need to create a doc first');
+    }
     doc = blockCollection.getStore();
   }
 
   doc.load();
   doc.resetHistory();
 
-  assertExists(doc.root, 'Doc root is not ready');
+  if (!doc.root) {
+    throw new Error('Doc root is not ready');
+  }
 
   return doc;
 }

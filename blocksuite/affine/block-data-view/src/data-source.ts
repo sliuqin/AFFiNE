@@ -10,7 +10,8 @@ import {
 import type { EditorHost } from '@blocksuite/block-std';
 import { DataSourceBase, type PropertyMetaConfig } from '@blocksuite/data-view';
 import { propertyPresets } from '@blocksuite/data-view/property-presets';
-import { assertExists, Slot } from '@blocksuite/global/utils';
+import { BlockSuiteError } from '@blocksuite/global/exceptions';
+import { Slot } from '@blocksuite/global/utils';
 import type { Block, Store } from '@blocksuite/store';
 
 import type { BlockMeta } from './block-meta/base.js';
@@ -95,7 +96,12 @@ export class BlockQueryDataSource extends DataSourceBase {
 
   private getProperty(propertyId: string) {
     const property = this.meta.properties.find(v => v.key === propertyId);
-    assertExists(property, `property ${propertyId} not found`);
+    if (!property) {
+      throw new BlockSuiteError(
+        BlockSuiteError.ErrorCode.ValueNotExists,
+        `property ${propertyId} not found`
+      );
+    }
     return property;
   }
 

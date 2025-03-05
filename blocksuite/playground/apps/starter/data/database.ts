@@ -8,7 +8,6 @@ import {
 import { groupTraitKey } from '@blocksuite/data-view';
 import { propertyPresets } from '@blocksuite/data-view/property-presets';
 import { viewPresets } from '@blocksuite/data-view/view-presets';
-import { assertExists } from '@blocksuite/global/utils';
 import { Text, type Workspace } from '@blocksuite/store';
 
 import type { InitFn } from './utils.js';
@@ -27,7 +26,9 @@ export const database: InitFn = (collection: Workspace, id: string) => {
     const noteId = doc.addBlock('affine:note', {}, rootId);
     const pId = doc.addBlock('affine:paragraph', {}, noteId);
     const model = doc.getBlockById(pId);
-    assertExists(model);
+    if (!model) {
+      throw new Error('model is not found');
+    }
     const addDatabase = (title: string, group = true) => {
       const databaseId = doc.addBlock(
         'affine:database',

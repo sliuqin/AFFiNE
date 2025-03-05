@@ -16,7 +16,7 @@ import {
   type BlockComponent,
   type BlockStdScope,
 } from '@blocksuite/block-std';
-import { assertExists, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/utils';
 import { ArrowDownSmallIcon, MoreVerticalIcon } from '@blocksuite/icons/lit';
 import type { InlineRange } from '@blocksuite/inline';
 import { computePosition, inline, offset, shift } from '@floating-ui/dom';
@@ -51,6 +51,10 @@ export class ReferencePopup extends WithDisposable(LitElement) {
   static override styles = styles;
 
   private readonly _copyLink = () => {
+    if (!this.std) {
+      console.error('`std` is not found');
+      return;
+    }
     const url = this.std
       .getOptional(GenerateDocUrlProvider)
       ?.generateDocUrl(this.referenceInfo.pageId, this.referenceInfo.params);
@@ -66,6 +70,10 @@ export class ReferencePopup extends WithDisposable(LitElement) {
   };
 
   private readonly _openDoc = (event?: Partial<DocLinkClickedEvent>) => {
+    if (!this.std) {
+      console.error('`std` is not found');
+      return;
+    }
     this.std.getOptional(RefNodeSlotsProvider)?.docLinkClicked.emit({
       ...this.referenceInfo,
       ...event,
@@ -89,6 +97,11 @@ export class ReferencePopup extends WithDisposable(LitElement) {
       abortController,
     } = this;
 
+    if (!std) {
+      console.error('`std` is not found');
+      return;
+    }
+
     const aliasPopup = new ReferenceAliasPopup();
 
     aliasPopup.std = std;
@@ -105,6 +118,10 @@ export class ReferencePopup extends WithDisposable(LitElement) {
   };
 
   private readonly _toggleViewSelector = (e: Event) => {
+    if (!this.std) {
+      console.error('`std` is not found');
+      return;
+    }
     const opened = (e as CustomEvent<boolean>).detail;
     if (!opened) return;
 
@@ -112,6 +129,10 @@ export class ReferencePopup extends WithDisposable(LitElement) {
   };
 
   private readonly _trackViewSelected = (type: string) => {
+    if (!this.std) {
+      console.error('`std` is not found');
+      return;
+    }
     track(this.std, 'SelectedView', {
       control: 'select view',
       type: `${type} view`,
@@ -119,6 +140,11 @@ export class ReferencePopup extends WithDisposable(LitElement) {
   };
 
   get _embedViewButtonDisabled() {
+    if (!this.block) {
+      console.error('`block` is not found');
+      return true;
+    }
+
     if (
       this.block.doc.readonly ||
       isInsideBlockByFlavour(
@@ -131,13 +157,13 @@ export class ReferencePopup extends WithDisposable(LitElement) {
     }
     return (
       !!this.block.closest('affine-embed-synced-doc-block') ||
-      this.referenceDocId === this.doc.id
+      this.referenceDocId === this.block.doc.id
     );
   }
 
   _openButtonDisabled(openMode?: OpenDocMode) {
     if (openMode === 'open-in-active-view') {
-      return this.referenceDocId === this.doc.id;
+      return this.referenceDocId === this.doc?.id;
     }
     return false;
   }
@@ -146,34 +172,32 @@ export class ReferencePopup extends WithDisposable(LitElement) {
     const block = this.inlineEditor.rootElement?.closest<BlockComponent>(
       `[${BLOCK_ID_ATTR}]`
     );
-    assertExists(block);
     return block;
   }
 
   get doc() {
-    const doc = this.block.doc;
-    assertExists(doc);
+    const doc = this.block?.doc;
     return doc;
   }
 
   get referenceDocId() {
     const docId = this.inlineEditor.getFormat(this.targetInlineRange).reference
       ?.pageId;
-    assertExists(docId);
     return docId;
   }
 
   get std() {
-    const std = this.block.std;
-    assertExists(std);
+    const std = this.block?.std;
     return std;
   }
 
   private _convertToCardView() {
     const block = this.block;
+    if (!block) return;
+
     const doc = block.host.doc;
     const parent = doc.getParent(block.model);
-    assertExists(parent);
+    if (!parent) return;
 
     const index = parent.children.indexOf(block.model);
 
@@ -197,10 +221,17 @@ export class ReferencePopup extends WithDisposable(LitElement) {
 
   private _convertToEmbedView() {
     const block = this.block;
-    const std = block.std;
+    const std = block?.std;
+    if (!std || !block) {
+      console.error('`std` or `block` is not found');
+      return;
+    }
     const doc = block.host.doc;
     const parent = doc.getParent(block.model);
-    assertExists(parent);
+    if (!parent) {
+      console.error('`parent` is not found');
+      return;
+    }
 
     const index = parent.children.indexOf(block.model);
     const referenceInfo = this.referenceInfo;
@@ -242,7 +273,7 @@ export class ReferencePopup extends WithDisposable(LitElement) {
           type: 'delete',
           label: 'Delete',
           icon: DeleteIcon,
-          disabled: this.doc.readonly,
+          disabled: this.doc?.readonly,
           action: () => this._delete(),
         },
       ],
@@ -250,6 +281,10 @@ export class ReferencePopup extends WithDisposable(LitElement) {
   }
 
   private _openMenuButton() {
+    if (!this.std) {
+      console.error('`std` is not found');
+      return nothing;
+    }
     const openDocConfig = this.std.get(OpenDocExtensionIdentifier);
 
     const buttons: MenuItem[] = openDocConfig.items
@@ -330,7 +365,7 @@ export class ReferencePopup extends WithDisposable(LitElement) {
       type: 'card',
       label: 'Card view',
       action: () => this._convertToCardView(),
-      disabled: this.doc.readonly,
+      disabled: this.doc?.readonly,
     });
 
     buttons.push({
@@ -338,7 +373,9 @@ export class ReferencePopup extends WithDisposable(LitElement) {
       label: 'Embed view',
       action: () => this._convertToEmbedView(),
       disabled:
-        this.doc.readonly || this.isLinkedNode || this._embedViewButtonDisabled,
+        this.doc?.readonly ||
+        this.isLinkedNode ||
+        this._embedViewButtonDisabled,
     });
 
     return html`
@@ -388,11 +425,14 @@ export class ReferencePopup extends WithDisposable(LitElement) {
       return;
     }
 
+    if (!this.block) return;
+
     const parent = this.block.host.doc.getParent(this.block.model);
-    assertExists(parent);
+    if (!parent) return;
 
     this.disposables.add(
       effect(() => {
+        if (!this.block) return;
         const children = parent.children;
         if (children.includes(this.block.model)) return;
         this.abortController.abort();
@@ -435,7 +475,7 @@ export class ReferencePopup extends WithDisposable(LitElement) {
           aria-label="Edit"
           data-testid="edit"
           .tooltip=${'Edit'}
-          ?disabled=${this.doc.readonly}
+          ?disabled=${this.doc?.readonly}
           @click=${this._openEditPopup}
         >
           ${EditIcon}
@@ -479,10 +519,8 @@ export class ReferencePopup extends WithDisposable(LitElement) {
   }
 
   override updated() {
-    assertExists(this.popupContainer);
     const range = this.inlineEditor.toDomRange(this.targetInlineRange);
-    assertExists(range);
-
+    if (!range) return;
     const visualElement = {
       getBoundingClientRect: () => range.getBoundingClientRect(),
       getClientRects: () => range.getClientRects(),

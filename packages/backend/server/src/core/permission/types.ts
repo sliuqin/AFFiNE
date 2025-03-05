@@ -1,25 +1,7 @@
 import { LeafPaths, LeafVisitor } from '../../base';
+import { DocRole, WorkspaceRole } from '../../models';
 
-export enum PublicDocMode {
-  Page,
-  Edgeless,
-}
-
-export enum DocRole {
-  External = 0,
-  Reader = 10,
-  Editor = 20,
-  Manager = 30,
-  Owner = 99,
-}
-
-export enum WorkspaceRole {
-  External = -99,
-  Collaborator = 1,
-  Admin = 10,
-  Owner = 99,
-}
-
+export { DocRole, WorkspaceRole };
 /**
  * Definitions of all possible actions
  *
@@ -28,6 +10,7 @@ export enum WorkspaceRole {
 export const Actions = {
   // Workspace Actions
   Workspace: {
+    Read: '',
     Sync: '',
     CreateDoc: '',
     Delete: '',
@@ -39,6 +22,9 @@ export const Actions = {
       Read: '',
       Manage: '',
     },
+    Adminitrators: {
+      Manage: '',
+    },
     Properties: {
       Read: '',
       Create: '',
@@ -48,6 +34,15 @@ export const Actions = {
     Settings: {
       Read: '',
       Update: '',
+    },
+    Blobs: {
+      Read: '',
+      List: '',
+      Write: '',
+    },
+    Copilot: '',
+    Payment: {
+      Manage: '',
     },
   },
 
@@ -76,7 +71,12 @@ export const Actions = {
 export const RoleActionsMap = {
   WorkspaceRole: {
     get [WorkspaceRole.External]() {
-      return [Action.Workspace.Organize.Read];
+      return [
+        Action.Workspace.Read,
+        Action.Workspace.Organize.Read,
+        Action.Workspace.Properties.Read,
+        Action.Workspace.Blobs.Read,
+      ];
     },
     get [WorkspaceRole.Collaborator]() {
       return [
@@ -84,8 +84,10 @@ export const RoleActionsMap = {
         Action.Workspace.Sync,
         Action.Workspace.CreateDoc,
         Action.Workspace.Users.Read,
-        Action.Workspace.Properties.Read,
         Action.Workspace.Settings.Read,
+        Action.Workspace.Blobs.Write,
+        Action.Workspace.Blobs.List,
+        Action.Workspace.Copilot,
       ];
     },
     get [WorkspaceRole.Admin]() {
@@ -102,7 +104,9 @@ export const RoleActionsMap = {
       return [
         ...this[WorkspaceRole.Admin],
         Action.Workspace.Delete,
+        Action.Workspace.Adminitrators.Manage,
         Action.Workspace.TransferOwner,
+        Action.Workspace.Payment.Manage,
       ];
     },
   },
@@ -187,7 +191,9 @@ export const WORKSPACE_ACTIONS =
   RoleActionsMap.WorkspaceRole[WorkspaceRole.Owner];
 export const DOC_ACTIONS = RoleActionsMap.DocRole[DocRole.Owner];
 
-export function mapWorkspaceRoleToPermissions(workspaceRole: WorkspaceRole) {
+export function mapWorkspaceRoleToPermissions(
+  workspaceRole: WorkspaceRole | null
+) {
   const permissions = WORKSPACE_ACTIONS.reduce(
     (map, action) => {
       map[action] = false;
@@ -196,6 +202,10 @@ export function mapWorkspaceRoleToPermissions(workspaceRole: WorkspaceRole) {
     {} as Record<WorkspaceAction, boolean>
   );
 
+  if (workspaceRole === null) {
+    return permissions;
+  }
+
   RoleActionsMap.WorkspaceRole[workspaceRole].forEach(action => {
     permissions[action] = true;
   });
@@ -203,7 +213,7 @@ export function mapWorkspaceRoleToPermissions(workspaceRole: WorkspaceRole) {
   return permissions;
 }
 
-export function mapDocRoleToPermissions(docRole: DocRole) {
+export function mapDocRoleToPermissions(docRole: DocRole | null) {
   const permissions = DOC_ACTIONS.reduce(
     (map, action) => {
       map[action] = false;
@@ -211,6 +221,10 @@ export function mapDocRoleToPermissions(docRole: DocRole) {
     },
     {} as Record<DocAction, boolean>
   );
+
+  if (docRole === null) {
+    return permissions;
+  }
 
   RoleActionsMap.DocRole[docRole].forEach(action => {
     permissions[action] = true;
@@ -232,9 +246,16 @@ export function mapDocRoleToPermissions(docRole: DocRole) {
  * fixupDocRole(WorkspaceRole.Owner, DocRole.External) // returns DocRole.Manager
  */
 export function fixupDocRole(
-  workspaceRole: WorkspaceRole = WorkspaceRole.External,
-  docRole: DocRole = DocRole.External
-): DocRole {
+  workspaceRole: WorkspaceRole | null,
+  docRole: DocRole | null
+): DocRole | null {
+  if (workspaceRole === null && docRole === null) {
+    return null;
+  }
+
+  workspaceRole = workspaceRole ?? WorkspaceRole.External;
+  docRole = docRole ?? DocRole.External;
+
   switch (workspaceRole) {
     case WorkspaceRole.External:
       // Workspace External user won't be able to have any high permission doc role

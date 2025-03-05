@@ -11,7 +11,7 @@ import {
   ShadowlessElement,
 } from '@blocksuite/block-std';
 import { Bound, toRadian, Vec } from '@blocksuite/global/gfx';
-import { assertExists, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/utils';
 import { css, html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -144,12 +144,11 @@ export class EdgelessTextEditor extends WithDisposable(ShadowlessElement) {
   };
 
   get inlineEditor() {
-    assertExists(this.richText.inlineEditor);
     return this.richText.inlineEditor;
   }
 
   get inlineEditorContainer() {
-    return this.inlineEditor.rootElement;
+    return this.inlineEditor?.rootElement;
   }
 
   override connectedCallback(): void {
@@ -170,10 +169,10 @@ export class EdgelessTextEditor extends WithDisposable(ShadowlessElement) {
     const edgeless = this.edgeless;
     const element = this.element;
     const { dispatcher } = this.edgeless;
-    assertExists(dispatcher);
 
     this.updateComplete
       .then(() => {
+        if (!this.inlineEditor) return;
         this.inlineEditor.slots.renderComplete.on(() => {
           this._updateRect();
           this.requestUpdate();

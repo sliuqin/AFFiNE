@@ -11,7 +11,6 @@ import {
   UserFriendlyError,
   WorkspaceLicenseAlreadyExists,
 } from '../../base';
-import { PermissionService } from '../../core/permission';
 import { Models } from '../../models';
 import { SubscriptionPlan, SubscriptionRecurring } from '../payment/types';
 
@@ -30,7 +29,6 @@ export class LicenseService implements OnModuleInit {
     private readonly config: Config,
     private readonly db: PrismaClient,
     private readonly event: EventBus,
-    private readonly permission: PermissionService,
     private readonly models: Models
   ) {}
 
@@ -63,7 +61,7 @@ export class LicenseService implements OnModuleInit {
             memberLimit: quantity,
           }
         );
-        await this.permission.refreshSeatStatus(workspaceId, quantity);
+        await this.models.workspaceUser.refresh(workspaceId, quantity);
         break;
       default:
         break;

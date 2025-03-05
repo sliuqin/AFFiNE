@@ -16,7 +16,6 @@ import {
 } from '@blocksuite/affine-shared/commands';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import type { EditorHost } from '@blocksuite/block-std';
-import { assertExists } from '@blocksuite/global/utils';
 import { computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { html } from 'lit';
 import { ref, type RefOrCallback } from 'lit/directives/ref.js';
@@ -125,8 +124,9 @@ export const HighlightButton = (formatBar: AffineFormatBarWidget) => {
       formatBar.shadowRoot?.querySelector<HTMLElement>('.highlight-button');
     const panel =
       formatBar.shadowRoot?.querySelector<HTMLElement>('.highlight-panel');
-    assertExists(button);
-    assertExists(panel);
+    if (!button || !panel) {
+      return;
+    }
     panel.style.display = 'flex';
     computePosition(button, panel, {
       placement: 'bottom',
