@@ -2336,6 +2336,7 @@ __metadata:
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
     "@types/mdast": "npm:^4.0.4"
+    "@vanilla-extract/css": "npm:^1.17.0"
     date-fns: "npm:^4.0.0"
     lit: "npm:^3.2.0"
     minimatch: "npm:^10.0.1"
@@ -2927,6 +2928,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@blocksuite/affine@workspace:blocksuite/affine/all"
   dependencies:
+    "@blocksuite/affine-shared": "workspace:*"
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/blocks": "workspace:*"
     "@blocksuite/global": "workspace:*"
@@ -3022,6 +3024,7 @@ __metadata:
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
+    "@vanilla-extract/css": "npm:^1.17.0"
     date-fns: "npm:^4.0.0"
     lit: "npm:^3.2.0"
     yjs: "npm:^13.6.21"

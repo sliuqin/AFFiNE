@@ -13,13 +13,13 @@
   "author": "toeverything",
   "license": "MIT",
   "dependencies": {
+    "@blocksuite/affine-shared": "workspace:*",
     "@blocksuite/block-std": "workspace:*",
     "@blocksuite/blocks": "workspace:*",
     "@blocksuite/global": "workspace:*",
     "@blocksuite/inline": "workspace:*",
     "@blocksuite/store": "workspace:*",
-    "@blocksuite/sync": "workspace:*",
-    "@blocksuite/affine-shared": "workspace:*"
+    "@blocksuite/sync": "workspace:*"
   },
   "exports": {
     ".": "./src/index.ts",

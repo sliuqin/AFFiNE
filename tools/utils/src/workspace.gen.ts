@@ -5,6 +5,7 @@ export const PackageList = [
     location: 'blocksuite/affine/all',
     name: '@blocksuite/affine',
     workspaceDependencies: [
+      'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/blocks',
       'blocksuite/framework/global',
