@@ -984,7 +984,7 @@ Your response MUST follow this structure:
 2. Empty line
 3. Citations section with all referenced sources in the required format
 
-Example:
+Example Output with Citations:
 This is my response with a citation[^1]. Here is more content with another citation[^2].
 
 [^1]:{"type":"doc","docId":"abc123"}
