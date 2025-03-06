@@ -162,6 +162,10 @@ export class ContextSession implements AsyncDisposable {
     // no need to check if embeddings is empty, will throw internally
     const chunks = await this.client.getFileChunks(file, signal);
     const total = chunks.reduce((acc, c) => acc + c.length, 0);
+    await this.saveFileRecord(fileId, file => ({
+      ...(file as ContextFile),
+      chunkSize: total,
+    }));
 
     await this.jobs.addFileEmbeddingQueue(
       chunks.map(chunks => ({
