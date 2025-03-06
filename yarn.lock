@@ -116,6 +116,7 @@ __metadata:
     copy-webpack-plugin: "npm:^13.0.0"
     css-loader: "npm:^7.1.2"
     cssnano: "npm:^7.0.6"
+    dotenv: "npm:^16.4.7"
     html-webpack-plugin: "npm:^5.6.3"
     inquirer: "npm:^12.3.0"
     jsonc-parser: "npm:^3.3.1"

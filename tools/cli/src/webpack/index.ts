@@ -7,6 +7,7 @@ import { PerfseePlugin } from '@perfsee/webpack';
 import { sentryWebpackPlugin } from '@sentry/webpack-plugin';
 import { VanillaExtractPlugin } from '@vanilla-extract/webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
+import { config } from 'dotenv';
 import compact from 'lodash-es/compact';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
@@ -26,6 +27,8 @@ const require = createRequire(import.meta.url);
 const cssnano = require('cssnano');
 
 const IN_CI = !!process.env.CI;
+
+config();
 
 const OptimizeOptionOptions: (
   flags: BuildFlags

@@ -45,6 +45,7 @@ export class UnauthorizedError extends BaseAIError {
 
   constructor() {
     super('Unauthorized');
+    this.name = 'AIError:Unauthorized';
   }
 }
 
@@ -54,6 +55,7 @@ export class PaymentRequiredError extends BaseAIError {
 
   constructor() {
     super('Payment required');
+    this.name = 'AIError:PaymentRequired';
   }
 }
 
@@ -63,6 +65,7 @@ export class GeneralNetworkError extends BaseAIError {
 
   constructor(message: string = 'Network error') {
     super(message);
+    this.name = 'AIError:GeneralNetworkError';
   }
 }
 
