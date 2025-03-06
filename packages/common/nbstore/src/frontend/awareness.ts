@@ -47,7 +47,7 @@ export class AwarenessFrontend {
         return;
       }
 
-      applyAwarenessUpdate(awareness, update.bin, origin);
+      applyAwarenessUpdate(awareness, update.bin, uniqueId);
     };
     const handleSyncCollect = () => {
       return Promise.resolve({
