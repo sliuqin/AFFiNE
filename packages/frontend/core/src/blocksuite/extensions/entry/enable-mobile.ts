@@ -13,21 +13,20 @@ import type {
 import {
   codeToolbarWidget,
   DocModeProvider,
-  embedCardToolbarWidget,
   FeatureFlagService,
-  formatBarWidget,
   imageToolbarWidget,
   ParagraphBlockService,
   ReferenceNodeConfigIdentifier,
   slashMenuWidget,
   surfaceRefToolbarWidget,
+  toolbarWidget,
   VirtualKeyboardProvider as BSVirtualKeyboardProvider,
 } from '@blocksuite/affine/blocks';
 import type {
   Container,
   ServiceIdentifier,
 } from '@blocksuite/affine/global/di';
-import { DisposableGroup } from '@blocksuite/affine/global/utils';
+import { DisposableGroup } from '@blocksuite/affine/global/slot';
 import type { ExtensionType } from '@blocksuite/affine/store';
 import { batch, signal } from '@preact/signals-core';
 import type { FrameworkProvider } from '@toeverything/infra';
@@ -167,11 +166,10 @@ export function enableMobileExtension(
   specBuilder: SpecBuilder,
   framework: FrameworkProvider
 ): void {
-  specBuilder.omit(formatBarWidget);
-  specBuilder.omit(embedCardToolbarWidget);
   specBuilder.omit(slashMenuWidget);
   specBuilder.omit(codeToolbarWidget);
   specBuilder.omit(imageToolbarWidget);
   specBuilder.omit(surfaceRefToolbarWidget);
+  specBuilder.omit(toolbarWidget);
   specBuilder.extend([MobileSpecsPatches, KeyboardToolbarExtension(framework)]);
 }

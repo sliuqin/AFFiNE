@@ -3,7 +3,7 @@ import {
   stopPropagation,
   unsafeCSSVarV2,
 } from '@blocksuite/affine/blocks';
-import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { PublishIcon, SendIcon } from '@blocksuite/icons/lit';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query, state } from 'lit/decorators.js';

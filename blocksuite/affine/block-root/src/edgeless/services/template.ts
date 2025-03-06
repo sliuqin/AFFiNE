@@ -4,7 +4,8 @@ import type {
 } from '@blocksuite/affine-block-surface';
 import type { ConnectorElementModel } from '@blocksuite/affine-model';
 import { Bound, getCommonBound } from '@blocksuite/global/gfx';
-import { assertType, Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
+import { assertType } from '@blocksuite/global/utils';
 import {
   type BlockModel,
   type BlockSnapshot,

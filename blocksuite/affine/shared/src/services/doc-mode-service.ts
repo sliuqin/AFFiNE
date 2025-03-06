@@ -1,7 +1,8 @@
 import type { DocMode } from '@blocksuite/affine-model';
 import type { Container } from '@blocksuite/global/di';
 import { createIdentifier } from '@blocksuite/global/di';
-import { type Disposable, noop, Slot } from '@blocksuite/global/utils';
+import { type Disposable, Slot } from '@blocksuite/global/slot';
+import { noop } from '@blocksuite/global/utils';
 import type { ExtensionType } from '@blocksuite/store';
 import { Extension } from '@blocksuite/store';
 

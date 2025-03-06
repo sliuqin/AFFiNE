@@ -6,5 +6,8 @@
     "outDir": "./dist",
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
   },
-  "references": [{ "path": "../../common/env" }]
+  "references": [
+    { "path": "../../common/debug" },
+    { "path": "../../common/env" }
+  ]
 }

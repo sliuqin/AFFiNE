@@ -2,6 +2,7 @@ import type {
   ChatHistoryOrder,
   CopilotContextDoc,
   CopilotContextFile,
+  CopilotSessionType,
   getCopilotHistoriesQuery,
   RequestOptions,
 } from '@affine/graphql';
@@ -305,7 +306,7 @@ declare global {
         workspaceId: string,
         docId?: string,
         options?: { action?: boolean }
-      ) => Promise<{ id: string; promptName: string }[] | undefined>;
+      ) => Promise<CopilotSessionType[] | undefined>;
       updateSession: (sessionId: string, promptName: string) => Promise<string>;
     }
 

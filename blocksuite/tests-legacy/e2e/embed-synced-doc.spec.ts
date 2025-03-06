@@ -30,13 +30,15 @@ test.describe('Embed synced doc', () => {
     );
 
     await waitNextFrame(page, 200);
-    const referencePopup = page.locator('.affine-reference-popover-container');
-    await expect(referencePopup).toBeVisible();
+    const toolbar = page.locator('affine-toolbar-widget editor-toolbar');
+    await expect(toolbar).toBeVisible();
 
-    const switchButton = page.getByRole('button', { name: 'Switch view' });
+    const switchButton = toolbar.getByRole('button', { name: 'Switch view' });
     await switchButton.click();
 
-    const embedSyncedDocBtn = page.getByRole('button', { name: 'Embed view' });
+    const embedSyncedDocBtn = toolbar.getByRole('button', {
+      name: 'Embed view',
+    });
     await expect(embedSyncedDocBtn).toBeVisible();
 
     await embedSyncedDocBtn.click();
@@ -70,7 +72,7 @@ test.describe('Embed synced doc', () => {
     );
 
     await waitNextFrame(page, 200);
-    const toolbar = page.locator('.embed-card-toolbar');
+    const toolbar = page.locator('affine-toolbar-widget editor-toolbar');
     await expect(toolbar).toBeVisible();
 
     const switchBtn = toolbar.getByRole('button', { name: 'Switch view' });
@@ -213,11 +215,13 @@ test.describe('Embed synced doc', () => {
       await initEmptyParagraphState(page);
       await focusRichText(page);
       await createAndConvertToEmbedSyncedDoc(page);
+
       const locator = page.locator('affine-embed-synced-doc-block');
+      await expect(locator).toBeVisible();
       await locator.click();
 
-      const toolbar = page.locator('editor-toolbar');
-      const openMenu = toolbar.getByRole('button', { name: 'Open' });
+      const toolbar = page.locator('affine-toolbar-widget editor-toolbar');
+      const openMenu = toolbar.getByRole('button', { name: 'Open doc' });
       await openMenu.click();
 
       const button = toolbar.getByRole('button', { name: 'Open this doc' });

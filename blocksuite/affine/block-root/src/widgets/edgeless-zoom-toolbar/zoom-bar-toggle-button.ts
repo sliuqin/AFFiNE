@@ -1,6 +1,6 @@
 import { createLitPortal } from '@blocksuite/affine-components/portal';
 import { stopPropagation } from '@blocksuite/affine-shared/utils';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { MoreHorizontalIcon } from '@blocksuite/icons/lit';
 import { offset } from '@floating-ui/dom';
 import { css, html, LitElement, nothing } from 'lit';

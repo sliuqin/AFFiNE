@@ -16,7 +16,7 @@ import {
 import { stopPropagation } from '@blocksuite/affine-shared/utils';
 import { WidgetComponent } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { debounce, Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
 import {
   ArrowLeftSmallIcon,
   ArrowRightSmallIcon,
@@ -29,6 +29,7 @@ import { baseTheme, cssVar } from '@toeverything/theme';
 import { css, html, nothing, unsafeCSS } from 'lit';
 import { query, state } from 'lit/decorators.js';
 import { cache } from 'lit/directives/cache.js';
+import debounce from 'lodash-es/debounce';
 
 import type { EdgelessRootBlockComponent } from '../../edgeless-root-block.js';
 import type { MenuPopper } from './common/create-popper.js';
@@ -233,36 +234,40 @@ export class EdgelessToolbarWidget extends WidgetComponent<
   @state()
   accessor containerWidth = 1920;
 
-  private readonly _onContainerResize = debounce(({ w }: { w: number }) => {
-    if (!this.isConnected) return;
+  private readonly _onContainerResize = debounce(
+    ({ w }: { w: number }) => {
+      if (!this.isConnected) return;
 
-    this.slots.resize.emit({ w, h: TOOLBAR_HEIGHT });
-    this.containerWidth = w;
+      this.slots.resize.emit({ w, h: TOOLBAR_HEIGHT });
+      this.containerWidth = w;
 
-    if (this._denseSeniorTools) {
-      this.scrollSeniorToolIndex = Math.min(
-        this._seniorTools.length - this.scrollSeniorToolSize,
-        this.scrollSeniorToolIndex
-      );
-    } else {
-      this.scrollSeniorToolIndex = 0;
-    }
+      if (this._denseSeniorTools) {
+        this.scrollSeniorToolIndex = Math.min(
+          this._seniorTools.length - this.scrollSeniorToolSize,
+          this.scrollSeniorToolIndex
+        );
+      } else {
+        this.scrollSeniorToolIndex = 0;
+      }
 
-    if (
-      this._denseQuickTools &&
-      this._moreQuickToolsMenu &&
-      this._moreQuickToolsMenuRef
-    ) {
-      this._moreQuickToolsMenu.close();
-      this._openMoreQuickToolsMenu({
-        currentTarget: this._moreQuickToolsMenuRef,
-      });
-    }
-    if (!this._denseQuickTools && this._moreQuickToolsMenu) {
-      this._moreQuickToolsMenu.close();
-      this._moreQuickToolsMenu = null;
-    }
-  }, 300);
+      if (
+        this._denseQuickTools &&
+        this._moreQuickToolsMenu &&
+        this._moreQuickToolsMenuRef
+      ) {
+        this._moreQuickToolsMenu.close();
+        this._openMoreQuickToolsMenu({
+          currentTarget: this._moreQuickToolsMenuRef,
+        });
+      }
+      if (!this._denseQuickTools && this._moreQuickToolsMenu) {
+        this._moreQuickToolsMenu.close();
+        this._moreQuickToolsMenu = null;
+      }
+    },
+    300,
+    { leading: true }
+  );
 
   private _resizeObserver: ResizeObserver | null = null;
 

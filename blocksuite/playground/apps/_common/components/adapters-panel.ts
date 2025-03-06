@@ -14,7 +14,7 @@ import {
   PlainTextAdapterFactoryIdentifier,
   titleMiddleware,
 } from '@blocksuite/blocks';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
 import type { DocSnapshot } from '@blocksuite/store';
 import { effect } from '@preact/signals-core';

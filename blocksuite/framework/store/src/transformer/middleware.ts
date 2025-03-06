@@ -1,4 +1,4 @@
-import type { Slot } from '@blocksuite/global/utils';
+import type { Slot } from '@blocksuite/global/slot';
 
 import type { BlockModel, DraftModel, Store } from '../model/index.js';
 import type { AssetsManager } from './assets.js';

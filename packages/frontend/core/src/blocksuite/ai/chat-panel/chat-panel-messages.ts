@@ -6,8 +6,12 @@ import {
   isInsidePageEditor,
   type SpecBuilder,
 } from '@blocksuite/affine/blocks';
-import { WithDisposable } from '@blocksuite/affine/global/utils';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
 import type { BaseSelection } from '@blocksuite/affine/store';
+import {
+  AiIcon,
+  ArrowDownBigIcon as ArrowDownIcon,
+} from '@blocksuite/icons/lit';
 import { css, html, nothing, type PropertyValues } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -17,7 +21,7 @@ import {
   EdgelessEditorActions,
   PageEditorActions,
 } from '../_common/chat-actions-handle';
-import { AffineAvatarIcon, AffineIcon, DownArrowIcon } from '../_common/icons';
+import { AffineIcon } from '../_common/icons';
 import {
   type AIError,
   PaymentRequiredError,
@@ -33,6 +37,12 @@ import {
 } from './chat-context';
 import { HISTORY_IMAGE_ACTIONS } from './const';
 import { AIPreloadConfig } from './preload-config';
+
+const AffineAvatarIcon = AiIcon({
+  width: '20px',
+  height: '20px',
+  style: 'color: var(--affine-primary-color)',
+});
 
 export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
   static override styles = css`
@@ -94,6 +104,7 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      color: var(--affine-text-secondary-color);
     }
 
     .onboarding-item-text {
@@ -285,7 +296,7 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
       </div>
       ${showDownIndicator && filteredItems.length > 0
         ? html`<div class="down-indicator" @click=${this._onDownIndicatorClick}>
-            ${DownArrowIcon}
+            ${ArrowDownIcon()}
           </div>`
         : nothing}
     `;

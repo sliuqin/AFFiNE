@@ -11,7 +11,7 @@ import {
   ShadowlessElement,
 } from '@blocksuite/block-std';
 import { Bound, toRadian, Vec } from '@blocksuite/global/gfx';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { css, html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';

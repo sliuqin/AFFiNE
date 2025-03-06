@@ -1,4 +1,3 @@
-import { nToLast } from '@blocksuite/global/utils';
 import type { Store } from '@blocksuite/store';
 
 import type { GfxLocalElementModel } from '../gfx/index.js';
@@ -113,17 +112,17 @@ export function compare(
       | GfxModel
       | GfxGroupCompatibleInterface
       | GfxLocalElementModel
-      | undefined = nToLast(aGroups, i);
+      | undefined = aGroups.at(-i);
     let bGroup:
       | GfxModel
       | GfxGroupCompatibleInterface
       | GfxLocalElementModel
-      | undefined = nToLast(bGroups, i);
+      | undefined = bGroups.at(-i);
 
     while (aGroup === bGroup && aGroup) {
       ++i;
-      aGroup = nToLast(aGroups, i);
-      bGroup = nToLast(bGroups, i);
+      aGroup = aGroups.at(-i);
+      bGroup = bGroups.at(-i);
     }
 
     aGroup = aGroup ?? a;

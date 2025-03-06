@@ -10,7 +10,7 @@ import {
   Bound,
   getCommonBoundWithRotation,
 } from '@blocksuite/affine/global/gfx';
-import { Slot } from '@blocksuite/affine/global/utils';
+import { Slot } from '@blocksuite/affine/global/slot';
 
 import {
   AFFINE_AI_PANEL_WIDGET,

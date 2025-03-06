@@ -1,10 +1,11 @@
 import {
-  ArticleIcon,
-  CommunicateIcon,
+  ImageIcon,
+  LanguageIcon,
   MindmapIcon,
-  PreloadImageIcon,
-  PreloadPenIcon,
-} from '../_common/icons.js';
+  PenIcon,
+  SendIcon,
+} from '@blocksuite/icons/lit';
+
 import { AIProvider } from '../provider/ai-provider.js';
 import completeWritingWithAI from './templates/completeWritingWithAI.zip';
 import freelyCommunicateWithAI from './templates/freelyCommunicateWithAI.zip';
@@ -14,7 +15,7 @@ import TidyMindMapV3 from './templates/TidyMindMapV3.zip';
 
 export const AIPreloadConfig = [
   {
-    icon: ArticleIcon,
+    icon: LanguageIcon(),
     text: 'Read a foreign language article with AI',
     handler: () => {
       AIProvider.slots.requestInsertTemplate.emit({
@@ -24,7 +25,7 @@ export const AIPreloadConfig = [
     },
   },
   {
-    icon: MindmapIcon,
+    icon: MindmapIcon(),
     text: 'Tidy an article with AI MindMap Action',
     handler: () => {
       AIProvider.slots.requestInsertTemplate.emit({
@@ -34,7 +35,7 @@ export const AIPreloadConfig = [
     },
   },
   {
-    icon: PreloadImageIcon,
+    icon: ImageIcon(),
     text: 'Add illustrations to the article',
     handler: () => {
       AIProvider.slots.requestInsertTemplate.emit({
@@ -44,7 +45,7 @@ export const AIPreloadConfig = [
     },
   },
   {
-    icon: PreloadPenIcon,
+    icon: PenIcon(),
     text: 'Complete writing with AI',
     handler: () => {
       AIProvider.slots.requestInsertTemplate.emit({
@@ -54,7 +55,7 @@ export const AIPreloadConfig = [
     },
   },
   {
-    icon: CommunicateIcon,
+    icon: SendIcon(),
     text: 'Freely communicate with AI',
     handler: () => {
       AIProvider.slots.requestInsertTemplate.emit({

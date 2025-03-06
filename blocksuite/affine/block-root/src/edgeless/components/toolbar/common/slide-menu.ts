@@ -1,4 +1,4 @@
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { ArrowRightSmallIcon } from '@blocksuite/icons/lit';
 import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';

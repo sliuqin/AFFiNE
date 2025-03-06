@@ -1,13 +1,12 @@
-import { Menu, MenuItem, MenuSeparator } from '@affine/component';
+import { Menu, MenuSeparator } from '@affine/component';
 import { MenuItem as SidebarMenuItem } from '@affine/core/modules/app-sidebar/views';
-import { DocsService } from '@affine/core/modules/doc';
-import { TemplateListMenuContentScrollable } from '@affine/core/modules/template-doc/view/template-list-menu';
-import { WorkbenchService } from '@affine/core/modules/workbench';
-import { inferOpenMode } from '@affine/core/utils';
+import {
+  TemplateListMenuAdd,
+  TemplateListMenuContentScrollable,
+} from '@affine/core/modules/template-doc/view/template-list-menu';
 import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
 import { TemplateIcon } from '@blocksuite/icons/rc';
-import { useService } from '@toeverything/infra';
 import { useCallback, useState } from 'react';
 
 export const TemplateDocEntrance = () => {
@@ -44,7 +43,7 @@ export const TemplateDocEntrance = () => {
             suffixItems={
               <>
                 <MenuSeparator />
-                <CreateNewTemplateMenuItem />
+                <TemplateListMenuAdd />
               </>
             }
           />
@@ -53,30 +52,5 @@ export const TemplateDocEntrance = () => {
         <span>{t['Template']()}</span>
       </Menu>
     </SidebarMenuItem>
-  );
-};
-
-const CreateNewTemplateMenuItem = () => {
-  const t = useI18n();
-  const docsService = useService(DocsService);
-  const workbench = useService(WorkbenchService).workbench;
-
-  const createNewTemplate = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const record = docsService.createDoc({ isTemplate: true });
-      workbench.openDoc(record.id, { at: inferOpenMode(e) });
-    },
-    [docsService, workbench]
-  );
-
-  return (
-    <MenuItem
-      data-testid="template-doc-item-create"
-      prefixIcon={<TemplateIcon />}
-      onClick={createNewTemplate}
-      onAuxClick={createNewTemplate}
-    >
-      {t['com.affine.template-list.create-new']()}
-    </MenuItem>
   );
 };

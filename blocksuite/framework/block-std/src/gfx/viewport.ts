@@ -5,8 +5,9 @@ import {
   type IVec,
   Vec,
 } from '@blocksuite/global/gfx';
-import { debounce, Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
 import { signal } from '@preact/signals-core';
+import debounce from 'lodash-es/debounce';
 
 import type { GfxViewportElement } from '.';
 
@@ -73,21 +74,13 @@ export class Viewport {
 
   ZOOM_MIN = ZOOM_MIN;
 
-  private readonly _resetZooming = debounce(
-    () => {
-      this.zooming$.value = false;
-    },
-    200,
-    { leading: false, trailing: true }
-  );
+  private readonly _resetZooming = debounce(() => {
+    this.zooming$.value = false;
+  }, 200);
 
-  private readonly _resetPanning = debounce(
-    () => {
-      this.panning$.value = false;
-    },
-    200,
-    { leading: false, trailing: true }
-  );
+  private readonly _resetPanning = debounce(() => {
+    this.panning$.value = false;
+  }, 200);
 
   constructor() {
     this.elementReady.once(el => (this._element = el));

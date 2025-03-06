@@ -2,9 +2,9 @@ import {
   BlockSuiteError,
   ErrorCode,
 } from '@blocksuite/affine/global/exceptions';
-import { NoopLogger, Slot } from '@blocksuite/affine/global/utils';
+import { Slot } from '@blocksuite/affine/global/slot';
+import { NoopLogger } from '@blocksuite/affine/global/utils';
 import {
-  AwarenessStore,
   type CreateBlocksOptions,
   type Doc,
   type GetBlocksOptions,
@@ -19,7 +19,7 @@ import {
   type BlobSource,
   MemoryBlobSource,
 } from '@blocksuite/affine/sync';
-import { Awareness } from 'y-protocols/awareness.js';
+import type { Awareness } from 'y-protocols/awareness.js';
 import * as Y from 'yjs';
 
 import { DocImpl } from './doc';
@@ -33,8 +33,6 @@ type WorkspaceOptions = {
 };
 
 export class WorkspaceImpl implements Workspace {
-  readonly awarenessStore: AwarenessStore;
-
   readonly blobSync: BlobEngine;
 
   readonly blockCollections = new Map<string, Doc>();
@@ -68,11 +66,9 @@ export class WorkspaceImpl implements Workspace {
   }: WorkspaceOptions = {}) {
     this.id = id || '';
     this.doc = new Y.Doc({ guid: id });
-    this.awarenessStore = new AwarenessStore(new Awareness(this.doc));
     this.onLoadDoc = onLoadDoc;
-    this.onLoadAwareness = onLoadAwareness;
     this.onLoadDoc?.(this.doc);
-    this.onLoadAwareness?.(this.awarenessStore.awareness);
+    this.onLoadAwareness = onLoadAwareness;
 
     blobSource = blobSource ?? new MemoryBlobSource();
     const logger = new NoopLogger();
@@ -91,7 +87,6 @@ export class WorkspaceImpl implements Workspace {
         id: docId,
         collection: this,
         doc: this.doc,
-        awarenessStore: this.awarenessStore,
       });
       this.blockCollections.set(doc.id, doc);
     });
@@ -139,10 +134,6 @@ export class WorkspaceImpl implements Workspace {
     }) as Store;
   }
 
-  dispose() {
-    this.awarenessStore.destroy();
-  }
-
   private _getDoc(docId: string): Doc | null {
     const space = this.docs.get(docId) as Doc | undefined;
     return space ?? null;
@@ -171,5 +162,9 @@ export class WorkspaceImpl implements Workspace {
     blockCollection.dispose();
     this.meta.removeDocMeta(docId);
     this.blockCollections.delete(docId);
+  }
+
+  dispose() {
+    this.blockCollections.forEach(doc => doc.dispose());
   }
 }

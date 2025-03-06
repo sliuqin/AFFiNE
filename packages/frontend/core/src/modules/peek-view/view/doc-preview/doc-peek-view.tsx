@@ -14,7 +14,7 @@ import { Bound } from '@blocksuite/affine/global/gfx';
 import {
   type Disposable,
   DisposableGroup,
-} from '@blocksuite/affine/global/utils';
+} from '@blocksuite/affine/global/slot';
 import {
   FrameworkScope,
   useLiveData,

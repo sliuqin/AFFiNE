@@ -1,5 +1,5 @@
 import { BlockSuiteError } from '@blocksuite/global/exceptions';
-import { Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
 import {
   autoUpdate,
   computePosition,

@@ -1,4 +1,4 @@
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import type { BlockModel, Store } from '@blocksuite/store';
 import { consume } from '@lit/context';
 import { LitElement } from 'lit';

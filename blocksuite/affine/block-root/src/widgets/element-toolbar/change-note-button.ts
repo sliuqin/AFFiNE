@@ -31,7 +31,7 @@ import {
   ThemeProvider,
 } from '@blocksuite/affine-shared/services';
 import { Bound } from '@blocksuite/global/gfx';
-import { countBy, maxBy, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import {
   AutoHeightIcon,
   CornerIcon,
@@ -46,6 +46,8 @@ import { property, query } from 'lit/decorators.js';
 import { join } from 'lit/directives/join.js';
 import { createRef, type Ref, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
+import countBy from 'lodash-es/countBy';
+import maxBy from 'lodash-es/maxBy';
 
 import {
   type LineStyleEvent,

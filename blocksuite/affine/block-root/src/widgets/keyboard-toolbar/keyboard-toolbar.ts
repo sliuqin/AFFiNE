@@ -5,7 +5,7 @@ import {
   requiredProperties,
   ShadowlessElement,
 } from '@blocksuite/block-std';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { ArrowLeftBigIcon, KeyboardIcon } from '@blocksuite/icons/lit';
 import { effect, type Signal, signal } from '@preact/signals-core';
 import { html } from 'lit';

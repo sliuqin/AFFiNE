@@ -11,7 +11,7 @@ import {
   type ThemeExtension,
   toast,
 } from '@blocksuite/blocks';
-import { Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
 import { type Workspace } from '@blocksuite/store';
 import { Signal, signal } from '@preact/signals-core';

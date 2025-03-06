@@ -39,6 +39,7 @@ import { type Framework } from '@toeverything/infra';
 
 import { DocScope } from '../doc/scopes/doc';
 import { DocService } from '../doc/services/doc';
+import { EditorScope } from '../editor';
 import { GlobalCache, GlobalState } from '../storage/providers/global';
 import { GlobalStateService } from '../storage/services/global';
 import { UrlService } from '../url';
@@ -63,6 +64,7 @@ import { AuthService } from './services/auth';
 import { CaptchaService } from './services/captcha';
 import { CloudDocMetaService } from './services/cloud-doc-meta';
 import { DefaultServerService } from './services/default-server';
+import { EditorUserCursorLabelService } from './services/editor-user-cursor-label';
 import { EventSourceService } from './services/eventsource';
 import { FetchService } from './services/fetch';
 import { GraphQLService } from './services/graphql';
@@ -168,4 +170,10 @@ export function configureCloudModule(framework: Framework) {
     .entity(WorkspaceInvoices, [WorkspaceService, WorkspaceServerService])
     .service(SelfhostLicenseService, [SelfhostLicenseStore, WorkspaceService])
     .store(SelfhostLicenseStore, [WorkspaceServerService]);
+
+  framework
+    .scope(WorkspaceScope)
+    .scope(DocScope)
+    .scope(EditorScope)
+    .service(EditorUserCursorLabelService, [WorkspaceServerService]);
 }

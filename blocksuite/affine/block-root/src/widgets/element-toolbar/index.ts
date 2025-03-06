@@ -31,11 +31,11 @@ import { requestConnectedFrame } from '@blocksuite/affine-shared/utils';
 import { WidgetComponent } from '@blocksuite/block-std';
 import type { GfxModel } from '@blocksuite/block-std/gfx';
 import { clamp, getCommonBoundWithRotation } from '@blocksuite/global/gfx';
-import { atLeastNMatches, groupBy, pickValues } from '@blocksuite/global/utils';
 import { ConnectorCIcon } from '@blocksuite/icons/lit';
 import { css, html, nothing, type TemplateResult, unsafeCSS } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { join } from 'lit/directives/join.js';
+import groupBy from 'lodash-es/groupBy';
 
 import type { EdgelessRootBlockComponent } from '../../edgeless/edgeless-root-block.js';
 import {
@@ -270,11 +270,8 @@ export class EdgelessElementToolbarWidget extends WidgetComponent<
       edgelessText,
       mindmap: mindmaps,
     } = groupedSelected;
-    const selectedAtLeastTwoTypes = atLeastNMatches(
-      Object.values(groupedSelected),
-      e => !!e.length,
-      2
-    );
+    const selectedAtLeastTwoTypes =
+      Object.values(groupedSelected).filter(e => !!e.length).length >= 2;
 
     const quickConnectButton =
       selectedElements.length === 1 && !connector?.length
@@ -385,10 +382,16 @@ export class EdgelessElementToolbarWidget extends WidgetComponent<
       })
     );
 
-    pickValues(this.edgeless.service.surface, [
-      'elementAdded',
-      'elementUpdated',
-    ]).forEach(slot => _disposables.add(slot.on(this._updateOnSelectedChange)));
+    _disposables.add(
+      this.edgeless.service.surface.elementAdded.on(
+        this._updateOnSelectedChange
+      )
+    );
+    _disposables.add(
+      this.edgeless.service.surface.elementUpdated.on(
+        this._updateOnSelectedChange
+      )
+    );
 
     _disposables.add(
       this.doc.slots.blockUpdated.on(this._updateOnSelectedChange)

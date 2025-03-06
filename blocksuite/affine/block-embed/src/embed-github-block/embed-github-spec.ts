@@ -1,21 +1,35 @@
-import { BlockViewExtension, FlavourExtension } from '@blocksuite/block-std';
+import { EmbedGithubBlockSchema } from '@blocksuite/affine-model';
+import { ToolbarModuleExtension } from '@blocksuite/affine-shared/services';
+import {
+  BlockServiceIdentifier,
+  BlockViewExtension,
+  FlavourExtension,
+} from '@blocksuite/block-std';
 import type { ExtensionType } from '@blocksuite/store';
 import { literal } from 'lit/static-html.js';
 
-import { EmbedGithubBlockAdapterExtensions } from './adapters/extension.js';
+import { createBuiltinToolbarConfigForExternal } from '../configs/toolbar';
+import { EmbedGithubBlockAdapterExtensions } from './adapters/extension';
+import { EmbedGithubBlockComponent } from './embed-github-block';
 import {
   EmbedGithubBlockOptionConfig,
   EmbedGithubBlockService,
-} from './embed-github-service.js';
+} from './embed-github-service';
+
+const flavour = EmbedGithubBlockSchema.model.flavour;
 
 export const EmbedGithubBlockSpec: ExtensionType[] = [
-  FlavourExtension('affine:embed-github'),
+  FlavourExtension(flavour),
   EmbedGithubBlockService,
-  BlockViewExtension('affine:embed-github', model => {
+  BlockViewExtension(flavour, model => {
     return model.parent?.flavour === 'affine:surface'
       ? literal`affine-embed-edgeless-github-block`
       : literal`affine-embed-github-block`;
   }),
   EmbedGithubBlockAdapterExtensions,
   EmbedGithubBlockOptionConfig,
+  ToolbarModuleExtension({
+    id: BlockServiceIdentifier(flavour),
+    config: createBuiltinToolbarConfigForExternal(EmbedGithubBlockComponent),
+  }),
 ].flat();

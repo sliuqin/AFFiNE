@@ -14,7 +14,7 @@ import {
   PageEditorBlockSpecs,
 } from '@blocksuite/affine/blocks';
 import { Container, type ServiceProvider } from '@blocksuite/affine/global/di';
-import { WithDisposable } from '@blocksuite/affine/global/utils';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
 import type {
   ExtensionType,
   Query,

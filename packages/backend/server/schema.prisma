@@ -124,6 +124,8 @@ model WorkspaceDoc {
   defaultRole Int     @default(30) @db.SmallInt
   // Page/Edgeless
   mode        Int     @default(0) @db.SmallInt
+  // Whether the doc is blocked
+  blocked     Boolean @default(false)
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 

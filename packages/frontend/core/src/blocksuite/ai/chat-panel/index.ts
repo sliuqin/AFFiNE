@@ -7,15 +7,16 @@ import {
   NotificationProvider,
   type SpecBuilder,
 } from '@blocksuite/affine/blocks';
-import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import type { Store } from '@blocksuite/affine/store';
+import { HelpIcon, InformationIcon } from '@blocksuite/icons/lit';
+import { type Signal, signal } from '@preact/signals-core';
 import { css, html, type PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { createRef, type Ref, ref } from 'lit/directives/ref.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { throttle } from 'lodash-es';
 
-import { AIHelpIcon, SmallHintIcon } from '../_common/icons';
 import { AIProvider } from '../provider';
 import { extractSelectedContent } from '../utils/extract';
 import {
@@ -29,7 +30,6 @@ import type {
   DocSearchMenuConfig,
 } from './chat-config';
 import type {
-  ChatAction,
   ChatContextValue,
   ChatItem,
   DocChip,
@@ -87,6 +87,12 @@ export class ChatPanel extends SignalWatcher(
         justify-content: center;
         align-items: center;
         cursor: pointer;
+      }
+
+      svg {
+        width: 18px;
+        height: 18px;
+        color: var(--affine-text-secondary-color);
       }
     }
 
@@ -150,9 +156,10 @@ export class ChatPanel extends SignalWatcher(
 
     const items: ChatItem[] = actions ? [...actions] : [];
 
-    if (histories?.at(-1)) {
-      const history = histories.at(-1);
-      if (!history) return;
+    const history = histories?.find(
+      history => history.sessionId === this._chatSessionId
+    );
+    if (history) {
       items.push(...history.messages);
       AIProvider.LAST_ROOT_SESSION_ID = history.sessionId;
     }
@@ -265,6 +272,10 @@ export class ChatPanel extends SignalWatcher(
 
   private _chatContextId: string | null | undefined = null;
 
+  private _isOpen: Signal<boolean | undefined> = signal(false);
+
+  private _width: Signal<number | undefined> = signal(undefined);
+
   private readonly _scrollToEnd = () => {
     if (!this._wheelTriggered) {
       this._chatMessages.value?.scrollToEnd();
@@ -286,13 +297,12 @@ export class ChatPanel extends SignalWatcher(
         cancelText: 'Cancel',
       })
     ) {
+      const actionIds = this.chatContextValue.items
+        .filter(item => 'sessionId' in item)
+        .map(item => item.sessionId);
       await AIProvider.histories?.cleanup(this.doc.workspace.id, this.doc.id, [
-        this._chatSessionId ?? '',
-        ...(
-          this.chatContextValue.items.filter(
-            item => 'sessionId' in item
-          ) as ChatAction[]
-        ).map(item => item.sessionId),
+        ...(this._chatSessionId ? [this._chatSessionId] : []),
+        ...(actionIds || []),
       ]);
       notification.toast('History cleared');
       await this._updateHistory();
@@ -301,19 +311,22 @@ export class ChatPanel extends SignalWatcher(
 
   private readonly _initPanel = async () => {
     try {
-      const isOpen = !!this.appSidebarConfig.isOpen().signal.value;
-      if (!isOpen) return;
+      if (!this._isOpen.value) return;
 
       const userId = (await AIProvider.userInfo)?.id;
       if (!userId) return;
 
       this.isLoading = true;
-      const sessions = await AIProvider.session?.getSessions(
-        this.doc.workspace.id,
-        this.doc.id
-      );
-      if (sessions?.length) {
-        this._chatSessionId = sessions?.[0].id;
+      const sessions = (
+        (await AIProvider.session?.getSessions(
+          this.doc.workspace.id,
+          this.doc.id,
+          { action: false }
+        )) || []
+      ).filter(session => !session.parentSessionId);
+
+      if (sessions && sessions.length) {
+        this._chatSessionId = sessions.at(-1)?.id;
         await this._updateHistory();
       }
       this.isLoading = false;
@@ -374,14 +387,6 @@ export class ChatPanel extends SignalWatcher(
         })
         .catch(console.error);
     }
-
-    this._disposables.add(
-      this.appSidebarConfig.isOpen().signal.subscribe(isOpen => {
-        if (isOpen && this.isLoading) {
-          this._initPanel().catch(console.error);
-        }
-      })
-    );
   }
 
   override connectedCallback() {
@@ -413,6 +418,22 @@ export class ChatPanel extends SignalWatcher(
         }
       })
     );
+
+    const isOpen = this.appSidebarConfig.isOpen();
+    this._isOpen = isOpen.signal;
+    this._disposables.add(isOpen.cleanup);
+
+    const width = this.appSidebarConfig.getWidth();
+    this._width = width.signal;
+    this._disposables.add(width.cleanup);
+
+    this._disposables.add(
+      this._isOpen.subscribe(isOpen => {
+        if (isOpen && this.isLoading) {
+          this._initPanel().catch(console.error);
+        }
+      })
+    );
   }
 
   updateContext = (context: Partial<ChatContextValue>) => {
@@ -431,10 +452,9 @@ export class ChatPanel extends SignalWatcher(
   };
 
   override render() {
-    const panelWidth = this.appSidebarConfig.getWidth().signal.value;
+    const width = this._width.value || 0;
     const style = styleMap({
-      padding:
-        panelWidth && panelWidth > 540 ? '8px 24px 0 24px' : '8px 12px 0 12px',
+      padding: width > 540 ? '8px 24px 0 24px' : '8px 12px 0 12px',
     });
 
     return html`<div class="chat-panel-container" style=${style}>
@@ -445,7 +465,7 @@ export class ChatPanel extends SignalWatcher(
             AIProvider.toggleGeneralAIOnboarding?.(true);
           }}
         >
-          ${AIHelpIcon}
+          ${HelpIcon()}
         </div>
       </div>
       <chat-panel-messages
@@ -474,7 +494,7 @@ export class ChatPanel extends SignalWatcher(
         .cleanupHistories=${this._cleanupHistories}
       ></chat-panel-input>
       <div class="chat-panel-footer">
-        ${SmallHintIcon}
+        ${InformationIcon()}
         <div>AI outputs can be misleading or wrong</div>
       </div>
     </div>`;

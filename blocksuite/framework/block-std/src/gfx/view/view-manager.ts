@@ -1,4 +1,4 @@
-import { DisposableGroup } from '@blocksuite/global/utils';
+import { DisposableGroup } from '@blocksuite/global/slot';
 
 import { onSurfaceAdded } from '../../utils/gfx.js';
 import type { GfxController } from '../controller.js';

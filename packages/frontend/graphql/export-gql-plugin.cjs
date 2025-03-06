@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { Kind, print } = require('graphql');
+const { Kind, print, visit, TypeInfo, visitWithTypeInfo } = require('graphql');
 const { upperFirst, lowerFirst } = require('lodash');
 
 /**
@@ -20,10 +20,81 @@ function getExportedName(def) {
 }
 
 /**
+ * Check if a field is deprecated in the schema
+ *
+ * @param {import('graphql').GraphQLSchema} schema
+ * @param {string} typeName
+ * @param {string} fieldName
+ * @returns {boolean}
+ */
+function fieldDeprecation(schema, typeName, fieldName) {
+  const type = schema.getType(typeName);
+  if (!type || !type.getFields) {
+    return false;
+  }
+
+  const fields = type.getFields();
+  const field = fields[fieldName];
+
+  return field?.deprecationReason
+    ? {
+        name: fieldName,
+        reason: field.deprecationReason,
+      }
+    : null;
+}
+
+/**
+ * Check if a query uses deprecated fields
+ *
+ * @param {import('graphql').GraphQLSchema} schema
+ * @param {import('graphql').DocumentNode} document
+ * @returns {boolean}
+ */
+function parseDeprecations(schema, document) {
+  const deprecations = [];
+
+  const typeInfo = new TypeInfo(schema);
+
+  visit(
+    document,
+    visitWithTypeInfo(typeInfo, {
+      Field: {
+        enter(node) {
+          const parentType = typeInfo.getParentType();
+          if (parentType && node.name) {
+            const fieldName = node.name.value;
+            let deprecation;
+            if (
+              parentType.name &&
+              (deprecation = fieldDeprecation(
+                schema,
+                parentType.name,
+                fieldName
+              ))
+            ) {
+              deprecations.push(deprecation);
+            }
+          }
+        },
+      },
+    })
+  );
+
+  return deprecations.map(
+    ({ name, reason }) => `'${name}' is deprecated: ${reason}`
+  );
+}
+
+/**
  * @type {import('@graphql-codegen/plugin-helpers').CodegenPlugin}
  */
 module.exports = {
   plugin: (schema, documents, { output }) => {
+    const defs = new Map();
+    const queries = [];
+    const mutations = [];
+
     const nameLocationMap = new Map();
     const locationSourceMap = new Map(
       documents
@@ -31,167 +102,162 @@ module.exports = {
         .map(source => [source.location, source])
     );
 
-    /**
-     * @type {string[]}
-     */
-    const defs = [];
-    const queries = [];
-    const mutations = [];
+    function addDef(exportedName, location) {
+      if (nameLocationMap.has(exportedName)) {
+        throw new Error(
+          `name ${exportedName} export from ${location} are duplicated.`
+        );
+      }
+
+      nameLocationMap.set(exportedName, location);
+    }
+
+    function parseImports(location) {
+      if (!location) {
+        return '';
+      }
+
+      // parse '#import' lines
+      const importedDefinitions = [];
+      fs.readFileSync(location, 'utf-8')
+        .split(/\r\n|\r|\n/)
+        .forEach(line => {
+          if (line[0] === '#') {
+            const [importKeyword, importPath] = line.split(' ').filter(Boolean);
+            if (importKeyword === '#import') {
+              const realImportPath = path.posix.join(
+                location,
+                '..',
+                importPath.replace(/["']/g, '')
+              );
+              const imports =
+                locationSourceMap.get(realImportPath)?.document.definitions;
+              if (imports) {
+                importedDefinitions.push(...imports);
+              }
+            }
+          }
+        });
+
+      return importedDefinitions
+        .map(def => `\${${getExportedName(def)}}`)
+        .join('\n');
+    }
 
     for (const [location, source] of locationSourceMap) {
-      if (
-        !source ||
-        !source.document ||
-        !location ||
-        source.document.kind !== Kind.DOCUMENT ||
-        !source.document.definitions ||
-        !source.document.definitions.length
-      ) {
+      if (!source || !source.document || !source.rawSDL) {
         return;
       }
 
-      const doc = source.document;
+      visit(source.document, {
+        [Kind.OPERATION_DEFINITION]: {
+          enter: node => {
+            if (!node.name) {
+              throw new Error(
+                `Anonymous operation definition found in ${location}.`
+              );
+            }
 
-      if (doc.definitions.length > 1) {
-        throw new Error('Only support one definition per file.');
-      }
-      const definition = doc.definitions[0];
-      if (!definition) {
-        throw new Error(`Found empty file ${location}.`);
-      }
+            const exportedName = getExportedName(node);
+            addDef(exportedName, location);
 
-      if (
-        !definition.selectionSet ||
-        !definition.selectionSet.selections ||
-        definition.selectionSet.selections.length === 0
-      ) {
-        throw new Error(`Found empty fields selection in file ${location}`);
-      }
-
-      if (
-        definition.kind === Kind.OPERATION_DEFINITION ||
-        definition.kind === Kind.FRAGMENT_DEFINITION
-      ) {
-        if (!definition.name) {
-          throw new Error(`Anonymous definition found in ${location}`);
-        }
-
-        const exportedName = getExportedName(definition);
-
-        // duplication checking
-        if (nameLocationMap.has(exportedName)) {
-          throw new Error(
-            `name ${exportedName} export from ${location} are duplicated.`
-          );
-        } else {
-          /**
-           * @type {import('graphql').DefinitionNode[]}
-           */
-          let importedDefinitions = [];
-          if (source.location) {
-            fs.readFileSync(source.location, 'utf8')
-              .split(/\r\n|\r|\n/)
-              .forEach(line => {
-                if (line[0] === '#') {
-                  const [importKeyword, importPath] = line
-                    .split(' ')
-                    .filter(Boolean);
-                  if (importKeyword === '#import') {
-                    const realImportPath = path.posix.join(
-                      location,
-                      '..',
-                      importPath.replace(/["']/g, '')
-                    );
-                    const imports =
-                      locationSourceMap.get(realImportPath)?.document
-                        .definitions;
-                    if (imports) {
-                      importedDefinitions = [
-                        ...importedDefinitions,
-                        ...imports,
-                      ];
-                    }
+            // parse 'file' fields
+            const containsFile = node.variableDefinitions.some(def => {
+              const varType = def?.type?.type?.name?.value;
+              const checkContainFile = type => {
+                if (schema.getType(type)?.name === 'Upload') return true;
+                const typeDef = schema.getType(type);
+                const fields = typeDef.getFields?.();
+                if (!fields || typeof fields !== 'object') return false;
+                for (let field of Object.values(fields)) {
+                  let type = field.type;
+                  while (type.ofType) {
+                    type = type.ofType;
+                  }
+                  if (type.name === 'Upload') {
+                    return true;
                   }
                 }
-              });
-          }
-
-          const importing = importedDefinitions
-            .map(def => `\${${getExportedName(def)}}`)
-            .join('\n');
-
-          // is query or mutation
-          if (definition.kind === Kind.OPERATION_DEFINITION) {
-            // add for runtime usage
-            doc.operationName = definition.name.value;
-            doc.defName = definition.selectionSet.selections
-              .filter(field => field.kind === Kind.FIELD)
-              .map(field => field.name.value)
-              .join(',');
-            nameLocationMap.set(exportedName, location);
-            const containsFile = doc.definitions.some(def => {
-              const { variableDefinitions } = def;
-              if (variableDefinitions) {
-                return variableDefinitions.some(variableDefinition => {
-                  const varType = variableDefinition?.type?.type?.name?.value;
-                  const checkContainFile = type => {
-                    if (schema.getType(type)?.name === 'Upload') return true;
-                    const typeDef = schema.getType(type);
-                    const fields = typeDef.getFields?.();
-                    if (!fields || typeof fields !== 'object') return false;
-                    for (let field of Object.values(fields)) {
-                      let type = field.type;
-                      while (type.ofType) {
-                        type = type.ofType;
-                      }
-                      if (type.name === 'Upload') {
-                        return true;
-                      }
-                    }
-                    return false;
-                  };
-                  return varType ? checkContainFile(varType) : false;
-                });
-              } else {
                 return false;
-              }
+              };
+              return varType ? checkContainFile(varType) : false;
             });
-            defs.push(`export const ${exportedName} = {
-  id: '${exportedName}' as const,
-  operationName: '${doc.operationName}',
-  definitionName: '${doc.defName}',
-  containsFile: ${containsFile},
-  query: \`
-${print(doc)}${importing || ''}\`,
-};
-`);
-            if (definition.operation === 'query') {
+
+            // Check if the query uses deprecated fields
+            const deprecations = parseDeprecations(schema, source.document);
+
+            const imports = parseImports(location);
+
+            defs.set(exportedName, {
+              type: node.operation,
+              name: exportedName,
+              operationName: node.name.value,
+              containsFile,
+              deprecations,
+              query: `${print(node)}${imports ? `\n${imports}` : ''}`,
+            });
+
+            if (node.operation === 'query') {
               queries.push(exportedName);
-            } else if (definition.operation === 'mutation') {
+            } else if (node.operation === 'mutation') {
               mutations.push(exportedName);
             }
-          } else {
-            defs.unshift(`export const ${exportedName} = \`
-${print(doc)}${importing || ''}\``);
-          }
-        }
-      }
+          },
+        },
+        [Kind.FRAGMENT_DEFINITION]: {
+          enter: node => {
+            const exportedName = getExportedName(node);
+            addDef(exportedName, location);
+
+            const imports = parseImports(location);
+
+            defs.set(exportedName, {
+              type: 'fragment',
+              name: exportedName,
+              content: `${print(node)}${imports || ''}`,
+            });
+          },
+        },
+      });
     }
+
+    const preludes = [
+      '/* do not manipulate this file manually. */',
+      `export interface GraphQLQuery {
+  id: string;
+  op: string;
+  query: string;
+  file?: boolean;
+  deprecations?: string[];
+}`,
+    ];
+
+    const operations = [];
+
+    defs.forEach(def => {
+      if (def.type === 'fragment') {
+        preludes.push(`export const ${def.name} = \`${def.content}\`;`);
+      } else {
+        let item = `export const ${def.name} = {
+  id: '${def.name}' as const,
+  op: '${def.operationName}',
+  query: \`${def.query}\`,
+`;
+        if (def.containsFile) {
+          item += '  file: true,\n';
+        }
+        if (def.deprecations.length) {
+          item += `  deprecations: ${JSON.stringify(def.deprecations)},\n`;
+        }
+        item += '};\n';
+
+        operations.push(item);
+      }
+    });
 
     fs.writeFileSync(
       output,
-      [
-        '/* do not manipulate this file manually. */',
-        `export interface GraphQLQuery {
-  id: string;
-  operationName: string;
-  definitionName: string;
-  query: string;
-  containsFile?: boolean;
-}
-`,
-        ...defs,
-      ].join('\n')
+      preludes.join('\n') + '\n' + operations.join('\n')
     );
 
     const queriesUnion = queries

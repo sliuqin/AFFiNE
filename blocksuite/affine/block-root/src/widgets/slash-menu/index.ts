@@ -4,12 +4,10 @@ import {
 } from '@blocksuite/affine-components/rich-text';
 import type { UIEventStateContext } from '@blocksuite/block-std';
 import { TextSelection, WidgetComponent } from '@blocksuite/block-std';
-import {
-  assertType,
-  debounce,
-  DisposableGroup,
-} from '@blocksuite/global/utils';
+import { DisposableGroup } from '@blocksuite/global/slot';
+import { assertType } from '@blocksuite/global/utils';
 import { InlineEditor } from '@blocksuite/inline';
+import debounce from 'lodash-es/debounce';
 
 import type { RootBlockComponent } from '../../types.js';
 import {
@@ -75,7 +73,8 @@ const showSlashMenu = debounce(
     container.append(slashMenu);
     return slashMenu;
   },
-  100
+  100,
+  { leading: true }
 );
 
 export const AFFINE_SLASH_MENU_WIDGET = 'affine-slash-menu-widget';
@@ -127,10 +126,13 @@ export class AffineSlashMenuWidget extends WidgetComponent {
       const textSelection = this.host.selection.find(TextSelection);
       if (!textSelection) return;
 
-      const model = this.host.doc.getBlock(textSelection.blockId)?.model;
-      if (!model) return;
+      const block = this.host.view.getBlock(textSelection.blockId);
+      if (!block) return;
+      const model = block.model;
 
-      if (this.config.ignoreBlockTypes.includes(model.flavour)) return;
+      if (block.closest(this.config.ignoreSelector)) return;
+
+      if (this.config.ignoreBlockTypes.includes(block.flavour)) return;
 
       const inlineRange = inlineEditor.getInlineRange();
       if (!inlineRange) return;
@@ -218,7 +220,6 @@ export class AffineSlashMenuWidget extends WidgetComponent {
       return;
     }
 
-    // this.handleEvent('beforeInput', this._onBeforeInput);
     this.handleEvent('keyDown', this._onKeyDown);
     this.handleEvent('compositionEnd', this._onCompositionEnd);
   }

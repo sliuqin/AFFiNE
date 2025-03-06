@@ -1,13 +1,12 @@
 import { type EditorHost } from '@blocksuite/affine/block-std';
 import { scrollbarStyle, unsafeCSSVarV2 } from '@blocksuite/affine/blocks';
-import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/utils';
-import { ToggleDownIcon } from '@blocksuite/icons/lit';
+import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
+import { InformationIcon, ToggleDownIcon } from '@blocksuite/icons/lit';
 import { signal } from '@preact/signals-core';
 import { baseTheme } from '@toeverything/theme';
 import { css, html, LitElement, nothing, unsafeCSS } from 'lit';
 import { property } from 'lit/decorators.js';
 
-import { ErrorTipIcon } from '../_common/icons';
 import {
   type AIError,
   PaymentRequiredError,
@@ -121,7 +120,7 @@ export class AIErrorWrapper extends SignalWatcher(WithDisposable(LitElement)) {
   protected override render() {
     return html` <div class="error-wrapper">
       <div class="content">
-        <div class="icon">${ErrorTipIcon}</div>
+        <div class="icon">${InformationIcon()}</div>
         <div class="text-container">
           <div>${this.text}</div>
           ${this.showDetailPanel

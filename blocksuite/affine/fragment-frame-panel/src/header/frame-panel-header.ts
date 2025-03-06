@@ -7,7 +7,8 @@ import {
 import { createButtonPopper } from '@blocksuite/affine-shared/utils';
 import type { EditorHost } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { DisposableGroup, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
+import { DisposableGroup } from '@blocksuite/global/slot';
 import { PresentationIcon, SettingsIcon } from '@blocksuite/icons/lit';
 import { css, html, LitElement, type PropertyValues } from 'lit';
 import { property, query, state } from 'lit/decorators.js';

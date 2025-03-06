@@ -1,3 +1,4 @@
+import { DebugLogger } from '@affine/debug';
 import type { ExecutionResult } from 'graphql';
 import { isNil, isObject, merge } from 'lodash-es';
 
@@ -156,11 +157,11 @@ function formatRequestBody<Q extends GraphQLQuery>({
       (keepNilVariables ?? true) ? variables : filterEmptyValue(variables),
   };
 
-  if (query.operationName) {
-    body.operationName = query.operationName;
+  if (query.op) {
+    body.operationName = query.op;
   }
 
-  if (query.containsFile) {
+  if (query.file) {
     return transformToForm(body);
   }
   return body;
@@ -170,15 +171,24 @@ export const gqlFetcherFactory = (
   endpoint: string,
   fetcher: (input: string, init?: RequestInit) => Promise<Response> = fetch
 ) => {
+  const logger = new DebugLogger('GraphQL');
   const gqlFetch = async <Query extends GraphQLQuery>(
     options: QueryOptions<Query>
   ): Promise<QueryResponse<Query>> => {
+    if (
+      BUILD_CONFIG.appBuildType === 'canary' &&
+      options.query.deprecations?.length
+    ) {
+      options.query.deprecations.forEach(deprecation => {
+        logger.warn(deprecation);
+      });
+    }
+
     const body = formatRequestBody(options);
 
     const isFormData = body instanceof FormData;
     const headers: Record<string, string> = {
-      'x-operation-name': options.query.operationName,
-      'x-definition-name': options.query.definitionName,
+      'x-operation-name': options.query.op,
     };
     if (!isFormData) {
       headers['content-type'] = 'application/json';
@@ -208,8 +218,7 @@ export const gqlFetcherFactory = (
       }
 
       throw new GraphQLError(
-        'GraphQL query responds unexpected result, query ' +
-          options.query.operationName
+        'GraphQL query responds unexpected result, query ' + options.query.op
       );
     });
 

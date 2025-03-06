@@ -1,10 +1,9 @@
+import { undoByKeyboard } from '@affine-test/kit/utils/keyboard';
 import { openHomePage } from '@affine-test/kit/utils/load-page';
 import { type } from '@affine-test/kit/utils/page-logic';
 import { expect, test } from '@playwright/test';
 
-test('add callout block using slash menu and change emoji', async ({
-  page,
-}) => {
+test.beforeEach(async ({ page }) => {
   await openHomePage(page);
   await page.getByTestId('settings-modal-trigger').click();
   await page.getByText('Experimental features').click();
@@ -14,7 +13,11 @@ test('add callout block using slash menu and change emoji', async ({
   await page.getByTestId('modal-close-button').click();
   await page.getByTestId('sidebar-new-page-button').click();
   await page.locator('affine-paragraph v-line div').click();
+});
 
+test('add callout block using slash menu and change emoji', async ({
+  page,
+}) => {
   await type(page, '/callout\naaaa\nbbbb');
   const callout = page.locator('affine-callout');
   const emoji = page.locator('affine-callout .affine-callout-emoji');
@@ -40,4 +43,20 @@ test('add callout block using slash menu and change emoji', async ({
   await page.getByTestId('page-editor-blank').click();
   await expect(emojiMenu).not.toBeVisible();
   await expect(emoji).toContainText('😆');
+});
+
+test('disable slash menu in callout block', async ({ page }) => {
+  await type(page, '/callout\n');
+  const callout = page.locator('affine-callout');
+  const emoji = page.locator('affine-callout .affine-callout-emoji');
+  await expect(callout).toBeVisible();
+  await expect(emoji).toContainText('😀');
+
+  await type(page, '/');
+  const slashMenu = page.locator('.slash-menu');
+  await expect(slashMenu).not.toBeVisible();
+  await undoByKeyboard(page);
+  await undoByKeyboard(page);
+  await type(page, '/');
+  await expect(slashMenu).toBeVisible();
 });

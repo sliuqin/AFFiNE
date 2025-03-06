@@ -27,7 +27,8 @@ import { type BlockStdScope, stdContext } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
 import type { Bound, IVec } from '@blocksuite/global/gfx';
 import { Vec } from '@blocksuite/global/gfx';
-import { DisposableGroup, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
+import { DisposableGroup } from '@blocksuite/global/slot';
 import {
   ArrowUpBigIcon,
   PlusIcon,

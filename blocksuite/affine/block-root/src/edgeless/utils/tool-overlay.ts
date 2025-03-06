@@ -14,12 +14,8 @@ import { ThemeProvider } from '@blocksuite/affine-shared/services';
 import type { GfxController, GfxToolsMap } from '@blocksuite/block-std/gfx';
 import type { XYWH } from '@blocksuite/global/gfx';
 import { Bound } from '@blocksuite/global/gfx';
-import {
-  assertType,
-  DisposableGroup,
-  noop,
-  Slot,
-} from '@blocksuite/global/utils';
+import { DisposableGroup, Slot } from '@blocksuite/global/slot';
+import { assertType, noop } from '@blocksuite/global/utils';
 import { effect } from '@preact/signals-core';
 
 import type { ShapeTool } from '../gfx-tool/shape-tool.js';

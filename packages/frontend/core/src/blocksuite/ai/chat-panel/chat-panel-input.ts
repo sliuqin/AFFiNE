@@ -1,18 +1,18 @@
 import { stopPropagation } from '@affine/core/utils';
 import type { EditorHost } from '@blocksuite/affine/block-std';
 import { openFileOrFiles, unsafeCSSVarV2 } from '@blocksuite/affine/blocks';
-import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/utils';
-import { ImageIcon, PublishIcon } from '@blocksuite/icons/lit';
+import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
+import {
+  BroomIcon,
+  CloseIcon,
+  ImageIcon,
+  PublishIcon,
+} from '@blocksuite/icons/lit';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 
-import {
-  ChatAbortIcon,
-  ChatClearIcon,
-  ChatSendIcon,
-  CloseIcon,
-} from '../_common/icons';
+import { ChatAbortIcon, ChatSendIcon } from '../_common/icons';
 import type { AIError } from '../components/ai-item/types';
 import { AIProvider } from '../provider';
 import { reportResponse } from '../utils/action-reporter';
@@ -110,6 +110,7 @@ export class ChatPanelInput extends SignalWatcher(WithDisposable(LitElement)) {
       }
 
       .image-upload,
+      .chat-history-clear,
       .chat-network-search {
         display: flex;
         justify-content: center;
@@ -119,6 +120,9 @@ export class ChatPanelInput extends SignalWatcher(WithDisposable(LitElement)) {
           height: 20px;
           color: ${unsafeCSSVarV2('icon/primary')};
         }
+      }
+      .chat-history-clear svg {
+        color: var(--affine-text-secondary-color);
       }
       .chat-network-search[data-active='true'] svg {
         color: ${unsafeCSSVarV2('icon/activated')};
@@ -326,7 +330,7 @@ export class ChatPanelInput extends SignalWatcher(WithDisposable(LitElement)) {
                   this.updateContext({ quote: '', markdown: '' });
                 }}
               >
-                ${CloseIcon}
+                ${CloseIcon()}
               </div>
             </div>`
           : nothing}
@@ -379,7 +383,7 @@ export class ChatPanelInput extends SignalWatcher(WithDisposable(LitElement)) {
             }}
             data-testid="chat-panel-clear"
           >
-            ${ChatClearIcon}
+            ${BroomIcon()}
           </div>
           ${this.networkSearchConfig.visible.value
             ? html`

@@ -1,4 +1,4 @@
-import { SignalWatcher } from '@blocksuite/global/utils';
+import { SignalWatcher } from '@blocksuite/global/lit';
 import { css, LitElement, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 

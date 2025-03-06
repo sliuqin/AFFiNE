@@ -15,12 +15,12 @@ import {
   WidgetComponent,
 } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { throttle } from '@blocksuite/global/utils';
 import type { BaseSelection, UserInfo } from '@blocksuite/store';
 import { computed, effect } from '@preact/signals-core';
 import { css, html, nothing, type PropertyValues } from 'lit';
 import { state } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
+import throttle from 'lodash-es/throttle';
 
 import { RemoteColorManager } from '../manager/remote-color-manager';
 import type { DocRemoteSelectionConfig } from './config';

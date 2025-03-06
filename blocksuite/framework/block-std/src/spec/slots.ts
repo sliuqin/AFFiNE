@@ -1,4 +1,4 @@
-import { Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
 
 import type { BlockService } from '../extension/service.js';
 import type { BlockComponent, WidgetComponent } from '../view/index.js';

@@ -5,7 +5,8 @@ import {
 } from '@blocksuite/affine-components/filterable-list';
 import { ArrowDownIcon } from '@blocksuite/affine-components/icons';
 import { unsafeCSSVarV2 } from '@blocksuite/affine-shared/theme';
-import { noop, SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
+import { noop } from '@blocksuite/global/utils';
 import { css, LitElement, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';

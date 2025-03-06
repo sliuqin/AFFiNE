@@ -1,5 +1,5 @@
 import type { Bound } from '@blocksuite/global/gfx';
-import type { DisposableClass } from '@blocksuite/global/utils';
+import type { DisposableClass } from '@blocksuite/global/lit';
 import type { TemplateResult } from 'lit';
 
 import type { EdgelessRootBlockComponent } from '../../../../edgeless-root-block.js';

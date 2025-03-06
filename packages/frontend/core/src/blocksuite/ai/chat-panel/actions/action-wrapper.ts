@@ -1,62 +1,62 @@
 import type { EditorHost } from '@blocksuite/affine/block-std';
-import { WithDisposable } from '@blocksuite/affine/global/utils';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
+import {
+  ArrowDownBigIcon as ArrowDownIcon,
+  ArrowUpBigIcon as ArrowUpIcon,
+  DoneIcon,
+  ExplainIcon,
+  ImageIcon,
+  ImproveWritingIcon,
+  LanguageIcon,
+  LongerIcon,
+  MakeItRealIcon,
+  MindmapIcon,
+  MindmapNodeIcon,
+  PenIcon,
+  PresentationIcon,
+  SearchIcon,
+  SelectionIcon,
+  ShorterIcon,
+  ToneIcon,
+} from '@blocksuite/icons/lit';
 import { css, html, LitElement, nothing, type TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 
-import {
-  ActionIcon,
-  AIChangeToneIcon,
-  AIDoneIcon,
-  AIExpandMindMapIcon,
-  AIExplainIcon,
-  AIExplainSelectionIcon,
-  AIFindActionsIcon,
-  AIImageIcon,
-  AIImproveWritingIcon,
-  AIMakeLongerIcon,
-  AIMakeRealIcon,
-  AIMakeShorterIcon,
-  AIMindMapIcon,
-  AIPenIcon,
-  AIPresentationIcon,
-  ArrowDownIcon,
-  ArrowUpIcon,
-} from '../../_common/icons';
 import { createTextRenderer } from '../../components/text-renderer';
 import type { ChatAction } from '../chat-context';
 import { renderImages } from '../components/images';
 import { HISTORY_IMAGE_ACTIONS } from '../const';
 
 const icons: Record<string, TemplateResult<1>> = {
-  'Fix spelling for it': AIDoneIcon,
-  'Improve grammar for it': AIDoneIcon,
-  'Explain this code': AIExplainIcon,
-  'Check code error': AIExplainIcon,
-  'Explain this': AIExplainSelectionIcon,
-  Translate: ActionIcon,
-  'Change tone': AIChangeToneIcon,
-  'Improve writing for it': AIImproveWritingIcon,
-  'Make it longer': AIMakeLongerIcon,
-  'Make it shorter': AIMakeShorterIcon,
-  'Continue writing': AIPenIcon,
-  'Make it real': AIMakeRealIcon,
-  'Find action items from it': AIFindActionsIcon,
-  Summary: AIPenIcon,
-  'Create headings': AIPenIcon,
-  'Write outline': AIPenIcon,
-  image: AIImageIcon,
-  'Brainstorm mindmap': AIMindMapIcon,
-  'Expand mind map': AIExpandMindMapIcon,
-  'Create a presentation': AIPresentationIcon,
-  'Write a poem about this': AIPenIcon,
-  'Write a blog post about this': AIPenIcon,
-  'AI image filter clay style': AIImageIcon,
-  'AI image filter sketch style': AIImageIcon,
-  'AI image filter anime style': AIImageIcon,
-  'AI image filter pixel style': AIImageIcon,
-  Clearer: AIImageIcon,
-  'Remove background': AIImageIcon,
-  'Convert to sticker': AIImageIcon,
+  'Fix spelling for it': DoneIcon(),
+  'Improve grammar for it': DoneIcon(),
+  'Explain this code': ExplainIcon(),
+  'Check code error': SearchIcon(),
+  'Explain this': SelectionIcon(),
+  Translate: LanguageIcon(),
+  'Change tone': ToneIcon(),
+  'Improve writing for it': ImproveWritingIcon(),
+  'Make it longer': LongerIcon(),
+  'Make it shorter': ShorterIcon(),
+  'Continue writing': PenIcon(),
+  'Make it real': MakeItRealIcon(),
+  'Find action items from it': SearchIcon(),
+  Summary: PenIcon(),
+  'Create headings': PenIcon(),
+  'Write outline': PenIcon(),
+  image: ImageIcon(),
+  'Brainstorm mindmap': MindmapIcon(),
+  'Expand mind map': MindmapNodeIcon(),
+  'Create a presentation': PresentationIcon(),
+  'Write a poem about this': PenIcon(),
+  'Write a blog post about this': PenIcon(),
+  'AI image filter clay style': ImageIcon(),
+  'AI image filter sketch style': ImageIcon(),
+  'AI image filter anime style': ImageIcon(),
+  'AI image filter pixel style': ImageIcon(),
+  Clearer: ImageIcon(),
+  'Remove background': ImageIcon(),
+  'Convert to sticker': ImageIcon(),
 };
 
 export class ActionWrapper extends WithDisposable(LitElement) {
@@ -130,10 +130,10 @@ export class ActionWrapper extends WithDisposable(LitElement) {
         class="action-name"
         @click=${() => (this.promptShow = !this.promptShow)}
       >
-        ${icons[item.action] ? icons[item.action] : ActionIcon}
+        ${icons[item.action] ? icons[item.action] : DoneIcon()}
         <div>
           <div>${item.action}</div>
-          <div>${this.promptShow ? ArrowDownIcon : ArrowUpIcon}</div>
+          <div>${this.promptShow ? ArrowDownIcon() : ArrowUpIcon()}</div>
         </div>
       </div>
       ${this.promptShow

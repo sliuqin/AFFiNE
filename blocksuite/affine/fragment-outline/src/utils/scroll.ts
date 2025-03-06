@@ -4,7 +4,7 @@ import { DocModeProvider } from '@blocksuite/affine-shared/services';
 import type { Viewport } from '@blocksuite/affine-shared/types';
 import type { EditorHost } from '@blocksuite/block-std';
 import { clamp } from '@blocksuite/global/gfx';
-import { DisposableGroup } from '@blocksuite/global/utils';
+import { DisposableGroup } from '@blocksuite/global/slot';
 
 import { getHeadingBlocksFromDoc } from './query.js';
 

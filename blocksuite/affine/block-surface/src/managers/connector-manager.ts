@@ -32,8 +32,9 @@ import {
   toRadian,
   Vec,
 } from '@blocksuite/global/gfx';
-import { assertType, last } from '@blocksuite/global/utils';
+import { assertType } from '@blocksuite/global/utils';
 import { effect } from '@preact/signals-core';
+import last from 'lodash-es/last';
 
 import { Overlay } from '../renderer/overlay.js';
 import { AStarRunner } from '../utils/a-star.js';
@@ -602,7 +603,7 @@ function mergePath(points: IVec[] | IVec3[]) {
       continue;
     result.push([cur[0], cur[1]]);
   }
-  result.push(last(points) as IVec);
+  result.push(last(points as IVec[]) as IVec);
   for (let i = 0; i < result.length - 1; i++) {
     const cur = result[i];
     const next = result[i + 1];

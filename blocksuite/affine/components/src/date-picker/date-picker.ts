@@ -1,5 +1,5 @@
 import { clamp } from '@blocksuite/global/gfx';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { isSameDay, isSameMonth, isToday } from 'date-fns';
 import {
   html,

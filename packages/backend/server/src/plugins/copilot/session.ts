@@ -63,6 +63,10 @@ export class ChatSession implements AsyncDisposable {
     return this.state.messages.slice(-this.stashMessageCount);
   }
 
+  get latestUserMessage() {
+    return this.state.messages.findLast(m => m.role === 'user');
+  }
+
   push(message: ChatMessage) {
     if (
       this.state.prompt.action &&
@@ -313,6 +317,7 @@ export class ChatSessionService {
               role: true,
               content: true,
               attachments: true,
+              params: true,
               createdAt: true,
             },
             orderBy: { createdAt: 'asc' },
@@ -401,7 +406,13 @@ export class ChatSessionService {
     workspaceId: string,
     docId?: string,
     options?: { action?: boolean }
-  ): Promise<Array<{ id: string; promptName: string }>> {
+  ): Promise<
+    Array<{
+      id: string;
+      parentSessionId?: string;
+      promptName: string;
+    }>
+  > {
     return await this.db.aiSession
       .findMany({
         where: {
@@ -415,12 +426,14 @@ export class ChatSessionService {
         },
         select: {
           id: true,
+          parentSessionId: true,
           promptName: true,
         },
       })
       .then(sessions =>
-        sessions.map(({ id, promptName }) => ({
+        sessions.map(({ id, parentSessionId, promptName }) => ({
           id,
+          parentSessionId: parentSessionId || undefined,
           promptName,
         }))
       );

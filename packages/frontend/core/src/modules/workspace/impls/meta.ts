@@ -1,4 +1,4 @@
-import { Slot } from '@blocksuite/affine/global/utils';
+import { Slot } from '@blocksuite/affine/global/slot';
 import {
   createYProxy,
   type DocMeta,

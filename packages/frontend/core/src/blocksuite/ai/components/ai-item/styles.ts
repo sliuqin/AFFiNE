@@ -20,6 +20,11 @@ export const menuItemStyles = css`
   .item-icon {
     display: flex;
     color: var(--item-icon-color, var(--affine-brand-color));
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
   }
   .menu-item:hover .item-icon {
     color: var(--item-icon-hover-color, var(--affine-brand-color));

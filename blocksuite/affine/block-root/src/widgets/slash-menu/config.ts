@@ -88,6 +88,7 @@ import {
 export type SlashMenuConfig = {
   triggerKeys: string[];
   ignoreBlockTypes: string[];
+  ignoreSelector: string;
   items: SlashMenuItem[];
   maxHeight: number;
   tooltipTimeout: number;
@@ -142,6 +143,7 @@ export type SlashMenuContext = {
 export const defaultSlashMenuConfig: SlashMenuConfig = {
   triggerKeys: ['/'],
   ignoreBlockTypes: ['affine:code'],
+  ignoreSelector: 'affine-callout',
   maxHeight: 344,
   tooltipTimeout: 800,
   items: [

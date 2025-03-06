@@ -26,13 +26,15 @@
     "@preact/signals-core": "^1.8.0",
     "@toeverything/theme": "^1.1.12",
     "@types/hast": "^3.0.4",
+    "@types/katex": "^0.16.7",
+    "@types/lodash-es": "^4.17.12",
     "@types/mdast": "^4.0.4",
     "collapse-white-space": "^2.1.0",
     "date-fns": "^4.0.0",
     "katex": "^0.16.11",
     "lit": "^3.2.0",
     "lit-html": "^3.2.1",
-    "lodash.clonedeep": "^4.5.0",
+    "lodash-es": "^4.17.21",
     "remark-math": "^6.0.0",
     "shiki": "^3.0.0",
     "yjs": "^13.6.21",
@@ -61,7 +63,12 @@
     "./block-zero-width": "./src/block-zero-width/index.ts",
     "./block-selection": "./src/block-selection/index.ts",
     "./doc-title": "./src/doc-title/index.ts",
-    "./embed-card-modal": "./src/embed-card-modal/index.ts"
+    "./embed-card-modal": "./src/embed-card-modal/index.ts",
+    "./link-preview": "./src/link-preview/index.ts",
+    "./linked-doc-title": "./src/linked-doc-title/index.ts",
+    "./view-dropdown-menu": "./src/view-dropdown-menu/index.ts",
+    "./card-style-dropdown-menu": "./src/card-style-dropdown-menu/index.ts",
+    "./highlight-dropdown-menu": "./src/highlight-dropdown-menu/index.ts"
   },
   "files": [
     "src",
@@ -69,9 +76,5 @@
     "!src/__tests__",
     "!dist/__tests__"
   ],
-  "devDependencies": {
-    "@types/katex": "^0.16.7",
-    "@types/lodash.clonedeep": "^4.5.9"
-  },
   "version": "0.20.0"
 }

@@ -7,7 +7,7 @@ import {
 import { MindmapElementModel } from '@blocksuite/affine-model';
 import type { GfxModel } from '@blocksuite/block-std/gfx';
 import { Bound } from '@blocksuite/global/gfx';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import {
   AlignBottomIcon,
   AlignHorizontalCenterIcon,

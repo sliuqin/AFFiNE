@@ -102,10 +102,7 @@ export class DocRendererController {
     workspaceId: string,
     docId: string
   ): Promise<RenderOptions | null> {
-    let allowUrlPreview = await this.models.workspace.isPublicPage(
-      workspaceId,
-      docId
-    );
+    let allowUrlPreview = await this.models.doc.isPublic(workspaceId, docId);
 
     if (!allowUrlPreview) {
       // if page is private, but workspace url preview is on

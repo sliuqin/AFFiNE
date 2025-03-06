@@ -1,7 +1,7 @@
 import type { Color } from '@blocksuite/affine-model';
 import { on, once, stopPropagation } from '@blocksuite/affine-shared/utils';
 import { clamp } from '@blocksuite/global/gfx';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { batch, computed, signal } from '@preact/signals-core';
 import { html, LitElement } from 'lit';
 import { property, query } from 'lit/decorators.js';

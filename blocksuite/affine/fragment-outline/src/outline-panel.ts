@@ -5,7 +5,7 @@ import {
   requiredProperties,
   ShadowlessElement,
 } from '@blocksuite/block-std';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { provide } from '@lit/context';
 import { effect, signal } from '@preact/signals-core';
 import { html, type PropertyValues } from 'lit';

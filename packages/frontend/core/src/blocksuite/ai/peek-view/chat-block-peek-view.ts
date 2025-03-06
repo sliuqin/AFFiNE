@@ -9,6 +9,7 @@ import {
   type SpecBuilder,
   TelemetryProvider,
 } from '@blocksuite/affine/blocks';
+import { InformationIcon } from '@blocksuite/icons/lit';
 import { html, LitElement, nothing } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
@@ -19,7 +20,6 @@ import {
   constructUserInfoWithMessages,
   queryHistoryMessages,
 } from '../_common/chat-actions-handle';
-import { SmallHintIcon } from '../_common/icons';
 import {
   type AIChatBlockModel,
   type ChatMessage,
@@ -515,7 +515,7 @@ export class AIChatBlockPeekView extends LitElement {
         .networkSearchConfig=${networkSearchConfig}
       ></chat-block-input>
       <div class="peek-view-footer">
-        ${SmallHintIcon}
+        ${InformationIcon()}
         <div>AI outputs can be misleading or wrong</div>
       </div>
     </div> `;

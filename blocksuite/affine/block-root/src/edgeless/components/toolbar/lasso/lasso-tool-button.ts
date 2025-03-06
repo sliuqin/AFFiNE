@@ -1,5 +1,5 @@
 import { LassoMode } from '@blocksuite/affine-shared/types';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { effect } from '@preact/signals-core';
 import { css, html, LitElement } from 'lit';
 import { query, state } from 'lit/decorators.js';

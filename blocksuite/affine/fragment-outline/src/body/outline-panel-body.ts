@@ -5,7 +5,7 @@ import { matchModels } from '@blocksuite/affine-shared/utils';
 import { ShadowlessElement, SurfaceSelection } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
 import { Bound } from '@blocksuite/global/gfx';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import type { BlockModel } from '@blocksuite/store';
 import { consume } from '@lit/context';
 import { effect, signal } from '@preact/signals-core';

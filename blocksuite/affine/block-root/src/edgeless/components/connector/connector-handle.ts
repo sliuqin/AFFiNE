@@ -10,7 +10,8 @@ import {
 } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
 import { Vec } from '@blocksuite/global/gfx';
-import { DisposableGroup, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
+import { DisposableGroup } from '@blocksuite/global/slot';
 import type { Store } from '@blocksuite/store';
 import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';

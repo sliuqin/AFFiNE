@@ -4,7 +4,7 @@ import {
   EditPropsStore,
 } from '@blocksuite/affine-shared/services';
 import type { EditorHost } from '@blocksuite/block-std';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { css, html, LitElement, type PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 

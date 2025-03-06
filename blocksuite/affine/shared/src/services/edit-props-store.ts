@@ -1,14 +1,11 @@
 import { ColorSchema } from '@blocksuite/affine-model';
 import { type BlockStdScope, LifeCycleWatcher } from '@blocksuite/block-std';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import {
-  type DeepPartial,
-  DisposableGroup,
-  Slot,
-} from '@blocksuite/global/utils';
+import { DisposableGroup, Slot } from '@blocksuite/global/slot';
+import type { DeepPartial } from '@blocksuite/global/utils';
 import { computed, type Signal, signal } from '@preact/signals-core';
-import clonedeep from 'lodash.clonedeep';
-import mergeWith from 'lodash.mergewith';
+import clonedeep from 'lodash-es/cloneDeep';
+import mergeWith from 'lodash-es/mergeWith';
 import * as Y from 'yjs';
 import { z } from 'zod';
 

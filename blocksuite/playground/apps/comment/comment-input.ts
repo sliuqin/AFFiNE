@@ -1,6 +1,6 @@
 import { ShadowlessElement, TextSelection } from '@blocksuite/block-std';
 import type { RichText } from '@blocksuite/blocks';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { css, html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import * as Y from 'yjs';

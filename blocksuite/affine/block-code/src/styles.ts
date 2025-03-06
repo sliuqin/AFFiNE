@@ -15,6 +15,10 @@ export const codeBlockStyles = css`
     padding: 12px;
   }
 
+  .affine-code-block-container rich-text {
+    overflow-x: hidden;
+  }
+
   .affine-code-block-container .inline-editor {
     font-family: var(--affine-font-code-family);
     font-variant-ligatures: none;

@@ -4,10 +4,11 @@ import {
   isGfxBlockComponent,
   ShadowlessElement,
 } from '@blocksuite/block-std';
-import { throttle, WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { html, nothing } from 'lit';
 import { property, queryAsync } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
+import throttle from 'lodash-es/throttle';
 
 import {
   RENDER_CARD_THROTTLE_MS,

@@ -50,7 +50,7 @@ const useLoadDoc = (pageId: string) => {
     if (doc && isInTrash) {
       doc.blockSuiteDoc.readonly = true;
     }
-  }, [currentWorkspace.docCollection.awarenessStore, doc, isInTrash]);
+  }, [doc, isInTrash]);
 
   return {
     doc,

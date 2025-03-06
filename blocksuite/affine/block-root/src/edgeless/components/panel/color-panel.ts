@@ -11,7 +11,7 @@ import { property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { repeat } from 'lit/directives/repeat.js';
-import { isEqual } from 'lodash-es';
+import isEqual from 'lodash-es/isEqual';
 
 function TransparentIcon(hollowCircle = false) {
   const CircleIcon: TemplateResult | typeof nothing = hollowCircle

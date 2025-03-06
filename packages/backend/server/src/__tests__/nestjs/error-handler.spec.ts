@@ -1,20 +1,24 @@
 import {
   applyDecorators,
+  Body,
   Controller,
   Get,
   HttpStatus,
   INestApplication,
   Logger,
   LoggerService,
+  Post,
 } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
+  MessageBody,
   SubscribeMessage as RawSubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
 import testFn, { TestFn } from 'ava';
 import Sinon from 'sinon';
 import request from 'supertest';
+import { z } from 'zod';
 
 import {
   AccessDenied,
@@ -22,7 +26,13 @@ import {
   UserFriendlyError,
 } from '../../base';
 import { Public } from '../../core/auth';
+import { EmailSchema } from '../../models/common/schema';
 import { createTestingApp } from '../utils';
+
+const TestSchema = z.object({
+  email: EmailSchema,
+  foo: z.string().trim().min(1).optional(),
+});
 
 @Public()
 @Resolver(() => String)
@@ -38,6 +48,12 @@ class TestResolver {
   update(@Args('greating') greating: string) {
     this.greating = greating;
     return this.greating;
+  }
+
+  @Mutation(() => String)
+  validate(@Args('email') email: string) {
+    const input = TestSchema.parse({ email });
+    return input.email;
   }
 
   @Query(() => String)
@@ -68,6 +84,12 @@ class TestController {
   throwUnknownError() {
     throw new Error('Unknown error');
   }
+
+  @Post('/validate')
+  validate(@Body() body: { email: string }) {
+    const input = TestSchema.parse(body);
+    return input;
+  }
 }
 
 const SubscribeMessage = (event: string) =>
@@ -90,6 +112,12 @@ class TestGateway {
   @SubscribeMessage('event:throw-unknown-error')
   async throwUnknownError() {
     throw new Error('Unknown error');
+  }
+
+  @SubscribeMessage('event:validate')
+  async validate(@MessageBody() body: { email: string }) {
+    const input = TestSchema.parse(body);
+    return input;
   }
 }
 
@@ -147,6 +175,30 @@ test('should be able to handle unknown internal error in graphql query', async t
   t.true(t.context.logger.error.calledOnceWith('internal_server_error'));
 });
 
+test('should be able to handle validation error in graphql query', async t => {
+  const res = await gql(
+    t.context.app,
+    `mutation { validate(email: "invalid-email") }`
+  );
+  const err = res.body.errors[0];
+  t.is(
+    err.message,
+    `Validation error, errors: [
+  {
+    "validation": "email",
+    "code": "invalid_string",
+    "message": "Invalid email",
+    "path": [
+      "email"
+    ]
+  }
+]`
+  );
+  t.is(err.extensions.status, HttpStatus.BAD_REQUEST);
+  t.is(err.extensions.name, 'VALIDATION_ERROR');
+  t.true(t.context.logger.error.notCalled);
+});
+
 test('should be able to respond request', async t => {
   const res = await request(t.context.app.getHttpServer())
     .get('/ok')
@@ -179,6 +231,42 @@ test('should be able to handle unknown internal error in http request', async t 
   );
 });
 
+test('should be able to handle validation error in http request', async t => {
+  const res = await request(t.context.app.getHttpServer())
+    .post('/validate')
+    .send({ email: 'invalid-email', foo: '' })
+    .expect(HttpStatus.BAD_REQUEST);
+  t.is(
+    res.body.message,
+    `Validation error, errors: [
+  {
+    "validation": "email",
+    "code": "invalid_string",
+    "message": "Invalid email",
+    "path": [
+      "email"
+    ]
+  },
+  {
+    "code": "too_small",
+    "minimum": 1,
+    "type": "string",
+    "inclusive": true,
+    "exact": false,
+    "message": "String must contain at least 1 character(s)",
+    "path": [
+      "foo"
+    ]
+  }
+]`
+  );
+  t.is(res.body.name, 'VALIDATION_ERROR');
+  t.is(res.body.type, 'INVALID_INPUT');
+  t.is(res.body.code, 'Bad Request');
+  t.truthy(res.body.data.errors);
+  t.true(t.context.logger.error.notCalled);
+});
+
 // Hard to test through websocket, will call event handler directly
 test('should be able to response websocket event', async t => {
   const gateway = t.context.app.get(TestGateway);
@@ -207,4 +295,29 @@ test('should be able to handle unknown internal error in websocket event', async
   t.is(error.message, 'An internal error occurred.');
   t.is(error.name, 'INTERNAL_SERVER_ERROR');
   t.true(t.context.logger.error.calledOnceWith('internal_server_error'));
+});
+
+test('should be able to handle validation error in graphql mutation', async t => {
+  const gateway = t.context.app.get(TestGateway);
+
+  const { error } = (await gateway.validate({
+    email: 'invalid-email',
+  })) as unknown as {
+    error: UserFriendlyError;
+  };
+  t.is(
+    error.message,
+    `Validation error, errors: [
+  {
+    "validation": "email",
+    "code": "invalid_string",
+    "message": "Invalid email",
+    "path": [
+      "email"
+    ]
+  }
+]`
+  );
+  t.is(error.name, 'VALIDATION_ERROR');
+  t.true(t.context.logger.error.notCalled);
 });

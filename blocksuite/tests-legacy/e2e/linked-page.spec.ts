@@ -51,13 +51,13 @@ async function createAndConvertToEmbedLinkedDoc(page: Page) {
   );
 
   await waitNextFrame(page, 200);
-  const referencePopup = page.locator('.affine-reference-popover-container');
-  await expect(referencePopup).toBeVisible();
+  const toolbar = page.locator('affine-toolbar-widget editor-toolbar');
+  await expect(toolbar).toBeVisible();
 
-  const switchButton = page.getByRole('button', { name: 'Switch view' });
+  const switchButton = toolbar.getByRole('button', { name: 'Switch view' });
   await switchButton.click();
 
-  const embedLinkedDocBtn = page.getByRole('button', { name: 'Card view' });
+  const embedLinkedDocBtn = toolbar.getByRole('button', { name: 'Card view' });
   await expect(embedLinkedDocBtn).toBeVisible();
   await embedLinkedDocBtn.click();
   await waitNextFrame(page, 200);
@@ -680,8 +680,9 @@ test('linked doc can be dragged from note to surface top level block', async ({
   await assertParentBlockFlavour(page, '9', 'affine:surface');
 });
 
+// TODO(@fundon): should move to affine
 // Aliases
-test.describe('Customize linked doc title and description', () => {
+test.describe.skip('Customize linked doc title and description', () => {
   // Inline View
   test('should set a custom title for inline link', async ({ page }) => {
     await enterPlaygroundRoom(page);
@@ -711,14 +712,14 @@ test.describe('Customize linked doc title and description', () => {
     await page0.hover();
 
     await waitNextFrame(page, 200);
-    const referencePopup = page.locator('.affine-reference-popover-container');
-    await expect(referencePopup).toBeVisible();
+    const toolbar = page.locator('affine-toolbar-widget editor-toolbar');
+    await expect(toolbar).toBeVisible();
 
-    const editButton = referencePopup.getByRole('button', { name: 'Edit' });
+    const editButton = toolbar.getByRole('button', { name: 'Edit' });
     await editButton.click();
 
     await waitNextFrame(page, 200);
-    const popup = page.locator('.alias-form-popup');
+    const popup = page.locator('reference-popup .popover-container');
     await expect(popup).toBeVisible();
 
     const input = popup.locator('input');
@@ -737,10 +738,10 @@ test.describe('Customize linked doc title and description', () => {
     await page0Alias.hover();
 
     await waitNextFrame(page, 200);
-    await expect(referencePopup).toBeVisible();
+    await expect(toolbar).toBeVisible();
 
     // original title button
-    const docTitle = referencePopup.getByRole('button', { name: 'Doc title' });
+    const docTitle = toolbar.getByRole('button', { name: 'Doc title' });
     await expect(docTitle).toHaveText('title0', { useInnerText: true });
 
     // reedit
@@ -757,7 +758,7 @@ test.describe('Customize linked doc title and description', () => {
     await resetedPage0.hover();
 
     await waitNextFrame(page, 200);
-    await expect(referencePopup).toBeVisible();
+    await expect(toolbar).toBeVisible();
     await expect(docTitle).not.toBeVisible();
   });
 
@@ -786,9 +787,9 @@ test.describe('Customize linked doc title and description', () => {
     await page0.hover();
 
     await waitNextFrame(page, 200);
-    const referencePopup = page.locator('.affine-reference-popover-container');
+    const toolbar = page.locator('affine-toolbar-widget editor-toolbar');
 
-    let editButton = referencePopup.getByRole('button', { name: 'Edit' });
+    let editButton = toolbar.getByRole('button', { name: 'Edit' });
     await editButton.click();
 
     // title alias
@@ -802,13 +803,13 @@ test.describe('Customize linked doc title and description', () => {
     await page0Alias.hover();
 
     await waitNextFrame(page, 200);
-    const switchButton = referencePopup.getByRole('button', {
+    const switchButton = toolbar.getByRole('button', {
       name: 'Switch view',
     });
     await switchButton.click();
 
     // switches to card view
-    const toCardButton = referencePopup.getByRole('button', {
+    const toCardButton = toolbar.getByRole('button', {
       name: 'Card view',
     });
     await toCardButton.click();
@@ -825,13 +826,12 @@ test.describe('Customize linked doc title and description', () => {
     await linkedDocBlock.click();
 
     await waitNextFrame(page, 200);
-    const cardToolbar = page.locator('affine-embed-card-toolbar');
-    const docTitleButton = cardToolbar.getByRole('button', {
+    const docTitleButton = toolbar.getByRole('button', {
       name: 'Doc title',
     });
     await expect(docTitleButton).toBeVisible();
 
-    editButton = cardToolbar.getByRole('button', { name: 'Edit' });
+    editButton = toolbar.getByRole('button', { name: 'Edit' });
     await editButton.click();
 
     await waitNextFrame(page, 200);

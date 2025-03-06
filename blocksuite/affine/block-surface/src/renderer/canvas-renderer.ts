@@ -8,7 +8,8 @@ import type {
 } from '@blocksuite/block-std/gfx';
 import type { IBound } from '@blocksuite/global/gfx';
 import { getBoundWithRotation, intersects } from '@blocksuite/global/gfx';
-import { DisposableGroup, last, Slot } from '@blocksuite/global/utils';
+import { DisposableGroup, Slot } from '@blocksuite/global/slot';
+import last from 'lodash-es/last';
 
 import type { SurfaceElementModel } from '../element-model/base.js';
 import { RoughCanvas } from '../utils/rough/canvas.js';

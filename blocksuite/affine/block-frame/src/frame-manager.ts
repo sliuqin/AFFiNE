@@ -20,7 +20,7 @@ import {
   type IVec,
   type SerializedXYWH,
 } from '@blocksuite/global/gfx';
-import { DisposableGroup } from '@blocksuite/global/utils';
+import { DisposableGroup } from '@blocksuite/global/slot';
 import { type BlockModel, Text } from '@blocksuite/store';
 import * as Y from 'yjs';
 

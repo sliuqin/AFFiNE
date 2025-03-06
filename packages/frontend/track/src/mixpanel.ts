@@ -94,7 +94,6 @@ function createMixpanel() {
 }
 
 export const mixpanel = createMixpanel();
-mixpanel.init();
 
 function createProxyHandler() {
   const handler = {

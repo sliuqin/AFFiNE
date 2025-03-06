@@ -571,6 +571,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@affine/graphql@workspace:packages/frontend/graphql"
   dependencies:
+    "@affine/debug": "workspace:*"
     "@affine/env": "workspace:*"
     "@graphql-codegen/add": "npm:^5.0.3"
     "@graphql-codegen/cli": "npm:5.0.5"
@@ -935,8 +936,11 @@ __metadata:
   resolution: "@affine/track@workspace:packages/frontend/track"
   dependencies:
     "@affine/debug": "workspace:*"
+    "@sentry/react": "npm:^9.2.0"
     "@types/mixpanel-browser": "npm:^2.50.2"
+    "@types/react": "npm:^19.0.1"
     mixpanel-browser: "npm:^2.56.0"
+    react-router-dom: "npm:6.28.0"
     vitest: "npm:^3.0.0"
   languageName: unknown
   linkType: soft
@@ -949,6 +953,7 @@ __metadata:
     "@affine/core": "workspace:*"
     "@affine/i18n": "workspace:*"
     "@affine/nbstore": "workspace:*"
+    "@affine/track": "workspace:*"
     "@emotion/react": "npm:^11.14.0"
     "@sentry/react": "npm:^9.2.0"
     "@toeverything/infra": "workspace:*"
@@ -2234,12 +2239,12 @@ __metadata:
     "@blocksuite/icons": "npm:^2.2.1"
     "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
-    "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
     lit: "npm:^3.2.0"
     minimatch: "npm:^10.0.1"
+    yjs: "npm:^13.6.23"
     zod: "npm:^3.23.8"
   languageName: unknown
   linkType: soft
@@ -2336,7 +2341,6 @@ __metadata:
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
     "@types/mdast": "npm:^4.0.4"
-    "@vanilla-extract/css": "npm:^1.17.0"
     date-fns: "npm:^4.0.0"
     lit: "npm:^3.2.0"
     minimatch: "npm:^10.0.1"
@@ -2407,7 +2411,9 @@ __metadata:
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
+    "@types/lodash-es": "npm:^4.17.12"
     lit: "npm:^3.2.0"
+    lodash-es: "npm:^4.17.21"
     minimatch: "npm:^10.0.1"
     vitest: "npm:3.0.7"
     yjs: "npm:^13.6.21"
@@ -2528,7 +2534,6 @@ __metadata:
     "@blocksuite/icons": "npm:^2.2.1"
     "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
-    "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
@@ -2589,6 +2594,7 @@ __metadata:
     "@blocksuite/affine-widget-frame-title": "workspace:*"
     "@blocksuite/affine-widget-remote-selection": "workspace:*"
     "@blocksuite/affine-widget-scroll-anchoring": "workspace:*"
+    "@blocksuite/affine-widget-toolbar": "workspace:*"
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/data-view": "workspace:*"
     "@blocksuite/global": "workspace:*"
@@ -2630,10 +2636,10 @@ __metadata:
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
-    "@types/lodash.chunk": "npm:^4.2.9"
+    "@types/lodash-es": "npm:^4.17.12"
     fractional-indexing: "npm:^3.2.0"
     lit: "npm:^3.2.0"
-    lodash.chunk: "npm:^4.2.0"
+    lodash-es: "npm:^4.17.21"
     nanoid: "npm:^5.0.7"
     zod: "npm:^3.23.8"
   languageName: unknown
@@ -2653,11 +2659,11 @@ __metadata:
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
-    "@types/lodash.chunk": "npm:^4.2.9"
+    "@types/lodash-es": "npm:^4.17.12"
     fractional-indexing: "npm:^3.2.0"
     html2canvas: "npm:^1.4.1"
     lit: "npm:^3.2.0"
-    lodash.chunk: "npm:^4.2.0"
+    lodash-es: "npm:^4.17.21"
     nanoid: "npm:^5.0.7"
     pdf-lib: "npm:^1.17.1"
     vitest: "npm:3.0.7"
@@ -2706,14 +2712,14 @@ __metadata:
     "@toeverything/theme": "npm:^1.1.12"
     "@types/hast": "npm:^3.0.4"
     "@types/katex": "npm:^0.16.7"
-    "@types/lodash.clonedeep": "npm:^4.5.9"
+    "@types/lodash-es": "npm:^4.17.12"
     "@types/mdast": "npm:^4.0.4"
     collapse-white-space: "npm:^2.1.0"
     date-fns: "npm:^4.0.0"
     katex: "npm:^0.16.11"
     lit: "npm:^3.2.0"
     lit-html: "npm:^3.2.1"
-    lodash.clonedeep: "npm:^4.5.0"
+    lodash-es: "npm:^4.17.21"
     remark-math: "npm:^6.0.0"
     shiki: "npm:^3.0.0"
     yjs: "npm:^13.6.21"
@@ -2778,7 +2784,9 @@ __metadata:
     "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@toeverything/theme": "npm:^1.1.12"
+    "@types/lodash-es": "npm:^4.17.12"
     fractional-indexing: "npm:^3.2.0"
+    lodash-es: "npm:^4.17.21"
     yjs: "npm:^13.6.21"
     zod: "npm:^3.23.8"
   languageName: unknown
@@ -2799,14 +2807,12 @@ __metadata:
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
     "@types/hast": "npm:^3.0.4"
-    "@types/lodash.clonedeep": "npm:^4.5.9"
-    "@types/lodash.mergewith": "npm:^4"
+    "@types/lodash-es": "npm:^4.17.12"
     "@types/mdast": "npm:^4.0.4"
     dompurify: "npm:^3.2.4"
     fractional-indexing: "npm:^3.2.0"
     lit: "npm:^3.2.0"
-    lodash.clonedeep: "npm:^4.5.0"
-    lodash.mergewith: "npm:^4.6.2"
+    lodash-es: "npm:^4.17.21"
     mdast-util-gfm-autolink-literal: "npm:^2.0.1"
     mdast-util-gfm-footnote: "npm:^2.0.0"
     mdast-util-gfm-strikethrough: "npm:^2.0.0"
@@ -2853,7 +2859,9 @@ __metadata:
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
+    "@types/lodash-es": "npm:^4.17.12"
     lit: "npm:^3.2.0"
+    lodash-es: "npm:^4.17.21"
     minimatch: "npm:^10.0.1"
     zod: "npm:^3.23.8"
   languageName: unknown
@@ -2906,7 +2914,9 @@ __metadata:
     "@blocksuite/icons": "npm:^2.2.3"
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
+    "@types/lodash-es": "npm:^4.17.12"
     lit: "npm:^3.2.0"
+    lodash-es: "npm:^4.17.21"
   languageName: unknown
   linkType: soft
 
@@ -2924,11 +2934,36 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@blocksuite/affine-widget-toolbar@workspace:*, @blocksuite/affine-widget-toolbar@workspace:blocksuite/affine/widget-toolbar":
+  version: 0.0.0-use.local
+  resolution: "@blocksuite/affine-widget-toolbar@workspace:blocksuite/affine/widget-toolbar"
+  dependencies:
+    "@blocksuite/affine-block-database": "workspace:*"
+    "@blocksuite/affine-block-table": "workspace:*"
+    "@blocksuite/affine-components": "workspace:*"
+    "@blocksuite/affine-model": "workspace:*"
+    "@blocksuite/affine-shared": "workspace:*"
+    "@blocksuite/block-std": "workspace:*"
+    "@blocksuite/global": "workspace:*"
+    "@blocksuite/icons": "npm:^2.2.1"
+    "@floating-ui/dom": "npm:^1.6.13"
+    "@preact/signals-core": "npm:^1.8.0"
+    "@toeverything/theme": "npm:^1.1.12"
+    "@types/lodash-es": "npm:^4.17.12"
+    "@types/lodash.groupby": "npm:^4"
+    "@types/lodash.mergewith": "npm:^4"
+    "@types/lodash.orderby": "npm:^4"
+    "@types/lodash.partition": "npm:^4"
+    "@types/lodash.topairs": "npm:^4"
+    lit: "npm:^3.2.0"
+    lodash-es: "npm:^4.17.21"
+  languageName: unknown
+  linkType: soft
+
 "@blocksuite/affine@workspace:*, @blocksuite/affine@workspace:blocksuite/affine/all":
   version: 0.0.0-use.local
   resolution: "@blocksuite/affine@workspace:blocksuite/affine/all"
   dependencies:
-    "@blocksuite/affine-shared": "workspace:*"
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/blocks": "workspace:*"
     "@blocksuite/global": "workspace:*"
@@ -2951,10 +2986,12 @@ __metadata:
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
     "@types/hast": "npm:^3.0.4"
+    "@types/lodash-es": "npm:^4.17.12"
     dompurify: "npm:^3.2.4"
     fractional-indexing: "npm:^3.2.0"
     lib0: "npm:^0.2.97"
     lit: "npm:^3.2.0"
+    lodash-es: "npm:^4.17.21"
     lz-string: "npm:^1.5.0"
     rehype-parse: "npm:^9.0.0"
     unified: "npm:^11.0.5"
@@ -2998,6 +3035,7 @@ __metadata:
     "@blocksuite/affine-widget-frame-title": "workspace:*"
     "@blocksuite/affine-widget-remote-selection": "workspace:*"
     "@blocksuite/affine-widget-scroll-anchoring": "workspace:*"
+    "@blocksuite/affine-widget-toolbar": "workspace:*"
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/data-view": "workspace:*"
     "@blocksuite/global": "workspace:*"
@@ -3024,9 +3062,10 @@ __metadata:
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
-    "@vanilla-extract/css": "npm:^1.17.0"
+    "@types/lodash-es": "npm:^4.17.12"
     date-fns: "npm:^4.0.0"
     lit: "npm:^3.2.0"
+    lodash-es: "npm:^4.17.21"
     yjs: "npm:^13.6.21"
     zod: "npm:^3.23.8"
   languageName: unknown
@@ -3119,7 +3158,7 @@ __metadata:
     "@blocksuite/integration-test": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@playwright/test": "npm:=1.50.1"
-    "@toeverything/theme": "npm:^1.1.7"
+    "@toeverything/theme": "npm:^1.1.12"
   languageName: unknown
   linkType: soft
 
@@ -3196,8 +3235,10 @@ __metadata:
   resolution: "@blocksuite/sync@workspace:blocksuite/framework/sync"
   dependencies:
     "@blocksuite/global": "workspace:*"
+    "@types/lodash-es": "npm:^4.17.12"
     idb: "npm:^8.0.0"
     idb-keyval: "npm:^6.2.1"
+    lodash-es: "npm:^4.17.21"
     vitest: "npm:3.0.7"
     y-protocols: "npm:^1.0.6"
   peerDependencies:
@@ -11227,6 +11268,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@remix-run/router@npm:1.21.0":
+  version: 1.21.0
+  resolution: "@remix-run/router@npm:1.21.0"
+  checksum: 10/cf0fb69d19c1b79095ff67c59cea89086f3982a9a54c8a993818a60fc76e0ebab5a8db647c1a96a662729fad8e806ddd0a96622adf473f5a9f0b99998b2dbad4
+  languageName: node
+  linkType: hard
+
 "@remix-run/router@npm:1.23.0":
   version: 1.23.0
   resolution: "@remix-run/router@npm:1.23.0"
@@ -13485,7 +13533,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@toeverything/theme@npm:^1.1.12, @toeverything/theme@npm:^1.1.7":
+"@toeverything/theme@npm:^1.1.12":
   version: 1.1.12
   resolution: "@toeverything/theme@npm:1.1.12"
   checksum: 10/32247cf7f7a819445fa7373a3afafaafc6a8527b95934e37e5f2c32181224b2184691b24bd8a400872cca7cd1336efe98bd5ad3366b98d149e48b3baee2609a7
@@ -14101,21 +14149,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash.chunk@npm:^4.2.9":
-  version: 4.2.9
-  resolution: "@types/lodash.chunk@npm:4.2.9"
-  dependencies:
-    "@types/lodash": "npm:*"
-  checksum: 10/ccffe7273a0941655d5b988baeffa8f7d4d19a8b43ed728ff4e616013506efe85914ba99d4ec299e0106506e1bca3923b065eabb0aa5f1e4b18f68e790ae6b88
-  languageName: node
-  linkType: hard
-
 "@types/lodash.clonedeep@npm:^4.5.9":
   version: 4.5.9
   resolution: "@types/lodash.clonedeep@npm:4.5.9"
   dependencies:
     "@types/lodash": "npm:*"
   checksum: 10/ef85512b7dce7a4f981a818ae44d11982907e1f26b5b26bedf0957c35e8591eb8e1d24fa31ca851d4b40e0a1ee88563853d762412691fe5f357e8335cead2325
+  languageName: node
+  linkType: hard
+
+"@types/lodash.groupby@npm:^4":
+  version: 4.6.9
+  resolution: "@types/lodash.groupby@npm:4.6.9"
+  dependencies:
+    "@types/lodash": "npm:*"
+  checksum: 10/b8310a9f89badc42a504887ca0b9619c2a284b3fec8dc505cf72508eb6beba47b822df939c7d57c0f69bc685f51ff5a232e0480ecad6b18b7ab76fecc1d74691
   languageName: node
   linkType: hard
 
@@ -14143,6 +14191,33 @@ __metadata:
   dependencies:
     "@types/lodash": "npm:*"
   checksum: 10/c5a67e83040103decfd37090127118f5758773d0ce2a1756d442b371721737c7752f48f62544cc970f44abec8471f260cc4c844e1a4fdef8b76cb96bdec8a595
+  languageName: node
+  linkType: hard
+
+"@types/lodash.orderby@npm:^4":
+  version: 4.6.9
+  resolution: "@types/lodash.orderby@npm:4.6.9"
+  dependencies:
+    "@types/lodash": "npm:*"
+  checksum: 10/f3ca3a6ba09caef431955f3110a6704e25c90934fb70973e2ed1f4dd9aa48c4776c7e8b909b78f9ae1fb169e437497f8fe8e60fafb5c74ede49c36739ac44c3e
+  languageName: node
+  linkType: hard
+
+"@types/lodash.partition@npm:^4":
+  version: 4.6.9
+  resolution: "@types/lodash.partition@npm:4.6.9"
+  dependencies:
+    "@types/lodash": "npm:*"
+  checksum: 10/29d1fead7f9a71af8279ceb6c1b08128c7f05f06a72ed60fea02a7c010f69006a4e3dc24afb9c4a3187a033b918a1b3dcf611004781f927ff573b104bdf34060
+  languageName: node
+  linkType: hard
+
+"@types/lodash.topairs@npm:^4":
+  version: 4.3.9
+  resolution: "@types/lodash.topairs@npm:4.3.9"
+  dependencies:
+    "@types/lodash": "npm:*"
+  checksum: 10/8d4d9cb7be1c333b70b8d035d0673ef41158bfe24e06616046879149a15438af89673fe21abe1b1e62ddbc00eae5fe4c3795649de8a98742771ba8949100a300
   languageName: node
   linkType: hard
 
@@ -24142,13 +24217,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.chunk@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "lodash.chunk@npm:4.2.0"
-  checksum: 10/3b6639fda107a0d8c3996090eeb7ad0f05063e6a1f4692a01335e7c1990030d3274c3164d78159f24928d86eb0943ad326b0a4a2da706c250c4d3166ddd8ed0e
-  languageName: node
-  linkType: hard
-
 "lodash.clonedeep@npm:^4.5.0":
   version: 4.5.0
   resolution: "lodash.clonedeep@npm:4.5.0"
@@ -28810,6 +28878,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-router-dom@npm:6.28.0":
+  version: 6.28.0
+  resolution: "react-router-dom@npm:6.28.0"
+  dependencies:
+    "@remix-run/router": "npm:1.21.0"
+    react-router: "npm:6.28.0"
+  peerDependencies:
+    react: ">=16.8"
+    react-dom: ">=16.8"
+  checksum: 10/e637825132ea96c3514ef7b8322f9bf0b752a942d6b4ffc4c20e389b5911726adf3dba8208ed4b97bf5b9c3bd465d9d1a1db1a58a610a8d528f18d890e0b143f
+  languageName: node
+  linkType: hard
+
 "react-router-dom@npm:^6.28.0":
   version: 6.30.0
   resolution: "react-router-dom@npm:6.30.0"
@@ -28820,6 +28901,17 @@ __metadata:
     react: ">=16.8"
     react-dom: ">=16.8"
   checksum: 10/e161e39d56ee799553d0bc6c8f19c901ee8cdbae218094f41cbc18f3262cb4d5e9f8381bd47a7e59d30e55c0cdd0a6803aa98537f2f9122efbce5c66a3041a35
+  languageName: node
+  linkType: hard
+
+"react-router@npm:6.28.0":
+  version: 6.28.0
+  resolution: "react-router@npm:6.28.0"
+  dependencies:
+    "@remix-run/router": "npm:1.21.0"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 10/f021a644513144884a567d9c2dcc432e8e3233f931378c219c5a3b5b842340f0faca86225a708bafca1e9010965afe1a7dada28aef5b7b6138c885c0552d9a7d
   languageName: node
   linkType: hard
 

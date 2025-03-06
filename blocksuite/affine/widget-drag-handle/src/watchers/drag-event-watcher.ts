@@ -54,7 +54,7 @@ import {
   Rect,
   type SerializedXYWH,
 } from '@blocksuite/global/gfx';
-import { assertType, groupBy, last } from '@blocksuite/global/utils';
+import { assertType } from '@blocksuite/global/utils';
 import {
   type BlockModel,
   type BlockSnapshot,
@@ -63,6 +63,8 @@ import {
   type SliceSnapshot,
   toDraftModel,
 } from '@blocksuite/store';
+import groupBy from 'lodash-es/groupBy';
+import last from 'lodash-es/last';
 
 import type { AffineDragHandleWidget } from '../drag-handle.js';
 import { PreviewHelper } from '../helpers/preview-helper.js';

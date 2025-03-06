@@ -1,5 +1,3 @@
-import { keys } from '@blocksuite/global/utils';
-
 import type {
   Template,
   TemplateCategory,
@@ -40,7 +38,7 @@ const flat = <T>(arr: T[][]) =>
   }, []);
 
 export const builtInTemplates = {
-  list: async (category: string) => {
+  list: async (category: string): Promise<Template[]> => {
     const extendTemplates = flat(
       await Promise.all(extendTemplate.map(manager => manager.list(category)))
     );
@@ -52,15 +50,12 @@ export const builtInTemplates = {
     const result: Template[] =
       cate.templates instanceof Function
         ? await cate.templates()
-        : await Promise.all(
-            // @ts-expect-error FIXME: ts error
-            keys(cate.templates).map(key => cate.templates[key]())
-          );
+        : await Promise.all(Object.values(cate.templates));
 
     return result.concat(extendTemplates);
   },
 
-  categories: async () => {
+  categories: async (): Promise<string[]> => {
     const extendCates = flat(
       await Promise.all(extendTemplate.map(manager => manager.categories()))
     );
@@ -69,7 +64,7 @@ export const builtInTemplates = {
     return templates.map(cate => cate.name).concat(extendCates);
   },
 
-  search: async (keyword: string, cateName?: string) => {
+  search: async (keyword: string, cateName?: string): Promise<Template[]> => {
     const candidates: Template[] = flat(
       await Promise.all(
         extendTemplate.map(manager => manager.search(keyword, cateName))
@@ -86,18 +81,15 @@ export const builtInTemplates = {
         }
 
         if (categroy.templates instanceof Function) {
-          return;
+          return categroy.templates();
         }
 
         return Promise.all(
-          keys(categroy.templates).map(async name => {
+          Object.entries(categroy.templates).map(async ([name, template]) => {
             if (
               lcs(keyword, (name as string).toLocaleLowerCase()) ===
               keyword.length
             ) {
-              // @ts-expect-error FIXME: ts error
-              const template = await categroy.templates[name]();
-
               candidates.push(template);
             }
           })

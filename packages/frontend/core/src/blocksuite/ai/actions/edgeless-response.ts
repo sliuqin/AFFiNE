@@ -7,7 +7,6 @@ import type {
 } from '@blocksuite/affine/blocks';
 import {
   addImages,
-  DeleteIcon,
   EDGELESS_ELEMENT_TOOLBAR_WIDGET,
   EDGELESS_TEXT_BLOCK_MIN_HEIGHT,
   EDGELESS_TEXT_BLOCK_MIN_WIDTH,
@@ -15,19 +14,23 @@ import {
   fitContent,
   getSurfaceBlock,
   ImageBlockModel,
-  InsertBelowIcon,
   LightLoadingIcon,
   MindmapUtils,
   NoteDisplayMode,
-  ResetIcon,
   TelemetryProvider,
 } from '@blocksuite/affine/blocks';
 import { Bound } from '@blocksuite/affine/global/gfx';
+import {
+  ChatWithAiIcon,
+  DeleteIcon,
+  InsertBleowIcon as InsertBelowIcon,
+  PenIcon,
+  ResetIcon,
+} from '@blocksuite/icons/lit';
 import { html, type TemplateResult } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 
 import { insertFromMarkdown } from '../../utils';
-import { AIPenIcon, ChatWithAIIcon } from '../_common/icons';
 import type { AIItemConfig } from '../components/ai-item/types';
 import { AIProvider } from '../provider';
 import { reportResponse } from '../utils/action-reporter';
@@ -80,7 +83,7 @@ export function discard(
 ): AIItemConfig {
   return {
     name: 'Discard',
-    icon: DeleteIcon,
+    icon: DeleteIcon(),
     showWhen: () => !!panel.answer,
     handler: () => {
       panel.discard();
@@ -91,7 +94,7 @@ export function discard(
 export function retry(panel: AffineAIPanelWidget): AIItemConfig {
   return {
     name: 'Retry',
-    icon: ResetIcon,
+    icon: ResetIcon(),
     handler: () => {
       reportResponse('result:retry');
       panel.generate();
@@ -132,7 +135,7 @@ export function createInsertItems<T extends keyof BlockSuitePresets.AIActions>(
     },
     {
       name: buttonText,
-      icon: InsertBelowIcon,
+      icon: InsertBelowIcon(),
       showWhen: () => {
         const panel = getAIPanelWidget(host);
         const data = ctx.get();
@@ -186,7 +189,7 @@ export function asCaption<T extends keyof BlockSuitePresets.AIActions>(
 ): AIItemConfig {
   return {
     name: 'Use as caption',
-    icon: AIPenIcon,
+    icon: PenIcon(),
     showWhen: () => {
       const panel = getAIPanelWidget(host);
       return id === 'generateCaption' && !!panel.answer;
@@ -552,7 +555,7 @@ export function actionToResponse<T extends keyof BlockSuitePresets.AIActions>(
         items: [
           {
             name: 'Continue in chat',
-            icon: ChatWithAIIcon,
+            icon: ChatWithAiIcon({}),
             handler: () => {
               reportResponse('result:continue-in-chat');
               const panel = getAIPanelWidget(host);

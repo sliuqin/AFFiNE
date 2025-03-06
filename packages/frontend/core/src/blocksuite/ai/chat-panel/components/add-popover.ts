@@ -3,7 +3,7 @@ import {
   type LinkedMenuGroup,
   scrollbarStyle,
 } from '@blocksuite/affine/blocks';
-import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { SearchIcon } from '@blocksuite/icons/lit';
 import type { DocMeta } from '@blocksuite/store';
 import { css, html } from 'lit';

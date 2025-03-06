@@ -3,7 +3,7 @@ import {
   EdgelessEditorBlockSpecs,
   ThemeProvider,
 } from '@blocksuite/affine/blocks';
-import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import type { Store } from '@blocksuite/affine/store';
 import { css, html, nothing, type TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';

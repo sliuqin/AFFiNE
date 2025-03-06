@@ -28,7 +28,7 @@ import {
   LinkPreviewerService,
   RefNodeSlotsProvider,
 } from '@blocksuite/affine/blocks';
-import { DisposableGroup } from '@blocksuite/affine/global/utils';
+import { DisposableGroup } from '@blocksuite/affine/global/slot';
 import {
   FrameworkScope,
   useLiveData,

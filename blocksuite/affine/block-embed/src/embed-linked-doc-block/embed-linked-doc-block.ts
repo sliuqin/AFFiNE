@@ -28,7 +28,6 @@ import {
 } from '@blocksuite/affine-shared/utils';
 import { BlockSelection } from '@blocksuite/block-std';
 import { Bound } from '@blocksuite/global/gfx';
-import { throttle } from '@blocksuite/global/utils';
 import { Text } from '@blocksuite/store';
 import { computed } from '@preact/signals-core';
 import { html, nothing } from 'lit';
@@ -36,6 +35,7 @@ import { property, queryAsync, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { when } from 'lit/directives/when.js';
+import throttle from 'lodash-es/throttle';
 import * as Y from 'yjs';
 
 import { EmbedBlockComponent } from '../common/embed-block-element.js';
@@ -109,7 +109,7 @@ export class EmbedLinkedDocBlockComponent extends EmbedBlockComponent<EmbedLinke
   };
 
   private readonly _selectBlock = () => {
-    const selectionManager = this.host.selection;
+    const selectionManager = this.std.selection;
     const blockSelection = selectionManager.create(BlockSelection, {
       blockId: this.blockId,
     });
@@ -129,15 +129,10 @@ export class EmbedLinkedDocBlockComponent extends EmbedBlockComponent<EmbedLinke
   convertToEmbed = () => {
     if (this._referenceToNode) return;
 
-    const { doc, caption } = this.model;
+    const { doc, caption, parent } = this.model;
+    const index = parent?.children.indexOf(this.model);
 
-    const parent = doc.getParent(this.model);
-    if (!parent) {
-      return;
-    }
-    const index = parent.children.indexOf(this.model);
-
-    doc.addBlock(
+    const blockId = doc.addBlock(
       'affine:embed-synced-doc',
       {
         caption,
@@ -147,8 +142,11 @@ export class EmbedLinkedDocBlockComponent extends EmbedBlockComponent<EmbedLinke
       index
     );
 
-    this.std.selection.setGroup('note', []);
     doc.deleteBlock(this.model);
+
+    this.std.selection.setGroup('note', [
+      this.std.selection.create(BlockSelection, { blockId }),
+    ]);
   };
 
   covertToInline = () => {

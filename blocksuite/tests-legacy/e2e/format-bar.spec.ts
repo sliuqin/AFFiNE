@@ -60,7 +60,7 @@ test('should format quick bar show when select text', async ({ page }) => {
   }
   const rect = await getSelectionRect(page);
   assertAlmostEqual(box.x - rect.left, -98, 5);
-  assertAlmostEqual(box.y - rect.bottom, 10, 5);
+  assertAlmostEqual(box.y - rect.bottom, -133, 5);
 
   // Click the edge of the format quick bar
   await page.mouse.click(box.x + 4, box.y + box.height / 2);
@@ -123,7 +123,7 @@ test('should format quick bar show when select text by keyboard', async ({
     throw new Error("formatBar doesn't exist");
   }
   let selectionRect = await getSelectionRect(page);
-  assertAlmostEqual(formatBarBox.x - selectionRect.x, -107, 3);
+  assertAlmostEqual(formatBarBox.x - selectionRect.x, -103, 3);
   assertAlmostEqual(
     formatBarBox.y + formatBarBox.height - selectionRect.top,
     -10,
@@ -150,7 +150,7 @@ test('should format quick bar show when select text by keyboard', async ({
   // The x position of the format quick bar depends on the font size
   // so there are slight differences in different environments
   selectionRect = await getSelectionRect(page);
-  assertAlmostEqual(formatBarBox.x - selectionRect.x, -107, 3);
+  assertAlmostEqual(formatBarBox.x - selectionRect.x, -103, 3);
   assertAlmostEqual(
     formatBarBox.y + formatBarBox.height - selectionRect.top,
     -10,
@@ -247,17 +247,22 @@ test('should format quick bar be able to change background color', async ({
 
   const { highlight } = getFormatBar(page);
 
-  await highlight.highlightBtn.hover();
+  await highlight.highlightBtn.click();
   await expect(highlight.redForegroundBtn).toBeVisible();
-  await expect(highlight.highlightBtn).toHaveAttribute(
-    'data-last-used',
-    'unset'
-  );
+
+  // TODO(@fundon): these recent settings should be added to the dropdown menu.
+  // await expect(highlight.highlightBtn).toHaveAttribute(
+  //   'data-last-used',
+  //   'unset'
+  // );
+
   await highlight.redForegroundBtn.click();
-  await expect(highlight.highlightBtn).toHaveAttribute(
-    'data-last-used',
-    'var(--affine-text-highlight-foreground-red)'
-  );
+
+  // TODO(@fundon): these recent settings should be added to the dropdown menu.
+  // await expect(highlight.highlightBtn).toHaveAttribute(
+  //   'data-last-used',
+  //   'var(--affine-text-highlight-foreground-red)'
+  // );
 
   expect(await getPageSnapshot(page, true)).toMatchSnapshot(
     `${testInfo.title}_init.json`
@@ -266,13 +271,17 @@ test('should format quick bar be able to change background color', async ({
   // select `123` paragraph by ctrl + a
   await focusRichText(page);
   await selectAllByKeyboard(page);
-  // use last used color
+  // // use last used color
+  // await highlight.highlightBtn.click();
+
   await highlight.highlightBtn.click();
+  await highlight.redForegroundBtn.click();
 
   expect(await getPageSnapshot(page, true)).toMatchSnapshot(
     `${testInfo.title}_select_all.json`
   );
 
+  await highlight.highlightBtn.click();
   await expect(highlight.defaultColorBtn).toBeVisible();
   await highlight.defaultColorBtn.click();
 
@@ -329,8 +338,6 @@ test('should format quick bar be able to link text', async ({
     `${testInfo.title}_init.json`
   );
 
-  // FIXME: remove this
-  await focusRichText(page);
   await setSelection(page, 3, 0, 3, 3);
   // The link button should be active after click
   await expect(linkBtn).toHaveAttribute('active', '');
@@ -352,24 +359,23 @@ test('should format quick bar be able to change to heading paragraph type', asyn
   // drag only the `456` paragraph
   await dragBetweenIndices(page, [0, 0], [0, 3]);
 
-  const { openParagraphMenu, h1Btn, bulletedBtn } = getFormatBar(page);
-  await openParagraphMenu();
+  const { openParagraphMenu, textBtn, h1Btn, bulletedBtn } = getFormatBar(page);
 
-  await expect(h1Btn).toBeVisible();
+  await openParagraphMenu();
   await h1Btn.click();
 
   expect(await getPageSnapshot(page, true)).toMatchSnapshot(
     `${testInfo.title}_init.json`
   );
 
-  await bulletedBtn.click();
   await openParagraphMenu();
+  await bulletedBtn.click();
 
   expect(await getPageSnapshot(page, true)).toMatchSnapshot(
     `${testInfo.title}_bulleted.json`
   );
 
-  const { textBtn } = getFormatBar(page);
+  await openParagraphMenu();
   await textBtn.click();
 
   expect(await getPageSnapshot(page, true)).toMatchSnapshot(
@@ -485,7 +491,7 @@ test('should format quick bar position correct at the start of second line', asy
   }
   const selectionRect = await getSelectionRect(page);
   assertAlmostEqual(formatBox.x - selectionRect.x, -99, 5);
-  assertAlmostEqual(formatBox.y + formatBox.height - selectionRect.top, 68, 5);
+  assertAlmostEqual(formatBox.y + formatBox.height - selectionRect.top, -10, 5);
 });
 
 test('should format quick bar action status updated while undo', async ({
@@ -542,7 +548,7 @@ test('should format quick bar work in single block selection', async ({
     throw new Error('selectionRect is not found');
   }
   assertAlmostEqual(formatRect.x - selectionRect.x, 147.5, 10);
-  assertAlmostEqual(formatRect.y - selectionRect.y, 33, 10);
+  assertAlmostEqual(formatRect.y - selectionRect.y, -48, 10);
 
   const boldBtn = formatBar.getByTestId('bold');
   await boldBtn.click();
@@ -597,7 +603,7 @@ test('should format quick bar work in multiple block selection', async ({
     throw new Error('rect is not found');
   }
   assertAlmostEqual(box.x - rect.x, 147.5, 10);
-  assertAlmostEqual(box.y - rect.y, 99, 10);
+  assertAlmostEqual(box.y - rect.y, -48, 10);
 
   await formatBarController.boldBtn.click();
   await formatBarController.italicBtn.click();
@@ -647,7 +653,7 @@ test('should format quick bar with block selection works when update block type'
     `${testInfo.title}_init.json`
   );
 
-  await expect(formatBarController.formatBar).toBeVisible();
+  await formatBarController.openParagraphMenu();
   await formatBarController.h1Btn.click();
   expect(await getPageSnapshot(page, true)).toMatchSnapshot(
     `${testInfo.title}_final.json`

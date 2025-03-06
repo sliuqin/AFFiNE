@@ -13,8 +13,9 @@ import {
   type SerializedXYWH,
   type XYWH,
 } from '@blocksuite/global/gfx';
-import { DisposableGroup, isEqual, Slot } from '@blocksuite/global/utils';
+import { DisposableGroup, Slot } from '@blocksuite/global/slot';
 import { createMutex } from 'lib0/mutex';
+import isEqual from 'lodash-es/isEqual';
 import * as Y from 'yjs';
 
 import {

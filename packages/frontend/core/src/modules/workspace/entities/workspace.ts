@@ -1,7 +1,6 @@
 import type { Workspace as WorkspaceInterface } from '@blocksuite/affine/store';
 import { Entity, LiveData } from '@toeverything/infra';
 import { Observable } from 'rxjs';
-import type { Awareness } from 'y-protocols/awareness.js';
 
 import { WorkspaceImpl } from '../impls/workspace';
 import type { WorkspaceScope } from '../scopes/workspace';
@@ -56,10 +55,6 @@ export class Workspace extends Entity {
       });
     }
     return this._docCollection;
-  }
-
-  get awareness() {
-    return this.docCollection.awarenessStore.awareness as Awareness;
   }
 
   get rootYDoc() {

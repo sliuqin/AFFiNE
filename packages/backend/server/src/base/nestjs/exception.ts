@@ -13,6 +13,7 @@ import { Response } from 'express';
 import { GraphQLError } from 'graphql';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io';
+import { ZodError } from 'zod';
 
 import {
   GraphqlBadRequest,
@@ -20,6 +21,7 @@ import {
   NotFound,
   TooManyRequest,
   UserFriendlyError,
+  ValidationError,
 } from '../error';
 import { metrics } from '../metrics';
 import { getRequestIdFromHost } from '../utils';
@@ -52,6 +54,10 @@ export function mapAnyError(error: any): UserFriendlyError {
     return new TooManyRequest();
   } else if (error instanceof NotFoundException) {
     return new NotFound();
+  } else if (error instanceof ZodError) {
+    return new ValidationError({
+      errors: error.message,
+    });
   } else {
     const e = new InternalServerError();
     e.cause = error;

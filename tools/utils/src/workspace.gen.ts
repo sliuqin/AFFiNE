@@ -251,6 +251,7 @@ export const PackageList = [
       'blocksuite/affine/widget-frame-title',
       'blocksuite/affine/widget-remote-selection',
       'blocksuite/affine/widget-scroll-anchoring',
+      'blocksuite/affine/widget-toolbar',
       'blocksuite/framework/block-std',
       'blocksuite/affine/data-view',
       'blocksuite/framework/global',
@@ -436,6 +437,19 @@ export const PackageList = [
     ],
   },
   {
+    location: 'blocksuite/affine/widget-toolbar',
+    name: '@blocksuite/affine-widget-toolbar',
+    workspaceDependencies: [
+      'blocksuite/affine/block-database',
+      'blocksuite/affine/block-table',
+      'blocksuite/affine/components',
+      'blocksuite/affine/model',
+      'blocksuite/affine/shared',
+      'blocksuite/framework/block-std',
+      'blocksuite/framework/global',
+    ],
+  },
+  {
     location: 'blocksuite/blocks',
     name: '@blocksuite/blocks',
     workspaceDependencies: [
@@ -468,6 +482,7 @@ export const PackageList = [
       'blocksuite/affine/widget-frame-title',
       'blocksuite/affine/widget-remote-selection',
       'blocksuite/affine/widget-scroll-anchoring',
+      'blocksuite/affine/widget-toolbar',
       'blocksuite/framework/block-std',
       'blocksuite/affine/data-view',
       'blocksuite/framework/global',
@@ -680,6 +695,7 @@ export const PackageList = [
       'packages/frontend/core',
       'packages/frontend/i18n',
       'packages/common/nbstore',
+      'packages/frontend/track',
       'packages/common/infra',
     ],
   },
@@ -720,7 +736,7 @@ export const PackageList = [
   {
     location: 'packages/frontend/graphql',
     name: '@affine/graphql',
-    workspaceDependencies: ['packages/common/env'],
+    workspaceDependencies: ['packages/common/debug', 'packages/common/env'],
   },
   {
     location: 'packages/frontend/i18n',
@@ -860,6 +876,7 @@ export type PackageName =
   | '@blocksuite/affine-widget-frame-title'
   | '@blocksuite/affine-widget-remote-selection'
   | '@blocksuite/affine-widget-scroll-anchoring'
+  | '@blocksuite/affine-widget-toolbar'
   | '@blocksuite/blocks'
   | '@blocksuite/block-std'
   | '@blocksuite/global'

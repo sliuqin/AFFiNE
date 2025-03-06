@@ -1,5 +1,5 @@
 import { IS_ANDROID, IS_MAC } from '@blocksuite/global/env';
-import { DisposableGroup } from '@blocksuite/global/utils';
+import { DisposableGroup } from '@blocksuite/global/slot';
 
 import {
   type UIEventHandler,

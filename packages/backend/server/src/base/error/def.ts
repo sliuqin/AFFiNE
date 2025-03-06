@@ -265,6 +265,12 @@ export const USER_FRIENDLY_ERRORS = {
     message: ({ max }) => `Query is too long, max length is ${max}.`,
   },
 
+  validation_error: {
+    type: 'invalid_input',
+    args: { errors: 'string' },
+    message: ({ errors }) => `Validation error, errors: ${errors}`,
+  },
+
   // User Errors
   user_not_found: {
     type: 'resource_not_found',
@@ -438,6 +444,12 @@ export const USER_FRIENDLY_ERRORS = {
     args: { spaceId: 'string', docId: 'string', action: 'string' },
     message: ({ docId, action }) =>
       `You do not have permission to perform ${action} action on doc ${docId}.`,
+  },
+  doc_update_blocked: {
+    type: 'action_forbidden',
+    args: { spaceId: 'string', docId: 'string' },
+    message: ({ spaceId, docId }) =>
+      `Doc ${docId} under Space ${spaceId} is blocked from updating.`,
   },
   version_rejected: {
     type: 'action_forbidden',

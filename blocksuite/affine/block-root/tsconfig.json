@@ -30,6 +30,7 @@
     { "path": "../widget-frame-title" },
     { "path": "../widget-remote-selection" },
     { "path": "../widget-scroll-anchoring" },
+    { "path": "../widget-toolbar" },
     { "path": "../../framework/block-std" },
     { "path": "../data-view" },
     { "path": "../../framework/global" },

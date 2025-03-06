@@ -1,7 +1,7 @@
 import type { RichText } from '@blocksuite/affine-components/rich-text';
 import type { FrameBlockModel } from '@blocksuite/affine-model';
 import { ShadowlessElement } from '@blocksuite/block-std';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { css, html } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';

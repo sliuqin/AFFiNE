@@ -7,6 +7,7 @@ query getCopilotSessions(
     copilot(workspaceId: $workspaceId) {
       sessions(docId: $docId, options: $options) {
         id
+        parentSessionId
         promptName
       }
     }

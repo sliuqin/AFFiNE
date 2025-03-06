@@ -11,6 +11,7 @@
     { "path": "../../core" },
     { "path": "../../i18n" },
     { "path": "../../../common/nbstore" },
+    { "path": "../../track" },
     { "path": "../../../common/infra" }
   ]
 }

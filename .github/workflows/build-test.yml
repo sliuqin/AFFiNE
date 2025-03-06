@@ -600,7 +600,7 @@ jobs:
           fail_ci_if_error: false
 
   copilot-e2e-test:
-    name: Server Copilot E2E Test
+    name: Frontend Copilot E2E Test
     runs-on: ubuntu-latest
     env:
       DISTRIBUTION: web

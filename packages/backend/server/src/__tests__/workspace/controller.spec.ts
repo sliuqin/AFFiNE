@@ -7,7 +7,7 @@ import Sinon from 'sinon';
 
 import { PgWorkspaceDocStorageAdapter } from '../../core/doc';
 import { WorkspaceBlobStorage } from '../../core/storage';
-import { Models, WorkspaceRole } from '../../models';
+import { Models, PublicDocMode, WorkspaceRole } from '../../models';
 import { createTestingApp, TestingApp, TestUser } from '../utils';
 
 const test = ava as TestFn<{
@@ -218,7 +218,7 @@ test('should be able to get doc', async t => {
 });
 
 test('should be able to change page publish mode', async t => {
-  const { app, workspace: doc, db } = t.context;
+  const { app, workspace: doc, models } = t.context;
 
   doc.getDoc.resolves({
     spaceId: '',
@@ -232,9 +232,8 @@ test('should be able to change page publish mode', async t => {
   t.is(res.status, HttpStatus.OK);
   t.is(res.get('publish-mode'), 'page');
 
-  await db.workspaceDoc.update({
-    where: { workspaceId_docId: { workspaceId: 'private', docId: 'public' } },
-    data: { mode: 1 },
+  await models.doc.upsertMeta('private', 'public', {
+    mode: PublicDocMode.Edgeless,
   });
 
   res = await app.GET('/api/workspaces/private/docs/public');

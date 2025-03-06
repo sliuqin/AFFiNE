@@ -1,12 +1,12 @@
 import type { EditorHost } from '@blocksuite/affine/block-std';
 import { openFileOrFiles, unsafeCSSVarV2 } from '@blocksuite/affine/blocks';
-import { SignalWatcher } from '@blocksuite/affine/global/utils';
-import { ImageIcon, PublishIcon } from '@blocksuite/icons/lit';
+import { SignalWatcher } from '@blocksuite/affine/global/lit';
+import { BroomIcon, ImageIcon, PublishIcon } from '@blocksuite/icons/lit';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
-import { ChatAbortIcon, ChatClearIcon, ChatSendIcon } from '../_common/icons';
+import { ChatAbortIcon, ChatSendIcon } from '../_common/icons';
 import type { ChatMessage } from '../blocks';
 import type { AINetworkSearchConfig } from '../chat-panel/chat-config';
 import {
@@ -95,6 +95,7 @@ export class ChatBlockInput extends SignalWatcher(LitElement) {
       }
 
       .image-upload,
+      .chat-history-clear,
       .chat-network-search {
         display: flex;
         justify-content: center;
@@ -167,7 +168,7 @@ export class ChatBlockInput extends SignalWatcher(LitElement) {
         ></textarea>
         <div class="chat-panel-input-actions">
           <div class=${cleanButtonClasses} @click=${this._handleCleanup}>
-            ${ChatClearIcon}
+            ${BroomIcon()}
           </div>
           ${this.networkSearchConfig.visible.value
             ? html`

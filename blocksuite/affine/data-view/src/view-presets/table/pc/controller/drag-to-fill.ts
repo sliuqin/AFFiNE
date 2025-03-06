@@ -1,9 +1,9 @@
 import { ShadowlessElement } from '@blocksuite/block-std';
-import { isEqual } from '@blocksuite/global/utils';
 import { type Text } from '@blocksuite/store';
 import { css, html } from 'lit';
 import { state } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
+import isEqual from 'lodash-es/isEqual';
 import * as Y from 'yjs';
 
 import { t } from '../../../../core/index.js';

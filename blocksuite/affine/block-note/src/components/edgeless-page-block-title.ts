@@ -6,7 +6,7 @@ import {
   ShadowlessElement,
   stdContext,
 } from '@blocksuite/block-std';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { consume } from '@lit/context';
 import { html } from 'lit';
 import { property } from 'lit/decorators.js';

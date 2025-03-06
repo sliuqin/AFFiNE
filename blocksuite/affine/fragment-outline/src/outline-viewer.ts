@@ -7,7 +7,7 @@ import {
   requiredProperties,
   ShadowlessElement,
 } from '@blocksuite/block-std';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { TocIcon } from '@blocksuite/icons/lit';
 import { provide } from '@lit/context';
 import { signal } from '@preact/signals-core';

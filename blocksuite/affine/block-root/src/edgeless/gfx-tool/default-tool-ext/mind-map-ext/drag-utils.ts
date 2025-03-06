@@ -9,7 +9,7 @@ import {
   type MindmapRoot,
 } from '@blocksuite/affine-model';
 import { Bound } from '@blocksuite/global/gfx';
-import { last } from '@blocksuite/global/utils';
+import last from 'lodash-es/last';
 
 const isOnEdge = (node: MindmapNode, direction: 'tail' | 'head') => {
   let current = node;

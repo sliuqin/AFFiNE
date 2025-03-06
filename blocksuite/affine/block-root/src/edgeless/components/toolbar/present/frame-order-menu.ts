@@ -1,10 +1,7 @@
 import { EdgelessCRUDIdentifier } from '@blocksuite/affine-block-surface';
 import { generateKeyBetweenV2 } from '@blocksuite/block-std/gfx';
-import {
-  DisposableGroup,
-  SignalWatcher,
-  WithDisposable,
-} from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
+import { DisposableGroup } from '@blocksuite/global/slot';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';

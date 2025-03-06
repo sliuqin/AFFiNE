@@ -58,7 +58,6 @@ export class CalloutBlockComponent extends CaptionedBlockComponent<CalloutBlockM
         .theme=${theme}
         .onEmojiSelect=${(data: any) => {
           this.model.emoji = data.native;
-          console.log(data);
         }}
       ></affine-emoji-menu>`,
       portalStyles: {

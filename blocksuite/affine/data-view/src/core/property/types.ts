@@ -1,4 +1,4 @@
-import type { Disposable } from '@blocksuite/global/utils';
+import type { Disposable } from '@blocksuite/global/slot';
 import type { ZodType } from 'zod';
 
 import type { DataSource } from '../data-source/base.js';

@@ -4,7 +4,7 @@ import {
   requiredProperties,
 } from '@blocksuite/affine/block-std';
 import { ArrowRightIcon, EnterIcon } from '@blocksuite/affine/blocks';
-import { WithDisposable } from '@blocksuite/affine/global/utils';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 

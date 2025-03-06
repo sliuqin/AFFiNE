@@ -11,7 +11,7 @@ import {
   ImageProxyService,
   LinkPreviewerService,
 } from '@blocksuite/affine/blocks';
-import { DisposableGroup } from '@blocksuite/affine/global/utils';
+import { DisposableGroup } from '@blocksuite/affine/global/slot';
 import type { Store } from '@blocksuite/affine/store';
 import { Slot } from '@radix-ui/react-slot';
 import { useLiveData, useService } from '@toeverything/infra';

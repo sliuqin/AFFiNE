@@ -57,7 +57,8 @@ import {
   type SerializedXYWH,
   Vec,
 } from '@blocksuite/global/gfx';
-import { assertType, DisposableGroup, nToLast } from '@blocksuite/global/utils';
+import { DisposableGroup } from '@blocksuite/global/slot';
+import { assertType } from '@blocksuite/global/utils';
 import {
   type BlockSnapshot,
   BlockSnapshotSchema,
@@ -1168,13 +1169,13 @@ export class EdgelessClipboardController extends PageClipboard {
         const bGroups = b.groups as SurfaceGroupLikeModel[];
 
         let i = 1;
-        let aGroup: GfxModel | undefined = nToLast(aGroups, i);
-        let bGroup: GfxModel | undefined = nToLast(bGroups, i);
+        let aGroup: GfxModel | undefined = aGroups.at(-i);
+        let bGroup: GfxModel | undefined = bGroups.at(-i);
 
         while (aGroup === bGroup && aGroup) {
           ++i;
-          aGroup = nToLast(aGroups, i);
-          bGroup = nToLast(bGroups, i);
+          aGroup = aGroups.at(-i);
+          bGroup = bGroups.at(-i);
         }
 
         aGroup = aGroup ?? a;

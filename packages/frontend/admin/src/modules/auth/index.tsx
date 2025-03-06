@@ -41,7 +41,7 @@ export function Auth() {
           fetch('/graphql', {
             method: 'POST',
             body: JSON.stringify({
-              operationName: getUserFeaturesQuery.operationName,
+              operationName: getUserFeaturesQuery.op,
               query: getUserFeaturesQuery.query,
               variables: {},
             }),

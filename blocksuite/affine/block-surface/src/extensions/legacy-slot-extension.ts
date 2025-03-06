@@ -1,6 +1,6 @@
 import type { FrameBlockModel } from '@blocksuite/affine-model';
 import { createIdentifier } from '@blocksuite/global/di';
-import { Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
 import type { ExtensionType } from '@blocksuite/store';
 
 export const EdgelessLegacySlotIdentifier = createIdentifier<{

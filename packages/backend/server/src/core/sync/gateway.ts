@@ -13,6 +13,7 @@ import { Socket } from 'socket.io';
 import {
   CallMetric,
   DocNotFound,
+  DocUpdateBlocked,
   GatewayErrorWrapper,
   metrics,
   NotInSpace,
@@ -20,6 +21,7 @@ import {
   SpaceAccessDenied,
   VersionRejected,
 } from '../../base';
+import { Models } from '../../models';
 import { CurrentUser } from '../auth';
 import {
   DocReader,
@@ -147,7 +149,8 @@ export class SpaceSyncGateway
     private readonly ac: AccessController,
     private readonly workspace: PgWorkspaceDocStorageAdapter,
     private readonly userspace: PgUserspaceDocStorageAdapter,
-    private readonly docReader: DocReader
+    private readonly docReader: DocReader,
+    private readonly models: Models
   ) {}
 
   handleConnection() {
@@ -171,7 +174,8 @@ export class SpaceSyncGateway
         client,
         this.workspace,
         this.ac,
-        this.docReader
+        this.docReader,
+        this.models
       );
       const userspace = new UserspaceSyncAdapter(client, this.userspace);
 
@@ -501,10 +505,15 @@ abstract class SyncSocketAdapter {
     action: WorkspaceAction
   ): Promise<void>;
 
-  push(spaceId: string, docId: string, updates: Buffer[], editorId: string) {
+  async push(
+    spaceId: string,
+    docId: string,
+    updates: Buffer[],
+    editorId: string
+  ) {
     // TODO(@forehalo): enable this after 0.19 goes out of life
     // this.assertIn(spaceId);
-    return this.storage.pushDocUpdates(spaceId, docId, updates, editorId);
+    return await this.storage.pushDocUpdates(spaceId, docId, updates, editorId);
   }
 
   diff(spaceId: string, docId: string, stateVector?: Uint8Array) {
@@ -528,18 +537,27 @@ class WorkspaceSyncAdapter extends SyncSocketAdapter {
     client: Socket,
     storage: DocStorageAdapter,
     private readonly ac: AccessController,
-    private readonly docReader: DocReader
+    private readonly docReader: DocReader,
+    private readonly models: Models
   ) {
     super(SpaceType.Workspace, client, storage);
   }
 
-  override push(
+  override async push(
     spaceId: string,
     docId: string,
     updates: Buffer[],
     editorId: string
   ) {
-    return super.push(spaceId, docId, updates, editorId);
+    const docMeta = await this.models.doc.getMeta(spaceId, docId, {
+      select: {
+        blocked: true,
+      },
+    });
+    if (docMeta?.blocked) {
+      throw new DocUpdateBlocked({ spaceId, docId });
+    }
+    return await super.push(spaceId, docId, updates, editorId);
   }
 
   override async diff(

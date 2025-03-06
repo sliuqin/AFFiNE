@@ -280,6 +280,9 @@ class CopilotSessionType {
   @Field(() => ID)
   id!: string;
 
+  @Field(() => ID, { nullable: true })
+  parentSessionId!: string | undefined;
+
   @Field(() => String)
   promptName!: string;
 }

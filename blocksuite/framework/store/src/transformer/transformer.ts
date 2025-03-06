@@ -1,5 +1,6 @@
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { nextTick, Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
+import { nextTick } from '@blocksuite/global/utils';
 
 import {
   BlockModel,

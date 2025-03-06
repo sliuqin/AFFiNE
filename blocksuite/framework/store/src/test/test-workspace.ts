@@ -1,5 +1,6 @@
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { NoopLogger, Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
+import { NoopLogger } from '@blocksuite/global/utils';
 import {
   AwarenessEngine,
   type AwarenessSource,

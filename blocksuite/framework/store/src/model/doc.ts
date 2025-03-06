@@ -1,4 +1,4 @@
-import type { Slot } from '@blocksuite/global/utils';
+import type { Slot } from '@blocksuite/global/slot';
 import type * as Y from 'yjs';
 
 import type { AwarenessStore } from '../yjs/awareness.js';

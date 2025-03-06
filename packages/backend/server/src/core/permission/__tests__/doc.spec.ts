@@ -88,7 +88,7 @@ test('should fallback to [External] if workspace is public', async t => {
 });
 
 test('should return null even if workspace has other public doc', async t => {
-  await models.workspace.publishDoc(ws.id, 'doc1');
+  await models.doc.publish(ws.id, 'doc1');
 
   const role = await ac.getRole({
     workspaceId: ws.id,
@@ -100,7 +100,7 @@ test('should return null even if workspace has other public doc', async t => {
 });
 
 test('should return [External] if doc is public', async t => {
-  await models.workspace.publishDoc(ws.id, 'doc1');
+  await models.doc.publish(ws.id, 'doc1');
 
   const role = await ac.getRole({
     workspaceId: ws.id,

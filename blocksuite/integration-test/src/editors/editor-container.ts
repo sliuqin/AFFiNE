@@ -1,6 +1,6 @@
 import { BlockStdScope, ShadowlessElement } from '@blocksuite/block-std';
 import { type DocMode, ThemeProvider } from '@blocksuite/blocks';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import {
   type BlockModel,
   type ExtensionType,

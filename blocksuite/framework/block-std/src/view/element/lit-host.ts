@@ -3,7 +3,8 @@ import {
   ErrorCode,
   handleError,
 } from '@blocksuite/global/exceptions';
-import { SignalWatcher, Slot, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
+import { Slot } from '@blocksuite/global/slot';
 import {
   type BlockModel,
   Store,

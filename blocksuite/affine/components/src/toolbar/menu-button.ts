@@ -1,6 +1,6 @@
 import { PANEL_BASE } from '@blocksuite/affine-shared/styles';
 import { createButtonPopper } from '@blocksuite/affine-shared/utils';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import {
   css,
   html,
@@ -44,6 +44,7 @@ export class EditorMenuButton extends WithDisposable(LitElement) {
       {
         mainAxis: 12,
         ignoreShift: true,
+        offsetHeight: 6 * 4,
       }
     );
     this._disposables.addFromEvent(this, 'keydown', (e: KeyboardEvent) => {
@@ -54,9 +55,6 @@ export class EditorMenuButton extends WithDisposable(LitElement) {
     });
     this._disposables.addFromEvent(this._trigger, 'click', (_: MouseEvent) => {
       this._popper.toggle();
-      if (this._popper.state === 'show') {
-        this._content.focus({ preventScroll: true });
-      }
     });
     this._disposables.add(this._popper);
   }
@@ -91,7 +89,7 @@ export class EditorMenuButton extends WithDisposable(LitElement) {
   private accessor _trigger!: EditorIconButton;
 
   @property({ attribute: false })
-  accessor button!: string | TemplateResult<1>;
+  accessor button!: TemplateResult;
 
   @property({ attribute: false })
   accessor contentPadding: string | undefined = undefined;
@@ -104,6 +102,7 @@ export class EditorMenuContent extends LitElement {
       --offset-height: calc(-1 * var(--packed-height));
       display: none;
       outline: none;
+      overscroll-behavior: contain;
     }
 
     :host::before,
@@ -154,6 +153,7 @@ export class EditorMenuContent extends LitElement {
       align-items: stretch;
       gap: unset;
       min-height: unset;
+      overflow-y: auto;
     }
   `;
 
@@ -205,6 +205,13 @@ export class EditorMenuAction extends LitElement {
     ::slotted(svg) {
       color: var(--affine-icon-color);
       font-size: 20px;
+    }
+
+    ::slotted(.label) {
+      color: inherit !important;
+    }
+    ::slotted(.label.capitalize) {
+      text-transform: capitalize !important;
     }
   `;
 

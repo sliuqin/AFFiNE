@@ -10,7 +10,6 @@ import {
   GfxControllerIdentifier,
   type GfxModel,
 } from '@blocksuite/block-std/gfx';
-import { pickValues } from '@blocksuite/global/utils';
 import { MultiCursorDuotoneIcon } from '@blocksuite/icons/lit';
 import type { UserInfo } from '@blocksuite/store';
 import { css, html, nothing } from 'lit';
@@ -183,13 +182,17 @@ export class EdgelessRemoteSelectionWidget extends WidgetComponent<RootBlockMode
 
     const { _disposables, doc } = this;
 
-    pickValues(this.surface!, [
-      'elementAdded',
-      'elementRemoved',
-      'elementUpdated',
-    ]).forEach(slot => {
-      _disposables.add(slot.on(this._updateOnElementChange));
-    });
+    if (this.surface) {
+      _disposables.add(
+        this.surface.elementAdded.on(this._updateOnElementChange)
+      );
+      _disposables.add(
+        this.surface.elementRemoved.on(this._updateOnElementChange)
+      );
+      _disposables.add(
+        this.surface.elementUpdated.on(this._updateOnElementChange)
+      );
+    }
 
     _disposables.add(doc.slots.blockUpdated.on(this._updateOnElementChange));
 

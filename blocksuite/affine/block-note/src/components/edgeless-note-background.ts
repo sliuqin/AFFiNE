@@ -23,7 +23,7 @@ import {
 } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
 import { clamp, Point } from '@blocksuite/global/gfx';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import type { BlockModel } from '@blocksuite/store';
 import { consume } from '@lit/context';
 import { computed } from '@preact/signals-core';

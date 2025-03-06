@@ -8,7 +8,8 @@ import {
   type GfxViewportElement,
 } from '@blocksuite/block-std/gfx';
 import type { Container, ServiceIdentifier } from '@blocksuite/global/di';
-import { debounce, DisposableGroup } from '@blocksuite/global/utils';
+import { DisposableGroup } from '@blocksuite/global/slot';
+import debounce from 'lodash-es/debounce';
 
 import {
   debugLog,
@@ -144,13 +145,9 @@ export class ViewportTurboRendererExtension extends LifeCycleWatcher {
     }
   }
 
-  debouncedRefresh = debounce(
-    () => {
-      this.refresh().catch(console.error);
-    },
-    debounceTime,
-    { leading: false, trailing: true }
-  );
+  debouncedRefresh = debounce(() => {
+    this.refresh().catch(console.error);
+  }, debounceTime);
 
   invalidate() {
     this.layoutVersion++;

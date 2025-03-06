@@ -1,7 +1,7 @@
 import type { AliasInfo, ReferenceParams } from '@blocksuite/affine-model';
 import { LifeCycleWatcher, StdIdentifier } from '@blocksuite/block-std';
 import { type Container, createIdentifier } from '@blocksuite/global/di';
-import type { Disposable } from '@blocksuite/global/utils';
+import type { Disposable } from '@blocksuite/global/slot';
 import {
   AliasIcon,
   BlockLinkIcon,

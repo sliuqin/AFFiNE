@@ -4,7 +4,7 @@ import {
   createDefaultDoc,
   GenerateDocUrlProvider,
 } from '@blocksuite/blocks';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
 import type { Doc, Workspace } from '@blocksuite/store';
 import { css, html, nothing } from 'lit';

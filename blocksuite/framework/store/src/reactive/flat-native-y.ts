@@ -1,5 +1,5 @@
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { type Slot } from '@blocksuite/global/utils';
+import type { Slot } from '@blocksuite/global/slot';
 import { signal } from '@preact/signals-core';
 import {
   Array as YArray,

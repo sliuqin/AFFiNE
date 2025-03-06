@@ -1,6 +1,6 @@
 import {
   type AttachmentBlockComponent,
-  attachmentViewToggleMenu,
+  attachmentViewDropdownMenu,
 } from '@blocksuite/affine-block-attachment';
 import { getEmbedCardIcons } from '@blocksuite/affine-block-embed';
 import {
@@ -17,9 +17,12 @@ import {
   EMBED_CARD_HEIGHT,
   EMBED_CARD_WIDTH,
 } from '@blocksuite/affine-shared/consts';
-import { ThemeProvider } from '@blocksuite/affine-shared/services';
+import {
+  ThemeProvider,
+  ToolbarContext,
+} from '@blocksuite/affine-shared/services';
 import { Bound } from '@blocksuite/global/gfx';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import type { TemplateResult } from 'lit';
 import { html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
@@ -79,17 +82,6 @@ export class EdgelessChangeAttachmentButton extends WithDisposable(LitElement) {
     return this.edgeless.std;
   }
 
-  get viewToggleMenu() {
-    const block = this._block;
-    const model = this.model;
-    if (!block || !model) return nothing;
-
-    return attachmentViewToggleMenu({
-      block,
-      callback: () => this.requestUpdate(),
-    });
-  }
-
   override render() {
     return join(
       [
@@ -115,7 +107,10 @@ export class EdgelessChangeAttachmentButton extends WithDisposable(LitElement) {
                 </card-style-panel>
               </editor-menu-button>
             `,
-        this.viewToggleMenu,
+
+        // TODO(@fundon): should remove it when refactoring the element toolbar
+        attachmentViewDropdownMenu(new ToolbarContext(this.std)),
+
         html`
           <editor-icon-button
             aria-label="Download"
@@ -137,7 +132,7 @@ export class EdgelessChangeAttachmentButton extends WithDisposable(LitElement) {
             ${CaptionIcon}
           </editor-icon-button>
         `,
-      ].filter(button => button !== nothing && button),
+      ].filter(button => button !== null),
       renderToolbarSeparator
     );
   }

@@ -8,7 +8,6 @@ import {
   CopilotClient,
   setupAIProvider,
 } from '@affine/core/blocksuite/ai';
-import { SyncAwareness } from '@affine/core/components/affine/awareness';
 import { useRegisterFindInPageCommands } from '@affine/core/components/hooks/affine/use-register-find-in-page-commands';
 import { useRegisterWorkspaceCommands } from '@affine/core/components/hooks/use-register-workspace-commands';
 import { OverCapacityNotification } from '@affine/core/components/over-capacity';
@@ -176,7 +175,6 @@ export const WorkspaceSideEffects = () => {
   return (
     <>
       <QuickSearchContainer />
-      <SyncAwareness />
       <OverCapacityNotification />
     </>
   );

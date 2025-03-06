@@ -256,7 +256,7 @@ export class WorkspaceResolver {
     @Parent() workspace: WorkspaceType,
     @Args('pageId') pageId: string
   ) {
-    const metadata = await this.models.doc.getMeta(workspace.id, pageId);
+    const metadata = await this.models.doc.getAuthors(workspace.id, pageId);
     if (!metadata) {
       throw new DocNotFound({ spaceId: workspace.id, docId: pageId });
     }

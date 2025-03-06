@@ -25,6 +25,13 @@ import {
   type SerializedXYWH,
 } from '@blocksuite/affine/global/gfx';
 import type { Store } from '@blocksuite/affine/store';
+import {
+  BlockIcon,
+  InsertBleowIcon as InsertBelowIcon,
+  LinkedPageIcon,
+  PageIcon,
+  ReplaceIcon,
+} from '@blocksuite/icons/lit';
 import type { TemplateResult } from 'lit';
 
 import { insertFromMarkdown } from '../../utils';
@@ -32,7 +39,6 @@ import type { ChatMessage } from '../blocks';
 import { AIProvider, type AIUserInfo } from '../provider';
 import { reportResponse } from '../utils/action-reporter';
 import { insertBelow, replace } from '../utils/editor-actions';
-import { BlockIcon, CreateIcon, InsertBelowIcon, ReplaceIcon } from './icons';
 
 type Selections = {
   text?: TextSelection;
@@ -193,7 +199,7 @@ export function promptDocTitle(host: EditorHost, autofill?: string) {
 }
 
 const REPLACE_SELECTION = {
-  icon: ReplaceIcon,
+  icon: ReplaceIcon({ width: '20px', height: '20px' }),
   title: 'Replace selection',
   showWhen: (host: EditorHost) => {
     if (host.std.store.readonly$.value) {
@@ -250,7 +256,7 @@ const REPLACE_SELECTION = {
 };
 
 const INSERT_BELOW = {
-  icon: InsertBelowIcon,
+  icon: InsertBelowIcon({ width: '20px', height: '20px' }),
   title: 'Insert below',
   showWhen: (host: EditorHost) => {
     if (host.std.store.readonly$.value) {
@@ -284,7 +290,7 @@ const INSERT_BELOW = {
 };
 
 const SAVE_CHAT_TO_BLOCK_ACTION: ChatAction = {
-  icon: BlockIcon,
+  icon: BlockIcon({ width: '20px', height: '20px' }),
   title: 'Save chat to block',
   toast: 'Successfully saved chat to a block',
   showWhen: (host: EditorHost) => {
@@ -379,7 +385,7 @@ const SAVE_CHAT_TO_BLOCK_ACTION: ChatAction = {
 };
 
 const ADD_TO_EDGELESS_AS_NOTE = {
-  icon: CreateIcon,
+  icon: PageIcon({ width: '20px', height: '20px' }),
   title: 'Add to edgeless as note',
   showWhen: (host: EditorHost) => {
     if (host.std.store.readonly$.value) {
@@ -420,7 +426,7 @@ const ADD_TO_EDGELESS_AS_NOTE = {
 };
 
 const CREATE_AS_DOC = {
-  icon: CreateIcon,
+  icon: PageIcon({ width: '20px', height: '20px' }),
   title: 'Create as a doc',
   showWhen: () => true,
   toast: 'New doc created',
@@ -455,7 +461,7 @@ const CREATE_AS_DOC = {
 };
 
 const CREATE_AS_LINKED_DOC = {
-  icon: CreateIcon,
+  icon: LinkedPageIcon({ width: '20px', height: '20px' }),
   title: 'Create as a linked doc',
   showWhen: (host: EditorHost) => {
     if (host.std.store.readonly$.value) {

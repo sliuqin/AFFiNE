@@ -1,4 +1,5 @@
-import { type Logger, Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
+import type { Logger } from '@blocksuite/global/utils';
 import type { Doc } from 'yjs';
 
 import { SharedPriorityTarget } from '../utils/async-queue.js';

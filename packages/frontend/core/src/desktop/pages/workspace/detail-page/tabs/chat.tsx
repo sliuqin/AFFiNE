@@ -54,7 +54,6 @@ export const EditorChatPanel = forwardRef(function EditorChatPanel(
       chatPanelRef.current = new ChatPanel();
       chatPanelRef.current.host = editor.host;
       chatPanelRef.current.doc = editor.doc;
-      containerRef.current?.append(chatPanelRef.current);
       const searchService = framework.get(AINetworkSearchService);
       const docDisplayMetaService = framework.get(DocDisplayMetaService);
       const workspaceService = framework.get(WorkspaceService);
@@ -101,6 +100,7 @@ export const EditorChatPanel = forwardRef(function EditorChatPanel(
         SpecProvider._.getSpec('preview:page')
       );
       chatPanelRef.current.previewSpecBuilder = previewSpecBuilder;
+      containerRef.current?.append(chatPanelRef.current);
     } else {
       chatPanelRef.current.host = editor.host;
       chatPanelRef.current.doc = editor.doc;

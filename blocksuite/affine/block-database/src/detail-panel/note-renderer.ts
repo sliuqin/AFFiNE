@@ -11,7 +11,7 @@ import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import { createDefaultDoc, matchModels } from '@blocksuite/affine-shared/utils';
 import { type EditorHost, ShadowlessElement } from '@blocksuite/block-std';
 import type { DetailSlotProps, SingleView } from '@blocksuite/data-view';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import type { BaseTextAttributes } from '@blocksuite/inline';
 import { computed } from '@preact/signals-core';
 import { css, html } from 'lit';

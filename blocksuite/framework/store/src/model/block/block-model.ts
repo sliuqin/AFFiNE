@@ -1,4 +1,4 @@
-import { type Disposable, Slot } from '@blocksuite/global/utils';
+import { type Disposable, Slot } from '@blocksuite/global/slot';
 import { computed, type Signal, signal } from '@preact/signals-core';
 
 import type { Text } from '../../reactive/index.js';

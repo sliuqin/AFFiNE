@@ -9,7 +9,7 @@ import type { BlockStdScope } from '@blocksuite/block-std';
 import { modelContext, stdContext } from '@blocksuite/block-std';
 import { ErrorCode } from '@blocksuite/global/exceptions';
 import type { Bound } from '@blocksuite/global/gfx';
-import { SignalWatcher } from '@blocksuite/global/utils';
+import { SignalWatcher } from '@blocksuite/global/lit';
 import type { BlockModel } from '@blocksuite/store';
 import { consume } from '@lit/context';
 import { computed } from '@preact/signals-core';

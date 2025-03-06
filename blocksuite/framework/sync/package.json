@@ -13,8 +13,10 @@
   "license": "MIT",
   "dependencies": {
     "@blocksuite/global": "workspace:*",
+    "@types/lodash-es": "^4.17.12",
     "idb": "^8.0.0",
     "idb-keyval": "^6.2.1",
+    "lodash-es": "^4.17.21",
     "y-protocols": "^1.0.6"
   },
   "devDependencies": {

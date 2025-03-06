@@ -1,7 +1,7 @@
 import { WorkspaceImpl } from '@affine/core/modules/workspace/impls/workspace';
 import { BlockStdScope, type EditorHost } from '@blocksuite/affine/block-std';
 import { SpecProvider } from '@blocksuite/affine/blocks';
-import { WithDisposable } from '@blocksuite/affine/global/utils';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
 import type { Store } from '@blocksuite/affine/store';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';

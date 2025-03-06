@@ -22,7 +22,7 @@ import { RefNodeSlotsProvider } from '@blocksuite/affine/blocks';
 import {
   type Disposable,
   DisposableGroup,
-} from '@blocksuite/affine/global/utils';
+} from '@blocksuite/affine/global/slot';
 import {
   AiIcon,
   FrameIcon,

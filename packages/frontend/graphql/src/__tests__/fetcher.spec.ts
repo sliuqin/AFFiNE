@@ -7,8 +7,7 @@ import type { GraphQLQuery } from '../graphql';
 const query: GraphQLQuery = {
   id: 'query',
   query: 'query { field }',
-  operationName: 'query',
-  definitionName: 'query',
+  op: 'query',
 };
 
 let fetch: Mock;
@@ -55,7 +54,6 @@ describe('GraphQL fetcher', () => {
         body: '{"query":"query { field }","variables":{"a":1,"b":"2","c":{"d":false}},"operationName":"query"}',
         headers: expect.objectContaining({
           'content-type': 'application/json',
-          'x-definition-name': 'query',
           'x-operation-name': 'query',
         }),
         method: 'POST',

@@ -41,7 +41,7 @@ import {
   toDegree,
   Vec,
 } from '@blocksuite/global/gfx';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { FrameIcon, PageIcon } from '@blocksuite/icons/lit';
 import { consume } from '@lit/context';
 import { baseTheme } from '@toeverything/theme';

@@ -16,7 +16,9 @@
     "./exceptions": "./src/exceptions/index.ts",
     "./di": "./src/di/index.ts",
     "./types": "./src/types/index.ts",
-    "./gfx": "./src/gfx/index.ts"
+    "./gfx": "./src/gfx/index.ts",
+    "./slot": "./src/slot/index.ts",
+    "./lit": "./src/lit/index.ts"
   },
   "typesVersions": {
     "*": {
@@ -37,6 +39,12 @@
       ],
       "gfx": [
         "dist/gfx/index.d.ts"
+      ],
+      "slot": [
+        "dist/slot/index.d.ts"
+      ],
+      "lit": [
+        "dist/lit/index.d.ts"
       ]
     }
   },

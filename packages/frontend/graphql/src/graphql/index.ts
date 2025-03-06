@@ -1,30 +1,24 @@
 /* do not manipulate this file manually. */
 export interface GraphQLQuery {
   id: string;
-  operationName: string;
-  definitionName: string;
+  op: string;
   query: string;
-  containsFile?: boolean;
+  file?: boolean;
+  deprecations?: string[];
 }
-
-export const passwordLimitsFragment = `
-fragment PasswordLimits on PasswordLimitsType {
-  minLength
-  maxLength
-}`
-export const credentialsRequirementsFragment = `
-fragment CredentialsRequirements on CredentialsRequirementType {
+export const credentialsRequirementsFragment = `fragment CredentialsRequirements on CredentialsRequirementType {
   password {
     ...PasswordLimits
   }
-}`
+}`;
+export const passwordLimitsFragment = `fragment PasswordLimits on PasswordLimitsType {
+  minLength
+  maxLength
+}`;
 export const activateLicenseMutation = {
   id: 'activateLicenseMutation' as const,
-  operationName: 'activateLicense',
-  definitionName: 'activateLicense',
-  containsFile: false,
-  query: `
-mutation activateLicense($workspaceId: String!, $license: String!) {
+  op: 'activateLicense',
+  query: `mutation activateLicense($workspaceId: String!, $license: String!) {
   activateLicense(workspaceId: $workspaceId, license: $license) {
     installedAt
     validatedAt
@@ -34,11 +28,8 @@ mutation activateLicense($workspaceId: String!, $license: String!) {
 
 export const adminServerConfigQuery = {
   id: 'adminServerConfigQuery' as const,
-  operationName: 'adminServerConfig',
-  definitionName: 'serverConfig',
-  containsFile: false,
-  query: `
-query adminServerConfig {
+  op: 'adminServerConfig',
+  query: `query adminServerConfig {
   serverConfig {
     version
     baseUrl
@@ -51,28 +42,23 @@ query adminServerConfig {
     }
     availableUserFeatures
   }
-}${passwordLimitsFragment}
+}
+${passwordLimitsFragment}
 ${credentialsRequirementsFragment}`,
 };
 
 export const deleteBlobMutation = {
   id: 'deleteBlobMutation' as const,
-  operationName: 'deleteBlob',
-  definitionName: 'deleteBlob',
-  containsFile: false,
-  query: `
-mutation deleteBlob($workspaceId: String!, $key: String!, $permanently: Boolean) {
+  op: 'deleteBlob',
+  query: `mutation deleteBlob($workspaceId: String!, $key: String!, $permanently: Boolean) {
   deleteBlob(workspaceId: $workspaceId, key: $key, permanently: $permanently)
 }`,
 };
 
 export const listBlobsQuery = {
   id: 'listBlobsQuery' as const,
-  operationName: 'listBlobs',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query listBlobs($workspaceId: String!) {
+  op: 'listBlobs',
+  query: `query listBlobs($workspaceId: String!) {
   workspace(id: $workspaceId) {
     blobs {
       key
@@ -86,33 +72,25 @@ query listBlobs($workspaceId: String!) {
 
 export const releaseDeletedBlobsMutation = {
   id: 'releaseDeletedBlobsMutation' as const,
-  operationName: 'releaseDeletedBlobs',
-  definitionName: 'releaseDeletedBlobs',
-  containsFile: false,
-  query: `
-mutation releaseDeletedBlobs($workspaceId: String!) {
+  op: 'releaseDeletedBlobs',
+  query: `mutation releaseDeletedBlobs($workspaceId: String!) {
   releaseDeletedBlobs(workspaceId: $workspaceId)
 }`,
 };
 
 export const setBlobMutation = {
   id: 'setBlobMutation' as const,
-  operationName: 'setBlob',
-  definitionName: 'setBlob',
-  containsFile: true,
-  query: `
-mutation setBlob($workspaceId: String!, $blob: Upload!) {
+  op: 'setBlob',
+  query: `mutation setBlob($workspaceId: String!, $blob: Upload!) {
   setBlob(workspaceId: $workspaceId, blob: $blob)
 }`,
+  file: true,
 };
 
 export const cancelSubscriptionMutation = {
   id: 'cancelSubscriptionMutation' as const,
-  operationName: 'cancelSubscription',
-  definitionName: 'cancelSubscription',
-  containsFile: false,
-  query: `
-mutation cancelSubscription($plan: SubscriptionPlan = Pro, $workspaceId: String) {
+  op: 'cancelSubscription',
+  query: `mutation cancelSubscription($plan: SubscriptionPlan = Pro, $workspaceId: String) {
   cancelSubscription(plan: $plan, workspaceId: $workspaceId) {
     id
     status
@@ -120,15 +98,13 @@ mutation cancelSubscription($plan: SubscriptionPlan = Pro, $workspaceId: String)
     canceledAt
   }
 }`,
+  deprecations: ["'id' is deprecated: removed"],
 };
 
 export const changeEmailMutation = {
   id: 'changeEmailMutation' as const,
-  operationName: 'changeEmail',
-  definitionName: 'changeEmail',
-  containsFile: false,
-  query: `
-mutation changeEmail($token: String!, $email: String!) {
+  op: 'changeEmail',
+  query: `mutation changeEmail($token: String!, $email: String!) {
   changeEmail(token: $token, email: $email) {
     id
     email
@@ -138,44 +114,32 @@ mutation changeEmail($token: String!, $email: String!) {
 
 export const createChangePasswordUrlMutation = {
   id: 'createChangePasswordUrlMutation' as const,
-  operationName: 'createChangePasswordUrl',
-  definitionName: 'createChangePasswordUrl',
-  containsFile: false,
-  query: `
-mutation createChangePasswordUrl($callbackUrl: String!, $userId: String!) {
+  op: 'createChangePasswordUrl',
+  query: `mutation createChangePasswordUrl($callbackUrl: String!, $userId: String!) {
   createChangePasswordUrl(callbackUrl: $callbackUrl, userId: $userId)
 }`,
 };
 
 export const changePasswordMutation = {
   id: 'changePasswordMutation' as const,
-  operationName: 'changePassword',
-  definitionName: 'changePassword',
-  containsFile: false,
-  query: `
-mutation changePassword($token: String!, $userId: String!, $newPassword: String!) {
+  op: 'changePassword',
+  query: `mutation changePassword($token: String!, $userId: String!, $newPassword: String!) {
   changePassword(token: $token, userId: $userId, newPassword: $newPassword)
 }`,
 };
 
 export const createCopilotContextMutation = {
   id: 'createCopilotContextMutation' as const,
-  operationName: 'createCopilotContext',
-  definitionName: 'createCopilotContext',
-  containsFile: false,
-  query: `
-mutation createCopilotContext($workspaceId: String!, $sessionId: String!) {
+  op: 'createCopilotContext',
+  query: `mutation createCopilotContext($workspaceId: String!, $sessionId: String!) {
   createCopilotContext(workspaceId: $workspaceId, sessionId: $sessionId)
 }`,
 };
 
 export const addContextDocMutation = {
   id: 'addContextDocMutation' as const,
-  operationName: 'addContextDoc',
-  definitionName: 'addContextDoc',
-  containsFile: false,
-  query: `
-mutation addContextDoc($options: AddContextDocInput!) {
+  op: 'addContextDoc',
+  query: `mutation addContextDoc($options: AddContextDocInput!) {
   addContextDoc(options: $options) {
     id
     createdAt
@@ -185,22 +149,16 @@ mutation addContextDoc($options: AddContextDocInput!) {
 
 export const removeContextDocMutation = {
   id: 'removeContextDocMutation' as const,
-  operationName: 'removeContextDoc',
-  definitionName: 'removeContextDoc',
-  containsFile: false,
-  query: `
-mutation removeContextDoc($options: RemoveContextDocInput!) {
+  op: 'removeContextDoc',
+  query: `mutation removeContextDoc($options: RemoveContextDocInput!) {
   removeContextDoc(options: $options)
 }`,
 };
 
 export const listContextDocsAndFilesQuery = {
   id: 'listContextDocsAndFilesQuery' as const,
-  operationName: 'listContextDocsAndFiles',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query listContextDocsAndFiles($workspaceId: String!, $sessionId: String!, $contextId: String!) {
+  op: 'listContextDocsAndFiles',
+  query: `query listContextDocsAndFiles($workspaceId: String!, $sessionId: String!, $contextId: String!) {
   currentUser {
     copilot(workspaceId: $workspaceId) {
       contexts(sessionId: $sessionId, contextId: $contextId) {
@@ -224,11 +182,8 @@ query listContextDocsAndFiles($workspaceId: String!, $sessionId: String!, $conte
 
 export const listContextQuery = {
   id: 'listContextQuery' as const,
-  operationName: 'listContext',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query listContext($workspaceId: String!, $sessionId: String!) {
+  op: 'listContext',
+  query: `query listContext($workspaceId: String!, $sessionId: String!) {
   currentUser {
     copilot(workspaceId: $workspaceId) {
       contexts(sessionId: $sessionId) {
@@ -241,11 +196,8 @@ query listContext($workspaceId: String!, $sessionId: String!) {
 
 export const getCopilotHistoryIdsQuery = {
   id: 'getCopilotHistoryIdsQuery' as const,
-  operationName: 'getCopilotHistoryIds',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query getCopilotHistoryIds($workspaceId: String!, $docId: String, $options: QueryChatHistoriesInput) {
+  op: 'getCopilotHistoryIds',
+  query: `query getCopilotHistoryIds($workspaceId: String!, $docId: String, $options: QueryChatHistoriesInput) {
   currentUser {
     copilot(workspaceId: $workspaceId) {
       histories(docId: $docId, options: $options) {
@@ -263,11 +215,8 @@ query getCopilotHistoryIds($workspaceId: String!, $docId: String, $options: Quer
 
 export const getCopilotHistoriesQuery = {
   id: 'getCopilotHistoriesQuery' as const,
-  operationName: 'getCopilotHistories',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query getCopilotHistories($workspaceId: String!, $docId: String, $options: QueryChatHistoriesInput) {
+  op: 'getCopilotHistories',
+  query: `query getCopilotHistories($workspaceId: String!, $docId: String, $options: QueryChatHistoriesInput) {
   currentUser {
     copilot(workspaceId: $workspaceId) {
       histories(docId: $docId, options: $options) {
@@ -290,22 +239,17 @@ query getCopilotHistories($workspaceId: String!, $docId: String, $options: Query
 
 export const createCopilotMessageMutation = {
   id: 'createCopilotMessageMutation' as const,
-  operationName: 'createCopilotMessage',
-  definitionName: 'createCopilotMessage',
-  containsFile: true,
-  query: `
-mutation createCopilotMessage($options: CreateChatMessageInput!) {
+  op: 'createCopilotMessage',
+  query: `mutation createCopilotMessage($options: CreateChatMessageInput!) {
   createCopilotMessage(options: $options)
 }`,
+  file: true,
 };
 
 export const getPromptsQuery = {
   id: 'getPromptsQuery' as const,
-  operationName: 'getPrompts',
-  definitionName: 'listCopilotPrompts',
-  containsFile: false,
-  query: `
-query getPrompts {
+  op: 'getPrompts',
+  query: `query getPrompts {
   listCopilotPrompts {
     name
     model
@@ -328,11 +272,8 @@ query getPrompts {
 
 export const updatePromptMutation = {
   id: 'updatePromptMutation' as const,
-  operationName: 'updatePrompt',
-  definitionName: 'updateCopilotPrompt',
-  containsFile: false,
-  query: `
-mutation updatePrompt($name: String!, $messages: [CopilotPromptMessageInput!]!) {
+  op: 'updatePrompt',
+  query: `mutation updatePrompt($name: String!, $messages: [CopilotPromptMessageInput!]!) {
   updateCopilotPrompt(name: $name, messages: $messages) {
     name
     model
@@ -355,11 +296,8 @@ mutation updatePrompt($name: String!, $messages: [CopilotPromptMessageInput!]!) 
 
 export const copilotQuotaQuery = {
   id: 'copilotQuotaQuery' as const,
-  operationName: 'copilotQuota',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query copilotQuota {
+  op: 'copilotQuota',
+  query: `query copilotQuota {
   currentUser {
     copilot {
       quota {
@@ -373,59 +311,45 @@ query copilotQuota {
 
 export const cleanupCopilotSessionMutation = {
   id: 'cleanupCopilotSessionMutation' as const,
-  operationName: 'cleanupCopilotSession',
-  definitionName: 'cleanupCopilotSession',
-  containsFile: false,
-  query: `
-mutation cleanupCopilotSession($input: DeleteSessionInput!) {
+  op: 'cleanupCopilotSession',
+  query: `mutation cleanupCopilotSession($input: DeleteSessionInput!) {
   cleanupCopilotSession(options: $input)
 }`,
 };
 
 export const createCopilotSessionMutation = {
   id: 'createCopilotSessionMutation' as const,
-  operationName: 'createCopilotSession',
-  definitionName: 'createCopilotSession',
-  containsFile: false,
-  query: `
-mutation createCopilotSession($options: CreateChatSessionInput!) {
+  op: 'createCopilotSession',
+  query: `mutation createCopilotSession($options: CreateChatSessionInput!) {
   createCopilotSession(options: $options)
 }`,
 };
 
 export const forkCopilotSessionMutation = {
   id: 'forkCopilotSessionMutation' as const,
-  operationName: 'forkCopilotSession',
-  definitionName: 'forkCopilotSession',
-  containsFile: false,
-  query: `
-mutation forkCopilotSession($options: ForkChatSessionInput!) {
+  op: 'forkCopilotSession',
+  query: `mutation forkCopilotSession($options: ForkChatSessionInput!) {
   forkCopilotSession(options: $options)
 }`,
 };
 
 export const updateCopilotSessionMutation = {
   id: 'updateCopilotSessionMutation' as const,
-  operationName: 'updateCopilotSession',
-  definitionName: 'updateCopilotSession',
-  containsFile: false,
-  query: `
-mutation updateCopilotSession($options: UpdateChatSessionInput!) {
+  op: 'updateCopilotSession',
+  query: `mutation updateCopilotSession($options: UpdateChatSessionInput!) {
   updateCopilotSession(options: $options)
 }`,
 };
 
 export const getCopilotSessionsQuery = {
   id: 'getCopilotSessionsQuery' as const,
-  operationName: 'getCopilotSessions',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query getCopilotSessions($workspaceId: String!, $docId: String, $options: QueryChatSessionsInput) {
+  op: 'getCopilotSessions',
+  query: `query getCopilotSessions($workspaceId: String!, $docId: String, $options: QueryChatSessionsInput) {
   currentUser {
     copilot(workspaceId: $workspaceId) {
       sessions(docId: $docId, options: $options) {
         id
+        parentSessionId
         promptName
       }
     }
@@ -435,44 +359,32 @@ query getCopilotSessions($workspaceId: String!, $docId: String, $options: QueryC
 
 export const createCheckoutSessionMutation = {
   id: 'createCheckoutSessionMutation' as const,
-  operationName: 'createCheckoutSession',
-  definitionName: 'createCheckoutSession',
-  containsFile: false,
-  query: `
-mutation createCheckoutSession($input: CreateCheckoutSessionInput!) {
+  op: 'createCheckoutSession',
+  query: `mutation createCheckoutSession($input: CreateCheckoutSessionInput!) {
   createCheckoutSession(input: $input)
 }`,
 };
 
 export const createCustomerPortalMutation = {
   id: 'createCustomerPortalMutation' as const,
-  operationName: 'createCustomerPortal',
-  definitionName: 'createCustomerPortal',
-  containsFile: false,
-  query: `
-mutation createCustomerPortal {
+  op: 'createCustomerPortal',
+  query: `mutation createCustomerPortal {
   createCustomerPortal
 }`,
 };
 
 export const createSelfhostCustomerPortalMutation = {
   id: 'createSelfhostCustomerPortalMutation' as const,
-  operationName: 'createSelfhostCustomerPortal',
-  definitionName: 'createSelfhostWorkspaceCustomerPortal',
-  containsFile: false,
-  query: `
-mutation createSelfhostCustomerPortal($workspaceId: String!) {
+  op: 'createSelfhostCustomerPortal',
+  query: `mutation createSelfhostCustomerPortal($workspaceId: String!) {
   createSelfhostWorkspaceCustomerPortal(workspaceId: $workspaceId)
 }`,
 };
 
 export const createUserMutation = {
   id: 'createUserMutation' as const,
-  operationName: 'createUser',
-  definitionName: 'createUser',
-  containsFile: false,
-  query: `
-mutation createUser($input: CreateUserInput!) {
+  op: 'createUser',
+  query: `mutation createUser($input: CreateUserInput!) {
   createUser(input: $input) {
     id
   }
@@ -481,11 +393,8 @@ mutation createUser($input: CreateUserInput!) {
 
 export const createWorkspaceMutation = {
   id: 'createWorkspaceMutation' as const,
-  operationName: 'createWorkspace',
-  definitionName: 'createWorkspace',
-  containsFile: false,
-  query: `
-mutation createWorkspace {
+  op: 'createWorkspace',
+  query: `mutation createWorkspace {
   createWorkspace {
     id
     public
@@ -496,22 +405,16 @@ mutation createWorkspace {
 
 export const deactivateLicenseMutation = {
   id: 'deactivateLicenseMutation' as const,
-  operationName: 'deactivateLicense',
-  definitionName: 'deactivateLicense',
-  containsFile: false,
-  query: `
-mutation deactivateLicense($workspaceId: String!) {
+  op: 'deactivateLicense',
+  query: `mutation deactivateLicense($workspaceId: String!) {
   deactivateLicense(workspaceId: $workspaceId)
 }`,
 };
 
 export const deleteAccountMutation = {
   id: 'deleteAccountMutation' as const,
-  operationName: 'deleteAccount',
-  definitionName: 'deleteAccount',
-  containsFile: false,
-  query: `
-mutation deleteAccount {
+  op: 'deleteAccount',
+  query: `mutation deleteAccount {
   deleteAccount {
     success
   }
@@ -520,11 +423,8 @@ mutation deleteAccount {
 
 export const deleteUserMutation = {
   id: 'deleteUserMutation' as const,
-  operationName: 'deleteUser',
-  definitionName: 'deleteUser',
-  containsFile: false,
-  query: `
-mutation deleteUser($id: String!) {
+  op: 'deleteUser',
+  query: `mutation deleteUser($id: String!) {
   deleteUser(id: $id) {
     success
   }
@@ -533,22 +433,16 @@ mutation deleteUser($id: String!) {
 
 export const deleteWorkspaceMutation = {
   id: 'deleteWorkspaceMutation' as const,
-  operationName: 'deleteWorkspace',
-  definitionName: 'deleteWorkspace',
-  containsFile: false,
-  query: `
-mutation deleteWorkspace($id: String!) {
+  op: 'deleteWorkspace',
+  query: `mutation deleteWorkspace($id: String!) {
   deleteWorkspace(id: $id)
 }`,
 };
 
 export const getDocRolePermissionsQuery = {
   id: 'getDocRolePermissionsQuery' as const,
-  operationName: 'getDocRolePermissions',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getDocRolePermissions($workspaceId: String!, $docId: String!) {
+  op: 'getDocRolePermissions',
+  query: `query getDocRolePermissions($workspaceId: String!, $docId: String!) {
   workspace(id: $workspaceId) {
     doc(docId: $docId) {
       permissions {
@@ -573,22 +467,16 @@ query getDocRolePermissions($workspaceId: String!, $docId: String!) {
 
 export const generateLicenseKeyMutation = {
   id: 'generateLicenseKeyMutation' as const,
-  operationName: 'generateLicenseKey',
-  definitionName: 'generateLicenseKey',
-  containsFile: false,
-  query: `
-mutation generateLicenseKey($sessionId: String!) {
+  op: 'generateLicenseKey',
+  query: `mutation generateLicenseKey($sessionId: String!) {
   generateLicenseKey(sessionId: $sessionId)
 }`,
 };
 
 export const getCurrentUserFeaturesQuery = {
   id: 'getCurrentUserFeaturesQuery' as const,
-  operationName: 'getCurrentUserFeatures',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query getCurrentUserFeatures {
+  op: 'getCurrentUserFeatures',
+  query: `query getCurrentUserFeatures {
   currentUser {
     id
     name
@@ -602,11 +490,8 @@ query getCurrentUserFeatures {
 
 export const getCurrentUserQuery = {
   id: 'getCurrentUserQuery' as const,
-  operationName: 'getCurrentUser',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query getCurrentUser {
+  op: 'getCurrentUser',
+  query: `query getCurrentUser {
   currentUser {
     id
     name
@@ -618,15 +503,15 @@ query getCurrentUser {
     }
   }
 }`,
+  deprecations: [
+    "'token' is deprecated: use [/api/auth/sign-in?native=true] instead",
+  ],
 };
 
 export const getDocDefaultRoleQuery = {
   id: 'getDocDefaultRoleQuery' as const,
-  operationName: 'getDocDefaultRole',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getDocDefaultRole($workspaceId: String!, $docId: String!) {
+  op: 'getDocDefaultRole',
+  query: `query getDocDefaultRole($workspaceId: String!, $docId: String!) {
   workspace(id: $workspaceId) {
     doc(docId: $docId) {
       defaultRole
@@ -637,11 +522,8 @@ query getDocDefaultRole($workspaceId: String!, $docId: String!) {
 
 export const getInviteInfoQuery = {
   id: 'getInviteInfoQuery' as const,
-  operationName: 'getInviteInfo',
-  definitionName: 'getInviteInfo',
-  containsFile: false,
-  query: `
-query getInviteInfo($inviteId: String!) {
+  op: 'getInviteInfo',
+  query: `query getInviteInfo($inviteId: String!) {
   getInviteInfo(inviteId: $inviteId) {
     workspace {
       id
@@ -659,33 +541,26 @@ query getInviteInfo($inviteId: String!) {
 
 export const getIsAdminQuery = {
   id: 'getIsAdminQuery' as const,
-  operationName: 'getIsAdmin',
-  definitionName: 'isAdmin',
-  containsFile: false,
-  query: `
-query getIsAdmin($workspaceId: String!) {
+  op: 'getIsAdmin',
+  query: `query getIsAdmin($workspaceId: String!) {
   isAdmin(workspaceId: $workspaceId)
 }`,
+  deprecations: ["'isAdmin' is deprecated: use WorkspaceType[role] instead"],
 };
 
 export const getIsOwnerQuery = {
   id: 'getIsOwnerQuery' as const,
-  operationName: 'getIsOwner',
-  definitionName: 'isOwner',
-  containsFile: false,
-  query: `
-query getIsOwner($workspaceId: String!) {
+  op: 'getIsOwner',
+  query: `query getIsOwner($workspaceId: String!) {
   isOwner(workspaceId: $workspaceId)
 }`,
+  deprecations: ["'isOwner' is deprecated: use WorkspaceType[role] instead"],
 };
 
 export const getLicenseQuery = {
   id: 'getLicenseQuery' as const,
-  operationName: 'getLicense',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getLicense($workspaceId: String!) {
+  op: 'getLicense',
+  query: `query getLicense($workspaceId: String!) {
   workspace(id: $workspaceId) {
     license {
       expiredAt
@@ -700,11 +575,8 @@ query getLicense($workspaceId: String!) {
 
 export const getMemberCountByWorkspaceIdQuery = {
   id: 'getMemberCountByWorkspaceIdQuery' as const,
-  operationName: 'getMemberCountByWorkspaceId',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getMemberCountByWorkspaceId($workspaceId: String!) {
+  op: 'getMemberCountByWorkspaceId',
+  query: `query getMemberCountByWorkspaceId($workspaceId: String!) {
   workspace(id: $workspaceId) {
     memberCount
   }
@@ -713,11 +585,8 @@ query getMemberCountByWorkspaceId($workspaceId: String!) {
 
 export const getMembersByWorkspaceIdQuery = {
   id: 'getMembersByWorkspaceIdQuery' as const,
-  operationName: 'getMembersByWorkspaceId',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getMembersByWorkspaceId($workspaceId: String!, $skip: Int, $take: Int, $query: String) {
+  op: 'getMembersByWorkspaceId',
+  query: `query getMembersByWorkspaceId($workspaceId: String!, $skip: Int, $take: Int, $query: String) {
   workspace(id: $workspaceId) {
     memberCount
     members(skip: $skip, take: $take, query: $query) {
@@ -732,15 +601,13 @@ query getMembersByWorkspaceId($workspaceId: String!, $skip: Int, $take: Int, $qu
     }
   }
 }`,
+  deprecations: ["'permission' is deprecated: Use role instead"],
 };
 
 export const oauthProvidersQuery = {
   id: 'oauthProvidersQuery' as const,
-  operationName: 'oauthProviders',
-  definitionName: 'serverConfig',
-  containsFile: false,
-  query: `
-query oauthProviders {
+  op: 'oauthProviders',
+  query: `query oauthProviders {
   serverConfig {
     oauthProviders
   }
@@ -749,11 +616,8 @@ query oauthProviders {
 
 export const getPageGrantedUsersListQuery = {
   id: 'getPageGrantedUsersListQuery' as const,
-  operationName: 'getPageGrantedUsersList',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getPageGrantedUsersList($pagination: PaginationInput!, $docId: String!, $workspaceId: String!) {
+  op: 'getPageGrantedUsersList',
+  query: `query getPageGrantedUsersList($pagination: PaginationInput!, $docId: String!, $workspaceId: String!) {
   workspace(id: $workspaceId) {
     doc(docId: $docId) {
       grantedUsersList(pagination: $pagination) {
@@ -781,11 +645,8 @@ query getPageGrantedUsersList($pagination: PaginationInput!, $docId: String!, $w
 
 export const getServerRuntimeConfigQuery = {
   id: 'getServerRuntimeConfigQuery' as const,
-  operationName: 'getServerRuntimeConfig',
-  definitionName: 'serverRuntimeConfig',
-  containsFile: false,
-  query: `
-query getServerRuntimeConfig {
+  op: 'getServerRuntimeConfig',
+  query: `query getServerRuntimeConfig {
   serverRuntimeConfig {
     id
     module
@@ -800,11 +661,8 @@ query getServerRuntimeConfig {
 
 export const getServerServiceConfigsQuery = {
   id: 'getServerServiceConfigsQuery' as const,
-  operationName: 'getServerServiceConfigs',
-  definitionName: 'serverServiceConfigs',
-  containsFile: false,
-  query: `
-query getServerServiceConfigs {
+  op: 'getServerServiceConfigs',
+  query: `query getServerServiceConfigs {
   serverServiceConfigs {
     name
     config
@@ -814,11 +672,8 @@ query getServerServiceConfigs {
 
 export const getUserByEmailQuery = {
   id: 'getUserByEmailQuery' as const,
-  operationName: 'getUserByEmail',
-  definitionName: 'userByEmail',
-  containsFile: false,
-  query: `
-query getUserByEmail($email: String!) {
+  op: 'getUserByEmail',
+  query: `query getUserByEmail($email: String!) {
   userByEmail(email: $email) {
     id
     name
@@ -842,11 +697,8 @@ query getUserByEmail($email: String!) {
 
 export const getUserFeaturesQuery = {
   id: 'getUserFeaturesQuery' as const,
-  operationName: 'getUserFeatures',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query getUserFeatures {
+  op: 'getUserFeatures',
+  query: `query getUserFeatures {
   currentUser {
     id
     features
@@ -856,11 +708,8 @@ query getUserFeatures {
 
 export const getUserQuery = {
   id: 'getUserQuery' as const,
-  operationName: 'getUser',
-  definitionName: 'user',
-  containsFile: false,
-  query: `
-query getUser($email: String!) {
+  op: 'getUser',
+  query: `query getUser($email: String!) {
   user(email: $email) {
     __typename
     ... on UserType {
@@ -880,37 +729,32 @@ query getUser($email: String!) {
 
 export const getUsersCountQuery = {
   id: 'getUsersCountQuery' as const,
-  operationName: 'getUsersCount',
-  definitionName: 'usersCount',
-  containsFile: false,
-  query: `
-query getUsersCount {
+  op: 'getUsersCount',
+  query: `query getUsersCount {
   usersCount
 }`,
 };
 
 export const getWorkspaceInfoQuery = {
   id: 'getWorkspaceInfoQuery' as const,
-  operationName: 'getWorkspaceInfo',
-  definitionName: 'isAdmin,isOwner,workspace',
-  containsFile: false,
-  query: `
-query getWorkspaceInfo($workspaceId: String!) {
+  op: 'getWorkspaceInfo',
+  query: `query getWorkspaceInfo($workspaceId: String!) {
   isAdmin(workspaceId: $workspaceId)
   isOwner(workspaceId: $workspaceId)
   workspace(id: $workspaceId) {
     team
   }
 }`,
+  deprecations: [
+    "'isAdmin' is deprecated: use WorkspaceType[role] instead",
+    "'isOwner' is deprecated: use WorkspaceType[role] instead",
+  ],
 };
 
 export const getWorkspacePageByIdQuery = {
   id: 'getWorkspacePageByIdQuery' as const,
-  operationName: 'getWorkspacePageById',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getWorkspacePageById($workspaceId: String!, $pageId: String!) {
+  op: 'getWorkspacePageById',
+  query: `query getWorkspacePageById($workspaceId: String!, $pageId: String!) {
   workspace(id: $workspaceId) {
     doc(docId: $pageId) {
       id
@@ -924,11 +768,8 @@ query getWorkspacePageById($workspaceId: String!, $pageId: String!) {
 
 export const getWorkspacePageMetaByIdQuery = {
   id: 'getWorkspacePageMetaByIdQuery' as const,
-  operationName: 'getWorkspacePageMetaById',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getWorkspacePageMetaById($id: String!, $pageId: String!) {
+  op: 'getWorkspacePageMetaById',
+  query: `query getWorkspacePageMetaById($id: String!, $pageId: String!) {
   workspace(id: $id) {
     pageMeta(pageId: $pageId) {
       createdAt
@@ -948,11 +789,8 @@ query getWorkspacePageMetaById($id: String!, $pageId: String!) {
 
 export const getWorkspacePublicByIdQuery = {
   id: 'getWorkspacePublicByIdQuery' as const,
-  operationName: 'getWorkspacePublicById',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getWorkspacePublicById($id: String!) {
+  op: 'getWorkspacePublicById',
+  query: `query getWorkspacePublicById($id: String!) {
   workspace(id: $id) {
     public
   }
@@ -961,11 +799,8 @@ query getWorkspacePublicById($id: String!) {
 
 export const getWorkspacePublicPagesQuery = {
   id: 'getWorkspacePublicPagesQuery' as const,
-  operationName: 'getWorkspacePublicPages',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getWorkspacePublicPages($workspaceId: String!) {
+  op: 'getWorkspacePublicPages',
+  query: `query getWorkspacePublicPages($workspaceId: String!) {
   workspace(id: $workspaceId) {
     publicDocs {
       id
@@ -977,11 +812,8 @@ query getWorkspacePublicPages($workspaceId: String!) {
 
 export const getWorkspaceSubscriptionQuery = {
   id: 'getWorkspaceSubscriptionQuery' as const,
-  operationName: 'getWorkspaceSubscription',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getWorkspaceSubscription($workspaceId: String!) {
+  op: 'getWorkspaceSubscription',
+  query: `query getWorkspaceSubscription($workspaceId: String!) {
   workspace(id: $workspaceId) {
     subscription {
       id
@@ -996,15 +828,13 @@ query getWorkspaceSubscription($workspaceId: String!) {
     }
   }
 }`,
+  deprecations: ["'id' is deprecated: removed"],
 };
 
 export const getWorkspaceQuery = {
   id: 'getWorkspaceQuery' as const,
-  operationName: 'getWorkspace',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getWorkspace($id: String!) {
+  op: 'getWorkspace',
+  query: `query getWorkspace($id: String!) {
   workspace(id: $id) {
     id
   }
@@ -1013,11 +843,8 @@ query getWorkspace($id: String!) {
 
 export const getWorkspacesQuery = {
   id: 'getWorkspacesQuery' as const,
-  operationName: 'getWorkspaces',
-  definitionName: 'workspaces',
-  containsFile: false,
-  query: `
-query getWorkspaces {
+  op: 'getWorkspaces',
+  query: `query getWorkspaces {
   workspaces {
     id
     initialized
@@ -1031,22 +858,16 @@ query getWorkspaces {
 
 export const grantDocUserRolesMutation = {
   id: 'grantDocUserRolesMutation' as const,
-  operationName: 'grantDocUserRoles',
-  definitionName: 'grantDocUserRoles',
-  containsFile: false,
-  query: `
-mutation grantDocUserRoles($input: GrantDocUserRolesInput!) {
+  op: 'grantDocUserRoles',
+  query: `mutation grantDocUserRoles($input: GrantDocUserRolesInput!) {
   grantDocUserRoles(input: $input)
 }`,
 };
 
 export const listHistoryQuery = {
   id: 'listHistoryQuery' as const,
-  operationName: 'listHistory',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query listHistory($workspaceId: String!, $pageDocId: String!, $take: Int, $before: DateTime) {
+  op: 'listHistory',
+  query: `query listHistory($workspaceId: String!, $pageDocId: String!, $take: Int, $before: DateTime) {
   workspace(id: $workspaceId) {
     histories(guid: $pageDocId, take: $take, before: $before) {
       id
@@ -1062,11 +883,8 @@ query listHistory($workspaceId: String!, $pageDocId: String!, $take: Int, $befor
 
 export const getInvoicesCountQuery = {
   id: 'getInvoicesCountQuery' as const,
-  operationName: 'getInvoicesCount',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query getInvoicesCount {
+  op: 'getInvoicesCount',
+  query: `query getInvoicesCount {
   currentUser {
     invoiceCount
   }
@@ -1075,11 +893,8 @@ query getInvoicesCount {
 
 export const invoicesQuery = {
   id: 'invoicesQuery' as const,
-  operationName: 'invoices',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query invoices($take: Int!, $skip: Int!) {
+  op: 'invoices',
+  query: `query invoices($take: Int!, $skip: Int!) {
   currentUser {
     invoiceCount
     invoices(take: $take, skip: $skip) {
@@ -1094,26 +909,21 @@ query invoices($take: Int!, $skip: Int!) {
     }
   }
 }`,
+  deprecations: ["'id' is deprecated: removed"],
 };
 
 export const leaveWorkspaceMutation = {
   id: 'leaveWorkspaceMutation' as const,
-  operationName: 'leaveWorkspace',
-  definitionName: 'leaveWorkspace',
-  containsFile: false,
-  query: `
-mutation leaveWorkspace($workspaceId: String!, $sendLeaveMail: Boolean) {
+  op: 'leaveWorkspace',
+  query: `mutation leaveWorkspace($workspaceId: String!, $sendLeaveMail: Boolean) {
   leaveWorkspace(workspaceId: $workspaceId, sendLeaveMail: $sendLeaveMail)
 }`,
 };
 
 export const listUsersQuery = {
   id: 'listUsersQuery' as const,
-  operationName: 'listUsers',
-  definitionName: 'users',
-  containsFile: false,
-  query: `
-query listUsers($filter: ListUserInput!) {
+  op: 'listUsers',
+  query: `query listUsers($filter: ListUserInput!) {
   users(filter: $filter) {
     id
     name
@@ -1128,11 +938,8 @@ query listUsers($filter: ListUserInput!) {
 
 export const pricesQuery = {
   id: 'pricesQuery' as const,
-  operationName: 'prices',
-  definitionName: 'prices',
-  containsFile: false,
-  query: `
-query prices {
+  op: 'prices',
+  query: `query prices {
   prices {
     type
     plan
@@ -1146,11 +953,8 @@ query prices {
 
 export const publishPageMutation = {
   id: 'publishPageMutation' as const,
-  operationName: 'publishPage',
-  definitionName: 'publishDoc',
-  containsFile: false,
-  query: `
-mutation publishPage($workspaceId: String!, $pageId: String!, $mode: PublicDocMode = Page) {
+  op: 'publishPage',
+  query: `mutation publishPage($workspaceId: String!, $pageId: String!, $mode: PublicDocMode = Page) {
   publishDoc(workspaceId: $workspaceId, docId: $pageId, mode: $mode) {
     id
     mode
@@ -1160,11 +964,8 @@ mutation publishPage($workspaceId: String!, $pageId: String!, $mode: PublicDocMo
 
 export const quotaQuery = {
   id: 'quotaQuery' as const,
-  operationName: 'quota',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query quota {
+  op: 'quota',
+  query: `query quota {
   currentUser {
     id
     quota {
@@ -1186,26 +987,23 @@ query quota {
     }
   }
 }`,
+  deprecations: [
+    "'storageQuota' is deprecated: use `UserQuotaType['usedStorageQuota']` instead",
+  ],
 };
 
 export const recoverDocMutation = {
   id: 'recoverDocMutation' as const,
-  operationName: 'recoverDoc',
-  definitionName: 'recoverDoc',
-  containsFile: false,
-  query: `
-mutation recoverDoc($workspaceId: String!, $docId: String!, $timestamp: DateTime!) {
+  op: 'recoverDoc',
+  query: `mutation recoverDoc($workspaceId: String!, $docId: String!, $timestamp: DateTime!) {
   recoverDoc(workspaceId: $workspaceId, guid: $docId, timestamp: $timestamp)
 }`,
 };
 
 export const removeAvatarMutation = {
   id: 'removeAvatarMutation' as const,
-  operationName: 'removeAvatar',
-  definitionName: 'removeAvatar',
-  containsFile: false,
-  query: `
-mutation removeAvatar {
+  op: 'removeAvatar',
+  query: `mutation removeAvatar {
   removeAvatar {
     success
   }
@@ -1214,11 +1012,8 @@ mutation removeAvatar {
 
 export const resumeSubscriptionMutation = {
   id: 'resumeSubscriptionMutation' as const,
-  operationName: 'resumeSubscription',
-  definitionName: 'resumeSubscription',
-  containsFile: false,
-  query: `
-mutation resumeSubscription($plan: SubscriptionPlan = Pro, $workspaceId: String) {
+  op: 'resumeSubscription',
+  query: `mutation resumeSubscription($plan: SubscriptionPlan = Pro, $workspaceId: String) {
   resumeSubscription(plan: $plan, workspaceId: $workspaceId) {
     id
     status
@@ -1227,37 +1022,29 @@ mutation resumeSubscription($plan: SubscriptionPlan = Pro, $workspaceId: String)
     end
   }
 }`,
+  deprecations: ["'id' is deprecated: removed"],
 };
 
 export const revokeDocUserRolesMutation = {
   id: 'revokeDocUserRolesMutation' as const,
-  operationName: 'revokeDocUserRoles',
-  definitionName: 'revokeDocUserRoles',
-  containsFile: false,
-  query: `
-mutation revokeDocUserRoles($input: RevokeDocUserRoleInput!) {
+  op: 'revokeDocUserRoles',
+  query: `mutation revokeDocUserRoles($input: RevokeDocUserRoleInput!) {
   revokeDocUserRoles(input: $input)
 }`,
 };
 
 export const revokeMemberPermissionMutation = {
   id: 'revokeMemberPermissionMutation' as const,
-  operationName: 'revokeMemberPermission',
-  definitionName: 'revoke',
-  containsFile: false,
-  query: `
-mutation revokeMemberPermission($workspaceId: String!, $userId: String!) {
+  op: 'revokeMemberPermission',
+  query: `mutation revokeMemberPermission($workspaceId: String!, $userId: String!) {
   revoke(workspaceId: $workspaceId, userId: $userId)
 }`,
 };
 
 export const revokePublicPageMutation = {
   id: 'revokePublicPageMutation' as const,
-  operationName: 'revokePublicPage',
-  definitionName: 'revokePublicDoc',
-  containsFile: false,
-  query: `
-mutation revokePublicPage($workspaceId: String!, $pageId: String!) {
+  op: 'revokePublicPage',
+  query: `mutation revokePublicPage($workspaceId: String!, $pageId: String!) {
   revokePublicDoc(workspaceId: $workspaceId, docId: $pageId) {
     id
     mode
@@ -1268,66 +1055,48 @@ mutation revokePublicPage($workspaceId: String!, $pageId: String!) {
 
 export const sendChangeEmailMutation = {
   id: 'sendChangeEmailMutation' as const,
-  operationName: 'sendChangeEmail',
-  definitionName: 'sendChangeEmail',
-  containsFile: false,
-  query: `
-mutation sendChangeEmail($callbackUrl: String!) {
+  op: 'sendChangeEmail',
+  query: `mutation sendChangeEmail($callbackUrl: String!) {
   sendChangeEmail(callbackUrl: $callbackUrl)
 }`,
 };
 
 export const sendChangePasswordEmailMutation = {
   id: 'sendChangePasswordEmailMutation' as const,
-  operationName: 'sendChangePasswordEmail',
-  definitionName: 'sendChangePasswordEmail',
-  containsFile: false,
-  query: `
-mutation sendChangePasswordEmail($callbackUrl: String!) {
+  op: 'sendChangePasswordEmail',
+  query: `mutation sendChangePasswordEmail($callbackUrl: String!) {
   sendChangePasswordEmail(callbackUrl: $callbackUrl)
 }`,
 };
 
 export const sendSetPasswordEmailMutation = {
   id: 'sendSetPasswordEmailMutation' as const,
-  operationName: 'sendSetPasswordEmail',
-  definitionName: 'sendSetPasswordEmail',
-  containsFile: false,
-  query: `
-mutation sendSetPasswordEmail($callbackUrl: String!) {
+  op: 'sendSetPasswordEmail',
+  query: `mutation sendSetPasswordEmail($callbackUrl: String!) {
   sendSetPasswordEmail(callbackUrl: $callbackUrl)
 }`,
 };
 
 export const sendVerifyChangeEmailMutation = {
   id: 'sendVerifyChangeEmailMutation' as const,
-  operationName: 'sendVerifyChangeEmail',
-  definitionName: 'sendVerifyChangeEmail',
-  containsFile: false,
-  query: `
-mutation sendVerifyChangeEmail($token: String!, $email: String!, $callbackUrl: String!) {
+  op: 'sendVerifyChangeEmail',
+  query: `mutation sendVerifyChangeEmail($token: String!, $email: String!, $callbackUrl: String!) {
   sendVerifyChangeEmail(token: $token, email: $email, callbackUrl: $callbackUrl)
 }`,
 };
 
 export const sendVerifyEmailMutation = {
   id: 'sendVerifyEmailMutation' as const,
-  operationName: 'sendVerifyEmail',
-  definitionName: 'sendVerifyEmail',
-  containsFile: false,
-  query: `
-mutation sendVerifyEmail($callbackUrl: String!) {
+  op: 'sendVerifyEmail',
+  query: `mutation sendVerifyEmail($callbackUrl: String!) {
   sendVerifyEmail(callbackUrl: $callbackUrl)
 }`,
 };
 
 export const serverConfigQuery = {
   id: 'serverConfigQuery' as const,
-  operationName: 'serverConfig',
-  definitionName: 'serverConfig',
-  containsFile: false,
-  query: `
-query serverConfig {
+  op: 'serverConfig',
+  query: `query serverConfig {
   serverConfig {
     version
     baseUrl
@@ -1339,17 +1108,15 @@ query serverConfig {
       ...CredentialsRequirements
     }
   }
-}${passwordLimitsFragment}
+}
+${passwordLimitsFragment}
 ${credentialsRequirementsFragment}`,
 };
 
 export const setWorkspacePublicByIdMutation = {
   id: 'setWorkspacePublicByIdMutation' as const,
-  operationName: 'setWorkspacePublicById',
-  definitionName: 'updateWorkspace',
-  containsFile: false,
-  query: `
-mutation setWorkspacePublicById($id: ID!, $public: Boolean!) {
+  op: 'setWorkspacePublicById',
+  query: `mutation setWorkspacePublicById($id: ID!, $public: Boolean!) {
   updateWorkspace(input: {id: $id, public: $public}) {
     id
   }
@@ -1358,11 +1125,8 @@ mutation setWorkspacePublicById($id: ID!, $public: Boolean!) {
 
 export const subscriptionQuery = {
   id: 'subscriptionQuery' as const,
-  operationName: 'subscription',
-  definitionName: 'currentUser',
-  containsFile: false,
-  query: `
-query subscription {
+  op: 'subscription',
+  query: `query subscription {
   currentUser {
     id
     subscriptions {
@@ -1378,26 +1142,21 @@ query subscription {
     }
   }
 }`,
+  deprecations: ["'id' is deprecated: removed"],
 };
 
 export const updateAccountFeaturesMutation = {
   id: 'updateAccountFeaturesMutation' as const,
-  operationName: 'updateAccountFeatures',
-  definitionName: 'updateUserFeatures',
-  containsFile: false,
-  query: `
-mutation updateAccountFeatures($userId: String!, $features: [FeatureType!]!) {
+  op: 'updateAccountFeatures',
+  query: `mutation updateAccountFeatures($userId: String!, $features: [FeatureType!]!) {
   updateUserFeatures(id: $userId, features: $features)
 }`,
 };
 
 export const updateAccountMutation = {
   id: 'updateAccountMutation' as const,
-  operationName: 'updateAccount',
-  definitionName: 'updateUser',
-  containsFile: false,
-  query: `
-mutation updateAccount($id: String!, $input: ManageUserInput!) {
+  op: 'updateAccount',
+  query: `mutation updateAccount($id: String!, $input: ManageUserInput!) {
   updateUser(id: $id, input: $input) {
     id
     name
@@ -1408,33 +1167,24 @@ mutation updateAccount($id: String!, $input: ManageUserInput!) {
 
 export const updateDocDefaultRoleMutation = {
   id: 'updateDocDefaultRoleMutation' as const,
-  operationName: 'updateDocDefaultRole',
-  definitionName: 'updateDocDefaultRole',
-  containsFile: false,
-  query: `
-mutation updateDocDefaultRole($input: UpdateDocDefaultRoleInput!) {
+  op: 'updateDocDefaultRole',
+  query: `mutation updateDocDefaultRole($input: UpdateDocDefaultRoleInput!) {
   updateDocDefaultRole(input: $input)
 }`,
 };
 
 export const updateDocUserRoleMutation = {
   id: 'updateDocUserRoleMutation' as const,
-  operationName: 'updateDocUserRole',
-  definitionName: 'updateDocUserRole',
-  containsFile: false,
-  query: `
-mutation updateDocUserRole($input: UpdateDocUserRoleInput!) {
+  op: 'updateDocUserRole',
+  query: `mutation updateDocUserRole($input: UpdateDocUserRoleInput!) {
   updateDocUserRole(input: $input)
 }`,
 };
 
 export const updateServerRuntimeConfigsMutation = {
   id: 'updateServerRuntimeConfigsMutation' as const,
-  operationName: 'updateServerRuntimeConfigs',
-  definitionName: 'updateRuntimeConfigs',
-  containsFile: false,
-  query: `
-mutation updateServerRuntimeConfigs($updates: JSONObject!) {
+  op: 'updateServerRuntimeConfigs',
+  query: `mutation updateServerRuntimeConfigs($updates: JSONObject!) {
   updateRuntimeConfigs(updates: $updates) {
     key
     value
@@ -1444,11 +1194,8 @@ mutation updateServerRuntimeConfigs($updates: JSONObject!) {
 
 export const updateSubscriptionMutation = {
   id: 'updateSubscriptionMutation' as const,
-  operationName: 'updateSubscription',
-  definitionName: 'updateSubscriptionRecurring',
-  containsFile: false,
-  query: `
-mutation updateSubscription($plan: SubscriptionPlan = Pro, $recurring: SubscriptionRecurring!, $workspaceId: String) {
+  op: 'updateSubscription',
+  query: `mutation updateSubscription($plan: SubscriptionPlan = Pro, $recurring: SubscriptionRecurring!, $workspaceId: String) {
   updateSubscriptionRecurring(
     plan: $plan
     recurring: $recurring
@@ -1460,15 +1207,13 @@ mutation updateSubscription($plan: SubscriptionPlan = Pro, $recurring: Subscript
     nextBillAt
   }
 }`,
+  deprecations: ["'id' is deprecated: removed"],
 };
 
 export const updateUserProfileMutation = {
   id: 'updateUserProfileMutation' as const,
-  operationName: 'updateUserProfile',
-  definitionName: 'updateProfile',
-  containsFile: false,
-  query: `
-mutation updateUserProfile($input: UpdateUserInput!) {
+  op: 'updateUserProfile',
+  query: `mutation updateUserProfile($input: UpdateUserInput!) {
   updateProfile(input: $input) {
     id
     name
@@ -1478,11 +1223,8 @@ mutation updateUserProfile($input: UpdateUserInput!) {
 
 export const uploadAvatarMutation = {
   id: 'uploadAvatarMutation' as const,
-  operationName: 'uploadAvatar',
-  definitionName: 'uploadAvatar',
-  containsFile: true,
-  query: `
-mutation uploadAvatar($avatar: Upload!) {
+  op: 'uploadAvatar',
+  query: `mutation uploadAvatar($avatar: Upload!) {
   uploadAvatar(avatar: $avatar) {
     id
     name
@@ -1490,26 +1232,21 @@ mutation uploadAvatar($avatar: Upload!) {
     email
   }
 }`,
+  file: true,
 };
 
 export const verifyEmailMutation = {
   id: 'verifyEmailMutation' as const,
-  operationName: 'verifyEmail',
-  definitionName: 'verifyEmail',
-  containsFile: false,
-  query: `
-mutation verifyEmail($token: String!) {
+  op: 'verifyEmail',
+  query: `mutation verifyEmail($token: String!) {
   verifyEmail(token: $token)
 }`,
 };
 
 export const getWorkspaceConfigQuery = {
   id: 'getWorkspaceConfigQuery' as const,
-  operationName: 'getWorkspaceConfig',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query getWorkspaceConfig($id: String!) {
+  op: 'getWorkspaceConfig',
+  query: `query getWorkspaceConfig($id: String!) {
   workspace(id: $id) {
     enableAi
     enableUrlPreview
@@ -1523,11 +1260,8 @@ query getWorkspaceConfig($id: String!) {
 
 export const setEnableAiMutation = {
   id: 'setEnableAiMutation' as const,
-  operationName: 'setEnableAi',
-  definitionName: 'updateWorkspace',
-  containsFile: false,
-  query: `
-mutation setEnableAi($id: ID!, $enableAi: Boolean!) {
+  op: 'setEnableAi',
+  query: `mutation setEnableAi($id: ID!, $enableAi: Boolean!) {
   updateWorkspace(input: {id: $id, enableAi: $enableAi}) {
     id
   }
@@ -1536,11 +1270,8 @@ mutation setEnableAi($id: ID!, $enableAi: Boolean!) {
 
 export const setEnableUrlPreviewMutation = {
   id: 'setEnableUrlPreviewMutation' as const,
-  operationName: 'setEnableUrlPreview',
-  definitionName: 'updateWorkspace',
-  containsFile: false,
-  query: `
-mutation setEnableUrlPreview($id: ID!, $enableUrlPreview: Boolean!) {
+  op: 'setEnableUrlPreview',
+  query: `mutation setEnableUrlPreview($id: ID!, $enableUrlPreview: Boolean!) {
   updateWorkspace(input: {id: $id, enableUrlPreview: $enableUrlPreview}) {
     id
   }
@@ -1549,11 +1280,8 @@ mutation setEnableUrlPreview($id: ID!, $enableUrlPreview: Boolean!) {
 
 export const inviteByEmailMutation = {
   id: 'inviteByEmailMutation' as const,
-  operationName: 'inviteByEmail',
-  definitionName: 'invite',
-  containsFile: false,
-  query: `
-mutation inviteByEmail($workspaceId: String!, $email: String!, $sendInviteMail: Boolean) {
+  op: 'inviteByEmail',
+  query: `mutation inviteByEmail($workspaceId: String!, $email: String!, $sendInviteMail: Boolean) {
   invite(
     workspaceId: $workspaceId
     email: $email
@@ -1564,11 +1292,8 @@ mutation inviteByEmail($workspaceId: String!, $email: String!, $sendInviteMail: 
 
 export const inviteByEmailsMutation = {
   id: 'inviteByEmailsMutation' as const,
-  operationName: 'inviteByEmails',
-  definitionName: 'inviteBatch',
-  containsFile: false,
-  query: `
-mutation inviteByEmails($workspaceId: String!, $emails: [String!]!, $sendInviteMail: Boolean) {
+  op: 'inviteByEmails',
+  query: `mutation inviteByEmails($workspaceId: String!, $emails: [String!]!, $sendInviteMail: Boolean) {
   inviteBatch(
     workspaceId: $workspaceId
     emails: $emails
@@ -1583,11 +1308,8 @@ mutation inviteByEmails($workspaceId: String!, $emails: [String!]!, $sendInviteM
 
 export const acceptInviteByInviteIdMutation = {
   id: 'acceptInviteByInviteIdMutation' as const,
-  operationName: 'acceptInviteByInviteId',
-  definitionName: 'acceptInviteById',
-  containsFile: false,
-  query: `
-mutation acceptInviteByInviteId($workspaceId: String!, $inviteId: String!, $sendAcceptMail: Boolean) {
+  op: 'acceptInviteByInviteId',
+  query: `mutation acceptInviteByInviteId($workspaceId: String!, $inviteId: String!, $sendAcceptMail: Boolean) {
   acceptInviteById(
     workspaceId: $workspaceId
     inviteId: $inviteId
@@ -1598,11 +1320,8 @@ mutation acceptInviteByInviteId($workspaceId: String!, $inviteId: String!, $send
 
 export const inviteBatchMutation = {
   id: 'inviteBatchMutation' as const,
-  operationName: 'inviteBatch',
-  definitionName: 'inviteBatch',
-  containsFile: false,
-  query: `
-mutation inviteBatch($workspaceId: String!, $emails: [String!]!, $sendInviteMail: Boolean) {
+  op: 'inviteBatch',
+  query: `mutation inviteBatch($workspaceId: String!, $emails: [String!]!, $sendInviteMail: Boolean) {
   inviteBatch(
     workspaceId: $workspaceId
     emails: $emails
@@ -1617,11 +1336,8 @@ mutation inviteBatch($workspaceId: String!, $emails: [String!]!, $sendInviteMail
 
 export const createInviteLinkMutation = {
   id: 'createInviteLinkMutation' as const,
-  operationName: 'createInviteLink',
-  definitionName: 'createInviteLink',
-  containsFile: false,
-  query: `
-mutation createInviteLink($workspaceId: String!, $expireTime: WorkspaceInviteLinkExpireTime!) {
+  op: 'createInviteLink',
+  query: `mutation createInviteLink($workspaceId: String!, $expireTime: WorkspaceInviteLinkExpireTime!) {
   createInviteLink(workspaceId: $workspaceId, expireTime: $expireTime) {
     link
     expireTime
@@ -1631,22 +1347,16 @@ mutation createInviteLink($workspaceId: String!, $expireTime: WorkspaceInviteLin
 
 export const revokeInviteLinkMutation = {
   id: 'revokeInviteLinkMutation' as const,
-  operationName: 'revokeInviteLink',
-  definitionName: 'revokeInviteLink',
-  containsFile: false,
-  query: `
-mutation revokeInviteLink($workspaceId: String!) {
+  op: 'revokeInviteLink',
+  query: `mutation revokeInviteLink($workspaceId: String!) {
   revokeInviteLink(workspaceId: $workspaceId)
 }`,
 };
 
 export const workspaceInvoicesQuery = {
   id: 'workspaceInvoicesQuery' as const,
-  operationName: 'workspaceInvoices',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query workspaceInvoices($take: Int!, $skip: Int!, $workspaceId: String!) {
+  op: 'workspaceInvoices',
+  query: `query workspaceInvoices($take: Int!, $skip: Int!, $workspaceId: String!) {
   workspace(id: $workspaceId) {
     invoiceCount
     invoices(take: $take, skip: $skip) {
@@ -1661,15 +1371,13 @@ query workspaceInvoices($take: Int!, $skip: Int!, $workspaceId: String!) {
     }
   }
 }`,
+  deprecations: ["'id' is deprecated: removed"],
 };
 
 export const workspaceQuotaQuery = {
   id: 'workspaceQuotaQuery' as const,
-  operationName: 'workspaceQuota',
-  definitionName: 'workspace',
-  containsFile: false,
-  query: `
-query workspaceQuota($id: String!) {
+  op: 'workspaceQuota',
+  query: `query workspaceQuota($id: String!) {
   workspace(id: $id) {
     quota {
       name
@@ -1693,20 +1401,24 @@ query workspaceQuota($id: String!) {
 
 export const getWorkspaceRolePermissionsQuery = {
   id: 'getWorkspaceRolePermissionsQuery' as const,
-  operationName: 'getWorkspaceRolePermissions',
-  definitionName: 'workspaceRolePermissions',
-  containsFile: false,
-  query: `
-query getWorkspaceRolePermissions($id: String!) {
+  op: 'getWorkspaceRolePermissions',
+  query: `query getWorkspaceRolePermissions($id: String!) {
   workspaceRolePermissions(id: $id) {
     permissions {
+      Workspace_Adminitrators_Manage
+      Workspace_Blobs_List
+      Workspace_Blobs_Read
+      Workspace_Blobs_Write
+      Workspace_Copilot
       Workspace_CreateDoc
       Workspace_Delete
       Workspace_Organize_Read
+      Workspace_Payment_Manage
       Workspace_Properties_Create
       Workspace_Properties_Delete
       Workspace_Properties_Read
       Workspace_Properties_Update
+      Workspace_Read
       Workspace_Settings_Read
       Workspace_Settings_Update
       Workspace_Sync
@@ -1716,26 +1428,23 @@ query getWorkspaceRolePermissions($id: String!) {
     }
   }
 }`,
+  deprecations: [
+    "'workspaceRolePermissions' is deprecated: use WorkspaceType[permissions] instead",
+  ],
 };
 
 export const approveWorkspaceTeamMemberMutation = {
   id: 'approveWorkspaceTeamMemberMutation' as const,
-  operationName: 'approveWorkspaceTeamMember',
-  definitionName: 'approveMember',
-  containsFile: false,
-  query: `
-mutation approveWorkspaceTeamMember($workspaceId: String!, $userId: String!) {
+  op: 'approveWorkspaceTeamMember',
+  query: `mutation approveWorkspaceTeamMember($workspaceId: String!, $userId: String!) {
   approveMember(workspaceId: $workspaceId, userId: $userId)
 }`,
 };
 
 export const grantWorkspaceTeamMemberMutation = {
   id: 'grantWorkspaceTeamMemberMutation' as const,
-  operationName: 'grantWorkspaceTeamMember',
-  definitionName: 'grantMember',
-  containsFile: false,
-  query: `
-mutation grantWorkspaceTeamMember($workspaceId: String!, $userId: String!, $permission: Permission!) {
+  op: 'grantWorkspaceTeamMember',
+  query: `mutation grantWorkspaceTeamMember($workspaceId: String!, $userId: String!, $permission: Permission!) {
   grantMember(workspaceId: $workspaceId, userId: $userId, permission: $permission)
 }`,
 };

@@ -1,6 +1,6 @@
 import { ConnectorMode, getConnectorModeName } from '@blocksuite/affine-model';
 import { EditPropsStore } from '@blocksuite/affine-shared/services';
-import { SignalWatcher } from '@blocksuite/global/utils';
+import { SignalWatcher } from '@blocksuite/global/lit';
 import {
   ConnectorCIcon,
   ConnectorEIcon,

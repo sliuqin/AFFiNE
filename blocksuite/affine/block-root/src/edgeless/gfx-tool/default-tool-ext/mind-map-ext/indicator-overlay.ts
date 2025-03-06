@@ -19,7 +19,7 @@ import {
   toRadian,
   Vec,
 } from '@blocksuite/global/gfx';
-import { last } from '@blocksuite/global/utils';
+import last from 'lodash-es/last';
 
 export class MindMapIndicatorOverlay extends Overlay {
   static INDICATOR_SIZE = [48, 22];

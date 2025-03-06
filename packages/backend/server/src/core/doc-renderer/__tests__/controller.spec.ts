@@ -72,7 +72,7 @@ test('should render page success', async t => {
   text.insert(5, ' ');
 
   await adapter.pushDocUpdates(workspace.id, docId, updates, user.id);
-  await models.workspace.publishDoc(workspace.id, docId);
+  await models.doc.publish(workspace.id, docId);
 
   await app.GET(`/workspace/${workspace.id}/${docId}`).expect(200);
   t.pass();

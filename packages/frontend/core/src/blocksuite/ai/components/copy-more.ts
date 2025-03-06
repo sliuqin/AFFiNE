@@ -9,7 +9,8 @@ import {
   Tooltip,
   unsafeCSSVarV2,
 } from '@blocksuite/affine/blocks';
-import { noop, WithDisposable } from '@blocksuite/affine/global/utils';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
+import { noop } from '@blocksuite/affine/global/utils';
 import { CopyIcon, MoreHorizontalIcon, ResetIcon } from '@blocksuite/icons/lit';
 import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 import { property, query, state } from 'lit/decorators.js';

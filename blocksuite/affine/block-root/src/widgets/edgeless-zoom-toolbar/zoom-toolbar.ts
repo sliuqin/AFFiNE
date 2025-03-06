@@ -1,6 +1,6 @@
 import { stopPropagation } from '@blocksuite/affine-shared/utils';
 import { ZOOM_STEP } from '@blocksuite/block-std/gfx';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { MinusIcon, PlusIcon, ViewBarIcon } from '@blocksuite/icons/lit';
 import { effect } from '@preact/signals-core';
 import { baseTheme } from '@toeverything/theme';

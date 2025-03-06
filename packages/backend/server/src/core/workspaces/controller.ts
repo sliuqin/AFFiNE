@@ -101,12 +101,17 @@ export class WorkspacesController {
 
     if (!docId.isWorkspace) {
       // fetch the publish page mode for publish page
-      const doc = await this.models.workspace.getDoc(
+      const docMeta = await this.models.doc.getMeta(
         docId.workspace,
-        docId.guid
+        docId.guid,
+        {
+          select: {
+            mode: true,
+          },
+        }
       );
       const publishPageMode =
-        doc?.mode === PublicDocMode.Edgeless ? 'edgeless' : 'page';
+        docMeta?.mode === PublicDocMode.Edgeless ? 'edgeless' : 'page';
 
       res.setHeader('publish-mode', publishPageMode);
     }

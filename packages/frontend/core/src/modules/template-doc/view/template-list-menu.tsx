@@ -6,14 +6,19 @@ import {
   Scrollable,
 } from '@affine/component';
 import { useAsyncCallback } from '@affine/core/components/hooks/affine-async-hooks';
+import { inferOpenMode } from '@affine/core/utils';
 import { useI18n } from '@affine/i18n';
-import { DualLinkIcon, InformationIcon } from '@blocksuite/icons/rc';
+import {
+  DualLinkIcon,
+  InformationIcon,
+  TemplateIcon,
+} from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import { type DocRecord } from '../../doc';
+import { type DocRecord, DocsService } from '../../doc';
 import { DocDisplayMetaService } from '../../doc-display-meta';
-import { WorkbenchLink } from '../../workbench';
+import { WorkbenchLink, WorkbenchService } from '../../workbench';
 import { TemplateDocService } from '../services/template-doc';
 import * as styles from './styles.css';
 interface CommonProps {
@@ -141,5 +146,30 @@ export const TemplateListMenu = ({
     >
       {children}
     </Menu>
+  );
+};
+
+export const TemplateListMenuAdd = () => {
+  const t = useI18n();
+  const docsService = useService(DocsService);
+  const workbench = useService(WorkbenchService).workbench;
+
+  const createNewTemplate = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const record = docsService.createDoc({ isTemplate: true });
+      workbench.openDoc(record.id, { at: inferOpenMode(e) });
+    },
+    [docsService, workbench]
+  );
+
+  return (
+    <MenuItem
+      data-testid="template-doc-item-create"
+      prefixIcon={<TemplateIcon />}
+      onClick={createNewTemplate}
+      onAuxClick={createNewTemplate}
+    >
+      {t['com.affine.template-list.create-new']()}
+    </MenuItem>
   );
 };

@@ -20,7 +20,7 @@ import { getAFFiNEWorkspaceSchema } from '../../workspace';
 import type { Doc } from '../entities/doc';
 import { DocPropertyList } from '../entities/property-list';
 import { DocRecordList } from '../entities/record-list';
-import { DocCreated } from '../events';
+import { DocCreated, DocInitialized } from '../events';
 import { DocScope } from '../scopes/doc';
 import type { DocPropertiesStore } from '../stores/doc-properties';
 import type { DocsStore } from '../stores/docs';
@@ -104,6 +104,8 @@ export class DocsService extends Service {
     }
 
     const doc = docScope.get(DocService).doc;
+
+    doc.scope.emitEvent(DocInitialized, doc);
 
     const { obj, release } = this.pool.put(docId, doc);
 

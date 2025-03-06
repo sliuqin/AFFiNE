@@ -2,9 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Transactional } from '@nestjs-cls/transactional';
 import { type Workspace } from '@prisma/client';
 
-import { DocIsNotPublic, EventBus } from '../base';
+import { EventBus } from '../base';
 import { BaseModel } from './base';
-import { DocRole, PublicDocMode } from './common';
 
 declare global {
   interface Events {
@@ -88,80 +87,6 @@ export class WorkspaceModel extends BaseModel {
   async allowUrlPreview(workspaceId: string) {
     const workspace = await this.get(workspaceId);
     return workspace?.enableUrlPreview ?? false;
-  }
-  // #endregion
-
-  // #region doc
-  async getDoc(workspaceId: string, docId: string) {
-    return await this.db.workspaceDoc.findUnique({
-      where: {
-        workspaceId_docId: { workspaceId, docId },
-      },
-    });
-  }
-
-  async isPublicPage(workspaceId: string, docId: string) {
-    const doc = await this.getDoc(workspaceId, docId);
-    if (doc?.public) {
-      return true;
-    }
-
-    const workspace = await this.get(workspaceId);
-    return workspace?.public ?? false;
-  }
-
-  async publishDoc(
-    workspaceId: string,
-    docId: string,
-    mode: PublicDocMode = PublicDocMode.Page
-  ) {
-    return await this.db.workspaceDoc.upsert({
-      where: { workspaceId_docId: { workspaceId, docId } },
-      update: { public: true, mode },
-      create: { workspaceId, docId, public: true, mode },
-    });
-  }
-
-  @Transactional()
-  async revokePublicDoc(workspaceId: string, docId: string) {
-    const doc = await this.getDoc(workspaceId, docId);
-
-    if (!doc?.public) {
-      throw new DocIsNotPublic();
-    }
-
-    return await this.db.workspaceDoc.update({
-      where: { workspaceId_docId: { workspaceId, docId } },
-      data: { public: false },
-    });
-  }
-
-  async hasPublicDoc(workspaceId: string) {
-    const count = await this.db.workspaceDoc.count({
-      where: {
-        workspaceId,
-        public: true,
-      },
-    });
-
-    return count > 0;
-  }
-
-  async getPublicDocs(workspaceId: string) {
-    return await this.db.workspaceDoc.findMany({
-      where: {
-        workspaceId,
-        public: true,
-      },
-    });
-  }
-
-  async setDocDefaultRole(workspaceId: string, docId: string, role: DocRole) {
-    await this.db.workspaceDoc.upsert({
-      where: { workspaceId_docId: { workspaceId, docId } },
-      update: { defaultRole: role },
-      create: { workspaceId, docId, defaultRole: role },
-    });
   }
   // #endregion
 }

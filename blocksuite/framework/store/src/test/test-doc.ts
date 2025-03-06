@@ -1,4 +1,4 @@
-import { Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
 import { signal } from '@preact/signals-core';
 import * as Y from 'yjs';
 

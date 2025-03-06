@@ -1,6 +1,6 @@
 import type { FrameBlockModel } from '@blocksuite/affine-model';
 import { createButtonPopper } from '@blocksuite/affine-shared/utils';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { LayerIcon } from '@blocksuite/icons/lit';
 import { css, html, LitElement } from 'lit';
 import { property, query } from 'lit/decorators.js';

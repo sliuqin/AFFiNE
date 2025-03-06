@@ -1,8 +1,6 @@
 import { WidgetViewExtension } from '@blocksuite/block-std';
 import { literal, unsafeStatic } from 'lit/static-html.js';
 
-import { AFFINE_EMBED_CARD_TOOLBAR_WIDGET } from '../widgets/embed-card-toolbar/embed-card-toolbar.js';
-import { AFFINE_FORMAT_BAR_WIDGET } from '../widgets/format-bar/format-bar.js';
 import { AFFINE_INNER_MODAL_WIDGET } from '../widgets/inner-modal/inner-modal.js';
 import { AFFINE_LINKED_DOC_WIDGET } from '../widgets/linked-doc/config.js';
 import { AFFINE_MODAL_WIDGET } from '../widgets/modal/modal.js';
@@ -28,16 +26,6 @@ export const linkedDocWidget = WidgetViewExtension(
   'affine:page',
   AFFINE_LINKED_DOC_WIDGET,
   literal`${unsafeStatic(AFFINE_LINKED_DOC_WIDGET)}`
-);
-export const embedCardToolbarWidget = WidgetViewExtension(
-  'affine:page',
-  AFFINE_EMBED_CARD_TOOLBAR_WIDGET,
-  literal`${unsafeStatic(AFFINE_EMBED_CARD_TOOLBAR_WIDGET)}`
-);
-export const formatBarWidget = WidgetViewExtension(
-  'affine:page',
-  AFFINE_FORMAT_BAR_WIDGET,
-  literal`${unsafeStatic(AFFINE_FORMAT_BAR_WIDGET)}`
 );
 export const viewportOverlayWidget = WidgetViewExtension(
   'affine:page',

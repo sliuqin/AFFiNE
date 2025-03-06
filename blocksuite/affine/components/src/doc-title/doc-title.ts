@@ -8,7 +8,7 @@ import {
 } from '@blocksuite/affine-model';
 import { matchModels } from '@blocksuite/affine-shared/utils';
 import { ShadowlessElement } from '@blocksuite/block-std';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import type { Store } from '@blocksuite/store';
 import { effect } from '@preact/signals-core';
 import { css, html } from 'lit';

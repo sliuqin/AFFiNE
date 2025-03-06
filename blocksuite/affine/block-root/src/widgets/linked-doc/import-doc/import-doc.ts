@@ -7,7 +7,7 @@ import {
   NotionIcon,
 } from '@blocksuite/affine-components/icons';
 import { openFileOrFiles } from '@blocksuite/affine-shared/utils';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import type { Schema, Workspace } from '@blocksuite/store';
 import { html, LitElement, type PropertyValues } from 'lit';
 import { query, state } from 'lit/decorators.js';

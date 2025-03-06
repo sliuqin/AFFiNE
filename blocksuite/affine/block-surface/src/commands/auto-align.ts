@@ -10,7 +10,7 @@ import {
   type GfxModel,
 } from '@blocksuite/block-std/gfx';
 import { Bound } from '@blocksuite/global/gfx';
-import chunk from 'lodash.chunk';
+import chunk from 'lodash-es/chunk';
 
 const ALIGN_HEIGHT = 200;
 const ALIGN_PADDING = 20;

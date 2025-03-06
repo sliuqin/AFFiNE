@@ -25,10 +25,7 @@ export class WorkspaceAccessController extends AccessController<'ws'> {
     // NOTE(@forehalo): special case for public page
     // Currently, we can not only load binary of a public Doc to render in a shared page,
     // so we need to ensure anyone has basic 'read' permission to a workspace that has public pages.
-    if (
-      !role &&
-      (await this.models.workspace.hasPublicDoc(resource.workspaceId))
-    ) {
+    if (!role && (await this.models.doc.hasPublic(resource.workspaceId))) {
       role = WorkspaceRole.External;
     }
 

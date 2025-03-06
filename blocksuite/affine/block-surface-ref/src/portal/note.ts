@@ -18,7 +18,7 @@ import {
   ShadowlessElement,
 } from '@blocksuite/block-std';
 import { deserializeXYWH } from '@blocksuite/global/gfx';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { type BlockModel, type Query } from '@blocksuite/store';
 import { css, nothing } from 'lit';
 import { property } from 'lit/decorators.js';

@@ -8,7 +8,7 @@ import {
 } from '@blocksuite/affine-shared/services';
 import type { BlockStdScope } from '@blocksuite/block-std';
 import type { GfxModel } from '@blocksuite/block-std/gfx';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { LockIcon, UnlockIcon } from '@blocksuite/icons/lit';
 import { html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';

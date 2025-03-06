@@ -11,7 +11,7 @@ import type { EditorHost } from '@blocksuite/block-std';
 import { DataSourceBase, type PropertyMetaConfig } from '@blocksuite/data-view';
 import { propertyPresets } from '@blocksuite/data-view/property-presets';
 import { BlockSuiteError } from '@blocksuite/global/exceptions';
-import { Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
 import type { Block, Store } from '@blocksuite/store';
 
 import type { BlockMeta } from './block-meta/base.js';

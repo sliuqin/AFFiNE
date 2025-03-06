@@ -7129,6 +7129,13 @@ export function useAFFiNEI18N(): {
       */
     ["error.INVALID_OAUTH_CALLBACK_STATE"](): string;
     /**
+      * `Invalid callback code parameter, provider response status: {{status}} and body: {{body}}.`
+      */
+    ["error.INVALID_OAUTH_CALLBACK_CODE"](options: Readonly<{
+        status: string;
+        body: string;
+    }>): string;
+    /**
       * `Missing query parameter `{{name}}`.`
       */
     ["error.MISSING_OAUTH_QUERY_PARAMETER"](options: {
@@ -7242,6 +7249,14 @@ export function useAFFiNEI18N(): {
       */
     ["error.SPACE_SHOULD_HAVE_ONLY_ONE_OWNER"](): string;
     /**
+      * `Owner can not leave the workspace.`
+      */
+    ["error.OWNER_CAN_NOT_LEAVE_WORKSPACE"](): string;
+    /**
+      * `You can not revoke your own permission.`
+      */
+    ["error.CAN_NOT_REVOKE_YOURSELF"](): string;
+    /**
       * `Doc {{docId}} under Space {{spaceId}} not found.`
       */
     ["error.DOC_NOT_FOUND"](options: Readonly<{
@@ -7254,6 +7269,13 @@ export function useAFFiNEI18N(): {
     ["error.DOC_ACTION_DENIED"](options: Readonly<{
         action: string;
         docId: string;
+    }>): string;
+    /**
+      * `Doc {{docId}} under Space {{spaceId}} is blocked from updating.`
+      */
+    ["error.DOC_UPDATE_BLOCKED"](options: Readonly<{
+        docId: string;
+        spaceId: string;
     }>): string;
     /**
       * `Your client with version {{version}} is rejected by remote sync server. Please upgrade to {{serverVersion}}.`

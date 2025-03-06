@@ -7,7 +7,7 @@ import {
   type Viewport,
 } from '@blocksuite/block-std/gfx';
 import { Bound } from '@blocksuite/global/gfx';
-import type { Slot } from '@blocksuite/global/utils';
+import type { Slot } from '@blocksuite/global/slot';
 import { css, html } from 'lit';
 import { query } from 'lit/decorators.js';
 

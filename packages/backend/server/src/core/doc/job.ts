@@ -32,7 +32,7 @@ export class DocStorageCronJob {
 
   @OnJob('nightly.cleanExpiredHistories')
   async cleanExpiredHistories() {
-    await this.models.doc.deleteExpiredHistories();
+    await this.models.history.cleanExpired();
   }
 
   @OnEvent('user.deleted')

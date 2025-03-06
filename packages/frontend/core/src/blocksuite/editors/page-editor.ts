@@ -4,11 +4,8 @@ import {
   ShadowlessElement,
 } from '@blocksuite/affine/block-std';
 import { PageEditorBlockSpecs, ThemeProvider } from '@blocksuite/affine/blocks';
-import {
-  noop,
-  SignalWatcher,
-  WithDisposable,
-} from '@blocksuite/affine/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
+import { noop } from '@blocksuite/affine/global/utils';
 import type { Store } from '@blocksuite/affine/store';
 import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';

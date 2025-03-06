@@ -1,8 +1,8 @@
 import {
   type GetDocRolePermissionsQuery,
   getDocRolePermissionsQuery,
+  type GetWorkspaceRolePermissionsQuery,
   getWorkspaceRolePermissionsQuery,
-  type WorkspacePermissions,
 } from '@affine/graphql';
 import { Store } from '@toeverything/infra';
 
@@ -10,7 +10,7 @@ import type { WorkspaceServerService } from '../../cloud';
 import type { WorkspaceService } from '../../workspace';
 
 export type WorkspacePermissionActions = keyof Omit<
-  WorkspacePermissions,
+  GetWorkspaceRolePermissionsQuery['workspaceRolePermissions']['permissions'],
   '__typename'
 >;
 

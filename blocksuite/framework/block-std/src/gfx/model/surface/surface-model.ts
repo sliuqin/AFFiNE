@@ -1,9 +1,5 @@
-import {
-  assertType,
-  type Constructor,
-  DisposableGroup,
-  Slot,
-} from '@blocksuite/global/utils';
+import { DisposableGroup, Slot } from '@blocksuite/global/slot';
+import { assertType, type Constructor } from '@blocksuite/global/utils';
 import type { Boxed } from '@blocksuite/store';
 import { BlockModel, nanoid } from '@blocksuite/store';
 import { signal } from '@preact/signals-core';

@@ -7,7 +7,7 @@ import {
   ShadowlessElement,
   TextSelection,
 } from '@blocksuite/block-std';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import {
   type DeltaInsert,
   INLINE_ROOT_ATTR,

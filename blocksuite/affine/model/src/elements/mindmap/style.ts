@@ -1,4 +1,5 @@
-import { isEqual, last } from '@blocksuite/global/utils';
+import isEqual from 'lodash-es/isEqual';
+import last from 'lodash-es/last';
 
 import { ConnectorMode } from '../../consts/connector.js';
 import { MindmapStyle } from '../../consts/mindmap.js';

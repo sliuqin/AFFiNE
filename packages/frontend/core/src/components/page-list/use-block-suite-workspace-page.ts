@@ -1,5 +1,5 @@
 import { DebugLogger } from '@affine/debug';
-import { DisposableGroup } from '@blocksuite/affine/global/utils';
+import { DisposableGroup } from '@blocksuite/affine/global/slot';
 import type { Store, Workspace } from '@blocksuite/affine/store';
 import { useEffect, useState } from 'react';
 

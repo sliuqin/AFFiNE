@@ -1,7 +1,7 @@
 import type { ReferenceInfo } from '@blocksuite/affine-model';
 import type { OpenDocMode } from '@blocksuite/affine-shared/services';
 import type { EditorHost } from '@blocksuite/block-std';
-import type { Slot } from '@blocksuite/global/utils';
+import type { Slot } from '@blocksuite/global/slot';
 
 export type DocLinkClickedEvent = ReferenceInfo & {
   // default is active view

@@ -1,3 +1,4 @@
+import { NoteBlockSchema } from '@blocksuite/affine-model';
 import { BlockViewExtension, FlavourExtension } from '@blocksuite/block-std';
 import type { ExtensionType } from '@blocksuite/store';
 import { literal } from 'lit/static-html.js';
@@ -8,16 +9,18 @@ import {
 } from './adapters/index.js';
 import { NoteBlockService } from './note-service.js';
 
+const flavour = NoteBlockSchema.model.flavour;
+
 export const NoteBlockSpec: ExtensionType[] = [
-  FlavourExtension('affine:note'),
+  FlavourExtension(flavour),
   NoteBlockService,
-  BlockViewExtension('affine:note', literal`affine-note`),
+  BlockViewExtension(flavour, literal`affine-note`),
   DocNoteBlockAdapterExtensions,
 ].flat();
 
 export const EdgelessNoteBlockSpec: ExtensionType[] = [
-  FlavourExtension('affine:note'),
+  FlavourExtension(flavour),
   NoteBlockService,
-  BlockViewExtension('affine:note', literal`affine-edgeless-note`),
+  BlockViewExtension(flavour, literal`affine-edgeless-note`),
   EdgelessNoteBlockAdapterExtensions,
 ].flat();

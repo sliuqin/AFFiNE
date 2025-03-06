@@ -1,5 +1,5 @@
 import { ShadowlessElement } from '@blocksuite/block-std';
-import { WithDisposable } from '@blocksuite/global/utils';
+import { WithDisposable } from '@blocksuite/global/lit';
 import { computed, effect } from '@preact/signals-core';
 import type { ReactiveController } from 'lit';
 import { css, html } from 'lit';
@@ -19,6 +19,7 @@ import {
   type TableViewSelectionWithType,
 } from '../../selection';
 import type { DatabaseCellContainer } from '../cell.js';
+import type { TableGroup } from '../group.js';
 import type { TableRow } from '../row/row.js';
 import type { DataViewTable } from '../table-view.js';
 import {
@@ -812,7 +813,8 @@ export class TableSelectionController implements ReactiveController {
     cell: DatabaseCellContainer,
     fillValues?: boolean
   ) {
-    const groupKey = cell.closest('affine-data-view-table-group')?.group?.key;
+    const groupKey = cell.closest<TableGroup>('affine-data-view-table-group')
+      ?.group?.key;
     const table = this.tableContainer;
     const scrollContainer = table?.parentElement;
     if (!table || !scrollContainer) {

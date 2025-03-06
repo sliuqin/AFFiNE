@@ -1,5 +1,5 @@
 import type { EditorHost } from '@blocksuite/affine/block-std';
-import { Slot } from '@blocksuite/affine/global/utils';
+import { Slot } from '@blocksuite/affine/global/slot';
 import { captureException } from '@sentry/react';
 
 import type { ChatContextValue } from '../chat-panel/chat-context';

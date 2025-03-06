@@ -11,7 +11,7 @@ import {
   PropTypes,
   requiredProperties,
 } from '@blocksuite/block-std';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/utils';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import type { BlockModel } from '@blocksuite/store';
 import { signal } from '@preact/signals-core';
 import { css, html, LitElement, nothing } from 'lit';

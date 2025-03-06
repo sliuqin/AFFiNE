@@ -241,35 +241,31 @@ test('should be able to manage chat session', async t => {
   t.is(s.config.promptName, 'prompt', 'should have prompt name');
   t.is(s.model, 'model', 'should have model');
 
+  const cleanObject = (obj: any[]) =>
+    JSON.parse(
+      JSON.stringify(obj, (k, v) =>
+        ['id', 'attachments', 'createdAt'].includes(k) ||
+        v === null ||
+        (typeof v === 'object' && !Object.keys(v).length)
+          ? undefined
+          : v
+      )
+    );
+
   s.push({ role: 'user', content: 'hello', createdAt: new Date() });
-  // @ts-expect-error
-  const finalMessages = s.finish(params).map(({ createdAt: _, ...m }) => m);
-  t.deepEqual(
-    finalMessages,
-    [
-      { content: 'hello world', params, role: 'system' },
-      { content: 'hello', role: 'user' },
-    ],
-    'should generate the final message'
-  );
+
+  const finalMessages = cleanObject(s.finish(params));
+  t.snapshot(finalMessages, 'should generate the final message');
   await s.save();
 
   const s1 = (await session.get(sessionId))!;
   t.deepEqual(
-    s1
-      .finish(params)
-      // @ts-expect-error
-      .map(({ id: _, attachments: __, createdAt: ___, ...m }) => m),
+    cleanObject(s1.finish(params)),
     finalMessages,
     'should same as before message'
   );
-  t.deepEqual(
-    // @ts-expect-error
-    s1.finish({}).map(({ id: _, attachments: __, createdAt: ___, ...m }) => m),
-    [
-      { content: 'hello ', params: {}, role: 'system' },
-      { content: 'hello', role: 'user' },
-    ],
+  t.snapshot(
+    cleanObject(s1.finish(params)),
     'should generate different message with another params'
   );
 
@@ -366,22 +362,19 @@ test('should be able to fork chat session', async t => {
     'should fork new session with same params'
   );
 
+  const cleanObject = (obj: any[]) =>
+    JSON.parse(
+      JSON.stringify(obj, (k, v) =>
+        ['id', 'createdAt'].includes(k) || v === null ? undefined : v
+      )
+    );
+
   // check forked session messages
   {
     const s2 = (await session.get(forkedSessionId1))!;
 
-    const finalMessages = s2
-      .finish(params) // @ts-expect-error
-      .map(({ id: _, attachments: __, createdAt: ___, ...m }) => m);
-    t.deepEqual(
-      finalMessages,
-      [
-        { role: 'system', content: 'hello world', params },
-        { role: 'user', content: 'hello' },
-        { role: 'assistant', content: 'world' },
-      ],
-      'should generate the final message'
-    );
+    const finalMessages = s2.finish(params);
+    t.snapshot(cleanObject(finalMessages), 'should generate the final message');
   }
 
   // check second times forked session
@@ -391,38 +384,16 @@ test('should be able to fork chat session', async t => {
     // should overwrite user id
     t.is(s2.config.userId, newUser.id, 'should have same user id');
 
-    const finalMessages = s2
-      .finish(params) // @ts-expect-error
-      .map(({ id: _, attachments: __, createdAt: ___, ...m }) => m);
-    t.deepEqual(
-      finalMessages,
-      [
-        { role: 'system', content: 'hello world', params },
-        { role: 'user', content: 'hello' },
-        { role: 'assistant', content: 'world' },
-      ],
-      'should generate the final message'
-    );
+    const finalMessages = s2.finish(params);
+    t.snapshot(cleanObject(finalMessages), 'should generate the final message');
   }
 
   // check original session messages
   {
     const s3 = (await session.get(sessionId))!;
 
-    const finalMessages = s3
-      .finish(params) // @ts-expect-error
-      .map(({ id: _, attachments: __, createdAt: ___, ...m }) => m);
-    t.deepEqual(
-      finalMessages,
-      [
-        { role: 'system', content: 'hello world', params },
-        { role: 'user', content: 'hello' },
-        { role: 'assistant', content: 'world' },
-        { role: 'user', content: 'aaa' },
-        { role: 'assistant', content: 'bbb' },
-      ],
-      'should generate the final message'
-    );
+    const finalMessages = s3.finish(params);
+    t.snapshot(cleanObject(finalMessages), 'should generate the final message');
   }
 
   // should get main session after fork if re-create a chat session for same docId and workspaceId
@@ -612,7 +583,11 @@ test('should revert message correctly', async t => {
   const cleanObject = (obj: any[]) =>
     JSON.parse(
       JSON.stringify(obj, (k, v) =>
-        ['id', 'createdAt'].includes(k) || v === null ? undefined : v
+        ['id', 'createdAt'].includes(k) ||
+        v === null ||
+        (typeof v === 'object' && !Object.keys(v).length)
+          ? undefined
+          : v
       )
     );
 

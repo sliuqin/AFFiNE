@@ -4,7 +4,7 @@ import {
   isGfxGroupCompatibleModel,
 } from '@blocksuite/affine/block-std/gfx';
 import { AIStarIcon, sortEdgelessElements } from '@blocksuite/affine/blocks';
-import { WithDisposable } from '@blocksuite/affine/global/utils';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { css, html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 

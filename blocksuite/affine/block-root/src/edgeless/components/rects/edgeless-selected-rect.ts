@@ -55,8 +55,8 @@ import {
   deserializeXYWH,
   normalizeDegAngle,
 } from '@blocksuite/global/gfx';
-import type { Disposable } from '@blocksuite/global/utils';
-import { assertType, pickValues, Slot } from '@blocksuite/global/utils';
+import { type Disposable, Slot } from '@blocksuite/global/slot';
+import { assertType } from '@blocksuite/global/utils';
 import { css, html, nothing } from 'lit';
 import { state } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
@@ -1310,13 +1310,17 @@ export class EdgelessSelectedRectWidget extends WidgetComponent<
       gfx.viewport.viewportUpdated.on(this._updateOnViewportChange)
     );
 
-    pickValues(gfx.surface!, [
-      'elementAdded',
-      'elementRemoved',
-      'elementUpdated',
-    ]).forEach(slot => {
-      _disposables.add(slot.on(this._updateOnElementChange));
-    });
+    if (gfx.surface) {
+      _disposables.add(
+        gfx.surface.elementAdded.on(this._updateOnElementChange)
+      );
+      _disposables.add(
+        gfx.surface.elementRemoved.on(this._updateOnElementChange)
+      );
+      _disposables.add(
+        gfx.surface.elementUpdated.on(this._updateOnElementChange)
+      );
+    }
 
     _disposables.add(
       this.doc.slots.blockUpdated.on(this._updateOnElementChange)

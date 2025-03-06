@@ -1,4 +1,4 @@
-import { Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
 import { describe, expect, test } from 'vitest';
 import * as Y from 'yjs';
 

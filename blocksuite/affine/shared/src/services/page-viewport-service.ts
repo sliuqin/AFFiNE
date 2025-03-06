@@ -1,5 +1,5 @@
 import { createIdentifier } from '@blocksuite/global/di';
-import { Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
 import type { ExtensionType } from '@blocksuite/store';
 
 import type { Viewport } from '../types';

@@ -1,4 +1,4 @@
-import { Slot } from '@blocksuite/global/utils';
+import { Slot } from '@blocksuite/global/slot';
 
 import { LifeCycleWatcher } from '../extension/index.js';
 import type { BlockComponent, WidgetComponent } from './element/index.js';

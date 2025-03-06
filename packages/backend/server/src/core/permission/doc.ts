@@ -96,7 +96,12 @@ export class DocAccessController extends AccessController<'doc'> {
   }
 
   private async defaultDocRole(workspaceId: string, docId: string) {
-    const doc = await this.models.workspace.getDoc(workspaceId, docId);
+    const doc = await this.models.doc.getMeta(workspaceId, docId, {
+      select: {
+        public: true,
+        defaultRole: true,
+      },
+    });
     return {
       external: doc?.public ? DocRole.External : null,
       workspace: doc?.defaultRole ?? DocRole.Manager,

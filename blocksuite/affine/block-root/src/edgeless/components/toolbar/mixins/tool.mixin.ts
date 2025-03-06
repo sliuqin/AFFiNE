@@ -5,11 +5,11 @@ import type {
   ToolController,
 } from '@blocksuite/block-std/gfx';
 import {
-  type Constructor,
   // oxlint-disable-next-line no-unused-vars
   type DisposableClass,
   WithDisposable,
-} from '@blocksuite/global/utils';
+} from '@blocksuite/global/lit';
+import type { Constructor } from '@blocksuite/global/utils';
 import { consume } from '@lit/context';
 import { effect } from '@preact/signals-core';
 import { cssVar } from '@toeverything/theme';

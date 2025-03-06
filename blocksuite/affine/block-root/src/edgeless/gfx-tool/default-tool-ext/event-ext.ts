@@ -1,7 +1,7 @@
 import type { PointerEventState } from '@blocksuite/block-std';
 import type { GfxElementModelView } from '@blocksuite/block-std/gfx';
 import { Bound } from '@blocksuite/global/gfx';
-import { last } from '@blocksuite/global/utils';
+import last from 'lodash-es/last';
 
 import { DefaultModeDragType, DefaultToolExt } from './ext.js';
 

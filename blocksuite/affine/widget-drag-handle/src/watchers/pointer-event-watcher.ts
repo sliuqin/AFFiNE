@@ -8,8 +8,8 @@ import {
 } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
 import { Point } from '@blocksuite/global/gfx';
-import { throttle } from '@blocksuite/global/utils';
 import { computed } from '@preact/signals-core';
+import throttle from 'lodash-es/throttle';
 
 import {
   DRAG_HANDLE_CONTAINER_WIDTH,
@@ -34,6 +34,8 @@ import {
  * Used to control the drag handle visibility in page mode
  */
 export class PointerEventWatcher {
+  private _isPointerDown = false;
+
   private get _gfx() {
     return this.widget.std.get(GfxControllerIdentifier);
   }
@@ -220,6 +222,7 @@ export class PointerEventWatcher {
 
   private readonly _throttledPointerMoveHandler = throttle<UIEventHandler>(
     ctx => {
+      if (this._isPointerDown) return;
       if (
         this.widget.doc.readonly ||
         this.widget.dragging ||
@@ -231,6 +234,10 @@ export class PointerEventWatcher {
       if (this.widget.isGfxDragHandleVisible) return;
 
       const state = ctx.get('pointerState');
+
+      // When pointer is moving, should do nothing
+      if (state.delta.x !== 0 && state.delta.y !== 0) return;
+
       const { target } = state.raw;
       const element = captureEventTarget(target);
       // When pointer not on block or on dragging, should do nothing
@@ -330,6 +337,14 @@ export class PointerEventWatcher {
     }
   };
 
+  private readonly _pointerDownHandler: UIEventHandler = () => {
+    this._isPointerDown = true;
+  };
+
+  private readonly _pointerUpHandler: UIEventHandler = () => {
+    this._isPointerDown = false;
+  };
+
   constructor(readonly widget: AffineDragHandleWidget) {}
 
   reset() {
@@ -341,5 +356,7 @@ export class PointerEventWatcher {
     this.widget.handleEvent('click', this._clickHandler);
     this.widget.handleEvent('pointerMove', this._throttledPointerMoveHandler);
     this.widget.handleEvent('pointerOut', this._pointerOutHandler);
+    this.widget.handleEvent('pointerDown', this._pointerDownHandler);
+    this.widget.handleEvent('pointerUp', this._pointerUpHandler);
   }
 }
