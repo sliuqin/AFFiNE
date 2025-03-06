@@ -1,7 +1,8 @@
 import { Container, type ServiceProvider } from '@blocksuite/global/di';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import { type Disposable, Slot } from '@blocksuite/global/utils';
+import { assertType, type Disposable, Slot } from '@blocksuite/global/utils';
 import { computed, signal } from '@preact/signals-core';
+import type * as Y from 'yjs';
 
 import type { ExtensionType } from '../../extension/extension.js';
 import {
@@ -81,6 +82,14 @@ export class Store {
           id: string;
           init: boolean;
           flavour: string;
+          model: BlockModel;
+        }
+      | {
+          type: 'move';
+          id: string;
+          flavour: string;
+          parent: string;
+          oldParent: string;
           model: BlockModel;
         }
       | {
@@ -390,6 +399,116 @@ export class Store {
     return fn(parent, index);
   }
 
+  private readonly _moveTick: WeakMap<
+    Y.Transaction,
+    {
+      moved: Set<{ newParent: string; oldParent: string; id: string }>;
+      deleted: Map<string, string>;
+      added: Map<string, string>;
+    }
+  > = new WeakMap();
+
+  private _tryEmitMoveBlockEvent(
+    block: Block,
+    sets: {
+      delete: Set<Y.Item>;
+      add: Set<Y.Item>;
+    },
+    transaction: Y.Transaction
+  ) {
+    const getAddedAndDeletedMap = () => {
+      // childId -> newParentId
+      const added = new Map<string, string>();
+      // childId -> oldParentId
+      const deleted = new Map<string, string>();
+
+      sets.add.forEach(yItem => {
+        assertType<Y.Item['content'] & { arr?: string[] }>(yItem.content);
+        yItem.content['arr']?.forEach(id => {
+          added.set(id, block.id);
+        });
+      });
+
+      sets.delete.forEach(yItem => {
+        assertType<Y.Item['content'] & { arr?: string[] }>(yItem.content);
+        yItem.content['arr']?.forEach(id => {
+          deleted.set(id, block.id);
+        });
+      });
+
+      return {
+        deleted,
+        added,
+      };
+    };
+
+    if (this._moveTick.has(transaction)) {
+      const value = this._moveTick.get(transaction)!;
+      const { added, deleted } = getAddedAndDeletedMap();
+
+      added.forEach((newParentId, id) => {
+        if (value.deleted.has(id)) {
+          const oldParent = value.deleted.get(id)!;
+          value.deleted.delete(id);
+          value.moved.add({
+            newParent: newParentId,
+            oldParent,
+            id,
+          });
+        } else {
+          value.added.set(id, newParentId);
+        }
+      });
+
+      deleted.forEach((oldParentId, id) => {
+        if (value.added.has(id)) {
+          const newParent = value.added.get(id)!;
+          value.added.delete(id);
+          value.moved.add({
+            newParent,
+            oldParent: oldParentId,
+            id,
+          });
+        } else {
+          value.deleted.set(id, oldParentId);
+        }
+      });
+    } else {
+      const value = {
+        ...getAddedAndDeletedMap(),
+        moved: new Set<{ newParent: string; oldParent: string; id: string }>(),
+      };
+
+      this._moveTick.set(transaction, value);
+
+      queueMicrotask(() => {
+        this._moveTick.delete(transaction);
+
+        const duplicated = new Set<string>();
+
+        value.moved.forEach(({ newParent, oldParent, id }) => {
+          const block = this.getBlock(id);
+
+          if (!block) return;
+
+          const payload = {
+            type: 'move' as const,
+            id,
+            flavour: block.model.flavour,
+            parent: newParent,
+            oldParent,
+            model: block.model,
+          };
+
+          if (!duplicated.has(`${id}-${oldParent}-${newParent}`)) {
+            this.slots.blockUpdated.emit(payload);
+            duplicated.add(`${id}-${oldParent}-${newParent}`);
+          }
+        });
+      });
+    }
+  }
+
   private _onBlockAdded(id: string, init = false) {
     try {
       if (id in this._blocks.peek()) {
@@ -413,6 +532,9 @@ export class Store {
             flavour: block.flavour,
             props: { key },
           });
+        },
+        onChildrenChange: (block, sets, transaction) => {
+          this._tryEmitMoveBlockEvent(block, sets, transaction);
         },
       };
 

@@ -35,6 +35,24 @@ export class SyncController {
 
   private readonly _mutex = createMutex();
 
+  private readonly _observeChildrenChanges = () => {
+    if (!this.onChildrenChange) return;
+
+    const children = this.yBlock.get('sys:children') as Y.Array<string>;
+
+    if (!children) return;
+
+    children.observe((event, tran) => {
+      this.onChildrenChange!(
+        {
+          delete: event.changes.deleted,
+          add: event.changes.added,
+        },
+        tran
+      );
+    });
+  };
+
   private readonly _observeYBlockChanges = () => {
     this.yBlock.observe(event => {
       event.keysChanged.forEach(key => {
@@ -105,7 +123,14 @@ export class SyncController {
     readonly schema: Schema,
     readonly yBlock: YBlock,
     readonly doc?: Store,
-    readonly onChange?: (key: string) => void
+    readonly onChange?: (key: string) => void,
+    readonly onChildrenChange?: (
+      sets: {
+        delete: Set<Y.Item>;
+        add: Set<Y.Item>;
+      },
+      transaction: Y.Transaction
+    ) => void
   ) {
     const { id, flavour, version, yChildren, props } = this._parseYBlock();
 
@@ -117,6 +142,7 @@ export class SyncController {
     this.model = this._createModel(props);
 
     this._observeYBlockChanges();
+    this._observeChildrenChanges();
   }
 
   private _createModel(props: UnRecord) {

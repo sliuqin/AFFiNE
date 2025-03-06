@@ -11,6 +11,14 @@ export type YBlock = Y.Map<unknown> & {
 
 export type BlockOptions = {
   onChange?: (block: Block, key: string) => void;
+  onChildrenChange?: (
+    block: Block,
+    sets: {
+      delete: Set<Y.Item>;
+      add: Set<Y.Item>;
+    },
+    transaction: Y.Transaction
+  ) => void;
 };
 
 export type BlockSysProps = {

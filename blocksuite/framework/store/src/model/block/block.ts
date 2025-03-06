@@ -1,3 +1,5 @@
+import type * as Y from 'yjs';
+
 import type { Schema } from '../../schema/index.js';
 import type { Store } from '../store/store.js';
 import { FlatSyncController } from './flat-sync-controller.js';
@@ -49,6 +51,20 @@ export class Block {
           }
           options.onChange?.(this, key);
         };
+    const onChildrenChange = !options.onChildrenChange
+      ? undefined
+      : (
+          sets: {
+            delete: Set<Y.Item>;
+            add: Set<Y.Item>;
+          },
+          transaction: Y.Transaction
+        ) => {
+          if (!this._syncController || !this.model) {
+            return;
+          }
+          options.onChildrenChange?.(this, sets, transaction);
+        };
     const flavour = yBlock.get('sys:flavour') as string;
     const blockSchema = this.schema.get(flavour);
     if (blockSchema?.model.isFlatData) {
@@ -59,7 +75,13 @@ export class Block {
         onChange
       );
     } else {
-      this._syncController = new SyncController(schema, yBlock, doc, onChange);
+      this._syncController = new SyncController(
+        schema,
+        yBlock,
+        doc,
+        onChange,
+        onChildrenChange
+      );
     }
   }
 }
