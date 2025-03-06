@@ -24,7 +24,7 @@ export class TextCell extends BaseCellRenderer<string> {
     if (this._inputEle) {
       this._inputEle.value = `${this.value ?? ''}`;
     }
-    this.onChange(str);
+    this.valueSetNextTick(str);
   };
 
   focusEnd = () => {

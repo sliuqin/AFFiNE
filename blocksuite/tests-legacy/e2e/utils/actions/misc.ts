@@ -456,6 +456,7 @@ export async function initDatabaseRowWithData(page: Page, data: string) {
   await initDatabaseRow(page);
   await waitNextFrame(page, 50);
   await type(page, data);
+  await pressEscape(page);
 }
 export const getAddRow = (page: Page): Locator => {
   return page.locator('.data-view-table-group-add-row');
@@ -479,6 +480,7 @@ export async function initDatabaseDynamicRowWithData(
   await pressEnter(page);
   await waitNextFrame(page);
   await type(page, data);
+  await waitNextFrame(page);
   await pressEnter(page);
 }
 

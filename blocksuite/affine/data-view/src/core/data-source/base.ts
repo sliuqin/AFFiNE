@@ -197,7 +197,7 @@ export abstract class DataSourceBase implements DataSource {
     return computed(() => this.propertyReadonlyGet(propertyId));
   }
 
-  abstract propertyTypeGet(propertyId: string): string;
+  abstract propertyTypeGet(propertyId: string): string | undefined;
 
   propertyTypeGet$(propertyId: string): ReadonlySignal<string | undefined> {
     return computed(() => this.propertyTypeGet(propertyId));

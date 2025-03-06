@@ -163,6 +163,9 @@ export class DatabaseBlockDataSource extends DataSourceBase {
     this._runCapture();
 
     const type = this.propertyTypeGet(propertyId);
+    if (type == null) {
+      return;
+    }
     const update = this.propertyMetaGet(type).config.valueUpdate;
     let newValue = value;
     if (update) {
@@ -195,11 +198,13 @@ export class DatabaseBlockDataSource extends DataSourceBase {
       const model = this.getModelById(rowId);
       return model?.text;
     }
+    if (type == null) {
+      return;
+    }
     const value = getCell(this._model, rowId, propertyId)?.value;
     const meta = this.propertyMetaGet(type);
     const result = meta.config.valueSchema.safeParse(value);
     if (!result.success) {
-      console.error(result.error);
       return undefined;
     }
     return result.data;
@@ -386,13 +391,13 @@ export class DatabaseBlockDataSource extends DataSourceBase {
     return false;
   }
 
-  propertyTypeGet(propertyId: string): string {
+  propertyTypeGet(propertyId: string): string | undefined {
     if (propertyId === 'type') {
       return 'image';
     }
     const result = this.getPropertyAndIndex(propertyId);
     if (!result) {
-      return '';
+      return;
     }
     return result.column.type;
   }

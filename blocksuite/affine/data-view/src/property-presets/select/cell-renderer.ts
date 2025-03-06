@@ -23,7 +23,7 @@ export class SelectCell extends BaseCellRenderer<string, SelectPropertyData> {
         onOptionsChange: this._onOptionsChange,
         value: this._value$,
         onChange: v => {
-          this.onChange(v[0]);
+          this.valueSetImmediate(v[0]);
         },
         onComplete: this._editComplete,
         minWidth: 400,

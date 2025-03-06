@@ -320,9 +320,7 @@ test('can show database backlink info', async ({ page }) => {
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('Enter');
   await page.keyboard.type('Done');
-  await page
-    .locator('affine-multi-tag-select .select-option:has-text("Done")')
-    .click();
+  await page.keyboard.press('Enter');
 
   // go back to title cell
   await page.keyboard.press('ArrowLeft');

@@ -122,7 +122,8 @@ export class DateCell extends BaseCellRenderer<number> {
       return;
     }
 
-    this.onChange(tempValue?.getTime());
+    const time = tempValue?.getTime();
+    this.valueSetNextTick(time);
     this.tempValue$.value = undefined;
   };
 

@@ -21,7 +21,8 @@ import { IS_MAC } from '@blocksuite/global/env';
 import type { DeltaInsert } from '@blocksuite/inline';
 import type { BlockSnapshot } from '@blocksuite/store';
 import { Text } from '@blocksuite/store';
-import { createRef, ref } from 'lit/directives/ref.js';
+import { computed, effect, signal } from '@preact/signals-core';
+import { ref } from 'lit/directives/ref.js';
 import { html } from 'lit/static-html.js';
 
 import { HostContextKey } from '../../context/host-context.js';
@@ -81,9 +82,9 @@ function toggleStyle(
 }
 
 export class RichTextCell extends BaseCellRenderer<Text> {
-  get inlineEditor() {
-    return this.richText.value?.inlineEditor;
-  }
+  inlineEditor$ = computed(() => {
+    return this.richText$.value?.inlineEditor;
+  });
 
   get inlineManager() {
     return this.view
@@ -101,7 +102,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
     return this.view.contextGet(HostContextKey);
   }
 
-  private readonly richText = createRef<RichText>();
+  private readonly richText$ = signal<RichText>();
 
   private changeUserSelectAccordToReadOnly() {
     if (this && this instanceof HTMLElement) {
@@ -130,7 +131,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
       return;
     }
 
-    const inlineEditor = this.inlineEditor;
+    const inlineEditor = this.inlineEditor$.value;
     if (!inlineEditor) return;
 
     switch (event.key) {
@@ -181,17 +182,17 @@ export class RichTextCell extends BaseCellRenderer<Text> {
 
   private readonly _initYText = (text?: string) => {
     const yText = new Text(text);
-    this.onChange(yText);
+    this.valueSetImmediate(yText);
   };
 
   private readonly _onSoftEnter = () => {
-    if (this.value && this.inlineEditor) {
-      const inlineRange = this.inlineEditor.getInlineRange();
+    if (this.value && this.inlineEditor$.value) {
+      const inlineRange = this.inlineEditor$.value.getInlineRange();
       if (!inlineRange) return;
 
-      const text = new Text(this.inlineEditor.yText);
+      const text = new Text(this.inlineEditor$.value.yText);
       text.replace(inlineRange.index, inlineRange.length, '\n');
-      this.inlineEditor.setInlineRange({
+      this.inlineEditor$.value.setInlineRange({
         index: inlineRange.index + 1,
         length: 0,
       });
@@ -199,7 +200,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
   };
 
   private readonly _onCopy = (e: ClipboardEvent) => {
-    const inlineEditor = this.inlineEditor;
+    const inlineEditor = this.inlineEditor$.value;
     if (!inlineEditor) return;
 
     const inlineRange = inlineEditor.getInlineRange();
@@ -216,7 +217,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
   };
 
   private readonly _onCut = (e: ClipboardEvent) => {
-    const inlineEditor = this.inlineEditor;
+    const inlineEditor = this.inlineEditor$.value;
     if (!inlineEditor) return;
 
     const inlineRange = inlineEditor.getInlineRange();
@@ -238,7 +239,9 @@ export class RichTextCell extends BaseCellRenderer<Text> {
   };
 
   private readonly _onPaste = (e: ClipboardEvent) => {
-    const inlineEditor = this.inlineEditor;
+    e.preventDefault();
+    e.stopPropagation();
+    const inlineEditor = this.inlineEditor$.value;
     if (!inlineEditor) return;
 
     const inlineRange = inlineEditor.getInlineRange();
@@ -259,6 +262,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
         const deltas = (
           JSON.parse(snapshot).snapshot.content as BlockSnapshot[]
         ).flatMap(getDeltas);
+        console.log(deltas);
         deltas.forEach(delta => this.insertDelta(delta));
         return;
       } catch {
@@ -269,8 +273,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
       ?.getData('text/plain')
       ?.replace(/\r?\n|\r/g, '\n');
     if (!text) return;
-    e.preventDefault();
-    e.stopPropagation();
+
     if (isValidUrl(text)) {
       const std = this.std;
       const result = std?.getOptional(ParseDocUrlProvider)?.parseDocUrl(text);
@@ -309,6 +312,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
         });
       }
     } else {
+      console.log(text);
       inlineEditor.insertText(inlineRange, text);
       inlineEditor.setInlineRange({
         index: inlineRange.index + text.length,
@@ -327,36 +331,37 @@ export class RichTextCell extends BaseCellRenderer<Text> {
       if (e.key === 'a' && (IS_MAC ? e.metaKey : e.ctrlKey)) {
         e.stopPropagation();
         e.preventDefault();
-        this.inlineEditor?.selectAll();
+        this.inlineEditor$.value?.selectAll();
       }
     };
     this.addEventListener('keydown', selectAll);
     this.disposables.addFromEvent(this, 'keydown', selectAll);
-  }
-
-  override firstUpdated() {
-    this.richText.value?.updateComplete
-      .then(() => {
-        const inlineEditor = this.inlineEditor;
-        if (!inlineEditor) return;
-
-        this.disposables.add(
-          inlineEditor.slots.keydown.on(this._handleKeyDown)
-        );
-
-        this.disposables.addFromEvent(
-          this.richText.value,
-          'copy',
-          this._onCopy
-        );
-        this.disposables.addFromEvent(this.richText.value, 'cut', this._onCut);
-        this.disposables.addFromEvent(
-          this.richText.value,
-          'paste',
-          this._onPaste
-        );
+    this.disposables.add(
+      effect(() => {
+        const editor = this.inlineEditor$.value;
+        if (editor) {
+          const disposable = editor.slots.keydown.on(this._handleKeyDown);
+          return () => disposable.dispose();
+        }
+        return;
       })
-      .catch(console.error);
+    );
+    this.disposables.add(
+      effect(() => {
+        const richText = this.richText$.value;
+        if (richText) {
+          richText.addEventListener('copy', this._onCopy, true);
+          richText.addEventListener('cut', this._onCut, true);
+          richText.addEventListener('paste', this._onPaste, true);
+          return () => {
+            richText.removeEventListener('copy', this._onCopy);
+            richText.removeEventListener('cut', this._onCut);
+            richText.removeEventListener('paste', this._onPaste);
+          };
+        }
+        return;
+      })
+    );
   }
 
   override beforeEnterEditMode() {
@@ -367,7 +372,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
   }
 
   override afterEnterEditingMode() {
-    this.inlineEditor?.focusEnd();
+    this.inlineEditor$.value?.focusEnd();
   }
 
   override render() {
@@ -375,7 +380,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
       return html` <div class="${richTextContainerStyle}"></div>`;
     }
     return html` <rich-text
-      ${ref(this.richText)}
+      ${ref(this.richText$)}
       data-disable-ask-ai
       data-not-block-text
       .yText="${this.value}"
@@ -384,7 +389,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
       .attributeRenderer="${this.inlineManager?.getRenderer()}"
       .embedChecker="${this.inlineManager?.embedChecker}"
       .markdownMatches="${this.inlineManager?.markdownMatches}"
-      .readonly="${!this.isEditing$.value}"
+      .readonly="${!this.isEditing$.value || this.readonly}"
       .verticalScrollContainerGetter="${() =>
         this.topContenteditableElement?.host
           ? getViewportElement(this.topContenteditableElement.host)
@@ -398,7 +403,7 @@ export class RichTextCell extends BaseCellRenderer<Text> {
   }
 
   insertDelta = (delta: DeltaInsert<AffineTextAttributes>) => {
-    const inlineEditor = this.inlineEditor;
+    const inlineEditor = this.inlineEditor$.value;
     const range = inlineEditor?.getInlineRange();
     if (!range || !delta.insert) {
       return;

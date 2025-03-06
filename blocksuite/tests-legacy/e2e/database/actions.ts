@@ -134,7 +134,7 @@ export const getDatabaseColumnCells = (page: Page, columnIndex: number) => {
 };
 
 export async function clickSelectOption(page: Page, index = 0) {
-  await page.locator('.select-option-icon').nth(index).click();
+  await page.getByTestId('option-more').nth(index).click();
 }
 
 export async function performSelectColumnTagAction(
@@ -184,14 +184,10 @@ export async function assertDatabaseCellRichTexts(
     `affine-database-cell-container[data-row-index='${rowIndex}'][data-column-index='${columnIndex}']`
   );
 
-  const cellEditing = cellContainer.locator(
-    'affine-database-rich-text-cell-editing'
-  );
   const cell = cellContainer.locator('affine-database-rich-text-cell');
 
-  const richText = (await cellEditing.count()) === 0 ? cell : cellEditing;
-  const actualTexts = await richText.evaluate(ele => {
-    return (ele as RichTextCell).inlineEditor?.yTextString;
+  const actualTexts = await cell.evaluate(ele => {
+    return (ele as RichTextCell).inlineEditor$.value?.yTextString;
   });
   expect(actualTexts).toEqual(text);
 }
@@ -244,7 +240,7 @@ export async function assertDatabaseCellLink(
         cell?.querySelector<RichTextCell>('affine-database-link-cell') ??
         cell?.querySelector<RichTextCell>('affine-database-link-cell');
       if (!richText) throw new Error('Missing database rich text cell');
-      return richText.inlineEditor!.yText.toString();
+      return richText.inlineEditor$.value!.yText.toString();
     },
     { rowIndex, columnIndex }
   );

@@ -10,7 +10,7 @@ import {
   type VLine,
 } from '@blocksuite/inline';
 import { Text } from '@blocksuite/store';
-import { effect } from '@preact/signals-core';
+import { effect, signal } from '@preact/signals-core';
 import { css, html, type TemplateResult } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
@@ -57,7 +57,7 @@ export class RichText extends WithDisposable(ShadowlessElement) {
 
   #verticalScrollContainer: HTMLElement | null = null;
 
-  private _inlineEditor: AffineInlineEditor | null = null;
+  private readonly _inlineEditor$ = signal<AffineInlineEditor | null>(null);
 
   private readonly _onCopy = (e: ClipboardEvent) => {
     const inlineEditor = this.inlineEditor;
@@ -144,7 +144,7 @@ export class RichText extends WithDisposable(ShadowlessElement) {
 
   // It will listen ctrl+z/ctrl+shift+z and call undoManager.undo/redo, keydown event will not
   get inlineEditor() {
-    return this._inlineEditor;
+    return this._inlineEditor$.value;
   }
 
   get inlineEditorContainer() {
@@ -152,7 +152,7 @@ export class RichText extends WithDisposable(ShadowlessElement) {
   }
 
   private _init() {
-    if (this._inlineEditor) {
+    if (this.inlineEditor) {
       console.error('Inline editor already exists.');
       return;
     }
@@ -162,22 +162,25 @@ export class RichText extends WithDisposable(ShadowlessElement) {
     }
 
     // init inline editor
-    this._inlineEditor = new InlineEditor<AffineTextAttributes>(this._yText, {
-      isEmbed: delta => this.embedChecker(delta),
-      hooks: {
-        beforeinput: onVBeforeinput,
-        compositionEnd: onVCompositionEnd,
-      },
-      inlineRangeProvider: this.inlineRangeProvider,
-      vLineRenderer: this.vLineRenderer,
-    });
+    this._inlineEditor$.value = new InlineEditor<AffineTextAttributes>(
+      this._yText,
+      {
+        isEmbed: delta => this.embedChecker(delta),
+        hooks: {
+          beforeinput: onVBeforeinput,
+          compositionEnd: onVCompositionEnd,
+        },
+        inlineRangeProvider: this.inlineRangeProvider,
+        vLineRenderer: this.vLineRenderer,
+      }
+    );
+    const inlineEditor = this._inlineEditor$.value;
     if (this.attributesSchema) {
-      this._inlineEditor.setAttributeSchema(this.attributesSchema);
+      inlineEditor.setAttributeSchema(this.attributesSchema);
     }
     if (this.attributeRenderer) {
-      this._inlineEditor.setAttributeRenderer(this.attributeRenderer);
+      inlineEditor.setAttributeRenderer(this.attributeRenderer);
     }
-    const inlineEditor = this._inlineEditor;
 
     const markdownMatches = this.markdownMatches;
     if (markdownMatches) {
@@ -291,7 +294,7 @@ export class RichText extends WithDisposable(ShadowlessElement) {
     if (this.inlineEditor?.mounted) {
       this.inlineEditor.unmount();
     }
-    this._inlineEditor = null;
+    this._inlineEditor$.value = null;
   }
 
   override connectedCallback() {
@@ -384,8 +387,8 @@ export class RichText extends WithDisposable(ShadowlessElement) {
       this._init();
       return;
     }
-    if (this._inlineEditor && changedProperties.has('readonly')) {
-      this._inlineEditor.setReadonly(this.readonly);
+    if (this.inlineEditor && changedProperties.has('readonly')) {
+      this.inlineEditor.setReadonly(this.readonly);
     }
   }
 

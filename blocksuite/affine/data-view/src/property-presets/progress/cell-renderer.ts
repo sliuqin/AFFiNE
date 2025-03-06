@@ -98,7 +98,8 @@ export class ProgressCell extends BaseCellRenderer<number> {
   }
 
   override beforeExitEditingMode() {
-    this.onChange(this._value);
+    const value = this._value;
+    this.valueSetNextTick(value);
   }
 
   override onPaste(_e: ClipboardEvent) {
@@ -131,7 +132,7 @@ export class ProgressCell extends BaseCellRenderer<number> {
             >
               <div class="${progressFgStyle}" style=${fgStyles}></div>
               ${this.isEditing$.value
-                ? html`<div
+                ? html` <div
                     class="${progressDragHandleStyle}"
                     data-testid="progress-drag-handle"
                     style=${styleMap({

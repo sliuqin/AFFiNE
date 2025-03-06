@@ -101,8 +101,14 @@ export abstract class BaseCellRenderer<
     this.requestUpdate();
   }
 
-  onChange(value: Value | undefined): void {
+  valueSetImmediate(value: Value | undefined): void {
     this.cell.valueSet(value);
+  }
+
+  valueSetNextTick(value: Value | undefined) {
+    requestAnimationFrame(() => {
+      this.cell.valueSet(value);
+    });
   }
 
   onCopy(_e: ClipboardEvent) {}

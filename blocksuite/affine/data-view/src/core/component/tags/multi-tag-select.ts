@@ -348,7 +348,7 @@ export class MultiTagSelect extends SignalWatcher(
       backgroundColor: color,
     });
     return html` <div class="${tagContainerStyle}" style=${style}>
-      <div class="${tagTextStyle}">${name}</div>
+      <div data-testid="tag-name" class="${tagTextStyle}">${name}</div>
       ${onDelete
         ? html` <div class="${tagDeleteIconStyle}" @click="${onDelete}">
             ${CloseIcon()}
@@ -365,7 +365,7 @@ export class MultiTagSelect extends SignalWatcher(
         )};margin: 4px 0;"
       ></div>
       <div class="${selectOptionsTipsStyle}">Select tag or create one</div>
-      <div class="${selectOptionsContainerStyle}">
+      <div data-testid="tag-option-list" class="${selectOptionsContainerStyle}">
         ${repeat(
           this.tagManager.filteredOptions$.value,
           select => select.id,
@@ -406,6 +406,7 @@ export class MultiTagSelect extends SignalWatcher(
                   ? html` <div
                       class="${selectOptionIconStyle}"
                       @click="${clickOption}"
+                      data-testid="option-more"
                     >
                       ${MoreHorizontalIcon()}
                     </div>`

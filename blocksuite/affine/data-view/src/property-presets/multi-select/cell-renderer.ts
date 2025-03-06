@@ -24,7 +24,7 @@ export class MultiSelectCell extends BaseCellRenderer<
         onOptionsChange: this._onOptionsChange,
         value: this._value$,
         onChange: v => {
-          this.onChange(v);
+          this.valueSetImmediate(v);
         },
         onComplete: this._editComplete,
         minWidth: 400,

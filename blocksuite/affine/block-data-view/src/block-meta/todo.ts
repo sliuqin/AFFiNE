@@ -36,7 +36,7 @@ todoMeta.addProperty({
   metaConfig: propertyPresets.checkboxPropertyConfig,
   get: block => block.checked,
   set: (block, value) => {
-    block.checked = value;
+    block.checked = value ?? false;
   },
   updated: (block, callback) => {
     return block.propsUpdated.on(({ key }) => {

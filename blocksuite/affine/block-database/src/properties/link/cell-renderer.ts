@@ -53,10 +53,7 @@ export class LinkCell extends BaseCellRenderer<string> {
 
   private readonly _onKeydown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.isComposing) {
-      this._setValue();
-      requestAnimationFrame(() => {
-        this.selectCurrentCell(false);
-      });
+      this.selectCurrentCell(false);
     }
   };
 
@@ -68,7 +65,7 @@ export class LinkCell extends BaseCellRenderer<string> {
       url = normalizeUrl(value);
     }
 
-    this.onChange(url);
+    this.valueSetNextTick(url);
     if (this._container.value) {
       this._container.value.value = url;
     }
@@ -141,7 +138,7 @@ export class LinkCell extends BaseCellRenderer<string> {
               >`
             : isValidUrl(linkText)
               ? html`<a
-                  date-testid="property-link-a"
+                  data-testid="property-link-a"
                   class="${inlineLinkNodeStyle}"
                   href="${linkText}"
                   rel="noopener noreferrer"
@@ -152,7 +149,11 @@ export class LinkCell extends BaseCellRenderer<string> {
         </div>
         ${hasLink
           ? html` <div class="${linkIconContainerStyle} ${showLinkIconStyle}">
-              <div class="${linkIconStyle}" @click="${this._onEdit}">
+              <div
+                class="${linkIconStyle}"
+                data-testid="edit-link-button"
+                @click="${this._onEdit}"
+              >
                 ${EditIcon()}
               </div>
             </div>`

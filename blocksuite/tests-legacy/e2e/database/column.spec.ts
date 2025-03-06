@@ -416,7 +416,7 @@ test.describe('switch column type', () => {
       columnType: 'progress',
     });
     const progress = cell.getByTestId('progress');
-    expect(await progress.textContent()).toBe('0');
+    expect((await progress.textContent())?.trim()).toBe('0');
     await waitNextFrame(page, 500);
     const progressBg = cell.getByTestId('progress-background');
     const {
@@ -475,9 +475,10 @@ test.describe('switch column type', () => {
     await cell.hover();
     const linkEdit = getDatabaseCell(page, {
       rowIndex: 0,
-      columnType: 'link-icon',
-    });
+      columnType: 'link',
+    }).getByTestId('edit-link-button');
     await linkEdit.click();
+    await waitNextFrame(page);
     await selectAllByKeyboard(page);
     await type(page, 'abc');
     await pressEnter(page);
@@ -499,7 +500,7 @@ test.describe('select column tag action', () => {
     await pressArrowRight(page);
     await type(page, '4567abc00');
     await pressEnter(page);
-    const options = page.locator('.select-options-container .tag-text');
+    const options = page.getByTestId('tag-option-list').getByTestId('tag-name');
     expect(await options.nth(0).innerText()).toBe('abc4567abc00');
     expect(await options.nth(1).innerText()).toBe('123');
   });
@@ -517,7 +518,7 @@ test.describe('select column tag action', () => {
     // esc
     await pressEscape(page);
     await pressEscape(page);
-    const options = page.locator('.select-options-container .tag-text');
+    const options = page.getByTestId('tag-option-list').getByTestId('tag-name');
     const option1 = options.nth(0);
     expect(await option1.innerText()).toBe('123456');
   });

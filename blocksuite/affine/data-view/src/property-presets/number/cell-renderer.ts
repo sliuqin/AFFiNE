@@ -53,7 +53,7 @@ export class NumberCell extends BaseCellRenderer<
 
   private readonly _setValue = (str: string = this._inputEle?.value) => {
     if (!str) {
-      this.onChange(undefined);
+      this.valueSetNextTick(undefined);
       return;
     }
 
@@ -72,7 +72,7 @@ export class NumberCell extends BaseCellRenderer<
     if (this._inputEle) {
       this._inputEle.value = this._getFormattedString(value);
     }
-    this.onChange(value);
+    this.valueSetNextTick(value);
   };
 
   focusEnd = () => {
