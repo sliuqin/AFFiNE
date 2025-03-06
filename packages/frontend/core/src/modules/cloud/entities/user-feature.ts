@@ -1,6 +1,5 @@
 import { FeatureType } from '@affine/graphql';
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   Entity,
@@ -9,10 +8,10 @@ import {
   LiveData,
   onComplete,
   onStart,
+  smartRetry,
 } from '@toeverything/infra';
 import { EMPTY, map, mergeMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../error';
 import type { AuthService } from '../services/auth';
 import type { UserFeatureStore } from '../stores/user-feature';
 
@@ -59,13 +58,7 @@ export class UserFeature extends Entity {
             features: features,
           };
         }).pipe(
-          backoffRetry({
-            when: isNetworkError,
-            count: Infinity,
-          }),
-          backoffRetry({
-            when: isBackendError,
-          }),
+          smartRetry(),
           mergeMap(data => {
             if (data) {
               this.features$.next(data.features);

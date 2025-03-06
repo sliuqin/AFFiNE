@@ -20,12 +20,9 @@ import { WorkspaceQuotaService } from '@affine/core/modules/quota';
 import { WorkspaceShareSettingService } from '@affine/core/modules/share-setting';
 import { copyTextToClipboard } from '@affine/core/utils/clipboard';
 import { emailRegex } from '@affine/core/utils/email-regex';
+import { UserFriendlyError } from '@affine/error';
 import type { WorkspaceInviteLinkExpireTime } from '@affine/graphql';
-import {
-  ServerDeploymentType,
-  SubscriptionPlan,
-  UserFriendlyError,
-} from '@affine/graphql';
+import { ServerDeploymentType, SubscriptionPlan } from '@affine/graphql';
 import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
 import { ExportIcon } from '@blocksuite/icons/rc';
@@ -129,7 +126,7 @@ export const CloudWorkspaceMembersPanel = ({
         message: t['com.affine.payment.resume.success.team.message'](),
       });
     } catch (err) {
-      const error = UserFriendlyError.fromAnyError(err);
+      const error = UserFriendlyError.fromAny(err);
       notify.error({
         title: error.name,
         message: error.message,
@@ -299,7 +296,7 @@ export const CloudWorkspaceMembersPanel = ({
       return (
         <span className={styles.errorStyle}>
           {error
-            ? UserFriendlyError.fromAnyError(error).message
+            ? UserFriendlyError.fromAny(error).message
             : 'Failed to load members'}
         </span>
       );

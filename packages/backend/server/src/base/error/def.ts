@@ -5,6 +5,7 @@ import { HttpStatus, Logger } from '@nestjs/common';
 import { ClsServiceManager } from 'nestjs-cls';
 
 export type UserFriendlyErrorBaseType =
+  | 'network_error'
   | 'bad_request'
   | 'too_many_requests'
   | 'resource_not_found'
@@ -26,6 +27,7 @@ export type UserFriendlyErrorOptions = {
 };
 
 const BaseTypeToHttpStatusMap: Record<UserFriendlyErrorBaseType, HttpStatus> = {
+  network_error: HttpStatus.GATEWAY_TIMEOUT,
   too_many_requests: HttpStatus.TOO_MANY_REQUESTS,
   bad_request: HttpStatus.BAD_REQUEST,
   resource_not_found: HttpStatus.NOT_FOUND,
@@ -238,6 +240,10 @@ export const USER_FRIENDLY_ERRORS = {
   internal_server_error: {
     type: 'internal_server_error',
     message: 'An internal error occurred.',
+  },
+  network_error: {
+    type: 'network_error',
+    message: 'Network error.',
   },
   too_many_request: {
     type: 'too_many_requests',

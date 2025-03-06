@@ -1,6 +1,5 @@
 import type { InvoicesQuery } from '@affine/graphql';
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   Entity,
@@ -9,10 +8,10 @@ import {
   LiveData,
   onComplete,
   onStart,
+  smartRetry,
 } from '@toeverything/infra';
 import { EMPTY, map, mergeMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../error';
 import type { InvoicesStore } from '../stores/invoices';
 
 export type Invoice = NonNullable<
@@ -50,13 +49,7 @@ export class Invoices extends Entity {
             this.pageInvoices$.setValue(data.invoices);
             return EMPTY;
           }),
-          backoffRetry({
-            when: isNetworkError,
-            count: Infinity,
-          }),
-          backoffRetry({
-            when: isBackendError,
-          }),
+          smartRetry(),
           catchErrorInto(this.error$),
           onStart(() => {
             this.pageInvoices$.setValue(undefined);

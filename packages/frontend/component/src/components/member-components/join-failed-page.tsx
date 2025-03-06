@@ -1,9 +1,6 @@
 import { AuthPageContainer } from '@affine/component/auth-components';
-import {
-  ErrorNames,
-  type GetInviteInfoQuery,
-  UserFriendlyError,
-} from '@affine/graphql';
+import { UserFriendlyError } from '@affine/error';
+import { ErrorNames, type GetInviteInfoQuery } from '@affine/graphql';
 import { Trans, useI18n } from '@affine/i18n';
 
 import { Avatar } from '../../ui/avatar';
@@ -16,7 +13,7 @@ export const JoinFailedPage = ({
   inviteInfo: GetInviteInfoQuery['getInviteInfo'];
   error?: any;
 }) => {
-  const userFriendlyError = UserFriendlyError.fromAnyError(error);
+  const userFriendlyError = UserFriendlyError.fromAny(error);
   const t = useI18n();
   return (
     <AuthPageContainer

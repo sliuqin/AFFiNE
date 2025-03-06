@@ -8,7 +8,7 @@ import {
 import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import { WorkspaceQuotaService } from '@affine/core/modules/quota';
 import { WorkspaceService } from '@affine/core/modules/workspace';
-import { UserFriendlyError } from '@affine/graphql';
+import { UserFriendlyError } from '@affine/error';
 import { Trans, useI18n } from '@affine/i18n';
 import { useLiveData, useService } from '@toeverything/infra';
 import clsx from 'clsx';
@@ -91,7 +91,7 @@ export const SelfHostTeamCard = () => {
           setLoading(false);
 
           console.error(e);
-          const error = UserFriendlyError.fromAnyError(e);
+          const error = UserFriendlyError.fromAny(e);
 
           notify.error({
             title: error.name,
@@ -119,7 +119,7 @@ export const SelfHostTeamCard = () => {
         setLoading(false);
 
         console.error(e);
-        const error = UserFriendlyError.fromAnyError(e);
+        const error = UserFriendlyError.fromAny(e);
 
         notify.error({
           title: error.name,

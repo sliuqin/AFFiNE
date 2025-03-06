@@ -1,5 +1,4 @@
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   Entity,
@@ -8,10 +7,10 @@ import {
   LiveData,
   onComplete,
   onStart,
+  smartRetry,
 } from '@toeverything/infra';
 import { EMPTY, map, mergeMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../error';
 import type { AuthService } from '../services/auth';
 import type { ServerService } from '../services/server';
 import type { UserCopilotQuotaStore } from '../stores/user-copilot-quota';
@@ -54,13 +53,7 @@ export class UserCopilotQuota extends Entity {
 
           return aiQuota;
         }).pipe(
-          backoffRetry({
-            when: isNetworkError,
-            count: Infinity,
-          }),
-          backoffRetry({
-            when: isBackendError,
-          }),
+          smartRetry(),
           mergeMap(data => {
             if (data) {
               const { limit, used } = data;

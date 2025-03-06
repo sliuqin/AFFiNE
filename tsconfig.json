@@ -95,6 +95,7 @@
     { "path": "./packages/backend/server" },
     { "path": "./packages/common/debug" },
     { "path": "./packages/common/env" },
+    { "path": "./packages/common/error" },
     { "path": "./packages/common/infra" },
     { "path": "./packages/common/nbstore" },
     { "path": "./packages/frontend/admin" },

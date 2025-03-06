@@ -1,12 +1,6 @@
 export type { Invoice } from './entities/invoices';
 export { Server } from './entities/server';
 export type { AuthAccountInfo } from './entities/session';
-export {
-  BackendError,
-  isBackendError,
-  isNetworkError,
-  NetworkError,
-} from './error';
 export { AccountChanged } from './events/account-changed';
 export { AccountLoggedIn } from './events/account-logged-in';
 export { AccountLoggedOut } from './events/account-logged-out';

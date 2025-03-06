@@ -3,7 +3,7 @@ import {
   ExpiredPage,
   JoinFailedPage,
 } from '@affine/component/member-components';
-import { ErrorNames, UserFriendlyError } from '@affine/graphql';
+import { UserFriendlyError } from '@affine/error';
 import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useEffect } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
@@ -43,8 +43,8 @@ const AcceptInvite = ({ inviteId: targetInviteId }: { inviteId: string }) => {
 
   useEffect(() => {
     if (error && inviteId === targetInviteId) {
-      const err = UserFriendlyError.fromAnyError(error);
-      if (err.name === ErrorNames.ALREADY_IN_SPACE) {
+      const err = UserFriendlyError.fromAny(error);
+      if (err.is('ALREADY_IN_SPACE')) {
         return navigateHelper.jumpToIndex();
       }
     }

@@ -10,6 +10,12 @@ export class InternalServerError extends UserFriendlyError {
   }
 }
 
+export class NetworkError extends UserFriendlyError {
+  constructor(message?: string) {
+    super('network_error', 'network_error', message);
+  }
+}
+
 export class TooManyRequest extends UserFriendlyError {
   constructor(message?: string) {
     super('too_many_requests', 'too_many_request', message);
@@ -841,6 +847,7 @@ export class UnsupportedClientVersion extends UserFriendlyError {
 }
 export enum ErrorNames {
   INTERNAL_SERVER_ERROR,
+  NETWORK_ERROR,
   TOO_MANY_REQUEST,
   NOT_FOUND,
   BAD_REQUEST,

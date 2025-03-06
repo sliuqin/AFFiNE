@@ -4,6 +4,7 @@ import {
   UnauthorizedError,
 } from '@affine/core/blocksuite/ai/components/ai-item/types';
 import { showAILoginRequiredAtom } from '@affine/core/components/affine/auth/ai-login-required';
+import type { UserFriendlyError } from '@affine/error';
 import {
   addContextDocMutation,
   cleanupCopilotSessionMutation,
@@ -14,7 +15,6 @@ import {
   getCopilotHistoriesQuery,
   getCopilotHistoryIdsQuery,
   getCopilotSessionsQuery,
-  GraphQLError,
   type GraphQLQuery,
   listContextDocsAndFilesQuery,
   listContextQuery,
@@ -23,7 +23,6 @@ import {
   removeContextDocMutation,
   type RequestOptions,
   updateCopilotSessionMutation,
-  UserFriendlyError,
 } from '@affine/graphql';
 import { getCurrentStore } from '@toeverything/infra';
 
@@ -46,12 +45,7 @@ function codeToError(error: UserFriendlyError) {
 }
 
 export function resolveError(err: any) {
-  const standardError =
-    err instanceof GraphQLError
-      ? new UserFriendlyError(err.extensions)
-      : UserFriendlyError.fromAnyError(err);
-
-  return codeToError(standardError);
+  return codeToError(err);
 }
 
 export function handleError(src: any) {

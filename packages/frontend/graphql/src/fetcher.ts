@@ -1,8 +1,8 @@
 import { DebugLogger } from '@affine/debug';
+import { GraphQLError } from '@affine/error';
 import type { ExecutionResult } from 'graphql';
 import { isNil, isObject, merge } from 'lodash-es';
 
-import { GraphQLError } from './error';
 import type { GraphQLQuery } from './graphql';
 import type { Mutations, Queries } from './schema';
 

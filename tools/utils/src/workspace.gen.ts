@@ -600,11 +600,17 @@ export const PackageList = [
     workspaceDependencies: [],
   },
   {
+    location: 'packages/common/error',
+    name: '@affine/error',
+    workspaceDependencies: [],
+  },
+  {
     location: 'packages/common/infra',
     name: '@toeverything/infra',
     workspaceDependencies: [
       'packages/common/debug',
       'packages/common/env',
+      'packages/common/error',
       'packages/frontend/templates',
     ],
   },
@@ -704,6 +710,7 @@ export const PackageList = [
     workspaceDependencies: [
       'packages/common/debug',
       'packages/frontend/electron-api',
+      'packages/common/error',
       'packages/frontend/graphql',
       'packages/frontend/i18n',
       'tools/utils',
@@ -718,6 +725,7 @@ export const PackageList = [
       'packages/common/debug',
       'packages/frontend/electron-api',
       'packages/common/env',
+      'packages/common/error',
       'packages/frontend/graphql',
       'packages/frontend/i18n',
       'packages/common/nbstore',
@@ -735,7 +743,11 @@ export const PackageList = [
   {
     location: 'packages/frontend/graphql',
     name: '@affine/graphql',
-    workspaceDependencies: ['packages/common/debug', 'packages/common/env'],
+    workspaceDependencies: [
+      'packages/common/debug',
+      'packages/common/env',
+      'packages/common/error',
+    ],
   },
   {
     location: 'packages/frontend/i18n',
@@ -890,6 +902,7 @@ export type PackageName =
   | '@affine/server'
   | '@affine/debug'
   | '@affine/env'
+  | '@affine/error'
   | '@toeverything/infra'
   | '@affine/nbstore'
   | '@affine/admin'

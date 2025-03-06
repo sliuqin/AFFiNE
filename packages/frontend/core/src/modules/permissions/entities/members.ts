@@ -1,6 +1,5 @@
 import type { GetMembersByWorkspaceIdQuery } from '@affine/graphql';
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   Entity,
@@ -8,10 +7,10 @@ import {
   LiveData,
   onComplete,
   onStart,
+  smartRetry,
 } from '@toeverything/infra';
 import { EMPTY, map, mergeMap, switchMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../../cloud';
 import type { WorkspaceService } from '../../workspace';
 import type { WorkspaceMembersStore } from '../stores/members';
 
@@ -51,13 +50,7 @@ export class WorkspaceMembers extends Entity {
           this.pageMembers$.setValue(data.members);
           return EMPTY;
         }),
-        backoffRetry({
-          when: isNetworkError,
-          count: Infinity,
-        }),
-        backoffRetry({
-          when: isBackendError,
-        }),
+        smartRetry(),
         catchErrorInto(this.error$),
         onStart(() => {
           this.pageMembers$.setValue(undefined);

@@ -1,4 +1,5 @@
 import { Button, Loading } from '@affine/component';
+import { UserFriendlyError } from '@affine/error';
 import {
   SubscriptionPlan,
   SubscriptionRecurring,
@@ -16,11 +17,7 @@ import {
   RouteLogic,
   useNavigateHelper,
 } from '../../../components/hooks/use-navigate-helper';
-import {
-  AuthService,
-  BackendError,
-  SubscriptionService,
-} from '../../../modules/cloud';
+import { AuthService, SubscriptionService } from '../../../modules/cloud';
 import { container } from './subscribe.css';
 
 interface ProductTriple {
@@ -160,12 +157,8 @@ export const Component = () => {
             setMessage('Redirecting...');
             location.href = checkout;
           } catch (err) {
-            if (err instanceof BackendError) {
-              setMessage(err.originError.message);
-            } else {
-              console.log(err);
-              setError('Something went wrong, please contact support.');
-            }
+            const e = UserFriendlyError.fromAny(err);
+            setMessage(e.message);
           }
         }).pipe(mergeMap(() => EMPTY));
       })

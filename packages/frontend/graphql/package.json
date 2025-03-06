@@ -26,6 +26,7 @@
   "dependencies": {
     "@affine/debug": "workspace:*",
     "@affine/env": "workspace:*",
+    "@affine/error": "workspace:*",
     "graphql": "^16.9.0",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21"

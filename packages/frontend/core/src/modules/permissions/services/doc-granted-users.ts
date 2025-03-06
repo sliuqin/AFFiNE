@@ -1,6 +1,5 @@
 import { DocRole, type GetPageGrantedUsersListQuery } from '@affine/graphql';
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   fromPromise,
@@ -8,10 +7,10 @@ import {
   onComplete,
   onStart,
   Service,
+  smartRetry,
 } from '@toeverything/infra';
 import { EMPTY, exhaustMap, mergeMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../../cloud';
 import type { DocService } from '../../doc';
 import type { WorkspaceService } from '../../workspace';
 import type { DocGrantedUsersStore } from '../stores/doc-granted-users';
@@ -65,13 +64,7 @@ export class DocGrantedUsersService extends Service {
 
           return EMPTY;
         }),
-        backoffRetry({
-          when: isNetworkError,
-          count: Infinity,
-        }),
-        backoffRetry({
-          when: isBackendError,
-        }),
+        smartRetry(),
         catchErrorInto(this.error$),
         onStart(() => {
           this.isLoading$.setValue(true);

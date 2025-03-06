@@ -15,6 +15,7 @@ import {
   SubscriptionService,
 } from '@affine/core/modules/cloud';
 import { UrlService } from '@affine/core/modules/url';
+import { UserFriendlyError } from '@affine/error';
 import type { InvoicesQuery } from '@affine/graphql';
 import {
   createCustomerPortalMutation,
@@ -22,7 +23,6 @@ import {
   SubscriptionPlan,
   SubscriptionRecurring,
   SubscriptionStatus,
-  UserFriendlyError,
 } from '@affine/graphql';
 import { type I18nString, i18nTime, Trans, useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
@@ -539,8 +539,8 @@ const BillingHistory = () => {
       return (
         <span style={{ color: cssVar('errorColor') }}>
           {error
-            ? UserFriendlyError.fromAnyError(error).message
-            : 'Failed to load members'}
+            ? UserFriendlyError.fromAny(error).message
+            : 'Failed to load invoices'}
         </span>
       );
     }

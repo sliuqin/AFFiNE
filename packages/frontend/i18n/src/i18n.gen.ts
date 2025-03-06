@@ -7068,6 +7068,10 @@ export function useAFFiNEI18N(): {
       */
     ["error.INTERNAL_SERVER_ERROR"](): string;
     /**
+      * `Network error.`
+      */
+    ["error.NETWORK_ERROR"](): string;
+    /**
       * `Too many requests.`
       */
     ["error.TOO_MANY_REQUEST"](): string;

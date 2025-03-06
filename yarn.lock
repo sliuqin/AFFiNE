@@ -277,6 +277,7 @@ __metadata:
     "@affine-tools/utils": "workspace:*"
     "@affine/debug": "workspace:*"
     "@affine/electron-api": "workspace:*"
+    "@affine/error": "workspace:*"
     "@affine/graphql": "workspace:*"
     "@affine/i18n": "workspace:*"
     "@atlaskit/pragmatic-drag-and-drop": "npm:^1.4.0"
@@ -363,6 +364,7 @@ __metadata:
     "@affine/debug": "workspace:*"
     "@affine/electron-api": "workspace:*"
     "@affine/env": "workspace:*"
+    "@affine/error": "workspace:*"
     "@affine/graphql": "workspace:*"
     "@affine/i18n": "workspace:*"
     "@affine/nbstore": "workspace:*"
@@ -567,12 +569,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@affine/error@workspace:*, @affine/error@workspace:packages/common/error":
+  version: 0.0.0-use.local
+  resolution: "@affine/error@workspace:packages/common/error"
+  peerDependencies:
+    "@affine/graphql": "workspace:*"
+    graphql: ^16.9.0
+  languageName: unknown
+  linkType: soft
+
 "@affine/graphql@workspace:*, @affine/graphql@workspace:packages/frontend/graphql":
   version: 0.0.0-use.local
   resolution: "@affine/graphql@workspace:packages/frontend/graphql"
   dependencies:
     "@affine/debug": "workspace:*"
     "@affine/env": "workspace:*"
+    "@affine/error": "workspace:*"
     "@graphql-codegen/add": "npm:^5.0.3"
     "@graphql-codegen/cli": "npm:5.0.5"
     "@graphql-codegen/typescript": "npm:^4.1.2"
@@ -13479,6 +13491,7 @@ __metadata:
   dependencies:
     "@affine/debug": "workspace:*"
     "@affine/env": "workspace:*"
+    "@affine/error": "workspace:*"
     "@affine/templates": "workspace:*"
     "@datastructures-js/binary-search-tree": "npm:^5.3.2"
     "@emotion/react": "npm:^11.14.0"

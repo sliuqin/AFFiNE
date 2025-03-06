@@ -1,7 +1,6 @@
 import { DebugLogger } from '@affine/debug';
 import type { GetWorkspaceConfigQuery, InviteLink } from '@affine/graphql';
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   Entity,
@@ -9,10 +8,10 @@ import {
   LiveData,
   onComplete,
   onStart,
+  smartRetry,
 } from '@toeverything/infra';
 import { EMPTY, exhaustMap, mergeMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../../cloud';
 import type { WorkspaceService } from '../../workspace';
 import type { WorkspaceShareSettingStore } from '../stores/share-setting';
 
@@ -45,14 +44,7 @@ export class WorkspaceShareSetting extends Entity {
           signal
         )
       ).pipe(
-        backoffRetry({
-          when: isNetworkError,
-          count: Infinity,
-        }),
-        backoffRetry({
-          when: isBackendError,
-          count: 3,
-        }),
+        smartRetry(),
         mergeMap(value => {
           if (value) {
             this.enableAi$.next(value.enableAi);

@@ -1,6 +1,5 @@
 import type { GetWorkspacePageByIdQuery, PublicDocMode } from '@affine/graphql';
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   Entity,
@@ -9,10 +8,10 @@ import {
   mapInto,
   onComplete,
   onStart,
+  smartRetry,
 } from '@toeverything/infra';
 import { switchMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../../cloud';
 import type { DocService } from '../../doc';
 import type { WorkspaceService } from '../../workspace';
 import type { ShareStore } from '../stores/share';
@@ -44,13 +43,7 @@ export class ShareInfo extends Entity {
           signal
         )
       ).pipe(
-        backoffRetry({
-          when: isNetworkError,
-          count: Infinity,
-        }),
-        backoffRetry({
-          when: isBackendError,
-        }),
+        smartRetry(),
         mapInto(this.info$),
         catchErrorInto(this.error$),
         onStart(() => this.isRevalidating$.next(true)),

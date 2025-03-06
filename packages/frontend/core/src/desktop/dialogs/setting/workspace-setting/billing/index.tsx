@@ -17,13 +17,13 @@ import {
 import { WorkspaceQuotaService } from '@affine/core/modules/quota';
 import { UrlService } from '@affine/core/modules/url';
 import { WorkspaceService } from '@affine/core/modules/workspace';
+import { UserFriendlyError } from '@affine/error';
 import {
   createCustomerPortalMutation,
   type InvoicesQuery,
   InvoiceStatus,
   SubscriptionPlan,
   SubscriptionRecurring,
-  UserFriendlyError,
 } from '@affine/graphql';
 import { useI18n } from '@affine/i18n';
 import { useLiveData, useService } from '@toeverything/infra';
@@ -321,8 +321,8 @@ const BillingHistory = () => {
       return (
         <span style={{ color: cssVar('errorColor') }}>
           {error
-            ? UserFriendlyError.fromAnyError(error).message
-            : 'Failed to load members'}
+            ? UserFriendlyError.fromAny(error).message
+            : 'Failed to load invoices'}
         </span>
       );
     }

@@ -8,13 +8,10 @@ import {
 } from '@affine/component/auth-components';
 import { Button } from '@affine/component/ui/button';
 import { useAsyncCallback } from '@affine/core/components/hooks/affine-async-hooks';
-import {
-  AuthService,
-  BackendError,
-  CaptchaService,
-} from '@affine/core/modules/cloud';
+import { AuthService, CaptchaService } from '@affine/core/modules/cloud';
 import type { AuthSessionStatus } from '@affine/core/modules/cloud/entities/session';
 import { Unreachable } from '@affine/env/constant';
+import type { UserFriendlyError } from '@affine/error';
 import { Trans, useI18n } from '@affine/i18n';
 import { useLiveData, useService } from '@toeverything/infra';
 import {
@@ -143,12 +140,10 @@ export const SignInWithEmailStep = ({
     try {
       await authService.signInMagicLink(email, otp, false);
     } catch (e) {
-      if (e instanceof BackendError) {
-        notify.error({
-          title: e.originError.message,
-        });
-        setOtpError(t['com.affine.auth.sign.auth.code.invalid']());
-      }
+      notify.error({
+        title: (e as UserFriendlyError).message,
+      });
+      setOtpError(t['com.affine.auth.sign.auth.code.invalid']());
     } finally {
       setIsVerifying(false);
     }

@@ -1,7 +1,6 @@
 import { DebugLogger } from '@affine/debug';
 import type { WorkspaceQuotaQuery } from '@affine/graphql';
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   Entity,
@@ -10,12 +9,12 @@ import {
   LiveData,
   onComplete,
   onStart,
+  smartRetry,
 } from '@toeverything/infra';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import bytes from 'bytes';
 import { EMPTY, mergeMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../../cloud';
 import type { WorkspaceService } from '../../workspace';
 import type { WorkspaceQuotaStore } from '../stores/quota';
 
@@ -76,14 +75,7 @@ export class WorkspaceQuota extends Entity {
         );
         return { quota: data, used: data.usedStorageQuota };
       }).pipe(
-        backoffRetry({
-          when: isNetworkError,
-          count: Infinity,
-        }),
-        backoffRetry({
-          when: isBackendError,
-          count: 3,
-        }),
+        smartRetry(),
         mergeMap(data => {
           if (data) {
             const { quota, used } = data;
