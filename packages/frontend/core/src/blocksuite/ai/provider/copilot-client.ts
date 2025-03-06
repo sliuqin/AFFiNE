@@ -39,7 +39,7 @@ function codeToError(error: UserFriendlyError) {
       return new GeneralNetworkError(
         error.code
           ? `${error.code}: ${error.message}\nIdentify: ${error.name}`
-          : undefined
+          : error.message
       );
   }
 }
