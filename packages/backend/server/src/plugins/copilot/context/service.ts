@@ -44,7 +44,6 @@ export class CopilotContextService implements OnModuleInit {
 
   async onModuleInit() {
     const supportEmbedding = await checkEmbeddingAvailable(this.db);
-    console.log('supportEmbedding', supportEmbedding);
     if (supportEmbedding) {
       this.supportEmbedding = true;
     }
