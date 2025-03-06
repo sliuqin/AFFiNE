@@ -10,7 +10,6 @@ input AddContextDocInput {
 input AddContextFileInput {
   blobId: String!
   contextId: String!
-  fileName: String!
 }
 
 type AlreadyInSpaceDataType {
@@ -366,6 +365,7 @@ enum ErrorNames {
   COPILOT_ACTION_TAKEN
   COPILOT_CONTEXT_FILE_NOT_SUPPORTED
   COPILOT_DOC_NOT_FOUND
+  COPILOT_EMBEDDING_UNAVAILABLE
   COPILOT_FAILED_TO_CREATE_MESSAGE
   COPILOT_FAILED_TO_GENERATE_TEXT
   COPILOT_FAILED_TO_MATCH_CONTEXT

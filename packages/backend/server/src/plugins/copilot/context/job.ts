@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Prisma, PrismaClient } from '@prisma/client';
 import OpenAI from 'openai';
 
@@ -16,6 +16,7 @@ import {
 import { DocReader } from '../../../core/doc';
 import { OpenAIEmbeddingClient } from './embedding';
 import { Chunk, Embedding, EmbeddingClient } from './types';
+import { checkEmbeddingAvailable } from './utils';
 
 declare global {
   interface Jobs {
@@ -34,7 +35,8 @@ declare global {
 }
 
 @Injectable()
-export class CopilotContextDocJob {
+export class CopilotContextDocJob implements OnModuleInit {
+  private supportEmbedding = false;
   private readonly client: EmbeddingClient | undefined;
 
   constructor(
@@ -52,12 +54,18 @@ export class CopilotContextDocJob {
     }
   }
 
+  async onModuleInit() {
+    this.supportEmbedding = await checkEmbeddingAvailable(this.db);
+  }
+
   // public this client to allow overriding in tests
   get embeddingClient() {
     return this.client as EmbeddingClient;
   }
 
   async addFileEmbeddingQueue(fileChunks: Jobs['doc.embedPendingFiles'][]) {
+    if (!this.supportEmbedding) return;
+
     for (const { contextId, fileId, chunks, total } of fileChunks) {
       await this.queue.add('doc.embedPendingFiles', {
         contextId,
@@ -70,6 +78,8 @@ export class CopilotContextDocJob {
 
   @OnEvent('workspace.doc.embedding')
   async addDocEmbeddingQueue(docs: Events['workspace.doc.embedding']) {
+    if (!this.supportEmbedding) return;
+
     for (const { workspaceId, docId } of docs) {
       await this.queue.add('doc.embedPendingDocs', { workspaceId, docId });
     }
@@ -99,6 +109,8 @@ export class CopilotContextDocJob {
     chunks,
     total,
   }: Jobs['doc.embedPendingFiles']) {
+    if (!this.supportEmbedding) return;
+
     try {
       const embeddings = await this.embeddingClient.generateEmbeddings(chunks);
 
@@ -131,6 +143,8 @@ export class CopilotContextDocJob {
 
   @OnJob('doc.embedPendingDocs')
   async embedPendingDocs({ workspaceId, docId }: Jobs['doc.embedPendingDocs']) {
+    if (!this.supportEmbedding) return;
+
     try {
       const content = await this.doc.getDocContent(workspaceId, docId);
       if (content) {

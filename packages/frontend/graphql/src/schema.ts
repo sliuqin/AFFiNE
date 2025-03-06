@@ -45,7 +45,6 @@ export interface AddContextDocInput {
 export interface AddContextFileInput {
   blobId: Scalars['String']['input'];
   contextId: Scalars['String']['input'];
-  fileName: Scalars['String']['input'];
 }
 
 export interface AlreadyInSpaceDataType {
@@ -496,6 +495,7 @@ export enum ErrorNames {
   COPILOT_ACTION_TAKEN = 'COPILOT_ACTION_TAKEN',
   COPILOT_CONTEXT_FILE_NOT_SUPPORTED = 'COPILOT_CONTEXT_FILE_NOT_SUPPORTED',
   COPILOT_DOC_NOT_FOUND = 'COPILOT_DOC_NOT_FOUND',
+  COPILOT_EMBEDDING_UNAVAILABLE = 'COPILOT_EMBEDDING_UNAVAILABLE',
   COPILOT_FAILED_TO_CREATE_MESSAGE = 'COPILOT_FAILED_TO_CREATE_MESSAGE',
   COPILOT_FAILED_TO_GENERATE_TEXT = 'COPILOT_FAILED_TO_GENERATE_TEXT',
   COPILOT_FAILED_TO_MATCH_CONTEXT = 'COPILOT_FAILED_TO_MATCH_CONTEXT',

@@ -676,6 +676,10 @@ export const USER_FRIENDLY_ERRORS = {
     message: ({ contextId, content, message }) =>
       `Failed to match context ${contextId} with "${escape(content)}": ${message}`,
   },
+  copilot_embedding_unavailable: {
+    type: 'action_forbidden',
+    message: `Embedding feature not available, you may need to install pgvector extension to your database`,
+  },
 
   // Quota & Limit errors
   blob_quota_exceeded: {

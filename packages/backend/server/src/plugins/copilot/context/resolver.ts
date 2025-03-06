@@ -20,6 +20,7 @@ import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 
 import {
   CallMetric,
+  CopilotEmbeddingUnavailable,
   CopilotFailedToMatchContext,
   CopilotFailedToModifyContext,
   CopilotSessionNotFound,
@@ -65,9 +66,6 @@ class RemoveContextDocInput {
 class AddContextFileInput {
   @Field(() => String)
   contextId!: string;
-
-  @Field(() => String)
-  fileName!: string;
 
   @Field(() => String)
   blobId!: string;
@@ -252,12 +250,15 @@ export class CopilotContextRootResolver {
       .allowLocal()
       .assert('Workspace.Copilot');
 
-    this.event.emit(
-      'workspace.doc.embedding',
-      docIds.map(docId => ({ workspaceId, docId }))
-    );
+    if (this.context.canEmbedding) {
+      this.event.emit(
+        'workspace.doc.embedding',
+        docIds.map(docId => ({ workspaceId, docId }))
+      );
+      return true;
+    }
 
-    return true;
+    return false;
   }
 
   @Query(() => ContextWorkspaceEmbeddingStatus, {
@@ -274,11 +275,15 @@ export class CopilotContextRootResolver {
       .allowLocal()
       .assert('Workspace.Copilot');
 
-    const total = await this.db.snapshot.count({ where: { workspaceId } });
-    const embedded = await this.db.snapshot.count({
-      where: { workspaceId, embedding: { isNot: null } },
-    });
-    return { total, embedded };
+    if (this.context.canEmbedding) {
+      const total = await this.db.snapshot.count({ where: { workspaceId } });
+      const embedded = await this.db.snapshot.count({
+        where: { workspaceId, embedding: { isNot: null } },
+      });
+      return { total, embedded };
+    }
+
+    return { total: 0, embedded: 0 };
   }
 }
 
@@ -382,6 +387,10 @@ export class CopilotContextResolver {
     @Args({ name: 'content', type: () => GraphQLUpload })
     content: FileUpload
   ) {
+    if (!this.context.canEmbedding) {
+      throw new CopilotEmbeddingUnavailable();
+    }
+
     const lockFlag = `${COPILOT_LOCKER}:context:${options.contextId}`;
     await using lock = await this.mutex.acquire(lockFlag);
     if (!lock) {
@@ -417,6 +426,10 @@ export class CopilotContextResolver {
     @Args({ name: 'options', type: () => RemoveContextFileInput })
     options: RemoveContextFileInput
   ) {
+    if (!this.context.canEmbedding) {
+      throw new CopilotEmbeddingUnavailable();
+    }
+
     const lockFlag = `${COPILOT_LOCKER}:context:${options.contextId}`;
     await using lock = await this.mutex.acquire(lockFlag);
     if (!lock) {
@@ -445,6 +458,10 @@ export class CopilotContextResolver {
     @Args('limit', { type: () => SafeIntResolver, nullable: true })
     limit?: number
   ) {
+    if (!this.context.canEmbedding) {
+      return [];
+    }
+
     const lockFlag = `${COPILOT_LOCKER}:context:${contextId}`;
     await using lock = await this.mutex.acquire(lockFlag);
     if (!lock) {
@@ -480,6 +497,10 @@ export class CopilotContextResolver {
     @Args('limit', { type: () => SafeIntResolver, nullable: true })
     limit?: number
   ) {
+    if (!this.context.canEmbedding) {
+      return [];
+    }
+
     const session = await this.context.get(contextId);
     await this.ac
       .user(user.id)
