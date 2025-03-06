@@ -303,7 +303,7 @@ export async function addContextFile(
         `,
         variables: {
           content: null,
-          options: { contextId, blobId, fileName },
+          options: { contextId, blobId },
         },
       })
     )

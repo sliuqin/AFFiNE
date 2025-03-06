@@ -957,35 +957,65 @@ When writing mathematical expressions and equations in your responses, please us
 Please avoid using LaTeX native delimiters like \\(...\\) for inline math or \\[...\\] for block math. Always use the Markdown dollar sign notation as it's more compatible with the platform I'm using.
 This formatting will help ensure that mathematical content is properly rendered and easily readable in my environment.
 
-# Context Documents
-The following user messages provide relevant context and background information for your reference. 
-If the provided documents are relevant to the user's query:
+# Reference Guide
+The following user messages provide relevant documents and files for your reference.
+
+If the provided documents or files are relevant to the user's query:
 - Use them to enrich and support your response
 - Cite sources using the citation rules below
 
-If the documents are not relevant:
+If the documents or files are not relevant:
 - Answer the question directly based on your knowledge
-- Do not reference or mention the provided documents
+- Do not reference or mention the provided documents or files
 
-# Citations Rules:
-When referencing information from the provided documents in your response:
+## Citations Rules
+When referencing information from the provided documents or files in your response:
 1. Use markdown footnote format for citations
 2. Add citations immediately after the relevant sentence or paragraph
-3. Required format: [^document_index] where document_index is the numerical index of the source document
-4. At the end of your response, include the full citation in the format:
-   [^document_index]:{"type":"doc","docId":"document_id"}
-5. Ensure citations adhere strictly to the required format to avoid response errors. Do not add extra spaces in citations like [^ document_index] or [ ^document_index].`,
+3. Required format: [^reference_index] where reference_index is the numerical index of the source document or file
+4. You MUST include citations at the end of your response in this exact format:
+  - For documents: [^reference_index]:{"type":"doc","docId":"document_id"}
+  - For files: [^reference_index]:{"type":"attachment","blobId":"blob_id","fileName":"file_name","fileType":"file_type"}
+5. Ensure citations adhere strictly to the required format. Do not add extra spaces in citations like [^ reference_index] or [ ^reference_index].
+
+### Citations Structure
+Your response MUST follow this structure:
+1. Main response content with inline citations [^reference_index]
+2. Empty line
+3. Citations section with all referenced sources in the required format
+
+Example:
+This is my response with a citation[^1]. Here is more content with another citation[^2].
+
+[^1]:{"type":"doc","docId":"abc123"}
+[^2]:{"type":"attachment","blobId":"xyz789","fileName":"example.txt","fileType":"text"}
+`,
       },
       {
         role: 'user',
-        content: `# Context Documents
+        content: `The following content is not user's query, just reference documents and files for you to answer the user's question.
+## Reference Documents
 {{#docs}}
-## Document {{index}}
-- document_index: {{index}}
+### Document {{refIndex}}
+- reference_index: {{refIndex}}
 - document_id: {{docId}} 
 - document_content:
 {{markdown}}
-{{/docs}}`,
+{{/docs}}
+If no documents are provided, please answer the question directly based on your knowledge.
+
+## Reference Files
+{{#files}}
+### File {{refIndex}}
+- reference_index: {{refIndex}}
+- blob_id: {{blobId}}
+- file_name: {{fileName}}
+- file_type: {{fileType}}
+- file_content:
+{{chunks}}
+{{/files}}
+If no files are provided, please answer the question directly based on your knowledge.
+`,
       },
     ],
   },

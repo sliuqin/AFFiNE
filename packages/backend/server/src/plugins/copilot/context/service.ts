@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import OpenAI from 'openai';
 
@@ -21,11 +21,13 @@ import {
   ContextFileStatus,
   EmbeddingClient,
 } from './types';
+import { checkEmbeddingAvailable } from './utils';
 
 const CONTEXT_SESSION_KEY = 'context-session';
 
 @Injectable()
-export class CopilotContextService {
+export class CopilotContextService implements OnModuleInit {
+  private supportEmbedding = false;
   private readonly client: EmbeddingClient | undefined;
 
   constructor(
@@ -38,6 +40,18 @@ export class CopilotContextService {
     if (configure) {
       this.client = new OpenAIEmbeddingClient(new OpenAI(configure));
     }
+  }
+
+  async onModuleInit() {
+    const supportEmbedding = await checkEmbeddingAvailable(this.db);
+    console.log('supportEmbedding', supportEmbedding);
+    if (supportEmbedding) {
+      this.supportEmbedding = true;
+    }
+  }
+
+  get canEmbedding() {
+    return this.supportEmbedding;
   }
 
   // public this client to allow overriding in tests
