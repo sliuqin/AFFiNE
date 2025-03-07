@@ -142,9 +142,9 @@ export class ProgressCell extends BaseCellRenderer<number> {
                 : ''}
             </div>
           </div>
-          <div class="${progressNumberStyle}" data-testid="progress">
-            ${progress}
-          </div>
+          <span class="${progressNumberStyle}" data-testid="progress"
+            >${progress}</span
+          >
         </div>
       </div>
     `;

@@ -85,20 +85,14 @@ export function getDatabaseBodyRow(page: Page, rowIndex = 0) {
 export async function assertDatabaseTitleColumnText(
   page: Page,
   title: string,
-  index = 0
+  rowIndex = 0,
+  columnIndex = 0
 ) {
-  const text = await page.evaluate(index => {
-    const rowContainer = document.querySelector('.affine-database-block-rows');
-    const row = rowContainer?.querySelector(
-      `.database-row:nth-child(${index + 1})`
-    );
-    const titleColumnCell = row?.querySelector('.database-cell:nth-child(1)');
-    const titleSpan = titleColumnCell?.querySelector(
-      '.data-view-header-area-rich-text'
-    ) as HTMLElement;
-    if (!titleSpan) throw new Error('Cannot find database title column editor');
-    return titleSpan.innerText;
-  }, index);
+  const selectCell1 = getDatabaseCell(page, {
+    rowIndex: rowIndex,
+    columnIndex: columnIndex,
+  });
+  const text = await selectCell1.innerText();
 
   if (title === '') {
     expect(text).toMatch(new RegExp(`^(|[${ZERO_WIDTH_SPACE}])$`));
@@ -439,7 +433,7 @@ export async function focusKanbanCardHeader(page: Page, index = 0) {
 export async function clickKanbanCardHeader(page: Page, index = 0) {
   const cardHeader = page.locator('data-view-header-area-text').nth(index);
   await cardHeader.click();
-  await cardHeader.click();
+  await pressEnter(page);
 }
 
 export async function assertKanbanCardHeaderText(

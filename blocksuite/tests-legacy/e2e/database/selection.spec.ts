@@ -105,7 +105,6 @@ test.describe('row-level selection', () => {
 
     await initDatabaseColumn(page);
     await initDatabaseRowWithData(page, 'title');
-    await pressEscape(page);
     await waitNextFrame(page, 100);
     await assertCellsSelection(page, {
       start: [0, 0],
@@ -123,7 +122,6 @@ test.describe('row-level selection', () => {
 
     await initDatabaseColumn(page);
     await initDatabaseDynamicRowWithData(page, '123', true);
-    await pressEscape(page);
     await waitNextFrame(page, 100);
     await pressEscape(page);
     await assertRowsSelection(page, [0, 0]);
@@ -134,9 +132,8 @@ test.describe('row-level selection', () => {
     await initEmptyDatabaseState(page);
 
     await initDatabaseColumn(page);
-    await initDatabaseDynamicRowWithData(page, '', true);
-    await pressEscape(page);
     await switchColumnType(page, 'Number');
+    await initDatabaseDynamicRowWithData(page, 'asd', true);
     await initDatabaseDynamicRowWithData(page, '123', true);
 
     const selectColumn = getDatabaseCell(page, {
