@@ -643,6 +643,18 @@ export const getPageGrantedUsersListQuery = {
 }`,
 };
 
+export const getPublicUserByIdQuery = {
+  id: 'getPublicUserByIdQuery' as const,
+  op: 'getPublicUserById',
+  query: `query getPublicUserById($id: String!) {
+  publicUserById(id: $id) {
+    id
+    avatarUrl
+    name
+  }
+}`,
+};
+
 export const getServerRuntimeConfigQuery = {
   id: 'getServerRuntimeConfigQuery' as const,
   op: 'getServerRuntimeConfig',
@@ -1405,7 +1417,7 @@ export const getWorkspaceRolePermissionsQuery = {
   query: `query getWorkspaceRolePermissions($id: String!) {
   workspaceRolePermissions(id: $id) {
     permissions {
-      Workspace_Adminitrators_Manage
+      Workspace_Administrators_Manage
       Workspace_Blobs_List
       Workspace_Blobs_Read
       Workspace_Blobs_Write

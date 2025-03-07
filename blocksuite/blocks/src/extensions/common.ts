@@ -28,7 +28,7 @@ import { TableBlockSpec } from '@blocksuite/affine-block-table';
 import {
   RefNodeSlotsExtension,
   RichTextExtensions,
-} from '@blocksuite/affine-components/rich-text';
+} from '@blocksuite/affine-rich-text';
 import {
   DefaultOpenDocExtension,
   DocDisplayMetaService,

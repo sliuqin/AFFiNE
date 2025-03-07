@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { type ConnectedAccount, Prisma, type User } from '@prisma/client';
-import { pick } from 'lodash-es';
 
 import {
   CryptoHelper,
@@ -16,9 +15,15 @@ import type { Workspace } from './workspace';
 const publicUserSelect = {
   id: true,
   name: true,
+  avatarUrl: true,
+} satisfies Prisma.UserSelect;
+const workspaceUserSelect = {
+  id: true,
+  name: true,
   email: true,
   avatarUrl: true,
 } satisfies Prisma.UserSelect;
+
 type CreateUserInput = Omit<Prisma.UserCreateInput, 'name'> & { name?: string };
 type UpdateUserInput = Omit<Partial<Prisma.UserCreateInput>, 'id'>;
 
@@ -45,6 +50,7 @@ declare global {
 }
 
 export type PublicUser = Pick<User, keyof typeof publicUserSelect>;
+export type WorkspaceUser = Pick<User, keyof typeof workspaceUserSelect>;
 export type { ConnectedAccount, User };
 
 @Injectable()
@@ -79,6 +85,20 @@ export class UserModel extends BaseModel {
   async getPublicUsers(ids: string[]): Promise<PublicUser[]> {
     return this.db.user.findMany({
       select: publicUserSelect,
+      where: { id: { in: ids } },
+    });
+  }
+
+  async getWorkspaceUser(id: string): Promise<WorkspaceUser | null> {
+    return this.db.user.findUnique({
+      select: workspaceUserSelect,
+      where: { id },
+    });
+  }
+
+  async getWorkspaceUsers(ids: string[]): Promise<WorkspaceUser[]> {
+    return this.db.user.findMany({
+      select: workspaceUserSelect,
       where: { id: { in: ids } },
     });
   }
@@ -118,7 +138,7 @@ export class UserModel extends BaseModel {
 
   async getPublicUserByEmail(email: string): Promise<PublicUser | null> {
     const rows = await this.db.$queryRaw<PublicUser[]>`
-      SELECT id, name, email, avatar_url as avatarUrl
+      SELECT id, name, avatar_url as avatarUrl
       FROM "users"
       WHERE lower("email") = lower(${email})
     `;
@@ -126,8 +146,14 @@ export class UserModel extends BaseModel {
     return rows[0] ?? null;
   }
 
-  toPublicUser(user: User): PublicUser {
-    return pick(user, Object.keys(publicUserSelect)) as any;
+  async getWorkspaceUserByEmail(email: string): Promise<WorkspaceUser | null> {
+    const rows = await this.db.$queryRaw<WorkspaceUser[]>`
+      SELECT id, name, email, avatar_url as avatarUrl
+      FROM "users"
+      WHERE lower("email") = lower(${email})
+    `;
+
+    return rows[0] ?? null;
   }
 
   async create(data: CreateUserInput) {

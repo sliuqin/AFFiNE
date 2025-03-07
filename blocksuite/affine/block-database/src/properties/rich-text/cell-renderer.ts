@@ -1,8 +1,8 @@
 import type {
   AffineInlineEditor,
   RichText,
-} from '@blocksuite/affine-components/rich-text';
-import { DefaultInlineManagerExtension } from '@blocksuite/affine-components/rich-text';
+} from '@blocksuite/affine-rich-text';
+import { DefaultInlineManagerExtension } from '@blocksuite/affine-rich-text';
 import {
   ParseDocUrlProvider,
   TelemetryProvider,

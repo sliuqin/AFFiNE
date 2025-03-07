@@ -22,7 +22,7 @@ export const Actions = {
       Read: '',
       Manage: '',
     },
-    Adminitrators: {
+    Administrators: {
       Manage: '',
     },
     Properties: {
@@ -104,7 +104,7 @@ export const RoleActionsMap = {
       return [
         ...this[WorkspaceRole.Admin],
         Action.Workspace.Delete,
-        Action.Workspace.Adminitrators.Manage,
+        Action.Workspace.Administrators.Manage,
         Action.Workspace.TransferOwner,
         Action.Workspace.Payment.Manage,
       ];

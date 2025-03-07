@@ -1,12 +1,13 @@
 import {
-  type AffineSlashMenuActionItem,
-  type AffineSlashMenuContext,
-  type AffineSlashMenuItem,
-  AffineSlashMenuWidget,
-  type AffineSlashSubMenu,
   AIStarIcon,
   DocModeProvider,
+  type SlashMenuActionItem,
+  type SlashMenuContext,
+  SlashMenuExtension,
+  type SlashMenuItem,
+  type SlashMenuSubMenu,
 } from '@blocksuite/affine/blocks';
+import type { BlockStdScope } from '@blocksuite/block-std';
 import { MoreHorizontalIcon } from '@blocksuite/icons/lit';
 import { html } from 'lit';
 
@@ -18,7 +19,9 @@ import {
   type AffineAIPanelWidget,
 } from '../../widgets/ai-panel/ai-panel';
 
-export function setupSlashMenuAIEntry(slashMenu: AffineSlashMenuWidget) {
+export function setupSlashMenuAIEntry(std: BlockStdScope) {
+  const slashMenuExtension = std.get(SlashMenuExtension);
+
   const AIItems = pageAIGroups.map(group => group.items).flat();
 
   const iconWrapper = (icon: AIItemConfig['icon']) => {
@@ -29,36 +32,36 @@ export function setupSlashMenuAIEntry(slashMenu: AffineSlashMenuWidget) {
 
   const showWhenWrapper =
     (item?: AIItemConfig) =>
-    ({ rootComponent }: AffineSlashMenuContext) => {
-      const affineAIPanelWidget = rootComponent.host.view.getWidget(
+    ({ std }: SlashMenuContext) => {
+      const root = std.host.doc.root;
+      if (!root) return false;
+      const affineAIPanelWidget = std.view.getWidget(
         AFFINE_AI_PANEL_WIDGET,
-        rootComponent.model.id
+        root.id
       );
       if (affineAIPanelWidget === null) return false;
 
-      const chain = rootComponent.host.command.chain();
-      const docModeService = rootComponent.std.get(DocModeProvider);
-      const editorMode = docModeService.getPrimaryMode(rootComponent.doc.id);
+      const chain = std.host.command.chain();
+      const docModeService = std.get(DocModeProvider);
+      const editorMode = docModeService.getPrimaryMode(std.host.doc.id);
 
-      return item?.showWhen?.(chain, editorMode, rootComponent.host) ?? true;
+      return item?.showWhen?.(chain, editorMode, std.host) ?? true;
     };
 
-  const actionItemWrapper = (
-    item: AIItemConfig
-  ): AffineSlashMenuActionItem => ({
+  const actionItemWrapper = (item: AIItemConfig): SlashMenuActionItem => ({
     ...basicItemConfig(item),
-    action: ({ rootComponent }: AffineSlashMenuContext) => {
-      item?.handler?.(rootComponent.host);
+    action: ({ std }: SlashMenuContext) => {
+      item?.handler?.(std.host);
     },
   });
 
-  const subMenuWrapper = (item: AIItemConfig): AffineSlashSubMenu => {
+  const subMenuWrapper = (item: AIItemConfig): SlashMenuSubMenu => {
     return {
       ...basicItemConfig(item),
-      subMenu: (item.subItem ?? []).map<AffineSlashMenuActionItem>(
+      subMenu: (item.subItem ?? []).map<SlashMenuActionItem>(
         ({ type, handler }) => ({
           name: type,
-          action: ({ rootComponent }) => handler?.(rootComponent.host),
+          action: ({ std }) => handler?.(std.host),
         })
       ),
     };
@@ -68,44 +71,47 @@ export function setupSlashMenuAIEntry(slashMenu: AffineSlashMenuWidget) {
     return {
       name: item.name,
       icon: iconWrapper(item.icon),
-      alias: ['ai'],
-      showWhen: showWhenWrapper(item),
+      searchAlias: ['ai'],
+      when: showWhenWrapper(item),
     };
   };
 
-  const menu = slashMenu.config.items.slice();
-  menu.unshift({
-    name: 'Ask AI',
-    icon: AIStarIcon,
-    showWhen: showWhenWrapper(),
-    action: ({ rootComponent }) => {
-      const view = rootComponent.host.view;
-      const affineAIPanelWidget = view.getWidget(
-        AFFINE_AI_PANEL_WIDGET,
-        rootComponent.model.id
-      ) as AffineAIPanelWidget;
-      handleInlineAskAIAction(affineAIPanelWidget.host);
+  let index = 0;
+  const AIMenuItems: SlashMenuItem[] = [
+    {
+      name: 'Ask AI',
+      icon: AIStarIcon,
+      when: showWhenWrapper(),
+      action: ({ std }) => {
+        const root = std.host.doc.root;
+        if (!root) return;
+        const affineAIPanelWidget = std.view.getWidget(
+          AFFINE_AI_PANEL_WIDGET,
+          root.id
+        ) as AffineAIPanelWidget;
+        handleInlineAskAIAction(affineAIPanelWidget.host);
+      },
     },
-  });
-
-  const AIMenuItems: AffineSlashMenuItem[] = [
-    { groupName: 'AFFiNE AI' },
     ...AIItems.filter(({ name }) =>
       ['Fix spelling', 'Fix grammar'].includes(name)
-    ).map(item => ({
+    ).map<SlashMenuActionItem>(item => ({
       ...actionItemWrapper(item),
       name: `${item.name} from above`,
+      group: `1_AFFiNE AI@${index++}`,
     })),
 
     ...AIItems.filter(({ name }) =>
       ['Summarize', 'Continue writing'].includes(name)
-    ).map(actionItemWrapper),
+    ).map<SlashMenuActionItem>(item => ({
+      ...actionItemWrapper(item),
+      group: `1_AFFiNE AI@${index++}`,
+    })),
 
     {
       name: 'Action with above',
       icon: iconWrapper(MoreHorizontalIcon({ width: '24px', height: '24px' })),
+      group: `1_AFFiNE AI@${index++}`,
       subMenu: [
-        { groupName: 'Action with above' },
         ...AIItems.filter(({ name }) =>
           ['Translate to', 'Change tone to'].includes(name)
         ).map(subMenuWrapper),
@@ -123,14 +129,8 @@ export function setupSlashMenuAIEntry(slashMenu: AffineSlashMenuWidget) {
     },
   ];
 
-  const basicGroupEnd = menu.findIndex(
-    item => 'groupName' in item && item.groupName === 'List'
-  );
-  // insert ai item after basic group
-  menu.splice(basicGroupEnd, 0, ...AIMenuItems);
-
-  slashMenu.config = {
-    ...AffineSlashMenuWidget.DEFAULT_CONFIG,
-    items: menu,
+  slashMenuExtension.config = {
+    ...slashMenuExtension.config,
+    items: [...AIMenuItems, ...slashMenuExtension.config.items],
   };
 }

@@ -9,7 +9,7 @@ import { DocsService } from '@affine/core/modules/doc';
 import { GlobalContextService } from '@affine/core/modules/global-context';
 import { GuardService } from '@affine/core/modules/permissions';
 import type { AffineDNDData } from '@affine/core/types/dnd';
-import { UserFriendlyError } from '@affine/graphql';
+import { UserFriendlyError } from '@affine/error';
 import { useI18n } from '@affine/i18n';
 import { useLiveData, useService } from '@toeverything/infra';
 
@@ -58,8 +58,7 @@ export const TrashButton = () => {
                   docRecord.moveToTrash();
                 } catch (error) {
                   console.error(error);
-                  const userFriendlyError =
-                    UserFriendlyError.fromAnyError(error);
+                  const userFriendlyError = UserFriendlyError.fromAny(error);
                   toast(
                     t[`error.${userFriendlyError.name}`](userFriendlyError.data)
                   );

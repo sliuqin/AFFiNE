@@ -13,6 +13,7 @@
   "dependencies": {
     "@affine/debug": "workspace:*",
     "@affine/env": "workspace:*",
+    "@affine/error": "workspace:*",
     "@affine/templates": "workspace:*",
     "@datastructures-js/binary-search-tree": "^5.3.2",
     "@preact/signals-core": "^1.8.0",

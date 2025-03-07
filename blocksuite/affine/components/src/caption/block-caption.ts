@@ -6,6 +6,7 @@ import {
   modelContext,
   ShadowlessElement,
   stdContext,
+  TextSelection,
 } from '@blocksuite/block-std';
 import { WithDisposable } from '@blocksuite/global/lit';
 import type { BlockModel, Store } from '@blocksuite/store';
@@ -13,8 +14,6 @@ import { Text } from '@blocksuite/store';
 import { consume } from '@lit/context';
 import { css, html, nothing } from 'lit';
 import { query, state } from 'lit/decorators.js';
-
-import { focusTextModel } from '../rich-text/index.js';
 
 export interface BlockCaptionProps {
   caption: string | null | undefined;
@@ -92,7 +91,13 @@ export class BlockCaptionEditor<
         index + 1
       );
 
-      focusTextModel(this.std, id);
+      const std = this.std;
+      std.selection.setGroup('note', [
+        std.selection.create(TextSelection, {
+          from: { blockId: id, index: 0, length: 0 },
+          to: null,
+        }),
+      ]);
     }
   }
 

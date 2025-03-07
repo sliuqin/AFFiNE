@@ -12,7 +12,6 @@ import {
   Config,
   CryptoHelper,
   getOrGenRequestId,
-  URLHelper,
   UserFriendlyError,
 } from '../../base';
 import { WorkspaceBlobStorage } from '../storage';
@@ -36,6 +35,18 @@ export interface WorkspaceDocInfo {
 export abstract class DocReader {
   constructor(protected readonly cache: Cache) {}
 
+  parseDocContent(bin: Uint8Array) {
+    const doc = new YDoc();
+    applyUpdate(doc, bin);
+    return parsePageDoc(doc);
+  }
+
+  parseWorkspaceContent(bin: Uint8Array) {
+    const doc = new YDoc();
+    applyUpdate(doc, bin);
+    return parseWorkspaceDoc(doc);
+  }
+
   abstract getDoc(
     workspaceId: string,
     docId: string
@@ -47,6 +58,7 @@ export abstract class DocReader {
     stateVector?: Uint8Array
   ): Promise<DocDiff | null>;
 
+  // TODO(@fengmk2): should remove this method after frontend support doc content update
   async getDocContent(
     workspaceId: string,
     docId: string
@@ -66,6 +78,7 @@ export abstract class DocReader {
     return content;
   }
 
+  // TODO(@fengmk2): should remove this method after frontend support workspace content update
   async getWorkspaceContent(
     workspaceId: string
   ): Promise<WorkspaceDocInfo | null> {
@@ -116,8 +129,7 @@ export class DatabaseDocReader extends DocReader {
   constructor(
     protected override readonly cache: Cache,
     protected readonly workspace: PgWorkspaceDocStorageAdapter,
-    protected readonly blobStorage: WorkspaceBlobStorage,
-    protected readonly url: URLHelper
+    protected readonly blobStorage: WorkspaceBlobStorage
   ) {
     super(cache);
   }
@@ -149,9 +161,7 @@ export class DatabaseDocReader extends DocReader {
     if (!docRecord) {
       return null;
     }
-    const doc = new YDoc();
-    applyUpdate(doc, docRecord.bin);
-    return parsePageDoc(doc);
+    return this.parseDocContent(docRecord.bin);
   }
 
   protected override async getWorkspaceContentWithoutCache(
@@ -167,9 +177,7 @@ export class DatabaseDocReader extends DocReader {
     }
     let avatarUrl: string | undefined;
     if (content.avatarKey) {
-      avatarUrl = this.url.link(
-        `/api/workspaces/${workspaceId}/blobs/${content.avatarKey}`
-      );
+      avatarUrl = this.blobStorage.getAvatarUrl(workspaceId, content.avatarKey);
     }
     return {
       id: workspaceId,
@@ -177,12 +185,6 @@ export class DatabaseDocReader extends DocReader {
       avatarKey: content.avatarKey,
       avatarUrl,
     };
-  }
-
-  private parseWorkspaceContent(bin: Uint8Array) {
-    const doc = new YDoc();
-    applyUpdate(doc, bin);
-    return parseWorkspaceDoc(doc);
   }
 }
 
@@ -195,10 +197,9 @@ export class RpcDocReader extends DatabaseDocReader {
     private readonly crypto: CryptoHelper,
     protected override readonly cache: Cache,
     protected override readonly workspace: PgWorkspaceDocStorageAdapter,
-    protected override readonly blobStorage: WorkspaceBlobStorage,
-    protected override readonly url: URLHelper
+    protected override readonly blobStorage: WorkspaceBlobStorage
   ) {
-    super(cache, workspace, blobStorage, url);
+    super(cache, workspace, blobStorage);
   }
 
   private async fetch(

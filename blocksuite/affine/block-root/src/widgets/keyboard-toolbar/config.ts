@@ -18,6 +18,8 @@ import {
 import { getSurfaceBlock } from '@blocksuite/affine-block-surface';
 import { insertSurfaceRefBlockCommand } from '@blocksuite/affine-block-surface-ref';
 import { toggleEmbedCardCreateModal } from '@blocksuite/affine-components/embed-card-modal';
+import { toast } from '@blocksuite/affine-components/toast';
+import type { FrameBlockModel } from '@blocksuite/affine-model';
 import {
   formatBlockCommand,
   formatNativeCommand,
@@ -32,9 +34,7 @@ import {
   toggleLink,
   toggleStrike,
   toggleUnderline,
-} from '@blocksuite/affine-components/rich-text';
-import { toast } from '@blocksuite/affine-components/toast';
-import type { FrameBlockModel } from '@blocksuite/affine-model';
+} from '@blocksuite/affine-rich-text';
 import {
   copySelectedModelsCommand,
   deleteSelectedModelsCommand,

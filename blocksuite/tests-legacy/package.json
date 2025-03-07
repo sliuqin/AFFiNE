@@ -7,10 +7,8 @@
     "test": "yarn playwright test"
   },
   "dependencies": {
-    "@blocksuite/affine-components": "workspace:*",
-    "@blocksuite/affine-model": "workspace:*",
-    "@blocksuite/affine-shared": "workspace:*",
     "@blocksuite/block-std": "workspace:*",
+    "@blocksuite/blocks": "workspace:*",
     "@blocksuite/global": "workspace:*",
     "@blocksuite/inline": "workspace:*",
     "@blocksuite/integration-test": "workspace:*",

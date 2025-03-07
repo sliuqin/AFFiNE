@@ -1,4 +1,4 @@
-import { focusTextModel } from '@blocksuite/affine-components/rich-text';
+import { focusTextModel } from '@blocksuite/affine-rich-text';
 import { type Command, TextSelection } from '@blocksuite/block-std';
 
 /**

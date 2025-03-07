@@ -1,4 +1,3 @@
-import { textConversionConfigs } from '@blocksuite/affine-components/rich-text';
 import {
   CodeBlockModel,
   ListBlockModel,
@@ -6,7 +5,10 @@ import {
   NoteBlockSchema,
   ParagraphBlockModel,
 } from '@blocksuite/affine-model';
+import { textConversionConfigs } from '@blocksuite/affine-rich-text';
 import {
+  focusBlockEnd,
+  focusBlockStart,
   getBlockSelectionsCommand,
   getNextBlockCommand,
   getPrevBlockCommand,
@@ -28,8 +30,6 @@ import type { BaseSelection, BlockModel } from '@blocksuite/store';
 import {
   dedentBlocks,
   dedentBlocksToRoot,
-  focusBlockEnd,
-  focusBlockStart,
   indentBlocks,
   selectBlock,
   selectBlocksBetween,

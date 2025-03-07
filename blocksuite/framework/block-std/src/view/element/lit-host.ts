@@ -4,7 +4,6 @@ import {
   handleError,
 } from '@blocksuite/global/exceptions';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
-import { Slot } from '@blocksuite/global/slot';
 import {
   type BlockModel,
   Store,
@@ -90,10 +89,6 @@ export class EditorHost extends SignalWatcher(
     )}`;
   };
 
-  readonly slots = {
-    unmounted: new Slot(),
-  };
-
   get command(): CommandManager {
     return this.std.command;
   }
@@ -131,8 +126,6 @@ export class EditorHost extends SignalWatcher(
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.std.unmount();
-    this.slots.unmounted.emit();
-    this.slots.unmounted.dispose();
   }
 
   override async getUpdateComplete(): Promise<boolean> {

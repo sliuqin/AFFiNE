@@ -9,7 +9,9 @@
   "references": [
     { "path": "../block-note" },
     { "path": "../components" },
+    { "path": "../fragment-doc-title" },
     { "path": "../model" },
+    { "path": "../rich-text" },
     { "path": "../shared" },
     { "path": "../../framework/block-std" },
     { "path": "../../framework/global" },

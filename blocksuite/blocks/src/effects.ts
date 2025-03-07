@@ -24,7 +24,6 @@ import { effects as componentCardStyleDropdownMenuEffects } from '@blocksuite/af
 import { effects as componentColorPickerEffects } from '@blocksuite/affine-components/color-picker';
 import { effects as componentContextMenuEffects } from '@blocksuite/affine-components/context-menu';
 import { effects as componentDatePickerEffects } from '@blocksuite/affine-components/date-picker';
-import { effects as componentDocTitleEffects } from '@blocksuite/affine-components/doc-title';
 import { effects as componentDropIndicatorEffects } from '@blocksuite/affine-components/drop-indicator';
 import { effects as componentEmbedCardModalEffects } from '@blocksuite/affine-components/embed-card-modal';
 import { FilterableListComponent } from '@blocksuite/affine-components/filterable-list';
@@ -33,25 +32,75 @@ import { IconButton } from '@blocksuite/affine-components/icon-button';
 import { effects as componentLinkPreviewEffects } from '@blocksuite/affine-components/link-preview';
 import { effects as componentLinkedDocTitleEffects } from '@blocksuite/affine-components/linked-doc-title';
 import { effects as componentPortalEffects } from '@blocksuite/affine-components/portal';
-import { effects as componentRichTextEffects } from '@blocksuite/affine-components/rich-text';
 import { SmoothCorner } from '@blocksuite/affine-components/smooth-corner';
 import { effects as componentToggleButtonEffects } from '@blocksuite/affine-components/toggle-button';
 import { ToggleSwitch } from '@blocksuite/affine-components/toggle-switch';
 import { effects as componentToolbarEffects } from '@blocksuite/affine-components/toolbar';
 import { effects as componentViewDropdownMenuEffects } from '@blocksuite/affine-components/view-dropdown-menu';
+import { effects as fragmentDocTitleEffects } from '@blocksuite/affine-fragment-doc-title/effects';
 import { effects as fragmentFramePanelEffects } from '@blocksuite/affine-fragment-frame-panel/effects';
 import { effects as fragmentOutlineEffects } from '@blocksuite/affine-fragment-outline/effects';
+import { effects as richTextEffects } from '@blocksuite/affine-rich-text/effects';
 import { effects as widgetDragHandleEffects } from '@blocksuite/affine-widget-drag-handle/effects';
 import { effects as widgetEdgelessAutoConnectEffects } from '@blocksuite/affine-widget-edgeless-auto-connect/effects';
 import { effects as widgetFrameTitleEffects } from '@blocksuite/affine-widget-frame-title/effects';
 import { effects as widgetRemoteSelectionEffects } from '@blocksuite/affine-widget-remote-selection/effects';
 import { effects as widgetScrollAnchoringEffects } from '@blocksuite/affine-widget-scroll-anchoring/effects';
+import { effects as widgetSlashMenuEffects } from '@blocksuite/affine-widget-slash-menu/effects';
 import { effects as widgetToolbarEffects } from '@blocksuite/affine-widget-toolbar/effects';
 import { effects as stdEffects } from '@blocksuite/block-std/effects';
 import { effects as dataViewEffects } from '@blocksuite/data-view/effects';
 import { effects as inlineEffects } from '@blocksuite/inline/effects';
 
 import { registerSpecs } from './extensions/register.js';
+
+export declare const _GLOBAL_:
+  | typeof stdEffects
+  | typeof inlineEffects
+  | typeof dataViewEffects
+  | typeof richTextEffects
+  | typeof blockNoteEffects
+  | typeof blockAttachmentEffects
+  | typeof blockBookmarkEffects
+  | typeof blockFrameEffects
+  | typeof blockListEffects
+  | typeof blockParagraphEffects
+  | typeof blockEmbedEffects
+  | typeof blockSurfaceEffects
+  | typeof blockImageEffects
+  | typeof blockDatabaseEffects
+  | typeof blockSurfaceRefEffects
+  | typeof blockLatexEffects
+  | typeof blockEdgelessTextEffects
+  | typeof blockDividerEffects
+  | typeof blockDataViewEffects
+  | typeof blockCodeEffects
+  | typeof blockTableEffects
+  | typeof blockRootEffects
+  | typeof blockCalloutEffects
+  | typeof componentCaptionEffects
+  | typeof componentContextMenuEffects
+  | typeof componentDatePickerEffects
+  | typeof componentDropIndicatorEffects
+  | typeof componentEmbedCardModalEffects
+  | typeof componentHighlightDropdownMenuEffects
+  | typeof componentLinkPreviewEffects
+  | typeof componentLinkedDocTitleEffects
+  | typeof componentPortalEffects
+  | typeof componentToolbarEffects
+  | typeof componentToggleButtonEffects
+  | typeof componentColorPickerEffects
+  | typeof componentViewDropdownMenuEffects
+  | typeof widgetScrollAnchoringEffects
+  | typeof widgetFrameTitleEffects
+  | typeof widgetRemoteSelectionEffects
+  | typeof widgetDragHandleEffects
+  | typeof widgetEdgelessAutoConnectEffects
+  | typeof widgetToolbarEffects
+  | typeof widgetSlashMenuEffects
+  | typeof fragmentDocTitleEffects
+  | typeof fragmentFramePanelEffects
+  | typeof fragmentOutlineEffects;
 
 export function effects() {
   registerSpecs();
@@ -60,6 +109,7 @@ export function effects() {
   inlineEffects();
 
   dataViewEffects();
+  richTextEffects();
 
   blockNoteEffects();
   blockAttachmentEffects();
@@ -85,13 +135,11 @@ export function effects() {
   componentContextMenuEffects();
   componentDatePickerEffects();
   componentPortalEffects();
-  componentRichTextEffects();
   componentToolbarEffects();
   componentDropIndicatorEffects();
   componentToggleButtonEffects();
   componentColorPickerEffects();
   componentEmbedCardModalEffects();
-  componentDocTitleEffects();
   componentLinkPreviewEffects();
   componentLinkedDocTitleEffects();
   componentCardStyleDropdownMenuEffects();
@@ -103,8 +151,10 @@ export function effects() {
   widgetRemoteSelectionEffects();
   widgetDragHandleEffects();
   widgetEdgelessAutoConnectEffects();
+  widgetSlashMenuEffects();
   widgetToolbarEffects();
 
+  fragmentDocTitleEffects();
   fragmentFramePanelEffects();
   fragmentOutlineEffects();
 

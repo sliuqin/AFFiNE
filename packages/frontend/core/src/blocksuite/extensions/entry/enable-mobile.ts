@@ -17,7 +17,7 @@ import {
   imageToolbarWidget,
   ParagraphBlockService,
   ReferenceNodeConfigIdentifier,
-  slashMenuWidget,
+  SlashMenuExtension,
   surfaceRefToolbarWidget,
   toolbarWidget,
   VirtualKeyboardProvider as BSVirtualKeyboardProvider,
@@ -166,10 +166,10 @@ export function enableMobileExtension(
   specBuilder: SpecBuilder,
   framework: FrameworkProvider
 ): void {
-  specBuilder.omit(slashMenuWidget);
   specBuilder.omit(codeToolbarWidget);
   specBuilder.omit(imageToolbarWidget);
   specBuilder.omit(surfaceRefToolbarWidget);
   specBuilder.omit(toolbarWidget);
+  specBuilder.omit(SlashMenuExtension);
   specBuilder.extend([MobileSpecsPatches, KeyboardToolbarExtension(framework)]);
 }

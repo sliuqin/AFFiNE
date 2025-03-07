@@ -86,7 +86,7 @@ export class WorkspaceService {
       return;
     }
     const workspace = await this.getWorkspaceInfo(workspaceId);
-    const invitee = await this.models.user.getPublicUser(inviteeUserId);
+    const invitee = await this.models.user.getWorkspaceUser(inviteeUserId);
     if (!invitee) {
       this.logger.error(
         `Invitee user not found in workspace: ${workspaceId}, userId: ${inviteeUserId}`
@@ -105,10 +105,10 @@ export class WorkspaceService {
       await this.getInviteInfo(inviteId);
     const workspace = await this.getWorkspaceInfo(workspaceId);
     const invitee = inviteeUserId
-      ? await this.models.user.getPublicUser(inviteeUserId)
+      ? await this.models.user.getWorkspaceUser(inviteeUserId)
       : null;
     const inviter = inviterUserId
-      ? await this.models.user.getPublicUser(inviterUserId)
+      ? await this.models.user.getWorkspaceUser(inviterUserId)
       : await this.models.workspaceUser.getOwner(workspaceId);
 
     if (!inviter || !invitee) {
@@ -173,7 +173,7 @@ export class WorkspaceService {
       return;
     }
 
-    const invitee = await this.models.user.getPublicUser(inviteeUserId);
+    const invitee = await this.models.user.getWorkspaceUser(inviteeUserId);
     if (!invitee) {
       this.logger.error(
         `Invitee user not found for inviteId: ${inviteId}, userId: ${inviteeUserId}`
@@ -220,7 +220,7 @@ export class WorkspaceService {
     userId: string,
     ws: { id: string; role: WorkspaceRole }
   ) {
-    const user = await this.models.user.getPublicUser(userId);
+    const user = await this.models.user.getWorkspaceUser(userId);
     if (!user) throw new UserNotFound();
 
     const workspace = await this.getWorkspaceInfo(ws.id);

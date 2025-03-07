@@ -1,4 +1,4 @@
-import type { DatabaseBlockModel } from '@blocksuite/affine-model';
+import type { DatabaseBlockModel } from '@blocksuite/blocks';
 import { expect, type Page } from '@playwright/test';
 
 import { switchEditorMode } from './utils/actions/edgeless.js';

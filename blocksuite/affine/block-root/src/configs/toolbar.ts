@@ -9,6 +9,7 @@ import {
   promptDocTitle,
 } from '@blocksuite/affine-block-embed';
 import { updateBlockType } from '@blocksuite/affine-block-note';
+import { toast } from '@blocksuite/affine-components/toast';
 import {
   deleteTextCommand,
   formatBlockCommand,
@@ -17,8 +18,7 @@ import {
   isFormatSupported,
   textConversionConfigs,
   textFormatConfigs,
-} from '@blocksuite/affine-components/rich-text';
-import { toast } from '@blocksuite/affine-components/toast';
+} from '@blocksuite/affine-rich-text';
 import {
   copySelectedModelsCommand,
   deleteSelectedModelsCommand,

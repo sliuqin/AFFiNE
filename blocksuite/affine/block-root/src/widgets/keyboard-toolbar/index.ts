@@ -1,4 +1,4 @@
-import { getDocTitleByEditorHost } from '@blocksuite/affine-components/doc-title';
+import { getDocTitleByEditorHost } from '@blocksuite/affine-fragment-doc-title';
 import type { RootBlockModel } from '@blocksuite/affine-model';
 import { FeatureFlagService } from '@blocksuite/affine-shared/services';
 import { WidgetComponent } from '@blocksuite/block-std';

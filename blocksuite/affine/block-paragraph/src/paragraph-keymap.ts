@@ -1,14 +1,14 @@
 import {
-  focusTextModel,
-  getInlineEditorByModel,
-  markdownInput,
-  textKeymap,
-} from '@blocksuite/affine-components/rich-text';
-import {
   CalloutBlockModel,
   ParagraphBlockModel,
   ParagraphBlockSchema,
 } from '@blocksuite/affine-model';
+import {
+  focusTextModel,
+  getInlineEditorByModel,
+  markdownInput,
+  textKeymap,
+} from '@blocksuite/affine-rich-text';
 import {
   calculateCollapsedSiblings,
   matchModels,

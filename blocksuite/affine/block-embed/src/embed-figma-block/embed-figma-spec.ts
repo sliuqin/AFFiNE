@@ -1,5 +1,6 @@
 import { EmbedFigmaBlockSchema } from '@blocksuite/affine-model';
 import { ToolbarModuleExtension } from '@blocksuite/affine-shared/services';
+import { SlashMenuConfigExtension } from '@blocksuite/affine-widget-slash-menu';
 import {
   BlockServiceIdentifier,
   BlockViewExtension,
@@ -10,6 +11,7 @@ import { literal } from 'lit/static-html.js';
 
 import { createBuiltinToolbarConfigForExternal } from '../configs/toolbar';
 import { EmbedFigmaBlockAdapterExtensions } from './adapters/extension';
+import { embedFigmaSlashMenuConfig } from './configs/slash-menu';
 import { EmbedFigmaBlockComponent } from './embed-figma-block';
 import { EmbedFigmaBlockOptionConfig } from './embed-figma-service';
 
@@ -28,4 +30,5 @@ export const EmbedFigmaBlockSpec: ExtensionType[] = [
     id: BlockServiceIdentifier(flavour),
     config: createBuiltinToolbarConfigForExternal(EmbedFigmaBlockComponent),
   }),
+  SlashMenuConfigExtension(flavour, embedFigmaSlashMenuConfig),
 ].flat();

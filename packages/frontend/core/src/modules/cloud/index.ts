@@ -1,12 +1,6 @@
 export type { Invoice } from './entities/invoices';
 export { Server } from './entities/server';
 export type { AuthAccountInfo } from './entities/session';
-export {
-  BackendError,
-  isBackendError,
-  isNetworkError,
-  NetworkError,
-} from './error';
 export { AccountChanged } from './events/account-changed';
 export { AccountLoggedIn } from './events/account-logged-in';
 export { AccountLoggedOut } from './events/account-logged-out';
@@ -22,6 +16,7 @@ export { EventSourceService } from './services/eventsource';
 export { FetchService } from './services/fetch';
 export { GraphQLService } from './services/graphql';
 export { InvoicesService } from './services/invoices';
+export { PublicUserService } from './services/public-user';
 export { SelfhostGenerateLicenseService } from './services/selfhost-generate-license';
 export { SelfhostLicenseService } from './services/selfhost-license';
 export { ServerService } from './services/server';
@@ -69,6 +64,7 @@ import { EventSourceService } from './services/eventsource';
 import { FetchService } from './services/fetch';
 import { GraphQLService } from './services/graphql';
 import { InvoicesService } from './services/invoices';
+import { PublicUserService } from './services/public-user';
 import { SelfhostGenerateLicenseService } from './services/selfhost-generate-license';
 import { SelfhostLicenseService } from './services/selfhost-license';
 import { ServerService } from './services/server';
@@ -85,6 +81,7 @@ import { AuthStore } from './stores/auth';
 import { CloudDocMetaStore } from './stores/cloud-doc-meta';
 import { InviteInfoStore } from './stores/invite-info';
 import { InvoicesStore } from './stores/invoices';
+import { PublicUserStore } from './stores/public-user';
 import { SelfhostGenerateLicenseStore } from './stores/selfhost-generate-license';
 import { SelfhostLicenseStore } from './stores/selfhost-license';
 import { ServerConfigStore } from './stores/server-config';
@@ -153,7 +150,9 @@ export function configureCloudModule(framework: Framework) {
     .store(SelfhostGenerateLicenseStore, [GraphQLService])
     .store(InviteInfoStore, [GraphQLService])
     .service(AcceptInviteService, [AcceptInviteStore, InviteInfoStore])
-    .store(AcceptInviteStore, [GraphQLService]);
+    .store(AcceptInviteStore, [GraphQLService])
+    .service(PublicUserService, [PublicUserStore])
+    .store(PublicUserStore, [GraphQLService]);
 
   framework
     .scope(WorkspaceScope)

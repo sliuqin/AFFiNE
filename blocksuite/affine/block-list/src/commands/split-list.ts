@@ -1,5 +1,5 @@
-import { focusTextModel } from '@blocksuite/affine-components/rich-text';
 import { ListBlockModel } from '@blocksuite/affine-model';
+import { focusTextModel } from '@blocksuite/affine-rich-text';
 import {
   getNextContinuousNumberedLists,
   matchModels,

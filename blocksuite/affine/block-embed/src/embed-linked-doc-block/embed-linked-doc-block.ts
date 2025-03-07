@@ -1,11 +1,11 @@
 import { SurfaceBlockModel } from '@blocksuite/affine-block-surface';
 import { isPeekable, Peekable } from '@blocksuite/affine-components/peek';
-import { RefNodeSlotsProvider } from '@blocksuite/affine-components/rich-text';
 import type {
   DocMode,
   EmbedLinkedDocModel,
   EmbedLinkedDocStyles,
 } from '@blocksuite/affine-model';
+import { RefNodeSlotsProvider } from '@blocksuite/affine-rich-text';
 import {
   EMBED_CARD_HEIGHT,
   EMBED_CARD_WIDTH,

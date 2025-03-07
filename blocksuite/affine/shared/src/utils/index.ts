@@ -14,6 +14,7 @@ export * from './insert';
 export * from './is-abort-error';
 export * from './math';
 export * from './model';
+export * from './popper-position';
 export * from './print-to-pdf';
 export * from './reference';
 export * from './reordering';

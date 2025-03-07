@@ -17,6 +17,10 @@ export class StoreExtension extends Extension {
     super();
   }
 
+  loaded() {}
+
+  disposed() {}
+
   static readonly [storeExtensionSymbol] = true;
 
   static override setup(di: Container) {

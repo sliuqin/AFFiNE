@@ -2,7 +2,6 @@ import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
 import { Slot } from '@blocksuite/global/slot';
 import { computed, signal } from '@preact/signals-core';
 
-import type { Store } from '../../model';
 import { nanoid } from '../../utils/id-generator';
 import type { StackItem } from '../../yjs';
 import { StoreExtension } from '../store-extension';
@@ -47,9 +46,7 @@ export class StoreSelectionExtension extends StoreExtension {
     remoteChanged: new Slot<Map<number, BaseSelection[]>>(),
   };
 
-  constructor(store: Store) {
-    super(store);
-
+  override loaded() {
     this.store.provider.getAll(SelectionIdentifier).forEach(ctor => {
       [ctor].flat().forEach(ctor => {
         this._selectionConstructors[ctor.type] = ctor;

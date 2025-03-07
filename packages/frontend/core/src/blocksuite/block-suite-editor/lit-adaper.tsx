@@ -11,6 +11,7 @@ import {
   type PageEditor,
 } from '@affine/core/blocksuite/editors';
 import { useEnableAI } from '@affine/core/components/hooks/affine/use-enable-ai';
+import { AuthService, PublicUserService } from '@affine/core/modules/cloud';
 import type { DocCustomPropertyInfo } from '@affine/core/modules/db';
 import { DocService, DocsService } from '@affine/core/modules/doc';
 import type {
@@ -75,6 +76,7 @@ import {
   type ReferenceReactRenderer,
 } from '../extensions/reference-renderer';
 import { patchSideBarService } from '../extensions/side-bar-service';
+import { patchUserExtensions } from '../extensions/user';
 import { patchUserListExtensions } from '../extensions/user-list';
 import { BiDirectionalLinkPanel } from './bi-directional-link-panel';
 import { BlocksuiteEditorJournalDocTitle } from './journal-doc-title';
@@ -98,6 +100,8 @@ const usePatchSpecs = (mode: DocMode) => {
     workspaceService,
     featureFlagService,
     memberSearchService,
+    publicUserService,
+    authService,
   } = useServices({
     PeekViewService,
     DocService,
@@ -106,7 +110,10 @@ const usePatchSpecs = (mode: DocMode) => {
     EditorService,
     FeatureFlagService,
     MemberSearchService,
+    PublicUserService,
+    AuthService,
   });
+  const isCloud = workspaceService.workspace.flavour !== 'local';
   const framework = useFramework();
   const referenceRenderer: ReferenceReactRenderer = useMemo(() => {
     return function customReference(reference) {
@@ -160,11 +167,16 @@ const usePatchSpecs = (mode: DocMode) => {
         patchPeekViewService(peekViewService),
         patchOpenDocExtension(),
         EdgelessClipboardWatcher,
-        patchUserListExtensions(memberSearchService),
         patchDocUrlExtensions(framework),
         patchQuickSearchService(framework),
         patchSideBarService(framework),
         patchDocModeService(docService, docsService, editorService),
+        isCloud
+          ? [
+              patchUserListExtensions(memberSearchService),
+              patchUserExtensions(publicUserService, authService),
+            ]
+          : [],
         patchDatabaseBlockConfigService(),
         mode === 'edgeless' && enableTurboRenderer
           ? [ViewportTurboRendererExtension]
@@ -191,10 +203,13 @@ const usePatchSpecs = (mode: DocMode) => {
     referenceRenderer,
     confirmModal,
     peekViewService,
-    memberSearchService,
     docService,
     docsService,
     editorService,
+    isCloud,
+    memberSearchService,
+    publicUserService,
+    authService,
     enableTurboRenderer,
     featureFlagService.flags.enable_pdf_embed_preview.value,
   ]);

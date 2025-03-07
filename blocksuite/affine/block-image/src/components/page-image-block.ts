@@ -1,5 +1,6 @@
-import { focusBlockEnd, focusBlockStart } from '@blocksuite/affine-block-note';
 import {
+  focusBlockEnd,
+  focusBlockStart,
   getNextBlockCommand,
   getPrevBlockCommand,
 } from '@blocksuite/affine-shared/commands';

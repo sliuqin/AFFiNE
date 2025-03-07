@@ -1,8 +1,8 @@
+import { ParagraphBlockModel } from '@blocksuite/affine-model';
 import {
   focusTextModel,
   getInlineEditorByModel,
-} from '@blocksuite/affine-components/rich-text';
-import { ParagraphBlockModel } from '@blocksuite/affine-model';
+} from '@blocksuite/affine-rich-text';
 import { matchModels } from '@blocksuite/affine-shared/utils';
 import { type Command, TextSelection } from '@blocksuite/block-std';
 

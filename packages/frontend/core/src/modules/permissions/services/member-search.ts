@@ -1,5 +1,4 @@
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   fromPromise,
@@ -7,10 +6,10 @@ import {
   onComplete,
   onStart,
   Service,
+  smartRetry,
 } from '@toeverything/infra';
 import { EMPTY, exhaustMap, mergeMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../../cloud';
 import type { WorkspaceService } from '../../workspace';
 import type { Member } from '../entities/members';
 import type { MemberSearchStore } from '../stores/member-search';
@@ -50,13 +49,7 @@ export class MemberSearchService extends Service {
 
           return EMPTY;
         }),
-        backoffRetry({
-          when: isNetworkError,
-          count: Infinity,
-        }),
-        backoffRetry({
-          when: isBackendError,
-        }),
+        smartRetry(),
         catchErrorInto(this.error$),
         onStart(() => {
           this.isLoading$.setValue(true);

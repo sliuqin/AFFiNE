@@ -1,5 +1,5 @@
-import type { RichText } from '@blocksuite/affine-components/rich-text';
 import type { FrameBlockModel } from '@blocksuite/affine-model';
+import type { RichText } from '@blocksuite/affine-rich-text';
 import { ShadowlessElement } from '@blocksuite/block-std';
 import { WithDisposable } from '@blocksuite/global/lit';
 import { css, html } from 'lit';

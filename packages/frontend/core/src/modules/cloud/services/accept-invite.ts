@@ -1,6 +1,5 @@
 import type { GetInviteInfoQuery } from '@affine/graphql';
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   fromPromise,
@@ -8,10 +7,10 @@ import {
   onComplete,
   onStart,
   Service,
+  smartRetry,
 } from '@toeverything/infra';
 import { EMPTY, exhaustMap, mergeMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../error';
 import type { AcceptInviteStore } from '../stores/accept-invite';
 import type { InviteInfoStore } from '../stores/invite-info';
 
@@ -52,14 +51,7 @@ export class AcceptInviteService extends Service {
           this.accepted$.next(res);
           return EMPTY;
         }),
-        backoffRetry({
-          when: isNetworkError,
-          count: Infinity,
-        }),
-        backoffRetry({
-          when: isBackendError,
-          count: 3,
-        }),
+        smartRetry(),
         catchErrorInto(this.error$),
         onStart(() => {
           this.inviteId$.setValue(inviteId);

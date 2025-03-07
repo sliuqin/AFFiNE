@@ -15,10 +15,11 @@ import {
   listenClickAway,
   stopPropagation,
 } from '@blocksuite/affine-shared/utils';
-import type {
-  BlockComponent,
-  BlockStdScope,
-  EditorHost,
+import {
+  type BlockComponent,
+  type BlockStdScope,
+  type EditorHost,
+  EditorLifeCycleExtension,
 } from '@blocksuite/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { nextTick } from '@blocksuite/global/utils';
@@ -256,7 +257,9 @@ export class EmbedCardEditModal extends SignalWatcher(
   override connectedCallback() {
     super.connectedCallback();
 
-    this.disposables.add(this.host.slots.unmounted.on(this._hide));
+    this.disposables.add(
+      this.host.std.get(EditorLifeCycleExtension).slots.unmounted.on(this._hide)
+    );
     this._updateInfo();
   }
 

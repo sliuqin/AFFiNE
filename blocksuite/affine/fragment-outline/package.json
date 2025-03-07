@@ -15,7 +15,9 @@
   "dependencies": {
     "@blocksuite/affine-block-note": "workspace:*",
     "@blocksuite/affine-components": "workspace:*",
+    "@blocksuite/affine-fragment-doc-title": "workspace:*",
     "@blocksuite/affine-model": "workspace:*",
+    "@blocksuite/affine-rich-text": "workspace:*",
     "@blocksuite/affine-shared": "workspace:*",
     "@blocksuite/block-std": "workspace:*",
     "@blocksuite/global": "workspace:*",

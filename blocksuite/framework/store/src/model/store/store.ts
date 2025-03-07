@@ -594,6 +594,10 @@ export class Store {
   }
 
   dispose() {
+    this._provider.getAll(StoreExtensionIdentifier).forEach(ext => {
+      ext.disposed();
+    });
+
     this._disposeBlockUpdated.dispose();
     this.slots.ready.dispose();
     this.slots.blockUpdated.dispose();
@@ -699,7 +703,9 @@ export class Store {
 
   load(initFn?: () => void) {
     this._doc.load(initFn);
-    this._provider.getAll(StoreExtensionIdentifier);
+    this._provider.getAll(StoreExtensionIdentifier).forEach(ext => {
+      ext.loaded();
+    });
     this.slots.ready.emit();
     return this;
   }

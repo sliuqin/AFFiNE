@@ -1,13 +1,13 @@
 import {
-  asyncSetInlineRange,
-  focusTextModel,
-  onModelTextUpdated,
-} from '@blocksuite/affine-components/rich-text';
-import {
   CodeBlockModel,
   ListBlockModel,
   ParagraphBlockModel,
 } from '@blocksuite/affine-model';
+import {
+  asyncSetInlineRange,
+  focusTextModel,
+  onModelTextUpdated,
+} from '@blocksuite/affine-rich-text';
 import {
   getBlockSelectionsCommand,
   getSelectedBlocksCommand,

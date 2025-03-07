@@ -10,7 +10,7 @@ import {
   LinkInlineSpecExtension,
   StrikeInlineSpecExtension,
   UnderlineInlineSpecExtension,
-} from '@blocksuite/affine-components/rich-text';
+} from '@blocksuite/affine-rich-text';
 import { html } from 'lit';
 import { z } from 'zod';
 

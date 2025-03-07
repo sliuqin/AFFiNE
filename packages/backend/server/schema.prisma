@@ -35,6 +35,8 @@ model User {
   updatedSnapshot       Snapshot[]             @relation("updatedSnapshot")
   createdUpdate         Update[]               @relation("createdUpdate")
   createdHistory        SnapshotHistory[]      @relation("createdHistory")
+  // receive notifications
+  notifications         Notification[]         @relation("user_notifications")
 
   @@index([email])
   @@map("users")
@@ -101,6 +103,8 @@ model Workspace {
   // workspace level feature flags
   enableAi         Boolean  @default(true) @map("enable_ai")
   enableUrlPreview Boolean  @default(false) @map("enable_url_preview")
+  name             String?  @db.VarChar
+  avatarKey        String?  @map("avatar_key") @db.VarChar
 
   features       WorkspaceFeature[]
   docs           WorkspaceDoc[]
@@ -126,6 +130,8 @@ model WorkspaceDoc {
   mode        Int     @default(0) @db.SmallInt
   // Whether the doc is blocked
   blocked     Boolean @default(false)
+  title       String?  @db.VarChar
+  summary     String?  @db.VarChar
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
@@ -619,4 +625,40 @@ model Blob {
 
   @@id([workspaceId, key])
   @@map("blobs")
+}
+
+enum NotificationType {
+  Mention
+  Invitation
+  InvitationAccepted
+  InvitationBlocked
+  InvitationRejected
+}
+
+enum NotificationLevel {
+  // Makes a sound and appears as a heads-up notification
+  High
+  // Makes a sound
+  Default
+  // Makes no sound
+  Low
+  Min
+  None
+}
+
+model Notification {
+  id            String            @id @default(uuid()) @db.VarChar
+  userId        String            @map("user_id") @db.VarChar
+  createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  level         NotificationLevel
+  read          Boolean           @default(false)
+  type          NotificationType
+  body          Json              @db.JsonB
+
+  user          User              @relation(name: "user_notifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  // for user notifications list, including read and unread, ordered by createdAt
+  @@index([userId, createdAt, read])
+  @@map("notifications")
 }

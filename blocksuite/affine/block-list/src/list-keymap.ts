@@ -1,8 +1,5 @@
-import {
-  markdownInput,
-  textKeymap,
-} from '@blocksuite/affine-components/rich-text';
 import { ListBlockSchema } from '@blocksuite/affine-model';
+import { markdownInput, textKeymap } from '@blocksuite/affine-rich-text';
 import { getSelectedModelsCommand } from '@blocksuite/affine-shared/commands';
 import { KeymapExtension, TextSelection } from '@blocksuite/block-std';
 import { IS_MAC } from '@blocksuite/global/env';

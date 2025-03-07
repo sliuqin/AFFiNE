@@ -1,6 +1,9 @@
 import type { EditorHost } from '@blocksuite/block-std';
+import type * as Effects from '@blocksuite/blocks/effects';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
 import type { Store, Transformer, Workspace } from '@blocksuite/store';
+
+declare const _GLOBAL_: typeof Effects;
 
 declare global {
   interface Window {

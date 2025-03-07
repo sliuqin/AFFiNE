@@ -2,7 +2,7 @@ import {
   EdgelessCRUDIdentifier,
   getSurfaceBlock,
 } from '@blocksuite/affine-block-surface';
-import { focusTextModel } from '@blocksuite/affine-components/rich-text';
+import { focusTextModel } from '@blocksuite/affine-rich-text';
 import type { Command } from '@blocksuite/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
 import { Bound } from '@blocksuite/global/gfx';

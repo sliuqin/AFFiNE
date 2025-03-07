@@ -1,5 +1,5 @@
-import type { RichText } from '@blocksuite/affine-components/rich-text';
 import { FrameBlockModel } from '@blocksuite/affine-model';
+import type { RichText } from '@blocksuite/affine-rich-text';
 import {
   AFFINE_FRAME_TITLE_WIDGET,
   type AffineFrameTitleWidget,

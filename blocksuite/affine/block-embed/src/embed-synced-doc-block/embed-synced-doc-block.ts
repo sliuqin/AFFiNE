@@ -1,15 +1,15 @@
 import { Peekable } from '@blocksuite/affine-components/peek';
 import {
-  type DocLinkClickedEvent,
-  RefNodeSlotsProvider,
-} from '@blocksuite/affine-components/rich-text';
-import {
   type AliasInfo,
   type DocMode,
   type EmbedSyncedDocModel,
   NoteDisplayMode,
   type ReferenceInfo,
 } from '@blocksuite/affine-model';
+import {
+  type DocLinkClickedEvent,
+  RefNodeSlotsProvider,
+} from '@blocksuite/affine-rich-text';
 import { REFERENCE_NODE } from '@blocksuite/affine-shared/consts';
 import {
   DocDisplayMetaProvider,

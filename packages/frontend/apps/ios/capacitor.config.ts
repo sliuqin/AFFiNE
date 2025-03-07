@@ -6,6 +6,7 @@ const config: CapacitorConfig = {
   appName: 'AFFiNE',
   webDir: 'dist',
   ios: {
+    scheme: 'AFFiNE',
     path: '.',
     webContentsDebuggingEnabled: true,
   },

@@ -5,6 +5,7 @@ import { HttpStatus, Logger } from '@nestjs/common';
 import { ClsServiceManager } from 'nestjs-cls';
 
 export type UserFriendlyErrorBaseType =
+  | 'network_error'
   | 'bad_request'
   | 'too_many_requests'
   | 'resource_not_found'
@@ -26,6 +27,7 @@ export type UserFriendlyErrorOptions = {
 };
 
 const BaseTypeToHttpStatusMap: Record<UserFriendlyErrorBaseType, HttpStatus> = {
+  network_error: HttpStatus.GATEWAY_TIMEOUT,
   too_many_requests: HttpStatus.TOO_MANY_REQUESTS,
   bad_request: HttpStatus.BAD_REQUEST,
   resource_not_found: HttpStatus.NOT_FOUND,
@@ -238,6 +240,10 @@ export const USER_FRIENDLY_ERRORS = {
   internal_server_error: {
     type: 'internal_server_error',
     message: 'An internal error occurred.',
+  },
+  network_error: {
+    type: 'network_error',
+    message: 'Network error.',
   },
   too_many_request: {
     type: 'too_many_requests',
@@ -760,5 +766,20 @@ export const USER_FRIENDLY_ERRORS = {
     },
     message: ({ clientVersion, requiredVersion }) =>
       `Unsupported client with version [${clientVersion}], required version is [${requiredVersion}].`,
+  },
+
+  // Notification Errors
+  notification_not_found: {
+    type: 'resource_not_found',
+    message: 'Notification not found.',
+  },
+  mention_user_doc_access_denied: {
+    type: 'no_permission',
+    args: { docId: 'string' },
+    message: ({ docId }) => `Mentioned user can not access doc ${docId}.`,
+  },
+  mention_user_oneself_denied: {
+    type: 'action_forbidden',
+    message: 'You can not mention yourself.',
   },
 } satisfies Record<string, UserFriendlyErrorOptions>;

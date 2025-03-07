@@ -11,6 +11,7 @@ import { DocModel } from './doc';
 import { DocUserModel } from './doc-user';
 import { FeatureModel } from './feature';
 import { HistoryModel } from './history';
+import { NotificationModel } from './notification';
 import { MODELS_SYMBOL } from './provider';
 import { SessionModel } from './session';
 import { UserModel } from './user';
@@ -34,6 +35,7 @@ const MODELS = {
   workspaceUser: WorkspaceUserModel,
   docUser: DocUserModel,
   history: HistoryModel,
+  notification: NotificationModel,
 };
 
 type ModelsType = {
@@ -90,6 +92,7 @@ export * from './doc';
 export * from './doc-user';
 export * from './feature';
 export * from './history';
+export * from './notification';
 export * from './session';
 export * from './user';
 export * from './user-doc';

@@ -1,4 +1,3 @@
-import { focusTextModel } from '@blocksuite/affine-components/rich-text';
 import {
   DEFAULT_NOTE_HEIGHT,
   DEFAULT_NOTE_WIDTH,
@@ -6,6 +5,7 @@ import {
   type NoteBlockModel,
   NoteDisplayMode,
 } from '@blocksuite/affine-model';
+import { focusTextModel } from '@blocksuite/affine-rich-text';
 import { TelemetryProvider } from '@blocksuite/affine-shared/services';
 import type { NoteChildrenFlavour } from '@blocksuite/affine-shared/types';
 import { handleNativeRangeAtPoint } from '@blocksuite/affine-shared/utils';

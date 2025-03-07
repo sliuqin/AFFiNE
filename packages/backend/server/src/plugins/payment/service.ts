@@ -574,7 +574,7 @@ export class SubscriptionService implements OnApplicationBootstrap {
       return null;
     }
 
-    const user = await this.models.user.getPublicUserByEmail(customer.email);
+    const user = await this.models.user.getWorkspaceUserByEmail(customer.email);
 
     if (!user) {
       return {
@@ -620,7 +620,7 @@ export class SubscriptionService implements OnApplicationBootstrap {
       return null;
     }
 
-    const user = await this.models.user.getPublicUserByEmail(
+    const user = await this.models.user.getWorkspaceUserByEmail(
       invoice.customer_email
     );
 

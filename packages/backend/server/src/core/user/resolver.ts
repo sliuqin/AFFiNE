@@ -27,6 +27,7 @@ import { validators } from '../utils/validators';
 import {
   DeleteAccount,
   ManageUserInput,
+  PublicUserType,
   RemoveAvatar,
   UpdateUserInput,
   UserOrLimitedUser,
@@ -68,6 +69,19 @@ export class UserResolver {
       email: user.email,
       hasPassword: !!user.password,
     };
+  }
+
+  @Throttle('strict')
+  @Query(() => PublicUserType, {
+    name: 'publicUserById',
+    description: 'Get public user by id',
+    nullable: true,
+  })
+  @Public()
+  async getPublicUserById(
+    @Args('id', { type: () => String }) id: string
+  ): Promise<PublicUserType | null> {
+    return await this.models.user.getPublicUser(id);
   }
 
   @Mutation(() => UserType, {

@@ -1,4 +1,5 @@
 import { AIProvider } from '@affine/core/blocksuite/ai';
+import { UserFriendlyError } from '@affine/error';
 import type { OAuthProviderType } from '@affine/graphql';
 import { track } from '@affine/track';
 import { OnEvent, Service } from '@toeverything/infra';
@@ -7,7 +8,6 @@ import { distinctUntilChanged, map, skip } from 'rxjs';
 import { ApplicationFocused } from '../../lifecycle';
 import type { UrlService } from '../../url';
 import { type AuthAccountInfo, AuthSession } from '../entities/session';
-import { BackendError } from '../error';
 import { AccountChanged } from '../events/account-changed';
 import { AccountLoggedIn } from '../events/account-logged-in';
 import { AccountLoggedOut } from '../events/account-logged-out';
@@ -103,7 +103,7 @@ export class AuthService extends Service {
     } catch (e) {
       track.$.$.auth.signInFail({
         method: 'magic-link',
-        reason: e instanceof BackendError ? e.originError.name : 'unknown',
+        reason: UserFriendlyError.fromAny(e).name,
       });
       throw e;
     }
@@ -119,7 +119,7 @@ export class AuthService extends Service {
     } catch (e) {
       track.$.$.auth.signInFail({
         method,
-        reason: e instanceof BackendError ? e.originError.name : 'unknown',
+        reason: UserFriendlyError.fromAny(e).name,
       });
       throw e;
     }
@@ -159,7 +159,7 @@ export class AuthService extends Service {
       track.$.$.auth.signInFail({
         method: 'oauth',
         provider,
-        reason: e instanceof BackendError ? e.originError.name : 'unknown',
+        reason: UserFriendlyError.fromAny(e).name,
       });
       throw e;
     }
@@ -181,7 +181,7 @@ export class AuthService extends Service {
       track.$.$.auth.signInFail({
         method: 'oauth',
         provider,
-        reason: e instanceof BackendError ? e.originError.name : 'unknown',
+        reason: UserFriendlyError.fromAny(e).name,
       });
       throw e;
     }
@@ -201,7 +201,7 @@ export class AuthService extends Service {
     } catch (e) {
       track.$.$.auth.signInFail({
         method: 'password',
-        reason: e instanceof BackendError ? e.originError.name : 'unknown',
+        reason: UserFriendlyError.fromAny(e).name,
       });
       throw e;
     }

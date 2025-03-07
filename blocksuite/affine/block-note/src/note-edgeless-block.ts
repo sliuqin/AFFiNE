@@ -1,5 +1,5 @@
 import { EdgelessLegacySlotIdentifier } from '@blocksuite/affine-block-surface';
-import type { DocTitle } from '@blocksuite/affine-components/doc-title';
+import type { DocTitle } from '@blocksuite/affine-fragment-doc-title';
 import { NoteDisplayMode } from '@blocksuite/affine-model';
 import { EDGELESS_BLOCK_CHILD_PADDING } from '@blocksuite/affine-shared/consts';
 import { TelemetryProvider } from '@blocksuite/affine-shared/services';

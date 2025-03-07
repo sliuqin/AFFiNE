@@ -3,11 +3,12 @@ import type { IconButton } from '@blocksuite/affine-components/icon-button';
 import {
   cleanSpecifiedTail,
   getTextContentFromInlineRange,
-} from '@blocksuite/affine-components/rich-text';
+} from '@blocksuite/affine-rich-text';
 import { unsafeCSSVar } from '@blocksuite/affine-shared/theme';
 import {
   createKeydownObserver,
   getCurrentNativeRange,
+  getPopperPosition,
   getViewportElement,
 } from '@blocksuite/affine-shared/utils';
 import { PropTypes, requiredProperties } from '@blocksuite/block-std';
@@ -20,7 +21,6 @@ import { property, query, queryAll, state } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import throttle from 'lodash-es/throttle';
 
-import { getPopperPosition } from '../../utils/position.js';
 import type { LinkedDocContext, LinkedMenuGroup } from './config.js';
 import { linkedDocPopoverStyles } from './styles.js';
 import { resolveSignal } from './utils.js';

@@ -3,11 +3,12 @@ import {
   PropTypes,
   requiredProperties,
 } from '@blocksuite/affine/block-std';
-import { EnterIcon } from '@blocksuite/affine/blocks';
+import { EnterIcon, stopPropagation } from '@blocksuite/affine/blocks';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { baseTheme } from '@toeverything/theme';
 import { css, html, LitElement, nothing, unsafeCSS } from 'lit';
 import { property } from 'lit/decorators.js';
+import { repeat } from 'lit/directives/repeat.js';
 
 import { menuItemStyles } from './styles';
 import type { AIItemConfig, AISubItemConfig } from './types';
@@ -54,10 +55,18 @@ export class AISubItemList extends WithDisposable(LitElement) {
     this.abortController.abort();
   };
 
+  override connectedCallback() {
+    super.connectedCallback();
+
+    this.disposables.addFromEvent(this, 'pointerdown', stopPropagation);
+  }
+
   override render() {
     if (!this.item.subItem || this.item.subItem.length <= 0) return nothing;
     return html`<div class="ai-sub-menu">
-      ${this.item.subItem?.map(
+      ${repeat(
+        this.item.subItem,
+        subItem => subItem.type,
         subItem =>
           html`<div
             class="menu-item"

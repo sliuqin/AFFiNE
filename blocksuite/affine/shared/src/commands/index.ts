@@ -14,6 +14,8 @@ export {
   retainFirstModelCommand,
 } from './model-crud/index.js';
 export {
+  focusBlockEnd,
+  focusBlockStart,
   getBlockSelectionsCommand,
   getImageSelectionsCommand,
   getRangeRects,

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/graphql';
 import type { User } from '@prisma/client';
 
-import { PublicUser } from '../../models';
+import { PublicUser, WorkspaceUser } from '../../models';
 import { type CurrentUser } from '../auth/session';
 
 @ObjectType()
@@ -45,6 +45,18 @@ export class UserType implements CurrentUser {
 
 @ObjectType()
 export class PublicUserType implements PublicUser {
+  @Field()
+  id!: string;
+
+  @Field()
+  name!: string;
+
+  @Field(() => String, { nullable: true })
+  avatarUrl!: string | null;
+}
+
+@ObjectType()
+export class WorkspaceUserType implements WorkspaceUser {
   @Field()
   id!: string;
 

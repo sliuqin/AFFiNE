@@ -532,4 +532,130 @@ test('should get public docs of a workspace', async t => {
   t.deepEqual(docs.map(d => d.docId).sort(), [docId1, docId2]);
 });
 
+test('should update title and summary', async t => {
+  const docId = randomUUID();
+  const snapshot = {
+    spaceId: workspace.id,
+    docId,
+    blob: Buffer.from('blob1'),
+    timestamp: Date.now(),
+    editorId: user.id,
+  };
+  await t.context.doc.upsert(snapshot);
+  const content = {
+    title: 'test title',
+    summary: 'test summary',
+  };
+  await t.context.doc.upsertMeta(workspace.id, docId, content);
+  const foundContent = await t.context.doc.getMeta(workspace.id, docId, {
+    select: {
+      title: true,
+      summary: true,
+    },
+  });
+  t.deepEqual(foundContent, content);
+  const updatedContent = {
+    title: 'test title 2',
+    summary: 'test summary 2',
+  };
+  await t.context.doc.upsertMeta(workspace.id, docId, updatedContent);
+  const foundUpdatedContent = await t.context.doc.getMeta(workspace.id, docId, {
+    select: {
+      title: true,
+      summary: true,
+    },
+  });
+  t.deepEqual(foundUpdatedContent, updatedContent);
+});
+
+test('should find metas by workspaceIds and docIds', async t => {
+  const docId1 = randomUUID();
+  const docId2 = randomUUID();
+  const docId3 = randomUUID();
+  const snapshot1 = {
+    spaceId: workspace.id,
+    docId: docId1,
+    blob: Buffer.from('blob1'),
+    timestamp: Date.now(),
+    editorId: user.id,
+  };
+  const snapshot2 = {
+    spaceId: workspace.id,
+    docId: docId2,
+    blob: Buffer.from('blob2'),
+    timestamp: Date.now(),
+    editorId: user.id,
+  };
+  const snapshot3 = {
+    spaceId: workspace.id,
+    docId: docId3,
+    blob: Buffer.from('blob3'),
+    timestamp: Date.now(),
+    editorId: user.id,
+  };
+  await t.context.doc.upsert(snapshot1);
+  await t.context.doc.upsert(snapshot2);
+  await t.context.doc.upsert(snapshot3);
+  const content1 = {
+    title: 'test title',
+    summary: 'test summary',
+  };
+  const content2 = {
+    title: 'test title 2',
+    summary: 'test summary 2',
+  };
+  await t.context.doc.upsertMeta(workspace.id, docId1, content1);
+  await t.context.doc.upsertMeta(workspace.id, docId2, content2);
+  let contents = await t.context.doc.findMetas([
+    { workspaceId: workspace.id, docId: docId1 },
+    { workspaceId: workspace.id, docId: randomUUID() },
+    { workspaceId: randomUUID(), docId: docId1 },
+    { workspaceId: workspace.id, docId: docId2 },
+    { workspaceId: randomUUID(), docId: randomUUID() },
+  ]);
+  t.deepEqual(
+    contents.map(c =>
+      c
+        ? {
+            title: c.title,
+            summary: c.summary,
+          }
+        : null
+    ),
+    [content1, null, null, content2, null]
+  );
+  contents = await t.context.doc.findMetas([
+    { workspaceId: workspace.id, docId: docId1 },
+    { workspaceId: workspace.id, docId: docId2 },
+  ]);
+  t.deepEqual(
+    contents.map(c =>
+      c
+        ? {
+            title: c.title,
+            summary: c.summary,
+          }
+        : null
+    ),
+    [content1, content2]
+  );
+  // docId3 don't have meta
+  contents = await t.context.doc.findMetas([
+    { workspaceId: workspace.id, docId: docId1 },
+    { workspaceId: workspace.id, docId: docId2 },
+    { workspaceId: workspace.id, docId: docId3 },
+  ]);
+  t.deepEqual(
+    contents.map(c =>
+      c
+        ? {
+            title: c.title,
+            summary: c.summary,
+          }
+        : null
+    ),
+    [content1, content2, null]
+  );
+});
+
 // #endregion

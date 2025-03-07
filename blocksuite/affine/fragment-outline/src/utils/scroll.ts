@@ -1,4 +1,4 @@
-import { getDocTitleByEditorHost } from '@blocksuite/affine-components/doc-title';
+import { getDocTitleByEditorHost } from '@blocksuite/affine-fragment-doc-title';
 import { NoteDisplayMode } from '@blocksuite/affine-model';
 import { DocModeProvider } from '@blocksuite/affine-shared/services';
 import type { Viewport } from '@blocksuite/affine-shared/types';

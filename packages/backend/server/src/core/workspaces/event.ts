@@ -32,7 +32,7 @@ export class WorkspaceEvents {
     userId,
     workspaceId,
   }: Events['workspace.members.requestDeclined']) {
-    const user = await this.models.user.getPublicUser(userId);
+    const user = await this.models.user.getWorkspaceUser(userId);
     // send decline mail
     await this.workspaceService.sendReviewDeclinedEmail(
       user?.email,
@@ -60,8 +60,8 @@ export class WorkspaceEvents {
     to,
   }: Events['workspace.owner.changed']) {
     // send ownership transferred mail
-    const fromUser = await this.models.user.getPublicUser(from);
-    const toUser = await this.models.user.getPublicUser(to);
+    const fromUser = await this.models.user.getWorkspaceUser(from);
+    const toUser = await this.models.user.getWorkspaceUser(to);
 
     if (fromUser) {
       await this.workspaceService.sendOwnershipTransferredEmail(

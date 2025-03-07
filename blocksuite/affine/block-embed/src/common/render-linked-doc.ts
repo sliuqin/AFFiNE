@@ -10,7 +10,7 @@ import {
 import { EMBED_CARD_HEIGHT } from '@blocksuite/affine-shared/consts';
 import { NotificationProvider } from '@blocksuite/affine-shared/services';
 import { matchModels, SpecProvider } from '@blocksuite/affine-shared/utils';
-import { BlockStdScope } from '@blocksuite/block-std';
+import { BlockStdScope, EditorLifeCycleExtension } from '@blocksuite/block-std';
 import {
   type BlockModel,
   type BlockSnapshot,
@@ -351,7 +351,9 @@ export function notifyDocCreated(std: BlockStdScope, doc: Store) {
   // edit or undo or switch doc, close notify toast
   const addHandler = doc.history.on('stack-item-added', closeNotify);
   const popHandler = doc.history.on('stack-item-popped', closeNotify);
-  const disposable = std.host.slots.unmounted.on(closeNotify);
+  const disposable = std
+    .get(EditorLifeCycleExtension)
+    .slots.unmounted.on(closeNotify);
 
   notification.notify({
     title: 'Linked doc created',

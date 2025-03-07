@@ -1,7 +1,14 @@
+import { randomUUID } from 'node:crypto';
+
 import type { TestFn } from 'ava';
 import ava from 'ava';
 
-import { createTestingApp, TestingApp, updateAvatar } from '../utils';
+import {
+  createTestingApp,
+  getPublicUserById,
+  TestingApp,
+  updateAvatar,
+} from '../utils';
 
 const test = ava as TestFn<{
   app: TestingApp;
@@ -56,4 +63,44 @@ test('should be able to update user avatar, and invalidate old avatar url', asyn
 
   const newAvatarRes = await app.GET(new URL(newAvatarUrl).pathname);
   t.deepEqual(newAvatarRes.body, Buffer.from('new'));
+});
+
+test('should be able to get public user by id', async t => {
+  const { app } = t.context;
+
+  const u1 = await app.signup();
+  const avatar = Buffer.from('test');
+  await updateAvatar(app, avatar);
+  const u2 = await app.signup();
+
+  // login user can access
+  let user1 = await getPublicUserById(app, u1.id);
+  t.truthy(user1);
+  t.is(user1!.id, u1.id);
+  t.is(user1!.name, u1.name);
+  t.truthy(user1!.avatarUrl);
+  let user2 = await getPublicUserById(app, u2.id);
+  t.deepEqual(user2, {
+    id: u2.id,
+    name: u2.name,
+    avatarUrl: null,
+  });
+  let user3 = await getPublicUserById(app, randomUUID());
+  t.is(user3, null);
+
+  // anonymous user can access
+  await app.logout();
+  user1 = await getPublicUserById(app, u1.id);
+  t.truthy(user1);
+  t.is(user1!.id, u1.id);
+  t.is(user1!.name, u1.name);
+  t.truthy(user1!.avatarUrl);
+  user2 = await getPublicUserById(app, u2.id);
+  t.deepEqual(user2, {
+    id: u2.id,
+    name: u2.name,
+    avatarUrl: null,
+  });
+  user3 = await getPublicUserById(app, randomUUID());
+  t.is(user3, null);
 });

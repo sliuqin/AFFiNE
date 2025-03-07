@@ -12,6 +12,7 @@ import {
 import { dragHandleWidget } from '@blocksuite/affine-widget-drag-handle';
 import { docRemoteSelectionWidget } from '@blocksuite/affine-widget-remote-selection';
 import { scrollAnchoringWidget } from '@blocksuite/affine-widget-scroll-anchoring';
+import { SlashMenuExtension } from '@blocksuite/affine-widget-slash-menu';
 import { toolbarWidget } from '@blocksuite/affine-widget-toolbar';
 import {
   BlockFlavourIdentifier,
@@ -25,7 +26,6 @@ import {
   innerModalWidget,
   linkedDocWidget,
   modalWidget,
-  slashMenuWidget,
   viewportOverlayWidget,
 } from './widgets';
 
@@ -42,7 +42,7 @@ export const CommonSpecs: ExtensionType[] = [
 
   modalWidget,
   innerModalWidget,
-  slashMenuWidget,
+  SlashMenuExtension,
   linkedDocWidget,
   dragHandleWidget,
   docRemoteSelectionWidget,

@@ -1,4 +1,4 @@
-import { deleteTextCommand } from '@blocksuite/affine-components/rich-text';
+import { deleteTextCommand } from '@blocksuite/affine-rich-text';
 import {
   pasteMiddleware,
   replaceIdMiddleware,

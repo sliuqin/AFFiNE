@@ -1,4 +1,4 @@
-import { DefaultInlineManagerExtension } from '@blocksuite/affine-components/rich-text';
+import { DefaultInlineManagerExtension } from '@blocksuite/affine-rich-text';
 import type { EditorHost } from '@blocksuite/block-std';
 import { ShadowlessElement } from '@blocksuite/block-std';
 import type { DetailSlotProps } from '@blocksuite/data-view';

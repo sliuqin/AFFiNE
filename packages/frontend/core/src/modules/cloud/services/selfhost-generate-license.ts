@@ -1,16 +1,16 @@
-import { UserFriendlyError } from '@affine/graphql';
+import { type UserFriendlyError } from '@affine/error';
 import {
-  backoffRetry,
+  catchErrorInto,
   effect,
   fromPromise,
   LiveData,
   onComplete,
   onStart,
   Service,
+  smartRetry,
 } from '@toeverything/infra';
-import { catchError, EMPTY, exhaustMap, mergeMap } from 'rxjs';
+import { EMPTY, exhaustMap, mergeMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../error';
 import type { SelfhostGenerateLicenseStore } from '../stores/selfhost-generate-license';
 
 export class SelfhostGenerateLicenseService extends Service {
@@ -26,22 +26,12 @@ export class SelfhostGenerateLicenseService extends Service {
       return fromPromise(async () => {
         return await this.store.generateKey(sessionId);
       }).pipe(
-        backoffRetry({
-          when: isNetworkError,
-          count: Infinity,
-        }),
-        backoffRetry({
-          when: isBackendError,
-        }),
+        smartRetry(),
         mergeMap(key => {
           this.licenseKey$.next(key);
           return EMPTY;
         }),
-        catchError(err => {
-          this.error$.next(UserFriendlyError.fromAnyError(err));
-          console.error(err);
-          return EMPTY;
-        }),
+        catchErrorInto(this.error$),
         onStart(() => {
           this.isLoading$.next(true);
         }),

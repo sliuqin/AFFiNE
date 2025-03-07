@@ -1,3 +1,4 @@
+import { SlashMenuConfigExtension } from '@blocksuite/affine-widget-slash-menu';
 import {
   BlockViewExtension,
   FlavourExtension,
@@ -7,6 +8,7 @@ import type { ExtensionType } from '@blocksuite/store';
 import { literal } from 'lit/static-html.js';
 
 import { ImageBlockAdapterExtensions } from './adapters/extension';
+import { imageSlashMenuConfig } from './configs/slash-menu.js';
 import { ImageProxyService } from './image-proxy-service';
 import { ImageBlockService, ImageDropOption } from './image-service';
 
@@ -33,6 +35,7 @@ export const ImageBlockSpec: ExtensionType[] = [
   imageToolbarWidget,
   ImageDropOption,
   ImageBlockAdapterExtensions,
+  SlashMenuConfigExtension('affine:image', imageSlashMenuConfig),
 ].flat();
 
 export const ImageStoreSpec: ExtensionType[] = [ImageProxyService];

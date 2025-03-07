@@ -1,4 +1,4 @@
-import { affineTextStyles } from '@blocksuite/affine-components/rich-text';
+import { affineTextStyles } from '@blocksuite/affine-rich-text';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import { ShadowlessElement } from '@blocksuite/block-std';
 import { type DeltaInsert, ZERO_WIDTH_SPACE } from '@blocksuite/inline';

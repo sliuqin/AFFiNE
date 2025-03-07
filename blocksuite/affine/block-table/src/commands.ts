@@ -44,8 +44,8 @@ export const insertTableBlockCommand: Command<
   dataManager.addNRow(2);
   dataManager.addNColumn(2);
 
-  if (removeEmptyLine && model.text?.length === 0) {
-    std.store.deleteBlock(model);
+  if (removeEmptyLine && targetModel.text?.length === 0) {
+    std.store.deleteBlock(targetModel);
   }
 
   next({ insertedTableBlockId: blockId });

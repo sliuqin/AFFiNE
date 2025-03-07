@@ -1,3 +1,4 @@
+import { PublicUserType } from '../../core/user';
 import { TestingApp } from './testing-app';
 
 export async function currentUser(app: TestingApp) {
@@ -10,6 +11,25 @@ export async function currentUser(app: TestingApp) {
       }
     `);
   return res.currentUser;
+}
+
+export async function getPublicUserById(
+  app: TestingApp,
+  id: string
+): Promise<PublicUserType | null> {
+  const res = await app.gql(
+    `
+    query getPublicUserById($id: String!) {
+      publicUserById(id: $id) {
+        id
+        name
+        avatarUrl
+      }
+    }
+    `,
+    { id }
+  );
+  return res.publicUserById;
 }
 
 export async function sendChangeEmail(

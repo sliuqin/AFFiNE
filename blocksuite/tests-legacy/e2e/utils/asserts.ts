@@ -1,6 +1,5 @@
 import './declare-test-window.js';
 
-import type { EdgelessNoteBackground } from '@blocksuite/affine-block-note';
 import type {
   BlockComponent,
   EditorHost,
@@ -8,6 +7,7 @@ import type {
 } from '@blocksuite/block-std';
 import type {
   AffineInlineEditor,
+  EdgelessNoteBackground,
   NoteBlockModel,
   RichText,
   RootBlockModel,

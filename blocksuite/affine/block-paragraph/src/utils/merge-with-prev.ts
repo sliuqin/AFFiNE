@@ -1,8 +1,4 @@
 import {
-  asyncSetInlineRange,
-  focusTextModel,
-} from '@blocksuite/affine-components/rich-text';
-import {
   AttachmentBlockModel,
   BookmarkBlockModel,
   CodeBlockModel,
@@ -14,6 +10,10 @@ import {
   ParagraphBlockModel,
   type RootBlockModel,
 } from '@blocksuite/affine-model';
+import {
+  asyncSetInlineRange,
+  focusTextModel,
+} from '@blocksuite/affine-rich-text';
 import { EMBED_BLOCK_MODEL_LIST } from '@blocksuite/affine-shared/consts';
 import type { ExtendedModel } from '@blocksuite/affine-shared/types';
 import {

@@ -1,7 +1,6 @@
 import { Bound } from '@blocksuite/global/gfx';
 import { DisposableGroup, Slot } from '@blocksuite/global/slot';
 import { assertType } from '@blocksuite/global/utils';
-import type { Store } from '@blocksuite/store';
 import { generateKeyBetween } from 'fractional-indexing';
 import last from 'lodash-es/last';
 
@@ -16,6 +15,8 @@ import {
   ungroupIndex,
   updateLayersZIndex,
 } from '../utils/layer.js';
+import { GfxExtension } from './extension.js';
+import type { GfxController } from './index.js';
 import {
   type GfxGroupCompatibleInterface,
   isGfxGroupCompatibleModel,
@@ -65,10 +66,20 @@ export type CanvasLayer = BaseLayer<GfxPrimitiveElementModel> & {
 
 export type Layer = BlockLayer | CanvasLayer;
 
-export class LayerManager {
+export class LayerManager extends GfxExtension {
+  static override key = 'layerManager';
+
   static INITIAL_INDEX = 'a0';
 
   private readonly _disposable = new DisposableGroup();
+
+  private get _doc() {
+    return this.std.store;
+  }
+
+  private get _surface() {
+    return this.gfx.surface;
+  }
 
   blocks: GfxBlockElementModel[] = [];
 
@@ -96,21 +107,9 @@ export class LayerManager {
     }>(),
   };
 
-  constructor(
-    private readonly _doc: Store,
-    private _surface: SurfaceBlockModel | null,
-    options: {
-      watch: boolean;
-    } = { watch: true }
-  ) {
+  constructor(gfx: GfxController) {
+    super(gfx);
     this._reset();
-
-    if (options?.watch) {
-      this.watch({
-        doc: _doc,
-        surface: _surface,
-      });
-    }
   }
 
   private _buildCanvasLayers() {
@@ -614,9 +613,8 @@ export class LayerManager {
    * @returns
    */
   createIndexGenerator() {
-    const manager = new LayerManager(this._doc, this._surface, {
-      watch: false,
-    });
+    const manager = new LayerManager(this.gfx);
+    manager._reset();
 
     return () => {
       const idx = manager.generateIndex();
@@ -681,8 +679,9 @@ export class LayerManager {
     });
   }
 
-  dispose() {
+  override unmounted() {
     this.slots.layerUpdated.dispose();
+    this._disposable.dispose();
   }
 
   /**
@@ -792,62 +791,67 @@ export class LayerManager {
     }
   }
 
-  watch(blocks: { doc?: Store; surface: SurfaceBlockModel | null }) {
-    const { doc, surface } = blocks;
+  override mounted() {
+    const store = this._doc;
 
-    if (doc) {
+    this._disposable.add(
+      store.slots.blockUpdated.on(payload => {
+        if (payload.type === 'add') {
+          const block = store.getBlockById(payload.id)!;
+
+          if (
+            block instanceof GfxBlockElementModel &&
+            (block.parent instanceof SurfaceBlockModel ||
+              block.parent?.role === 'root') &&
+            this.blocks.indexOf(block) === -1
+          ) {
+            this.add(block as GfxBlockElementModel);
+          }
+        }
+        if (payload.type === 'update') {
+          const block = store.getBlockById(payload.id)!;
+
+          if (
+            (payload.props.key === 'index' ||
+              payload.props.key === 'childElementIds') &&
+            block instanceof GfxBlockElementModel &&
+            (block.parent instanceof SurfaceBlockModel ||
+              block.parent?.role === 'root')
+          ) {
+            this.update(block as GfxBlockElementModel, {
+              [payload.props.key]: true,
+            });
+          }
+        }
+        if (payload.type === 'delete') {
+          const block = store.getBlockById(payload.id);
+
+          if (block instanceof GfxBlockElementModel) {
+            this.delete(block as GfxBlockElementModel);
+          }
+        }
+      })
+    );
+
+    const watchSurface = (surface: SurfaceBlockModel) => {
+      let lastChildMap = new Map(surface.childMap.peek());
       this._disposable.add(
-        doc.slots.blockUpdated.on(payload => {
-          if (payload.type === 'add') {
-            const block = doc.getBlockById(payload.id)!;
-
-            if (
-              block instanceof GfxBlockElementModel &&
-              (block.parent instanceof SurfaceBlockModel ||
-                block.parent?.role === 'root') &&
-              this.blocks.indexOf(block) === -1
-            ) {
-              this.add(block as GfxBlockElementModel);
+        surface.childMap.subscribe(val => {
+          val.forEach((_, id) => {
+            if (lastChildMap.has(id)) {
+              lastChildMap.delete(id);
+              return;
             }
-          }
-          if (payload.type === 'update') {
-            const block = doc.getBlockById(payload.id)!;
-
-            if (
-              (payload.props.key === 'index' ||
-                payload.props.key === 'childElementIds') &&
-              block instanceof GfxBlockElementModel &&
-              (block.parent instanceof SurfaceBlockModel ||
-                block.parent?.role === 'root')
-            ) {
-              this.update(block as GfxBlockElementModel, {
-                [payload.props.key]: true,
-              });
-            } else if (
-              this.blocks.includes(block as GfxBlockElementModel) &&
-              !(
-                block.parent instanceof SurfaceBlockModel ||
-                block.parent?.role === 'root'
-              )
-            ) {
-              this.delete(block as GfxBlockElementModel);
+          });
+          lastChildMap.forEach((_, id) => {
+            const block = this._doc.getBlock(id);
+            if (block?.model) {
+              this.delete(block.model as GfxBlockElementModel);
             }
-          }
-          if (payload.type === 'delete') {
-            const block = doc.getBlockById(payload.id);
-
-            if (block instanceof GfxBlockElementModel) {
-              this.delete(block as GfxBlockElementModel);
-            }
-          }
+          });
+          lastChildMap = new Map(val);
         })
       );
-    }
-
-    if (surface) {
-      if (this._surface !== surface) {
-        this._surface = surface;
-      }
 
       this._disposable.add(
         surface.elementAdded.on(payload =>
@@ -870,7 +874,7 @@ export class LayerManager {
         })
       );
       this._disposable.add(
-        this._surface.localElementUpdated.on(payload => {
+        surface.localElementUpdated.on(payload => {
           if (payload.props['index'] || payload.props['groupId']) {
             this.update(payload.model, payload.props);
           }
@@ -881,8 +885,18 @@ export class LayerManager {
           this.delete(elm);
         })
       );
+    };
 
-      surface.elementModels.forEach(el => this.add(el));
+    if (this.gfx.surface) {
+      watchSurface(this.gfx.surface);
+    } else {
+      this._disposable.add(
+        this.gfx.surface$.subscribe(surface => {
+          if (surface) {
+            watchSurface(surface);
+          }
+        })
+      );
     }
   }
 }

@@ -1,5 +1,5 @@
 import type { EditorHost } from '@blocksuite/affine/block-std';
-import { LayerManager } from '@blocksuite/affine/block-std/gfx';
+import { GfxController, LayerManager } from '@blocksuite/affine/block-std/gfx';
 import {
   getSurfaceBlock,
   TemplateJob,
@@ -14,9 +14,7 @@ export function createTemplateJob(host: EditorHost) {
   }
 
   const middlewares: ((job: TemplateJob) => void)[] = [];
-  const layer = new LayerManager(host.doc, surface, {
-    watch: false,
-  });
+  const layer = new LayerManager(host.std.get(GfxController));
   const bounds = [...layer.blocks, ...layer.canvasElements].map(i =>
     Bound.deserialize(i.xywh)
   );

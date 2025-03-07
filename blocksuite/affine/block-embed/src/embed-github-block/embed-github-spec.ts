@@ -1,5 +1,6 @@
 import { EmbedGithubBlockSchema } from '@blocksuite/affine-model';
 import { ToolbarModuleExtension } from '@blocksuite/affine-shared/services';
+import { SlashMenuConfigExtension } from '@blocksuite/affine-widget-slash-menu';
 import {
   BlockServiceIdentifier,
   BlockViewExtension,
@@ -10,6 +11,7 @@ import { literal } from 'lit/static-html.js';
 
 import { createBuiltinToolbarConfigForExternal } from '../configs/toolbar';
 import { EmbedGithubBlockAdapterExtensions } from './adapters/extension';
+import { embedGithubSlashMenuConfig } from './configs/slash-menu';
 import { EmbedGithubBlockComponent } from './embed-github-block';
 import {
   EmbedGithubBlockOptionConfig,
@@ -32,4 +34,5 @@ export const EmbedGithubBlockSpec: ExtensionType[] = [
     id: BlockServiceIdentifier(flavour),
     config: createBuiltinToolbarConfigForExternal(EmbedGithubBlockComponent),
   }),
+  SlashMenuConfigExtension(flavour, embedGithubSlashMenuConfig),
 ].flat();

@@ -5,8 +5,9 @@ import type { Signal } from '@preact/signals-core';
 import type { AffineUserInfo } from './types';
 
 export interface UserService {
-  getCurrentUser(): AffineUserInfo;
-  getUserInfo(id: string): Signal<AffineUserInfo | null>;
+  getCurrentUser(): AffineUserInfo | null;
+  userInfo$(id: string): Signal<AffineUserInfo | null>;
+  revalidateUserInfo(id: string): void;
 }
 
 export const UserProvider = createIdentifier<UserService>(

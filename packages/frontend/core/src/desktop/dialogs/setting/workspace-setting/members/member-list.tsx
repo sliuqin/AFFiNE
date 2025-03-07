@@ -6,11 +6,8 @@ import {
   WorkspaceMembersService,
 } from '@affine/core/modules/permissions';
 import { WorkspaceService } from '@affine/core/modules/workspace';
-import {
-  Permission,
-  UserFriendlyError,
-  WorkspaceMemberStatus,
-} from '@affine/graphql';
+import { UserFriendlyError } from '@affine/error';
+import { Permission, WorkspaceMemberStatus } from '@affine/graphql';
 import { type I18nString, useI18n } from '@affine/i18n';
 import { MoreVerticalIcon } from '@blocksuite/icons/rc';
 import {
@@ -75,7 +72,7 @@ export const MemberList = ({
         ) : (
           <span className={styles.errorStyle}>
             {error
-              ? UserFriendlyError.fromAnyError(error).message
+              ? UserFriendlyError.fromAny(error).message
               : 'Failed to load members'}
           </span>
         )

@@ -1,9 +1,6 @@
 import { CaptionedBlockComponent } from '@blocksuite/affine-components/caption';
-import {
-  focusTextModel,
-  type RichText,
-} from '@blocksuite/affine-components/rich-text';
 import type { CodeBlockModel } from '@blocksuite/affine-model';
+import { focusTextModel, type RichText } from '@blocksuite/affine-rich-text';
 import { BRACKET_PAIRS, NOTE_SELECTOR } from '@blocksuite/affine-shared/consts';
 import {
   DocModeProvider,

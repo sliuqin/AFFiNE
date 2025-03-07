@@ -1,4 +1,4 @@
-import { RefNodeSlotsProvider } from '@blocksuite/affine-components/rich-text';
+import { RefNodeSlotsProvider } from '@blocksuite/affine-rich-text';
 import { ParseDocUrlProvider } from '@blocksuite/affine-shared/services';
 import {
   isValidUrl,

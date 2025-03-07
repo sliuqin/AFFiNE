@@ -32,6 +32,7 @@ declare global {
     'doc.snapshot.updated': {
       workspaceId: string;
       docId: string;
+      blob: Buffer;
     };
     'doc.created': {
       workspaceId: string;
@@ -335,10 +336,11 @@ export class PgWorkspaceDocStorageAdapter extends DocStorageAdapter {
     }
 
     try {
+      const blob = Buffer.from(snapshot.bin);
       const updatedSnapshot = await this.models.doc.upsert({
         spaceId: snapshot.spaceId,
         docId: snapshot.docId,
-        blob: Buffer.from(snapshot.bin),
+        blob,
         timestamp: snapshot.timestamp,
         editorId: snapshot.editor,
       });
@@ -347,6 +349,7 @@ export class PgWorkspaceDocStorageAdapter extends DocStorageAdapter {
         this.event.emit('doc.snapshot.updated', {
           workspaceId: snapshot.spaceId,
           docId: snapshot.docId,
+          blob,
         });
       }
 

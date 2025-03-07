@@ -12,6 +12,7 @@
     "@affine/debug": "workspace:*",
     "@affine/electron-api": "workspace:*",
     "@affine/env": "workspace:*",
+    "@affine/error": "workspace:*",
     "@affine/graphql": "workspace:*",
     "@affine/i18n": "workspace:*",
     "@affine/nbstore": "workspace:*",

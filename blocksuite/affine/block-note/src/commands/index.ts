@@ -4,8 +4,6 @@ export { dedentBlock } from './dedent-block.js';
 export { dedentBlockToRoot } from './dedent-block-to-root.js';
 export { dedentBlocks } from './dedent-blocks.js';
 export { dedentBlocksToRoot } from './dedent-blocks-to-root.js';
-export { focusBlockEnd } from './focus-block-end.js';
-export { focusBlockStart } from './focus-block-start.js';
 export { indentBlock } from './indent-block.js';
 export { indentBlocks } from './indent-blocks.js';
 export { selectBlock } from './select-block.js';

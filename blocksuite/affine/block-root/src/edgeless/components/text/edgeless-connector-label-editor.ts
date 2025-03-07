@@ -2,8 +2,8 @@ import {
   EdgelessCRUDIdentifier,
   TextUtils,
 } from '@blocksuite/affine-block-surface';
-import type { RichText } from '@blocksuite/affine-components/rich-text';
 import type { ConnectorElementModel } from '@blocksuite/affine-model';
+import type { RichText } from '@blocksuite/affine-rich-text';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
 import { almostEqual } from '@blocksuite/affine-shared/utils';
 import {

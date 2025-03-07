@@ -257,6 +257,19 @@ export class AffineToolbarWidget extends WidgetComponent {
         })
     );
 
+    disposables.add(
+      std.store.slots.blockUpdated.on(record => {
+        if (
+          flags.isBlock() &&
+          record.type === 'update' &&
+          record.props.key === 'text'
+        ) {
+          flags.refresh(Flag.Block);
+          return;
+        }
+      })
+    );
+
     // Handles `drag and drop`
     const dragStart = () => flags.toggle(Flag.Hiding, true);
     const dragEnd = () => flags.toggle(Flag.Hiding, false);

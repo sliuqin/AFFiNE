@@ -1,3 +1,4 @@
+import { UserFriendlyError } from '@affine/error';
 import {
   backoffRetry,
   effect,
@@ -12,7 +13,6 @@ import { isEqual } from 'lodash-es';
 import { EMPTY, mergeMap } from 'rxjs';
 
 import { validateAndReduceImage } from '../../../utils/reduce-image';
-import { BackendError } from '../error';
 import type { AccountProfile, AuthStore } from '../stores/auth';
 
 export interface AuthSessionInfo {
@@ -114,10 +114,7 @@ export class AuthSession extends Entity {
         return null;
       }
     } catch (e) {
-      if (
-        e instanceof BackendError &&
-        e.originError.name === 'UNSUPPORTED_CLIENT_VERSION'
-      ) {
+      if (UserFriendlyError.fromAny(e).is('UNSUPPORTED_CLIENT_VERSION')) {
         return null;
       }
       throw e;

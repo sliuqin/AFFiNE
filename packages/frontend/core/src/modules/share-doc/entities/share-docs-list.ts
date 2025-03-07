@@ -1,7 +1,6 @@
 import { DebugLogger } from '@affine/debug';
 import type { GetWorkspacePublicPagesQuery } from '@affine/graphql';
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   Entity,
@@ -10,10 +9,10 @@ import {
   LiveData,
   onComplete,
   onStart,
+  smartRetry,
 } from '@toeverything/infra';
 import { EMPTY, mergeMap } from 'rxjs';
 
-import { isBackendError, isNetworkError } from '../../cloud';
 import type { GlobalCache } from '../../storage';
 import type { WorkspaceService } from '../../workspace';
 import type { ShareDocsStore } from '../stores/share-docs';
@@ -43,13 +42,7 @@ export class ShareDocsList extends Entity {
           signal
         );
       }).pipe(
-        backoffRetry({
-          when: isNetworkError,
-          count: Infinity,
-        }),
-        backoffRetry({
-          when: isBackendError,
-        }),
+        smartRetry(),
         mergeMap(list => {
           this.cache.set('share-docs', list);
           return EMPTY;

@@ -11,7 +11,7 @@ import { CompatibleFavoriteItemsAdapter } from '@affine/core/modules/favorite';
 import { OpenInAppService } from '@affine/core/modules/open-in-app';
 import { GuardService } from '@affine/core/modules/permissions';
 import { WorkspaceService } from '@affine/core/modules/workspace';
-import { UserFriendlyError } from '@affine/graphql';
+import { UserFriendlyError } from '@affine/error';
 import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
 import {
@@ -87,7 +87,7 @@ export function useRegisterBlocksuiteEditorCommands(
           doc.moveToTrash();
         } catch (error) {
           console.error(error);
-          const userFriendlyError = UserFriendlyError.fromAnyError(error);
+          const userFriendlyError = UserFriendlyError.fromAny(error);
           toast(t[`error.${userFriendlyError.name}`](userFriendlyError.data));
         }
       },

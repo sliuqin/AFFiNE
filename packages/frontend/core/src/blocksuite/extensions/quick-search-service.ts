@@ -132,16 +132,15 @@ export function patchQuickSearchService(framework: FrameworkProvider) {
         }
         const component = payload.view;
         if (component instanceof AffineSlashMenuWidget) {
-          component.config.items.forEach(item => {
+          component.configItemTransform = item => {
             if (
               'action' in item &&
               (item.name === 'Linked Doc' || item.name === 'Link')
             ) {
-              item.action = async ({ rootComponent }) => {
-                const [success, { insertedLinkType }] =
-                  rootComponent.std.command.exec(
-                    insertLinkByQuickSearchCommand
-                  );
+              item.action = ({ std }) => {
+                const [success, { insertedLinkType }] = std.command.exec(
+                  insertLinkByQuickSearchCommand
+                );
 
                 if (!success) return;
 
@@ -165,7 +164,8 @@ export function patchQuickSearchService(framework: FrameworkProvider) {
                   .catch(console.error);
               };
             }
-          });
+            return item;
+          };
         }
       });
     }

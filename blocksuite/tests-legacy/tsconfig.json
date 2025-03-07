@@ -7,10 +7,8 @@
   },
   "include": ["./e2e"],
   "references": [
-    { "path": "../affine/components" },
-    { "path": "../affine/model" },
-    { "path": "../affine/shared" },
     { "path": "../framework/block-std" },
+    { "path": "../blocks" },
     { "path": "../framework/global" },
     { "path": "../framework/inline" },
     { "path": "../integration-test" },

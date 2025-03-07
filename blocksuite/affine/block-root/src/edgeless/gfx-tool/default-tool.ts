@@ -9,7 +9,6 @@ import {
   isNoteBlock,
   OverlayIdentifier,
 } from '@blocksuite/affine-block-surface';
-import { focusTextModel } from '@blocksuite/affine-components/rich-text';
 import type {
   EdgelessTextBlockModel,
   FrameBlockModel,
@@ -22,6 +21,7 @@ import {
   ShapeElementModel,
   TextElementModel,
 } from '@blocksuite/affine-model';
+import { focusTextModel } from '@blocksuite/affine-rich-text';
 import {
   FeatureFlagService,
   TelemetryProvider,

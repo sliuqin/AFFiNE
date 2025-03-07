@@ -4,11 +4,11 @@ import {
   LinkedEdgelessIcon,
   NewDocIcon,
 } from '@blocksuite/affine-components/icons';
+import { toast } from '@blocksuite/affine-components/toast';
 import {
   type AffineInlineEditor,
   insertLinkedNode,
-} from '@blocksuite/affine-components/rich-text';
-import { toast } from '@blocksuite/affine-components/toast';
+} from '@blocksuite/affine-rich-text';
 import {
   DocModeProvider,
   TelemetryProvider,

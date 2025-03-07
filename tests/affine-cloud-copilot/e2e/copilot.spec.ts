@@ -783,6 +783,44 @@ test.describe('chat with block', () => {
         }
       });
     }
+
+    test.describe('Translate to', () => {
+      test('should close all ai item list when clicking outside', async ({
+        page,
+      }) => {
+        const item = await page.waitForSelector('.ai-item-translate-to');
+        await item.hover();
+
+        const subItemList = await page.waitForSelector('ai-sub-item-list');
+
+        const bounds = await subItemList.boundingBox();
+        expect(bounds).toBeTruthy();
+
+        await page.mouse.click(bounds!.x + bounds!.width / 2, bounds!.y - 20);
+
+        await expect(page.locator('ai-sub-item-list')).toBeHidden();
+        await expect(page.locator('ai-item-list')).toBeHidden();
+      });
+
+      test('should close all ai item list when clicking sub item', async ({
+        page,
+      }) => {
+        const item = await page.waitForSelector(
+          'ask-ai-panel .ai-item-translate-to'
+        );
+        await item.hover();
+
+        const subItemList = await page.waitForSelector('ai-sub-item-list');
+
+        const bounds = await subItemList.boundingBox();
+        expect(bounds).toBeTruthy();
+
+        (await subItemList.waitForSelector('.menu-item:nth-child(1)')).click();
+
+        await expect(page.locator('ai-sub-item-list')).toBeHidden();
+        await expect(page.locator('ask-ai-panel ai-item-list')).toBeHidden();
+      });
+    });
   });
 
   test.describe('chat with image block', () => {

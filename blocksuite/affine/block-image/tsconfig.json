@@ -12,6 +12,7 @@
     { "path": "../components" },
     { "path": "../model" },
     { "path": "../shared" },
+    { "path": "../widget-slash-menu" },
     { "path": "../../framework/block-std" },
     { "path": "../../framework/global" },
     { "path": "../../framework/inline" },

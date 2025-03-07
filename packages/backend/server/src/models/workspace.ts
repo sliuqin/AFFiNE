@@ -16,7 +16,7 @@ declare global {
 export type { Workspace };
 export type UpdateWorkspaceInput = Pick<
   Partial<Workspace>,
-  'public' | 'enableAi' | 'enableUrlPreview'
+  'public' | 'enableAi' | 'enableUrlPreview' | 'name' | 'avatarKey'
 >;
 
 @Injectable()

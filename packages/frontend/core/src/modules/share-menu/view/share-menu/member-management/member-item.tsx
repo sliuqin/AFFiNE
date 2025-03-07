@@ -16,7 +16,8 @@ import {
   GuardService,
   WorkspacePermissionService,
 } from '@affine/core/modules/permissions';
-import { DocRole, UserFriendlyError } from '@affine/graphql';
+import { UserFriendlyError } from '@affine/error';
+import { DocRole } from '@affine/graphql';
 import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
 import { useLiveData, useService } from '@toeverything/infra';
@@ -161,7 +162,7 @@ const Options = ({
           });
         }
       } catch (error) {
-        const err = UserFriendlyError.fromAnyError(error);
+        const err = UserFriendlyError.fromAny(error);
         notify.error({
           title: t[`error.${err.name}`](err.data),
         });
@@ -219,7 +220,7 @@ const Options = ({
       await docGrantedUsersService.revokeUsersRole(userId);
       docGrantedUsersService.loadMore();
     } catch (error) {
-      const err = UserFriendlyError.fromAnyError(error);
+      const err = UserFriendlyError.fromAny(error);
       notify.error({
         title: t[`error.${err.name}`](err.data),
       });

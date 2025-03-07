@@ -1,7 +1,7 @@
 import {
   cleanSpecifiedTail,
   getTextContentFromInlineRange,
-} from '@blocksuite/affine-components/rich-text';
+} from '@blocksuite/affine-rich-text';
 import { VirtualKeyboardProvider } from '@blocksuite/affine-shared/services';
 import {
   createKeydownObserver,

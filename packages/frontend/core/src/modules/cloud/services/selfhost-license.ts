@@ -1,6 +1,5 @@
 import type { License } from '@affine/graphql';
 import {
-  backoffRetry,
   catchErrorInto,
   effect,
   exhaustMapWithTrailing,
@@ -9,11 +8,11 @@ import {
   onComplete,
   onStart,
   Service,
+  smartRetry,
 } from '@toeverything/infra';
 import { EMPTY, mergeMap } from 'rxjs';
 
 import type { WorkspaceService } from '../../workspace';
-import { isBackendError, isNetworkError } from '../error';
 import type { SelfhostLicenseStore } from '../stores/selfhost-license';
 
 export class SelfhostLicenseService extends Service {
@@ -36,13 +35,7 @@ export class SelfhostLicenseService extends Service {
         }
         return await this.store.getLicense(currentWorkspaceId, signal);
       }).pipe(
-        backoffRetry({
-          when: isNetworkError,
-          count: Infinity,
-        }),
-        backoffRetry({
-          when: isBackendError,
-        }),
+        smartRetry(),
         mergeMap(data => {
           if (data) {
             this.license$.next(data);

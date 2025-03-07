@@ -27,7 +27,6 @@ import {
   selectAllBlocksByKeyboard,
   selectAllByKeyboard,
   setInlineRangeInInlineEditor,
-  setSelection,
   switchReadonly,
   type,
   undoByKeyboard,
@@ -338,7 +337,6 @@ test('should format quick bar be able to link text', async ({
     `${testInfo.title}_init.json`
   );
 
-  await setSelection(page, 3, 0, 3, 3);
   // The link button should be active after click
   await expect(linkBtn).toHaveAttribute('active', '');
   await linkBtn.click();

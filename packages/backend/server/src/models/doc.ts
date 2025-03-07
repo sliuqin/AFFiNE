@@ -7,8 +7,6 @@ import { DocIsNotPublic } from '../base/error';
 import { BaseModel } from './base';
 import { Doc, DocRole, PublicDocMode, publicUserSelect } from './common';
 
-export interface DocRecord extends Doc {}
-
 export type DocMetaUpsertInput = Omit<
   Prisma.WorkspaceDocUncheckedCreateInput,
   'workspaceId' | 'docId'
@@ -27,7 +25,7 @@ export type DocMetaUpsertInput = Omit<
 export class DocModel extends BaseModel {
   // #region Update
 
-  private updateToDocRecord(row: Update): DocRecord {
+  private updateToDocRecord(row: Update): Doc {
     return {
       spaceId: row.workspaceId,
       docId: row.id,
@@ -37,7 +35,7 @@ export class DocModel extends BaseModel {
     };
   }
 
-  private docRecordToUpdate(record: DocRecord): Update {
+  private docRecordToUpdate(record: Doc): Update {
     return {
       workspaceId: record.spaceId,
       id: record.docId,
@@ -48,7 +46,7 @@ export class DocModel extends BaseModel {
     };
   }
 
-  async createUpdates(updates: DocRecord[]) {
+  async createUpdates(updates: Doc[]) {
     return await this.db.update.createMany({
       data: updates.map(r => this.docRecordToUpdate(r)),
     });
@@ -57,7 +55,7 @@ export class DocModel extends BaseModel {
   /**
    * Find updates by workspaceId and docId.
    */
-  async findUpdates(workspaceId: string, docId: string): Promise<DocRecord[]> {
+  async findUpdates(workspaceId: string, docId: string): Promise<Doc[]> {
     const rows = await this.db.update.findMany({
       where: {
         workspaceId,
@@ -347,6 +345,21 @@ export class DocModel extends BaseModel {
     return await this.upsertMeta(workspaceId, docId, {
       defaultRole: role,
     });
+  }
+
+  async findMetas(ids: { workspaceId: string; docId: string }[]) {
+    const rows = await this.db.workspaceDoc.findMany({
+      where: {
+        workspaceId: { in: ids.map(id => id.workspaceId) },
+        docId: { in: ids.map(id => id.docId) },
+      },
+    });
+    const resultMap = new Map(
+      rows.map(row => [`${row.workspaceId}-${row.docId}`, row])
+    );
+    return ids.map(
+      id => resultMap.get(`${id.workspaceId}-${id.docId}`) ?? null
+    );
   }
 
   /**

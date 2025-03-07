@@ -107,14 +107,6 @@ import {
   AffinePageDraggingAreaWidget,
 } from './widgets/page-dragging-area/page-dragging-area.js';
 import {
-  AFFINE_SLASH_MENU_WIDGET,
-  AffineSlashMenuWidget,
-} from './widgets/slash-menu/index.js';
-import {
-  InnerSlashMenu,
-  SlashMenu,
-} from './widgets/slash-menu/slash-menu-popover.js';
-import {
   AFFINE_SURFACE_REF_TOOLBAR,
   AffineSurfaceRefToolbar,
 } from './widgets/surface-ref-toolbar/surface-ref-toolbar.js';
@@ -156,7 +148,6 @@ function registerWidgets() {
     AffinePageDraggingAreaWidget
   );
   customElements.define(AFFINE_IMAGE_TOOLBAR_WIDGET, AffineImageToolbarWidget);
-  customElements.define(AFFINE_SLASH_MENU_WIDGET, AffineSlashMenuWidget);
   customElements.define(
     AFFINE_VIEWPORT_OVERLAY_WIDGET,
     AffineViewportOverlayWidget
@@ -274,8 +265,6 @@ function registerEdgelessEditorComponents() {
 function registerMiscComponents() {
   // Modal and menu components
   customElements.define('affine-custom-modal', AffineCustomModal);
-  customElements.define('affine-slash-menu', SlashMenu);
-  customElements.define('inner-slash-menu', InnerSlashMenu);
 
   // Loading and preview components
   customElements.define('loader-element', Loader);

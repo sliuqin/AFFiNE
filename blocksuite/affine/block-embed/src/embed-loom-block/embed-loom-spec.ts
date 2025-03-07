@@ -1,5 +1,6 @@
 import { EmbedLoomBlockSchema } from '@blocksuite/affine-model';
 import { ToolbarModuleExtension } from '@blocksuite/affine-shared/services';
+import { SlashMenuConfigExtension } from '@blocksuite/affine-widget-slash-menu';
 import {
   BlockServiceIdentifier,
   BlockViewExtension,
@@ -10,6 +11,7 @@ import { literal } from 'lit/static-html.js';
 
 import { createBuiltinToolbarConfigForExternal } from '../configs/toolbar';
 import { EmbedLoomBlockAdapterExtensions } from './adapters/extension';
+import { embedLoomSlashMenuConfig } from './configs/slash-menu';
 import { EmbedLoomBlockComponent } from './embed-loom-block';
 import {
   EmbedLoomBlockOptionConfig,
@@ -32,4 +34,5 @@ export const EmbedLoomBlockSpec: ExtensionType[] = [
     id: BlockServiceIdentifier(flavour),
     config: createBuiltinToolbarConfigForExternal(EmbedLoomBlockComponent),
   }),
+  SlashMenuConfigExtension(flavour, embedLoomSlashMenuConfig),
 ].flat();

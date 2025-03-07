@@ -152,6 +152,7 @@ test('should get public user by id', async t => {
   t.not(publicUser, null);
   t.is(publicUser!.id, user.id);
   t.true(!('password' in publicUser!));
+  t.true(!('email' in publicUser!));
 });
 
 test('should get public user by email', async t => {
@@ -164,6 +165,35 @@ test('should get public user by email', async t => {
   t.not(publicUser, null);
   t.is(publicUser!.id, user.id);
   t.true(!('password' in publicUser!));
+  t.true(!('email' in publicUser!));
+});
+
+test('should get workspace user by id', async t => {
+  const user = await t.context.user.create({
+    email: 'test@affine.pro',
+  });
+
+  const workspaceUser = await t.context.user.getWorkspaceUser(user.id);
+
+  t.not(workspaceUser, null);
+  t.is(workspaceUser!.id, user.id);
+  t.true(!('password' in workspaceUser!));
+  t.is(workspaceUser!.email, user.email);
+});
+
+test('should get workspace user by email', async t => {
+  const user = await t.context.user.create({
+    email: 'test@affine.pro',
+  });
+
+  const workspaceUser = await t.context.user.getWorkspaceUserByEmail(
+    user.email
+  );
+
+  t.not(workspaceUser, null);
+  t.is(workspaceUser!.id, user.id);
+  t.true(!('password' in workspaceUser!));
+  t.is(workspaceUser!.email, user.email);
 });
 
 test('should get user by email', async t => {

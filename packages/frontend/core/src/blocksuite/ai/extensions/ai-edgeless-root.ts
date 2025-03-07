@@ -72,7 +72,7 @@ function getAIEdgelessRootWatcher(framework: FrameworkProvider) {
         }
 
         if (component instanceof AffineSlashMenuWidget) {
-          setupSlashMenuAIEntry(component);
+          setupSlashMenuAIEntry(this.std);
         }
       });
     }

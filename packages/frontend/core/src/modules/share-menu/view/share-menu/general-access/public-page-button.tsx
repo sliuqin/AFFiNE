@@ -1,7 +1,8 @@
 import { Menu, MenuItem, MenuTrigger, notify } from '@affine/component';
 import { useAsyncCallback } from '@affine/core/components/hooks/affine-async-hooks';
 import { ShareInfoService } from '@affine/core/modules/share-doc';
-import { PublicDocMode, UserFriendlyError } from '@affine/graphql';
+import { UserFriendlyError } from '@affine/error';
+import { PublicDocMode } from '@affine/graphql';
 import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
 import {
@@ -74,7 +75,7 @@ export const PublicDoc = ({ disabled }: { disabled?: boolean }) => {
         icon: <SingleSelectCheckSolidIcon color={cssVar('primaryColor')} />,
       });
     } catch (error) {
-      const err = UserFriendlyError.fromAnyError(error);
+      const err = UserFriendlyError.fromAny(error);
       notify.error({
         title: err.name,
         message: err.message,

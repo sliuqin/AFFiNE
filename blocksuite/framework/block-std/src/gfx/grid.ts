@@ -4,9 +4,11 @@ import {
   getBoundWithRotation,
   intersects,
 } from '@blocksuite/global/gfx';
-import type { BlockModel, Store } from '@blocksuite/store';
+import { DisposableGroup } from '@blocksuite/global/slot';
+import type { BlockModel } from '@blocksuite/store';
 
 import { compare } from '../utils/layer.js';
+import { GfxExtension } from './extension.js';
 import { GfxBlockElementModel } from './model/gfx-block-model.js';
 import type { GfxModel } from './model/model.js';
 import { GfxPrimitiveElementModel } from './model/surface/element-model.js';
@@ -65,7 +67,9 @@ const typeFilters = {
 
 type FilterFunc = (model: GfxModel | GfxLocalElementModel) => boolean;
 
-export class GridManager {
+export class GridManager extends GfxExtension {
+  static override key = 'grid';
+
   private readonly _elementToGrids = new Map<
     GfxModel | GfxLocalElementModel,
     Set<Set<GfxModel | GfxLocalElementModel>>
@@ -361,10 +365,16 @@ export class GridManager {
     this.add(element);
   }
 
-  watch(blocks: { doc?: Store; surface?: SurfaceBlockModel | null }) {
-    const disposables: { dispose: () => void }[] = [];
-    const { doc, surface } = blocks;
-    const isRenderableBlock = (
+  private readonly _disposables = new DisposableGroup();
+
+  override unmounted(): void {
+    this._disposables.dispose();
+  }
+
+  override mounted() {
+    const disposables = this._disposables;
+    const { store } = this.std;
+    const canBeRenderedAsGfxBlock = (
       block: BlockModel
     ): block is GfxBlockElementModel => {
       return (
@@ -374,63 +384,75 @@ export class GridManager {
       );
     };
 
-    if (doc) {
-      disposables.push(
-        doc.slots.blockUpdated.on(payload => {
-          if (payload.type === 'add' && isRenderableBlock(payload.model)) {
-            this.add(payload.model);
+    disposables.add(
+      store.slots.blockUpdated.on(payload => {
+        if (payload.type === 'add' && canBeRenderedAsGfxBlock(payload.model)) {
+          this.add(payload.model);
+        }
+
+        if (payload.type === 'update') {
+          const model = store.getBlock(payload.id)
+            ?.model as GfxBlockElementModel;
+
+          if (!model) {
+            return;
           }
 
-          if (payload.type === 'update') {
-            const model = doc.getBlock(payload.id)
-              ?.model as GfxBlockElementModel;
+          if (payload.props.key === 'xywh' && canBeRenderedAsGfxBlock(model)) {
+            this.update(
+              store.getBlock(payload.id)?.model as GfxBlockElementModel
+            );
+          }
+        }
 
-            if (!model) {
+        if (
+          payload.type === 'delete' &&
+          payload.model instanceof GfxBlockElementModel
+        ) {
+          this.remove(payload.model);
+        }
+      })
+    );
+
+    Object.values(store.blocks.peek()).forEach(block => {
+      if (canBeRenderedAsGfxBlock(block.model)) {
+        this.add(block.model);
+      }
+    });
+
+    const watchSurface = (surface: SurfaceBlockModel) => {
+      let lastChildMap = new Map(surface.childMap.peek());
+      disposables.add(
+        surface.childMap.subscribe(val => {
+          val.forEach((_, id) => {
+            if (lastChildMap.has(id)) {
+              lastChildMap.delete(id);
               return;
             }
-
-            if (this._elementToGrids.has(model) && !isRenderableBlock(model)) {
-              this.remove(model as GfxBlockElementModel);
-            } else if (
-              payload.props.key === 'xywh' &&
-              isRenderableBlock(model)
-            ) {
-              this.update(
-                doc.getBlock(payload.id)?.model as GfxBlockElementModel
-              );
+          });
+          lastChildMap.forEach((_, id) => {
+            const block = store.getBlock(id);
+            if (block?.model) {
+              this.remove(block.model as GfxBlockElementModel);
             }
-          }
-
-          if (
-            payload.type === 'delete' &&
-            payload.model instanceof GfxBlockElementModel
-          ) {
-            this.remove(payload.model);
-          }
+          });
+          lastChildMap = new Map(val);
         })
       );
 
-      Object.values(doc.blocks.peek()).forEach(block => {
-        if (isRenderableBlock(block.model)) {
-          this.add(block.model);
-        }
-      });
-    }
-
-    if (surface) {
-      disposables.push(
+      disposables.add(
         surface.elementAdded.on(payload => {
           this.add(surface.getElementById(payload.id)!);
         })
       );
 
-      disposables.push(
+      disposables.add(
         surface.elementRemoved.on(payload => {
           this.remove(payload.model);
         })
       );
 
-      disposables.push(
+      disposables.add(
         surface.elementUpdated.on(payload => {
           if (
             payload.props['xywh'] ||
@@ -442,13 +464,13 @@ export class GridManager {
         })
       );
 
-      disposables.push(
+      disposables.add(
         surface.localElementAdded.on(elm => {
           this.add(elm);
         })
       );
 
-      disposables.push(
+      disposables.add(
         surface.localElementUpdated.on(payload => {
           if (payload.props['xywh'] || payload.props['responseExtension']) {
             this.update(payload.model);
@@ -456,7 +478,7 @@ export class GridManager {
         })
       );
 
-      disposables.push(
+      disposables.add(
         surface.localElementDeleted.on(elm => {
           this.remove(elm);
         })
@@ -468,10 +490,18 @@ export class GridManager {
       surface.localElementModels.forEach(model => {
         this.add(model);
       });
-    }
-
-    return () => {
-      disposables.forEach(d => d.dispose());
     };
+
+    if (this.gfx.surface) {
+      watchSurface(this.gfx.surface);
+    } else {
+      disposables.add(
+        this.gfx.surface$.subscribe(surface => {
+          if (surface) {
+            watchSurface(surface);
+          }
+        })
+      );
+    }
   }
 }

@@ -4,6 +4,7 @@ import type {
   AFFINE_DOC_REMOTE_SELECTION_WIDGET,
   AFFINE_EDGELESS_REMOTE_SELECTION_WIDGET,
 } from '@blocksuite/affine-widget-remote-selection';
+import type { AFFINE_SLASH_MENU_WIDGET } from '@blocksuite/affine-widget-slash-menu';
 
 import type { EdgelessRootBlockComponent } from './edgeless/edgeless-root-block.js';
 import type { PageRootBlockComponent } from './page/page-root-block.js';
@@ -14,7 +15,6 @@ import type { AFFINE_INNER_MODAL_WIDGET } from './widgets/inner-modal/inner-moda
 import type { AFFINE_LINKED_DOC_WIDGET } from './widgets/linked-doc/config.js';
 import type { AFFINE_MODAL_WIDGET } from './widgets/modal/modal.js';
 import type { AFFINE_PAGE_DRAGGING_AREA_WIDGET } from './widgets/page-dragging-area/page-dragging-area.js';
-import type { AFFINE_SLASH_MENU_WIDGET } from './widgets/slash-menu/index.js';
 import type { AFFINE_VIEWPORT_OVERLAY_WIDGET } from './widgets/viewport-overlay/viewport-overlay.js';
 
 export type PageRootBlockWidgetName =

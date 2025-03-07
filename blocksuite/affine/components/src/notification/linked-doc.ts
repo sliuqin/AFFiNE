@@ -1,5 +1,8 @@
 import { NotificationProvider } from '@blocksuite/affine-shared/services';
-import type { BlockStdScope } from '@blocksuite/block-std';
+import {
+  type BlockStdScope,
+  EditorLifeCycleExtension,
+} from '@blocksuite/block-std';
 
 import { toast } from '../toast/toast.js';
 
@@ -26,7 +29,9 @@ function notify(std: BlockStdScope, title: string, message: string) {
   // edit or undo or switch doc, close notify toast
   const addHandler = doc.history.on('stack-item-added', closeNotify);
   const popHandler = doc.history.on('stack-item-popped', closeNotify);
-  const disposable = host.slots.unmounted.on(closeNotify);
+  const disposable = host.std
+    .get(EditorLifeCycleExtension)
+    .slots.unmounted.on(closeNotify);
 
   notification.notify({
     title,
