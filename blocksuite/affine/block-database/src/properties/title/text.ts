@@ -1,4 +1,3 @@
-import type { RootBlockModel } from '@blocksuite/affine-model';
 import {
   DefaultInlineManagerExtension,
   type RichText,
