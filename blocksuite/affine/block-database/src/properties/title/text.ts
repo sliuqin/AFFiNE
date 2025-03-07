@@ -266,13 +266,13 @@ export class HeaderAreaTextCell extends BaseCellRenderer<Text> {
   }
 
   renderIcon() {
+    if (!this.showIcon) {
+      return;
+    }
     if (this.docId$.value) {
       return html` <div class="${headerAreaIconStyle}">
         ${LinkedPageIcon({})}
       </div>`;
-    }
-    if (!this.showIcon) {
-      return;
     }
     const iconColumn = this.view.mainProperties$.value.iconColumn;
     if (!iconColumn) return;
