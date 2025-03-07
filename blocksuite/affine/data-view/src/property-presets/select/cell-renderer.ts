@@ -14,20 +14,19 @@ import {
 } from './define.js';
 
 export class SelectCell extends BaseCellRenderer<string, SelectPropertyData> {
+  closePopup?: () => void;
   private readonly popTagSelect = () => {
-    this._disposables.add({
-      dispose: popTagSelect(popupTargetFromElement(this), {
-        name: this.cell.property.name$.value,
-        mode: 'single',
-        options: this.options$,
-        onOptionsChange: this._onOptionsChange,
-        value: this._value$,
-        onChange: v => {
-          this.valueSetImmediate(v[0]);
-        },
-        onComplete: this._editComplete,
-        minWidth: 400,
-      }),
+    this.closePopup = popTagSelect(popupTargetFromElement(this), {
+      name: this.cell.property.name$.value,
+      mode: 'single',
+      options: this.options$,
+      onOptionsChange: this._onOptionsChange,
+      value: this._value$,
+      onChange: v => {
+        this.valueSetImmediate(v[0]);
+      },
+      onComplete: this._editComplete,
+      minWidth: 400,
     });
   };
 
@@ -55,6 +54,11 @@ export class SelectCell extends BaseCellRenderer<string, SelectPropertyData> {
 
   override afterEnterEditingMode() {
     this.popTagSelect();
+  }
+
+  override beforeExitEditingMode() {
+    this.closePopup?.();
+    this.closePopup = undefined;
   }
 
   override render() {

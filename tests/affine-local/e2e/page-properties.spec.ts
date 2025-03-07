@@ -1,3 +1,4 @@
+import { waitNextFrame } from '@affine-test/kit/bs/misc';
 import { test } from '@affine-test/kit/playwright';
 import {
   openHomePage,
@@ -320,6 +321,7 @@ test('can show database backlink info', async ({ page }) => {
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('Enter');
   await page.keyboard.type('Done');
+  await waitNextFrame(page);
   await page.keyboard.press('Enter');
 
   // go back to title cell

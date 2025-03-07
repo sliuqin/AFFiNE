@@ -16,19 +16,18 @@ export class MultiSelectCell extends BaseCellRenderer<
   string[],
   SelectPropertyData
 > {
+  closePopup?: () => void;
   private readonly popTagSelect = () => {
-    this._disposables.add({
-      dispose: popTagSelect(popupTargetFromElement(this), {
-        name: this.cell.property.name$.value,
-        options: this.options$,
-        onOptionsChange: this._onOptionsChange,
-        value: this._value$,
-        onChange: v => {
-          this.valueSetImmediate(v);
-        },
-        onComplete: this._editComplete,
-        minWidth: 400,
-      }),
+    this.closePopup = popTagSelect(popupTargetFromElement(this), {
+      name: this.cell.property.name$.value,
+      options: this.options$,
+      onOptionsChange: this._onOptionsChange,
+      value: this._value$,
+      onChange: v => {
+        this.valueSetImmediate(v);
+      },
+      onComplete: this._editComplete,
+      minWidth: 400,
     });
   };
 
@@ -54,6 +53,11 @@ export class MultiSelectCell extends BaseCellRenderer<
 
   override afterEnterEditingMode() {
     this.popTagSelect();
+  }
+
+  override beforeExitEditingMode() {
+    this.closePopup?.();
+    this.closePopup = undefined;
   }
 
   override render() {
