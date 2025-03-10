@@ -1,5 +1,7 @@
 export {
   getBlockIndexCommand,
+  getFirstContentBlockCommand,
+  getLastContentBlockCommand,
   getNextBlockCommand,
   getPrevBlockCommand,
   getSelectedBlocksCommand,
@@ -21,5 +23,6 @@ export {
   getRangeRects,
   getSelectionRectsCommand,
   getTextSelectionCommand,
+  isNothingSelectedCommand,
   type SelectionRect,
 } from './selection/index.js';

@@ -1,5 +1,6 @@
 import { ChatHistoryOrder } from '@affine/graphql';
 import {
+  type BlockComponent,
   BlockSelection,
   type BlockStdScope,
   type EditorHost,
@@ -14,11 +15,15 @@ import {
 } from '@blocksuite/affine/global/gfx';
 import {
   type DocMode,
+  NoteBlockModel,
   NoteDisplayMode,
-  ParagraphBlockModel,
 } from '@blocksuite/affine/model';
 import { RefNodeSlotsProvider } from '@blocksuite/affine/rich-text';
-import { getSelectedBlocksCommand } from '@blocksuite/affine/shared/commands';
+import { 
+  getSelectedBlocksCommand, 
+  isNothingSelectedCommand,
+  getLastContentBlockCommand
+ } from '@blocksuite/affine/shared/commands';
 import type { ImageSelection } from '@blocksuite/affine/shared/selection';
 import {
   DocModeProvider,
@@ -26,14 +31,12 @@ import {
   NotificationProvider,
   TelemetryProvider,
 } from '@blocksuite/affine/shared/services';
-import { matchModels } from '@blocksuite/affine/shared/utils';
 import type { Store } from '@blocksuite/affine/store';
 import {
   BlockIcon,
   InsertBleowIcon as InsertBelowIcon,
   LinkedPageIcon,
   PageIcon,
-  ReplaceIcon,
 } from '@blocksuite/icons/lit';
 import type { TemplateResult } from 'lit';
 
@@ -41,7 +44,7 @@ import { insertFromMarkdown } from '../../utils';
 import type { ChatMessage } from '../blocks';
 import { AIProvider, type AIUserInfo } from '../provider';
 import { reportResponse } from '../utils/action-reporter';
-import { insertBelow, replace } from '../utils/editor-actions';
+import { insertBelow } from '../utils/editor-actions';
 
 type Selections = {
   text?: TextSelection;
@@ -201,70 +204,76 @@ export function promptDocTitle(host: EditorHost, autofill?: string) {
   });
 }
 
-const REPLACE_SELECTION = {
-  icon: ReplaceIcon({ width: '20px', height: '20px' }),
-  title: 'Replace selection',
-  showWhen: (host: EditorHost) => {
-    if (host.std.store.readonly$.value) {
-      return false;
-    }
-    const textSelection = host.selection.find(TextSelection);
-    const blockSelections = host.selection.filter(BlockSelection);
-    if (
-      (!textSelection || textSelection.from.length === 0) &&
-      blockSelections?.length === 0
-    ) {
-      return false;
-    }
-    return true;
-  },
-  toast: 'Successfully replaced',
-  handler: async (
-    host: EditorHost,
-    content: string,
-    currentSelections: Selections
-  ) => {
-    const currentTextSelection = currentSelections.text;
-    const currentBlockSelections = currentSelections.blocks;
-    const [_, data] = host.command.exec(getSelectedBlocksCommand, {
+/**
+ * Get selected blocks based on current selections
+ * @param host Editor host
+ * @param currentSelections Current selections
+ * @returns Selected blocks and selection state
+ */
+async function getSelectedBlocksForInsert(
+  host: EditorHost,
+  currentSelections: Selections
+): Promise<{ selectedBlocks: BlockComponent[]; isNothingSelected: boolean }> {
+  const currentTextSelection = currentSelections.text;
+  const currentBlockSelections = currentSelections.blocks;
+  const currentImageSelections = currentSelections.images;
+
+  if (!host.doc.root) {
+    return { selectedBlocks: [], isNothingSelected: true };
+  }
+
+  const [_, { isNothingSelected }] = host.command.exec(
+    isNothingSelectedCommand,
+    {
       currentTextSelection,
       currentBlockSelections,
-    });
-    if (!data.selectedBlocks) return false;
-
-    reportResponse('result:replace');
-
-    if (currentTextSelection) {
-      const { doc } = host;
-      const block = doc.getBlock(currentTextSelection.blockId);
-      if (matchModels(block?.model ?? null, [ParagraphBlockModel])) {
-        block?.model.text?.replace(
-          currentTextSelection.from.index,
-          currentTextSelection.from.length,
-          content
-        );
-        return true;
-      }
+      currentImageSelections,
     }
+  ) as [unknown, { isNothingSelected: boolean }];
 
-    await replace(
-      host,
-      content,
-      data.selectedBlocks[0],
-      data.selectedBlocks.map(block => block.model),
-      currentTextSelection
+  let selectedBlocks: BlockComponent[] = [];
+  if (!isNothingSelected) {
+    const [_, { selectedBlocks: blocks }] = host.command.exec(
+      getSelectedBlocksCommand,
+      {
+        currentTextSelection,
+        currentBlockSelections,
+        currentImageSelections,
+      }
     );
-    return true;
-  },
-};
+    selectedBlocks = blocks || [];
+  }
 
-const INSERT_BELOW = {
+  return { selectedBlocks, isNothingSelected };
+}
+
+/**
+ * Base handler for inserting content below selected blocks
+ * @param host Editor host
+ * @param content Content to insert
+ * @param selectedBlocks Selected blocks
+ * @returns Whether insertion was successful
+ */
+async function insertBelowSelectedBlocks(
+  host: EditorHost,
+  content: string,
+  selectedBlocks: BlockComponent[]
+): Promise<boolean> {
+  if (!selectedBlocks.length) return false;
+
+  reportResponse('result:insert');
+  await insertBelow(host, content, selectedBlocks[selectedBlocks.length - 1]);
+  return true;
+}
+
+const PAGE_INSERT_BELOW = {
   icon: InsertBelowIcon({ width: '20px', height: '20px' }),
-  title: 'Insert below',
+  title: 'Insert',
   showWhen: (host: EditorHost) => {
     if (host.std.store.readonly$.value) {
       return false;
     }
+
     return true;
   },
   toast: 'Successfully inserted',
@@ -273,22 +282,64 @@ const INSERT_BELOW = {
     content: string,
     currentSelections: Selections
   ) => {
-    const currentTextSelection = currentSelections.text;
-    const currentBlockSelections = currentSelections.blocks;
-    const currentImageSelections = currentSelections.images;
-    const [_, data] = host.command.exec(getSelectedBlocksCommand, {
-      currentTextSelection,
-      currentBlockSelections,
-      currentImageSelections,
-    });
-    if (!data.selectedBlocks) return false;
-    reportResponse('result:insert');
-    await insertBelow(
-      host,
-      content,
-      data.selectedBlocks[data.selectedBlocks?.length - 1]
-    );
-    return true;
+    const { selectedBlocks, isNothingSelected } =
+      await getSelectedBlocksForInsert(host, currentSelections);
+
+    // In page mode, if nothing is selected, use the last content block
+    if (isNothingSelected) {
+      const [_, { lastBlock }] = host.command.exec(
+        getLastContentBlockCommand,
+        {}
+      );
+      return insertBelowSelectedBlocks(
+        host,
+        content,
+        lastBlock ? [lastBlock] : []
+      );
+    }
+
+    return insertBelowSelectedBlocks(host, content, selectedBlocks);
+  },
+};
+
+const EDGELESS_INSERT_BELOW = {
+  ...PAGE_INSERT_BELOW,
+  handler: async (
+    host: EditorHost,
+    content: string,
+    currentSelections: Selections
+  ): Promise<boolean> => {
+    const { selectedBlocks, isNothingSelected } =
+      await getSelectedBlocksForInsert(host, currentSelections);
+
+    // In edgeless mode, handle special cases
+    if (isNothingSelected) {
+      const gfx = host.std.get(GfxControllerIdentifier);
+      const selectedElements = gfx.selection.selectedElements;
+      const isOnlyOneNoteSelected =
+        selectedElements.length === 1 &&
+        selectedElements[0] instanceof NoteBlockModel;
+
+      if (isOnlyOneNoteSelected) {
+        // Insert into selected note
+        const [_, { lastBlock }] = host.command.exec(
+          getLastContentBlockCommand,
+          {
+            root: selectedElements[0] as NoteBlockModel,
+          }
+        );
+        return insertBelowSelectedBlocks(
+          host,
+          content,
+          lastBlock ? [lastBlock] : []
+        );
+      } else {
+        // Create a new note
+        return !!(await ADD_TO_EDGELESS_AS_NOTE.handler(host, content));
+      }
+    }
+
+    return insertBelowSelectedBlocks(host, content, selectedBlocks);
   },
 };
 
@@ -397,7 +448,7 @@ const ADD_TO_EDGELESS_AS_NOTE = {
     return true;
   },
   toast: 'New note created',
-  handler: async (host: EditorHost, content: string) => {
+  handler: async (host: EditorHost, content: string): Promise<boolean> => {
     reportResponse('result:add-note');
     const { doc } = host;
 
@@ -535,16 +586,14 @@ const CREATE_AS_LINKED_DOC = {
   },
 };
 
-const CommonActions: ChatAction[] = [REPLACE_SELECTION, INSERT_BELOW];
-
 export const PageEditorActions = [
-  ...CommonActions,
+  PAGE_INSERT_BELOW,
   CREATE_AS_DOC,
   SAVE_CHAT_TO_BLOCK_ACTION,
 ];
 
 export const EdgelessEditorActions = [
-  ...CommonActions,
+  EDGELESS_INSERT_BELOW,
   ADD_TO_EDGELESS_AS_NOTE,
   SAVE_CHAT_TO_BLOCK_ACTION,
 ];
