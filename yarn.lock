@@ -371,6 +371,7 @@ __metadata:
     "@affine/templates": "workspace:*"
     "@affine/track": "workspace:*"
     "@blocksuite/affine": "workspace:*"
+    "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:2.2.4"
     "@dotlottie/player-component": "npm:^2.7.12"
     "@emotion/cache": "npm:^11.14.0"

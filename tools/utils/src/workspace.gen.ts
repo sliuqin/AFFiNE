@@ -801,6 +801,7 @@ export const PackageList = [
       'packages/frontend/templates',
       'packages/frontend/track',
       'blocksuite/affine/all',
+      'blocksuite/framework/global',
       'packages/common/infra',
     ],
   },

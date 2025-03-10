@@ -5,15 +5,18 @@ import type {
 } from '@blocksuite/affine/block-std';
 import type { ImageSelection } from '@blocksuite/affine/shared/selection';
 import { NotificationProvider } from '@blocksuite/affine/shared/services';
+import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { css, html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { repeat } from 'lit/directives/repeat.js';
+import { debounce } from 'lodash-es';
 
 import type { ChatAction } from '../_common/chat-actions-handle';
 import { insertBelow } from '../utils/editor-actions';
 
-export class ChatActionList extends LitElement {
+export class ChatActionList extends WithDisposable(LitElement) {
   static override styles = css`
     .actions-container {
       display: flex;
@@ -55,6 +58,14 @@ export class ChatActionList extends LitElement {
     }
   `;
 
+  private readonly _debouncedUpdate = debounce(
+    () => {
+      this.requestUpdate();
+    },
+    200,
+    { leading: true }
+  );
+
   private get _selectionValue() {
     return this.host.selection.value;
   }
@@ -69,6 +80,10 @@ export class ChatActionList extends LitElement {
 
   private get _currentImageSelections(): ImageSelection[] | undefined {
     return this._selectionValue.filter(v => v.type === 'image');
+  }
+
+  private get _gfx() {
+    return this.host.std.get(GfxControllerIdentifier);
   }
 
   @property({ attribute: false })
@@ -87,10 +102,47 @@ export class ChatActionList extends LitElement {
   accessor messageId: string | undefined = undefined;
 
   @property({ attribute: false })
-  accessor layoutDirection: 'horizontal' | 'vertical' = 'vertical'; // New property for layout direction
+  accessor layoutDirection: 'horizontal' | 'vertical' = 'vertical';
 
   @property({ attribute: false })
   accessor withMargin = false;
+
+  override connectedCallback() {
+    super.connectedCallback();
+    this._disposables.add(
+      this._gfx.selection.slots.updated.on(() => {
+        this._debouncedUpdate();
+      })
+    );
+    this._disposables.add(
+      this.host.selection.slots.changed.on(() => {
+        this._debouncedUpdate();
+      })
+    );
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this._debouncedUpdate.cancel();
+    this._disposables.dispose();
+  }
+
+  override updated(changedProperties: Map<string, unknown>) {
+    if (changedProperties.has('host')) {
+      // Listen to the selection change in Edgeless Mode
+      this._disposables.add(
+        this._gfx.selection.slots.updated.on(() => {
+          this._debouncedUpdate();
+        })
+      );
+      // Listen to the selection change in Page Mode
+      this._disposables.add(
+        this.host.selection.slots.changed.on(() => {
+          this._debouncedUpdate();
+        })
+      );
+    }
+  }
 
   override render() {
     const { actions } = this;
