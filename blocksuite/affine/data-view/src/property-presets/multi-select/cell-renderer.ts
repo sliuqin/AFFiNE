@@ -52,7 +52,9 @@ export class MultiSelectCell extends BaseCellRenderer<
   });
 
   override afterEnterEditingMode() {
-    this.popTagSelect();
+    if (!this.closePopup) {
+      this.popTagSelect();
+    }
   }
 
   override beforeExitEditingMode() {

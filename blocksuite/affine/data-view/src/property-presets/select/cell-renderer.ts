@@ -53,7 +53,9 @@ export class SelectCell extends BaseCellRenderer<string, SelectPropertyData> {
   });
 
   override afterEnterEditingMode() {
-    this.popTagSelect();
+    if (!this.closePopup) {
+      this.popTagSelect();
+    }
   }
 
   override beforeExitEditingMode() {

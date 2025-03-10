@@ -1,8 +1,4 @@
-import {
-  uniReactRoot,
-  useConfirmModal,
-  useLitPortalFactory,
-} from '@affine/component';
+import { useConfirmModal, useLitPortalFactory } from '@affine/component';
 import {
   type EdgelessEditor,
   LitDocEditor,
@@ -219,7 +215,6 @@ const usePatchSpecs = (mode: DocMode) => {
     useMemo(
       () => (
         <>
-          <uniReactRoot.Root />
           {portals.map(p => (
             <Fragment key={p.id}>{p.portal}</Fragment>
           ))}

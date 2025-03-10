@@ -320,6 +320,8 @@ test('can show database backlink info', async ({ page }) => {
   await page.keyboard.press('Escape');
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('Enter');
+  await waitNextFrame(page);
+  await waitNextFrame(page);
   await page.keyboard.type('Done');
   await waitNextFrame(page);
   await page.keyboard.press('Enter');
