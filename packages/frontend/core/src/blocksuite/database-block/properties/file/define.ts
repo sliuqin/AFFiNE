@@ -1,4 +1,4 @@
-import { propertyType, t } from '@blocksuite/affine/blocks';
+import { propertyType, t } from '@blocksuite/affine/blocks/database';
 import zod from 'zod';
 
 export const fileColumnType = propertyType('file');

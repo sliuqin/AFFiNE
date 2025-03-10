@@ -2,11 +2,12 @@ import { Popover, uniReactRoot } from '@affine/component';
 import { Button } from '@affine/component/ui/button';
 import { Menu, MenuItem } from '@affine/component/ui/menu';
 import { Upload } from '@affine/core/components/pure/file-upload';
-import type {
-  CellRenderProps,
-  DataViewCellLifeCycle,
-} from '@blocksuite/affine/blocks';
-import { createIcon, HostContextKey } from '@blocksuite/affine/blocks';
+import {
+  type CellRenderProps,
+  createIcon,
+  type DataViewCellLifeCycle,
+  HostContextKey,
+} from '@blocksuite/affine/blocks/database';
 import {
   DeleteIcon,
   DownloadIcon,
