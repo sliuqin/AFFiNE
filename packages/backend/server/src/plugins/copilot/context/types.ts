@@ -2,7 +2,7 @@ import { File } from 'node:buffer';
 
 import { z } from 'zod';
 
-import { CopilotContextFileNotSupported } from '../../../base';
+import { CopilotContextFileNotSupported, OneMB } from '../../../base';
 import { parseDoc } from '../../../native';
 
 declare global {
@@ -17,6 +17,8 @@ declare global {
     };
   }
 }
+
+export const MAX_EMBEDDABLE_SIZE = 50 * OneMB;
 
 export enum ContextFileStatus {
   processing = 'processing',

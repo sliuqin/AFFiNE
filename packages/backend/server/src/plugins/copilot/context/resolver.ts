@@ -19,6 +19,7 @@ import { SafeIntResolver } from 'graphql-scalars';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 
 import {
+  BlobQuotaExceeded,
   CallMetric,
   CopilotEmbeddingUnavailable,
   CopilotFailedToMatchContext,
@@ -42,6 +43,7 @@ import {
   ContextFileStatus,
   DocChunkSimilarity,
   FileChunkSimilarity,
+  MAX_EMBEDDABLE_SIZE,
 } from './types';
 
 @InputType()
@@ -396,6 +398,12 @@ export class CopilotContextResolver {
     if (!lock) {
       return new TooManyRequest('Server is busy');
     }
+
+    const length = Number(ctx.req.headers['content-length']);
+    if (length && length >= MAX_EMBEDDABLE_SIZE) {
+      throw new BlobQuotaExceeded();
+    }
+
     const session = await this.context.get(options.contextId);
 
     try {

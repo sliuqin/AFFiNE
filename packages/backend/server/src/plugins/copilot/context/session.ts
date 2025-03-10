@@ -7,7 +7,6 @@ import { nanoid } from 'nanoid';
 import {
   BlobQuotaExceeded,
   CopilotContextFileNotSupported,
-  OneMB,
   PrismaTransaction,
   UserFriendlyError,
 } from '../../../base';
@@ -22,6 +21,7 @@ import {
   DocChunkSimilarity,
   EmbeddingClient,
   FileChunkSimilarity,
+  MAX_EMBEDDABLE_SIZE,
 } from './types';
 
 export class ContextSession implements AsyncDisposable {
@@ -62,7 +62,7 @@ export class ContextSession implements AsyncDisposable {
 
   private readStream(
     readable: Readable,
-    maxSize = 50 * OneMB
+    maxSize = MAX_EMBEDDABLE_SIZE
   ): Promise<Buffer<ArrayBuffer>> {
     return new Promise<Buffer<ArrayBuffer>>((resolve, reject) => {
       const chunks: Uint8Array[] = [];
@@ -136,7 +136,7 @@ export class ContextSession implements AsyncDisposable {
     }
 
     try {
-      const buffer = await this.readStream(readable, 50 * OneMB);
+      const buffer = await this.readStream(readable);
       const file = new File([buffer], name);
       return await this.addFile(file, fileId, signal);
     } catch (e: any) {
