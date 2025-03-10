@@ -1,7 +1,9 @@
-import { DatabaseBlockDataSource } from '@blocksuite/affine/blocks/database';
+import {
+  DatabaseBlockDataSource,
+  databaseBlockProperties,
+} from '@blocksuite/affine/blocks/database';
 import {
   type DatabaseBlockModel,
-  databaseBlockProperties,
   type ListType,
   type ParagraphType,
 } from '@blocksuite/affine/model';
