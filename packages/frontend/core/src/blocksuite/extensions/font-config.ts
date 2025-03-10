@@ -1,7 +1,7 @@
 import {
   AffineCanvasTextFonts,
   FontConfigExtension,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/shared/services';
 
 export function getFontConfigExtension() {
   return FontConfigExtension(

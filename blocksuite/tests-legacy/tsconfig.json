@@ -6,12 +6,5 @@
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
   },
   "include": ["./e2e"],
-  "references": [
-    { "path": "../framework/block-std" },
-    { "path": "../blocks" },
-    { "path": "../framework/global" },
-    { "path": "../framework/inline" },
-    { "path": "../integration-test" },
-    { "path": "../framework/store" }
-  ]
+  "references": [{ "path": "../affine/all" }, { "path": "../integration-test" }]
 }

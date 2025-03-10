@@ -1,17 +1,18 @@
-import { AffineSchemas, SpecProvider } from '@blocksuite/blocks';
-import { nanoid, Schema, Transformer } from '@blocksuite/store';
+import { AffineSchemas } from '@blocksuite/affine/schemas';
+import { SpecProvider } from '@blocksuite/affine/shared/utils';
+import { nanoid, Schema, Transformer } from '@blocksuite/affine/store';
 import {
   createAutoIncrementIdGenerator,
   type DocCollectionOptions,
   TestWorkspace,
-} from '@blocksuite/store/test';
+} from '@blocksuite/affine/store/test';
 import {
   type BlobSource,
   BroadcastChannelAwarenessSource,
   BroadcastChannelDocSource,
   IndexedDBBlobSource,
   MemoryBlobSource,
-} from '@blocksuite/sync';
+} from '@blocksuite/affine/sync';
 import * as Y from 'yjs';
 
 import { MockServerBlobSource } from '../../_common/sync/blob/mock-server.js';

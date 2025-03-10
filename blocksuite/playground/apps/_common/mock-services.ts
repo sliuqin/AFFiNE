@@ -1,19 +1,21 @@
-import type { EditorSetting } from '@blocksuite/affine-shared/services';
+import { toast } from '@blocksuite/affine/components/toast';
+import { Slot } from '@blocksuite/affine/global/slot';
 import {
   ColorScheme,
   type DocMode,
+  type ReferenceParams,
+} from '@blocksuite/affine/model';
+import {
   type DocModeProvider,
+  type EditorSetting,
   GeneralSettingSchema,
   type GenerateDocUrlService,
   type NotificationService,
   type ParseDocUrlService,
-  type ReferenceParams,
   type ThemeExtension,
-  toast,
-} from '@blocksuite/blocks';
-import { Slot } from '@blocksuite/global/slot';
+} from '@blocksuite/affine/shared/services';
+import { type Workspace } from '@blocksuite/affine/store';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
-import { type Workspace } from '@blocksuite/store';
 import { Signal, signal } from '@preact/signals-core';
 
 function getModeFromStorage() {

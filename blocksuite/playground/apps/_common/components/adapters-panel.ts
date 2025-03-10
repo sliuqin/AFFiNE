@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-restricted-imports */
 import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel.js';
 
-import { ShadowlessElement } from '@blocksuite/block-std';
+import { ShadowlessElement } from '@blocksuite/affine/block-std';
+import { defaultImageProxyMiddleware } from '@blocksuite/affine/blocks/image';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
 import {
-  defaultImageProxyMiddleware,
   docLinkBaseURLMiddlewareBuilder,
   embedSyncedDocMiddleware,
   type HtmlAdapter,
@@ -13,10 +14,9 @@ import {
   type PlainTextAdapter,
   PlainTextAdapterFactoryIdentifier,
   titleMiddleware,
-} from '@blocksuite/blocks';
-import { WithDisposable } from '@blocksuite/global/lit';
+} from '@blocksuite/affine/shared/adapters';
+import type { DocSnapshot } from '@blocksuite/affine/store';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
-import type { DocSnapshot } from '@blocksuite/store';
 import { effect } from '@preact/signals-core';
 import type SlTabPanel from '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel.js';
 import { css, html, type PropertyValues } from 'lit';

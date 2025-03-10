@@ -4,16 +4,16 @@ import {
   type TextRangePoint,
   TextSelection,
 } from '@blocksuite/affine/block-std';
+import { defaultImageProxyMiddleware } from '@blocksuite/affine/blocks/image';
+import { pasteMiddleware } from '@blocksuite/affine/blocks/root';
+import type { ServiceProvider } from '@blocksuite/affine/global/di';
 import {
-  defaultImageProxyMiddleware,
   embedSyncedDocMiddleware,
   MarkdownAdapter,
   MixTextAdapter,
-  pasteMiddleware,
   PlainTextAdapter,
   titleMiddleware,
-} from '@blocksuite/affine/blocks';
-import type { ServiceProvider } from '@blocksuite/affine/global/di';
+} from '@blocksuite/affine/shared/adapters';
 import type {
   BlockModel,
   BlockSnapshot,

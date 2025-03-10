@@ -1,6 +1,6 @@
 import { toURLSearchParams } from '@affine/core/modules/navigation';
 import { getOpenUrlInDesktopAppLink } from '@affine/core/modules/open-in-app';
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import type { NavigateFunction, NavigateOptions } from 'react-router-dom';
 

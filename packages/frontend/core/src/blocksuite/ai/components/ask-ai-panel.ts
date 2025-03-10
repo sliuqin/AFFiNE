@@ -1,6 +1,7 @@
 import { type EditorHost } from '@blocksuite/affine/block-std';
-import { DocModeProvider, scrollbarStyle } from '@blocksuite/affine/blocks';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
+import { DocModeProvider } from '@blocksuite/affine/shared/services';
+import { scrollbarStyle } from '@blocksuite/affine/shared/styles';
 import { cssVar } from '@toeverything/theme';
 import { css, html, LitElement, unsafeCSS } from 'lit';
 import { property } from 'lit/decorators.js';

@@ -1,14 +1,14 @@
+import { DatabaseBlockDataSource } from '@blocksuite/affine/blocks/database';
 import {
-  DatabaseBlockDataSource,
   type DatabaseBlockModel,
   databaseBlockProperties,
   type ListType,
   type ParagraphType,
-} from '@blocksuite/blocks';
+} from '@blocksuite/affine/model';
+import { Text, type Workspace } from '@blocksuite/affine/store';
 import { groupTraitKey } from '@blocksuite/data-view';
 import { propertyPresets } from '@blocksuite/data-view/property-presets';
 import { viewPresets } from '@blocksuite/data-view/view-presets';
-import { Text, type Workspace } from '@blocksuite/store';
 
 import type { InitFn } from './utils.js';
 

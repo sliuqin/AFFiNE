@@ -1,7 +1,10 @@
 import type { DocService, DocsService } from '@affine/core/modules/doc';
 import type { EditorService } from '@affine/core/modules/editor';
-import type { DocMode, DocModeProvider } from '@blocksuite/affine/blocks';
-import { DocModeExtension } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
+import {
+  DocModeExtension,
+  type DocModeProvider,
+} from '@blocksuite/affine/shared/services';
 import type { ExtensionType } from '@blocksuite/affine/store';
 
 export function patchDocModeService(

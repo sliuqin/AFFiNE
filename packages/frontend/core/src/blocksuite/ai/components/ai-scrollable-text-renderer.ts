@@ -2,8 +2,8 @@ import {
   type EditorHost,
   ShadowlessElement,
 } from '@blocksuite/affine/block-std';
-import { scrollbarStyle } from '@blocksuite/affine/blocks';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
+import { scrollbarStyle } from '@blocksuite/affine/shared/styles';
 import type { PropertyValues } from 'lit';
 import { css, html } from 'lit';
 import { property, query } from 'lit/decorators.js';

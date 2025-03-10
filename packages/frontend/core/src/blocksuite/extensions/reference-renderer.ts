@@ -1,7 +1,7 @@
 import type { ElementOrFactory } from '@affine/component';
-import type { AffineReference } from '@blocksuite/affine/blocks';
-import { ReferenceNodeConfigExtension } from '@blocksuite/affine/blocks';
-import { type ExtensionType } from '@blocksuite/affine/store';
+import type { AffineReference } from '@blocksuite/affine/rich-text';
+import { ReferenceNodeConfigExtension } from '@blocksuite/affine/rich-text';
+import type { ExtensionType } from '@blocksuite/affine/store';
 import type { TemplateResult } from 'lit';
 
 export type ReferenceReactRenderer = (

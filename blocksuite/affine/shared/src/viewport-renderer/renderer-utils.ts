@@ -1,5 +1,10 @@
-import type { EditorHost } from '@blocksuite/block-std';
-import { type Viewport } from '@blocksuite/block-std/gfx';
+import type { EditorHost, GfxBlockComponent } from '@blocksuite/block-std';
+import {
+  clientToModelCoord,
+  GfxBlockElementModel,
+  GfxControllerIdentifier,
+  type Viewport,
+} from '@blocksuite/block-std/gfx';
 import { Pane } from 'tweakpane';
 
 import { getSentenceRects, segmentSentences } from './text-utils.js';
@@ -23,14 +28,64 @@ export function syncCanvasSize(canvas: HTMLCanvasElement, host: HTMLElement) {
   canvas.style.pointerEvents = 'none';
 }
 
+function getParagraphs(host: EditorHost) {
+  const gfx = host.std.get(GfxControllerIdentifier);
+  const models = gfx.gfxElements.filter(e => e instanceof GfxBlockElementModel);
+  const components = models
+    .map(model => gfx.view.get(model.id))
+    .filter(Boolean) as GfxBlockComponent[];
+
+  const paragraphs: ParagraphLayout[] = [];
+  const selector = '.affine-paragraph-rich-text-wrapper [data-v-text="true"]';
+
+  components.forEach(component => {
+    const paragraphNodes = component.querySelectorAll(selector);
+    const viewportRecord = component.gfx.viewport.deserializeRecord(
+      component.dataset.viewportState
+    );
+    if (!viewportRecord) return;
+    const { zoom, viewScale } = viewportRecord;
+
+    paragraphNodes.forEach(paragraphNode => {
+      const paragraph: ParagraphLayout = {
+        sentences: [],
+      };
+      const sentences = segmentSentences(paragraphNode.textContent || '');
+      paragraph.sentences = sentences.map(sentence => {
+        const sentenceRects = getSentenceRects(paragraphNode, sentence);
+        const rects = sentenceRects.map(({ text, rect }) => {
+          const [modelX, modelY] = clientToModelCoord(viewportRecord, [
+            rect.x,
+            rect.y,
+          ]);
+          return {
+            text,
+            ...rect,
+            rect: {
+              x: modelX,
+              y: modelY,
+              w: rect.w / zoom / viewScale,
+              h: rect.h / zoom / viewScale,
+            },
+          };
+        });
+        return {
+          text: sentence,
+          rects,
+        };
+      });
+
+      paragraphs.push(paragraph);
+    });
+  });
+
+  return paragraphs;
+}
+
 export function getViewportLayout(
   host: EditorHost,
   viewport: Viewport
 ): ViewportLayout {
-  const paragraphBlocks = host.querySelectorAll(
-    '.affine-paragraph-rich-text-wrapper [data-v-text="true"]'
-  );
-
   const zoom = viewport.zoom;
 
   let layoutMinX = Infinity;
@@ -38,46 +93,19 @@ export function getViewportLayout(
   let layoutMaxX = -Infinity;
   let layoutMaxY = -Infinity;
 
-  const paragraphs: ParagraphLayout[] = Array.from(paragraphBlocks).map(p => {
-    const sentences = segmentSentences(p.textContent || '');
-    const sentenceLayouts = sentences.map(sentence => {
-      const rects = getSentenceRects(p, sentence);
-      rects.forEach(({ rect }) => {
-        layoutMinX = Math.min(layoutMinX, rect.x);
-        layoutMinY = Math.min(layoutMinY, rect.y);
-        layoutMaxX = Math.max(layoutMaxX, rect.x + rect.w);
-        layoutMaxY = Math.max(layoutMaxY, rect.y + rect.h);
+  const paragraphs = getParagraphs(host);
+  paragraphs.forEach(paragraph => {
+    paragraph.sentences.forEach(sentence => {
+      sentence.rects.forEach(r => {
+        layoutMinX = Math.min(layoutMinX, r.rect.x);
+        layoutMinY = Math.min(layoutMinY, r.rect.y);
+        layoutMaxX = Math.max(layoutMaxX, r.rect.x + r.rect.w);
+        layoutMaxY = Math.max(layoutMaxY, r.rect.y + r.rect.h);
       });
-      return {
-        text: sentence,
-        rects: rects.map(rect => {
-          const [x, y] = viewport.toModelCoordFromClientCoord([
-            rect.rect.x,
-            rect.rect.y,
-          ]);
-          return {
-            ...rect,
-            rect: {
-              x,
-              y,
-              w: rect.rect.w / zoom / viewport.viewScale,
-              h: rect.rect.h / zoom / viewport.viewScale,
-            },
-          };
-        }),
-      };
     });
-
-    return {
-      sentences: sentenceLayouts,
-      zoom,
-    };
   });
 
-  const layoutModelCoord = viewport.toModelCoordFromClientCoord([
-    layoutMinX,
-    layoutMinY,
-  ]);
+  const layoutModelCoord = [layoutMinX, layoutMinY];
   const w = (layoutMaxX - layoutMinX) / zoom / viewport.viewScale;
   const h = (layoutMaxY - layoutMinY) / zoom / viewport.viewScale;
   const layout: ViewportLayout = {

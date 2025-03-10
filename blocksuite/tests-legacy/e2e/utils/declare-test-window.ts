@@ -1,7 +1,7 @@
-import type { EditorHost } from '@blocksuite/block-std';
-import type * as Effects from '@blocksuite/blocks/effects';
+import type { EditorHost } from '@blocksuite/affine/block-std';
+import type * as Effects from '@blocksuite/affine/effects';
+import type { Store, Transformer, Workspace } from '@blocksuite/affine/store';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
-import type { Store, Transformer, Workspace } from '@blocksuite/store';
 
 declare const _GLOBAL_: typeof Effects;
 
@@ -11,13 +11,17 @@ declare global {
      * the following instance are initialized in `packages/playground/apps/starter/main.ts`
      */
     $blocksuite: {
-      store: typeof import('@blocksuite/store');
-      blocks: typeof import('@blocksuite/blocks');
-      global: {
-        utils: typeof import('@blocksuite/global/utils');
+      store: typeof import('@blocksuite/affine/store');
+      blocks: {
+        database: typeof import('@blocksuite/affine/blocks/database');
+        note: typeof import('@blocksuite/affine/blocks/note');
       };
+      global: {
+        utils: typeof import('@blocksuite/affine/global/utils');
+      };
+      services: typeof import('@blocksuite/affine/shared/services');
       editor: typeof import('@blocksuite/integration-test');
-      blockStd: typeof import('@blocksuite/block-std');
+      blockStd: typeof import('@blocksuite/affine/block-std');
     };
     collection: Workspace;
     doc: Store;

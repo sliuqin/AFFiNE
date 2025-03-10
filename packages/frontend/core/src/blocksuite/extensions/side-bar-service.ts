@@ -1,5 +1,5 @@
 import { WorkbenchService } from '@affine/core/modules/workbench';
-import { SidebarExtension } from '@blocksuite/affine/blocks';
+import { SidebarExtension } from '@blocksuite/affine/shared/services';
 import type { FrameworkProvider } from '@toeverything/infra';
 
 export function patchSideBarService(framework: FrameworkProvider) {

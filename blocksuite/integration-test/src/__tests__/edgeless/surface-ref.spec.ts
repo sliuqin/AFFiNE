@@ -1,9 +1,7 @@
 import {
   type EdgelessRootBlockComponent,
   EdgelessRootService,
-  type FrameBlockComponent,
-  type SurfaceRefBlockComponent,
-} from '@blocksuite/blocks';
+} from '@blocksuite/affine/blocks/root';
 import type { DocSnapshot } from '@blocksuite/store';
 import { beforeEach, describe, expect, test } from 'vitest';
 
@@ -275,6 +273,9 @@ describe('basic', () => {
     await wait();
   });
 });
+
+import type { FrameBlockComponent } from '@blocksuite/affine/blocks/frame';
+import type { SurfaceRefBlockComponent } from '@blocksuite/affine/blocks/surface-ref';
 
 import snapshot from '../snapshots/edgeless/surface-ref.spec.ts/surface-ref.json' assert { type: 'json' };
 

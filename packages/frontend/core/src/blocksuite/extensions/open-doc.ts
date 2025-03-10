@@ -1,9 +1,9 @@
 import { I18n } from '@affine/i18n';
-import type {
-  OpenDocConfig,
-  OpenDocConfigItem,
-} from '@blocksuite/affine/blocks';
-import { OpenDocExtension } from '@blocksuite/affine/blocks';
+import {
+  type OpenDocConfig,
+  type OpenDocConfigItem,
+  OpenDocExtension,
+} from '@blocksuite/affine/shared/services';
 import {
   CenterPeekIcon,
   ExpandFullIcon,

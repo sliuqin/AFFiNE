@@ -20,7 +20,6 @@ export interface SentenceLayout {
 
 export interface ParagraphLayout {
   sentences: SentenceLayout[];
-  zoom: number;
 }
 
 export interface ViewportLayout {

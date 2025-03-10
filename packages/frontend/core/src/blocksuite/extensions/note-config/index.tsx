@@ -1,6 +1,6 @@
 import type { ElementOrFactory } from '@affine/component';
 import { JournalService } from '@affine/core/modules/journal';
-import { NoteConfigExtension } from '@blocksuite/affine/blocks';
+import { NoteConfigExtension } from '@blocksuite/affine/blocks/note';
 import type { FrameworkProvider } from '@toeverything/infra';
 import { html, type TemplateResult } from 'lit';
 

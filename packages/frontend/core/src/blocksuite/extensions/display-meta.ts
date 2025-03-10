@@ -1,16 +1,16 @@
 import { DocDisplayMetaService } from '@affine/core/modules/doc-display-meta';
 import { LifeCycleWatcher, StdIdentifier } from '@blocksuite/affine/block-std';
+import type { Container } from '@blocksuite/affine/global/di';
 import type {
   DocDisplayMetaExtension,
   DocDisplayMetaParams,
-  Signal,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/shared/services';
+import { DocDisplayMetaProvider } from '@blocksuite/affine/shared/services';
 import {
   createSignalFromObservable,
-  DocDisplayMetaProvider,
   referenceToNode,
-} from '@blocksuite/affine/blocks';
-import type { Container } from '@blocksuite/affine/global/di';
+  type Signal,
+} from '@blocksuite/affine/shared/utils';
 import { LinkedPageIcon, PageIcon } from '@blocksuite/icons/lit';
 import { type FrameworkProvider } from '@toeverything/infra';
 import type { TemplateResult } from 'lit';

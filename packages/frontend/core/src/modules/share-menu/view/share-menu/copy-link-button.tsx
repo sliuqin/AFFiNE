@@ -5,7 +5,7 @@ import {
 } from '@affine/core/components/hooks/affine/use-share-url';
 import { EditorService } from '@affine/core/modules/editor';
 import { useI18n } from '@affine/i18n';
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import { BlockIcon, EdgelessIcon, PageIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 import clsx from 'clsx';

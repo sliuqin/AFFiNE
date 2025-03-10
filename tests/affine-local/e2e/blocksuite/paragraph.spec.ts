@@ -1,5 +1,5 @@
 import { test } from '@affine-test/kit/playwright';
-import { locateFormatBar } from '@affine-test/kit/utils/editor';
+import { locateToolbar } from '@affine-test/kit/utils/editor';
 import {
   pressEnter,
   pressShiftTab,
@@ -33,16 +33,16 @@ test('heading icon should be updated after change heading level', async ({
   const paragraph = page.locator('affine-note affine-paragraph').nth(0);
 
   await selectAllByKeyboard(page);
-  const formatBar = locateFormatBar(page);
-  await formatBar.getByLabel('Conversions').click();
-  await formatBar.getByLabel('Heading 1').click();
+  const toolbar = locateToolbar(page);
+  await toolbar.getByLabel('Conversions').click();
+  await toolbar.getByLabel('Heading 1').click();
 
   await paragraph.hover();
   await expect(page.getByTestId('heading-icon-1')).toBeVisible();
 
   await selectAllByKeyboard(page);
-  await formatBar.getByLabel('Conversions').click();
-  await formatBar.getByLabel('Heading 2').click();
+  await toolbar.getByLabel('Conversions').click();
+  await toolbar.getByLabel('Heading 2').click();
 
   await paragraph.hover();
   await expect(page.getByTestId('heading-icon-1')).toBeHidden();

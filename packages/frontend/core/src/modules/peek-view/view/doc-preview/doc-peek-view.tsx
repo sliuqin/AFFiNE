@@ -9,12 +9,12 @@ import { EditorService } from '@affine/core/modules/editor';
 import { GuardService } from '@affine/core/modules/permissions';
 import { DebugLogger } from '@affine/debug';
 import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
-import { RefNodeSlotsProvider } from '@blocksuite/affine/blocks';
 import { Bound } from '@blocksuite/affine/global/gfx';
 import {
   type Disposable,
   DisposableGroup,
 } from '@blocksuite/affine/global/slot';
+import { RefNodeSlotsProvider } from '@blocksuite/affine/rich-text';
 import {
   FrameworkScope,
   useLiveData,

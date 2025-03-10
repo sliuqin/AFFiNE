@@ -5,15 +5,17 @@ import {
   LifeCycleWatcher,
   StdIdentifier,
 } from '@blocksuite/affine/block-std';
+import type { Container } from '@blocksuite/affine/global/di';
+import { ColorScheme } from '@blocksuite/affine/model';
 import {
-  ColorScheme,
+  type ThemeExtension,
+  ThemeExtensionIdentifier,
+} from '@blocksuite/affine/shared/services';
+import {
   createSignalFromObservable,
   type Signal,
   SpecProvider,
-  type ThemeExtension,
-  ThemeExtensionIdentifier,
-} from '@blocksuite/affine/blocks';
-import type { Container } from '@blocksuite/affine/global/di';
+} from '@blocksuite/affine/shared/utils';
 import type { ExtensionType } from '@blocksuite/affine/store';
 import type { FrameworkProvider } from '@toeverything/infra';
 import type { Observable } from 'rxjs';

@@ -1,25 +1,31 @@
 import type { EditorHost } from '@blocksuite/affine/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
-import type {
-  EdgelessElementToolbarWidget,
-  MindmapElementModel,
-  ShapeElementModel,
-} from '@blocksuite/affine/blocks';
 import {
-  addImages,
-  EDGELESS_ELEMENT_TOOLBAR_WIDGET,
   EDGELESS_TEXT_BLOCK_MIN_HEIGHT,
   EDGELESS_TEXT_BLOCK_MIN_WIDTH,
-  EdgelessTextBlockModel,
+} from '@blocksuite/affine/blocks/edgeless-text';
+import { addImages } from '@blocksuite/affine/blocks/image';
+import {
+  EDGELESS_ELEMENT_TOOLBAR_WIDGET,
+  type EdgelessElementToolbarWidget,
+} from '@blocksuite/affine/blocks/root';
+import {
   fitContent,
   getSurfaceBlock,
-  ImageBlockModel,
-  LightLoadingIcon,
   MindmapUtils,
-  NoteDisplayMode,
-  TelemetryProvider,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/blocks/surface';
+import { LightLoadingIcon } from '@blocksuite/affine/components/icons';
 import { Bound } from '@blocksuite/affine/global/gfx';
+import type {
+  MindmapElementModel,
+  ShapeElementModel,
+} from '@blocksuite/affine/model';
+import {
+  EdgelessTextBlockModel,
+  ImageBlockModel,
+  NoteDisplayMode,
+} from '@blocksuite/affine/model';
+import { TelemetryProvider } from '@blocksuite/affine/shared/services';
 import {
   ChatWithAiIcon,
   DeleteIcon,

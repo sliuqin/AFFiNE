@@ -1,6 +1,6 @@
 import type { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import { ImportIcon, PlusIcon } from '@blocksuite/icons/rc';
 
 import type { usePageHelper } from '../blocksuite/block-suite-page-list/utils';

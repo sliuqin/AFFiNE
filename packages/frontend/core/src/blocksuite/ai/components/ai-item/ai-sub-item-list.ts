@@ -3,8 +3,9 @@ import {
   PropTypes,
   requiredProperties,
 } from '@blocksuite/affine/block-std';
-import { EnterIcon, stopPropagation } from '@blocksuite/affine/blocks';
+import { EnterIcon } from '@blocksuite/affine/components/icons';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
+import { stopPropagation } from '@blocksuite/affine/shared/utils';
 import { baseTheme } from '@toeverything/theme';
 import { css, html, LitElement, nothing, unsafeCSS } from 'lit';
 import { property } from 'lit/decorators.js';

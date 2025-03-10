@@ -7,13 +7,9 @@
     "test": "yarn playwright test"
   },
   "dependencies": {
-    "@blocksuite/block-std": "workspace:*",
-    "@blocksuite/blocks": "workspace:*",
-    "@blocksuite/global": "workspace:*",
-    "@blocksuite/inline": "workspace:*",
+    "@blocksuite/affine": "workspace:*",
     "@blocksuite/integration-test": "workspace:*",
-    "@blocksuite/store": "workspace:*",
-    "@playwright/test": "=1.50.1",
+    "@playwright/test": "=1.51.0",
     "@toeverything/theme": "^1.1.12"
   },
   "bsImport": {

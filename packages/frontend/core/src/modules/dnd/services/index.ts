@@ -10,9 +10,9 @@ import { BlockStdScope } from '@blocksuite/affine/block-std';
 import {
   DNDAPIExtension,
   DndApiExtensionIdentifier,
-  type DragBlockPayload,
-} from '@blocksuite/affine/blocks';
-import { type SliceSnapshot } from '@blocksuite/affine/store';
+} from '@blocksuite/affine/shared/services';
+import type { SliceSnapshot } from '@blocksuite/affine/store';
+import type { DragBlockPayload } from '@blocksuite/affine/widgets/drag-handle';
 import { Service } from '@toeverything/infra';
 
 import type { DocsService } from '../../doc';

@@ -3,9 +3,10 @@ import {
   EditorHost,
   ShadowlessElement,
 } from '@blocksuite/affine/block-std';
-import { PageEditorBlockSpecs, ThemeProvider } from '@blocksuite/affine/blocks';
+import { PageEditorBlockSpecs } from '@blocksuite/affine/extensions';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { noop } from '@blocksuite/affine/global/utils';
+import { ThemeProvider } from '@blocksuite/affine/shared/services';
 import type { Store } from '@blocksuite/affine/store';
 import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';

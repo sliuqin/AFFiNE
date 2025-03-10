@@ -1,4 +1,4 @@
-import type { AttachmentBlockModel } from '@blocksuite/affine/blocks';
+import type { AttachmentBlockModel } from '@blocksuite/affine/model';
 
 export async function downloadBlobToBuffer(model: AttachmentBlockModel) {
   const sourceId = model.sourceId;

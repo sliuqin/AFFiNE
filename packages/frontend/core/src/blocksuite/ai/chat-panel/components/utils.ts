@@ -1,5 +1,5 @@
 import type { CopilotContextDoc, CopilotContextFile } from '@affine/graphql';
-import { LoadingIcon } from '@blocksuite/affine/blocks';
+import { LoadingIcon } from '@blocksuite/affine/blocks/image';
 import { WarningIcon } from '@blocksuite/icons/lit';
 import { type TemplateResult } from 'lit';
 

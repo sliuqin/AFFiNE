@@ -2,7 +2,7 @@ import { Divider, Loading, toast } from '@affine/component';
 import { Button, IconButton } from '@affine/component/ui/button';
 import { useAsyncCallback } from '@affine/core/components/hooks/affine-async-hooks';
 import { useI18n } from '@affine/i18n';
-import type { ImageBlockModel } from '@blocksuite/affine/blocks';
+import type { ImageBlockModel } from '@blocksuite/affine/model';
 import type { BlockModel, Workspace } from '@blocksuite/affine/store';
 import {
   ArrowLeftSmallIcon,

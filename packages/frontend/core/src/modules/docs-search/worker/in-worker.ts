@@ -1,19 +1,19 @@
-import type {
-  AffineTextAttributes,
-  AttachmentBlockModel,
-  BookmarkBlockModel,
-  EmbedBlockModel,
-  ImageBlockModel,
-  TableBlockModel,
-} from '@blocksuite/affine/blocks';
-import {
-  defaultBlockMarkdownAdapterMatchers,
-  InlineDeltaToMarkdownAdapterExtensions,
-  MarkdownAdapter,
-  MarkdownInlineToDeltaAdapterExtensions,
-  TableModelFlavour,
-} from '@blocksuite/affine/blocks';
+import { defaultBlockMarkdownAdapterMatchers } from '@blocksuite/affine/adapters';
 import { Container } from '@blocksuite/affine/global/di';
+import {
+  type AttachmentBlockModel,
+  type BookmarkBlockModel,
+  type EmbedBlockModel,
+  type ImageBlockModel,
+  type TableBlockModel,
+  TableModelFlavour,
+} from '@blocksuite/affine/model';
+import {
+  InlineDeltaToMarkdownAdapterExtensions,
+  MarkdownInlineToDeltaAdapterExtensions,
+} from '@blocksuite/affine/rich-text';
+import { MarkdownAdapter } from '@blocksuite/affine/shared/adapters';
+import type { AffineTextAttributes } from '@blocksuite/affine/shared/types';
 import {
   createYProxy,
   type DraftModel,

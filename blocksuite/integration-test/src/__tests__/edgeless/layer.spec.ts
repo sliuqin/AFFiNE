@@ -1,11 +1,11 @@
-import type { BlockComponent } from '@blocksuite/block-std';
-import { generateKeyBetween } from '@blocksuite/block-std/gfx';
+import type { EdgelessRootBlockComponent } from '@blocksuite/affine/blocks/root';
+import type { SurfaceElementModel } from '@blocksuite/affine/blocks/surface';
 import type {
-  EdgelessRootBlockComponent,
   GroupElementModel,
   NoteBlockModel,
-  SurfaceElementModel,
-} from '@blocksuite/blocks';
+} from '@blocksuite/affine/model';
+import type { BlockComponent } from '@blocksuite/block-std';
+import { generateKeyBetween } from '@blocksuite/block-std/gfx';
 import type { BlockModel, Store } from '@blocksuite/store';
 import { beforeEach, describe, expect, test } from 'vitest';
 import * as Y from 'yjs';

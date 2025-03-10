@@ -1,6 +1,6 @@
 import type { ElementOrFactory } from '@affine/component';
 import { AttachmentEmbedPreview } from '@affine/core/components/attachment-viewer/pdf-viewer-embedded';
-import { AttachmentEmbedConfigIdentifier } from '@blocksuite/affine/blocks';
+import { AttachmentEmbedConfigIdentifier } from '@blocksuite/affine/blocks/attachment';
 import { Bound } from '@blocksuite/affine/global/gfx';
 import type { ExtensionType } from '@blocksuite/affine/store';
 import type { TemplateResult } from 'lit';

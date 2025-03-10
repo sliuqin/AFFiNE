@@ -1,18 +1,15 @@
 /* oxlint-disable @typescript-eslint/no-non-null-assertion */
 import { BlockComponent } from '@blocksuite/affine/block-std';
 import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
-import type {
-  Color,
-  ShapeElementModel,
-  SurfaceBlockModel,
-} from '@blocksuite/affine/blocks';
 import {
   CanvasRenderer,
   elementRenderers,
   fitContent,
-  ThemeProvider,
-} from '@blocksuite/affine/blocks';
+  type SurfaceBlockModel,
+} from '@blocksuite/affine/blocks/surface';
 import type { Bound } from '@blocksuite/affine/global/gfx';
+import type { Color, ShapeElementModel } from '@blocksuite/affine/model';
+import { ThemeProvider } from '@blocksuite/affine/shared/services';
 import { html } from 'lit';
 import { query } from 'lit/decorators.js';
 

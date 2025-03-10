@@ -1,6 +1,7 @@
 import { type EditorHost } from '@blocksuite/affine/block-std';
-import { scrollbarStyle, unsafeCSSVarV2 } from '@blocksuite/affine/blocks';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
+import { scrollbarStyle } from '@blocksuite/affine/shared/styles';
+import { unsafeCSSVarV2 } from '@blocksuite/affine/shared/theme';
 import { InformationIcon, ToggleDownIcon } from '@blocksuite/icons/lit';
 import { signal } from '@preact/signals-core';
 import { baseTheme } from '@toeverything/theme';

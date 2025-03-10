@@ -4,14 +4,11 @@ import type {
 } from '@affine/core/blocksuite/editors';
 import { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import type { BlockStdScope, EditorHost } from '@blocksuite/affine/block-std';
-import {
-  appendParagraphCommand,
-  type DocMode,
-  type DocTitle,
-  focusBlockEnd,
-  getLastNoteBlock,
-  type RootBlockModel,
-} from '@blocksuite/affine/blocks';
+import { appendParagraphCommand } from '@blocksuite/affine/blocks/paragraph';
+import type { DocTitle } from '@blocksuite/affine/fragments/doc-title';
+import type { DocMode, RootBlockModel } from '@blocksuite/affine/model';
+import { focusBlockEnd } from '@blocksuite/affine/shared/commands';
+import { getLastNoteBlock } from '@blocksuite/affine/shared/utils';
 import { type Store } from '@blocksuite/affine/store';
 import { useLiveData, useService } from '@toeverything/infra';
 import clsx from 'clsx';

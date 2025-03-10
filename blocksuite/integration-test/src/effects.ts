@@ -1,4 +1,4 @@
-import '@blocksuite/blocks/effects';
+import '@blocksuite/affine/effects';
 
 import { TestAffineEditorContainer } from './editors/index.js';
 

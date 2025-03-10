@@ -1,8 +1,6 @@
 import { type EditorHost, TextSelection } from '@blocksuite/affine/block-std';
-import {
-  AIStarIconWithAnimation,
-  createLitPortal,
-} from '@blocksuite/affine/blocks';
+import { AIStarIconWithAnimation } from '@blocksuite/affine/components/icons';
+import { createLitPortal } from '@blocksuite/affine/components/portal';
 import { flip, offset } from '@floating-ui/dom';
 import { html, type TemplateResult } from 'lit';
 

@@ -1,6 +1,5 @@
 import '../../components/ask-ai-button';
 
-import type { AffineCodeToolbarWidget } from '@blocksuite/affine/blocks';
 import { html } from 'lit';
 
 const AICodeItemGroups = buildAICodeItemGroups();
@@ -10,6 +9,7 @@ const buttonOptions: AskAIButtonOptions = {
 };
 
 import { BlockSelection } from '@blocksuite/affine/block-std';
+import type { AffineCodeToolbarWidget } from '@blocksuite/affine/blocks/code';
 
 import { buildAICodeItemGroups } from '../../_common/config';
 import type { AskAIButtonOptions } from '../../components/ask-ai-button';

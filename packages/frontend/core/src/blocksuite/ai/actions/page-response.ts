@@ -4,18 +4,18 @@ import {
   type GfxModel,
   LayerManager,
 } from '@blocksuite/affine/block-std/gfx';
-import type {
-  MindmapElementModel,
-  ShapeElementModel,
-} from '@blocksuite/affine/blocks';
+import { uploadBlobForImage } from '@blocksuite/affine/blocks/image';
 import {
   fitContent,
   getSurfaceBlock,
   SurfaceBlockModel,
-  TelemetryProvider,
-  uploadBlobForImage,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/blocks/surface';
 import { Bound, getCommonBound } from '@blocksuite/affine/global/gfx';
+import type {
+  MindmapElementModel,
+  ShapeElementModel,
+} from '@blocksuite/affine/model';
+import { TelemetryProvider } from '@blocksuite/affine/shared/services';
 import { type BlockProps, Text } from '@blocksuite/affine/store';
 import * as Y from 'yjs';
 

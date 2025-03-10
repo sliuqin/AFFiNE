@@ -2,7 +2,7 @@ import type {
   AuthService,
   PublicUserService,
 } from '@affine/core/modules/cloud';
-import { UserServiceExtension } from '@blocksuite/affine/blocks';
+import { UserServiceExtension } from '@blocksuite/affine/shared/services';
 
 export function patchUserExtensions(
   publicUserService: PublicUserService,

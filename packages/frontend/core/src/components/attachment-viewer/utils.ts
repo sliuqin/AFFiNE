@@ -1,5 +1,5 @@
 import type { PageSize } from '@affine/core/modules/pdf/renderer/types';
-import type { AttachmentBlockModel } from '@blocksuite/affine/blocks';
+import type { AttachmentBlockModel } from '@blocksuite/affine/model';
 import { filesize } from 'filesize';
 
 import { downloadBlob } from '../../utils/resource';

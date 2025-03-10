@@ -35,10 +35,21 @@ export function requestThrottledConnectedFrame<
   }) as T;
 }
 
-function setDisplay(view: BlockComponent | null, display: 'block' | 'none') {
+function setBlockState(view: BlockComponent | null, state: 'active' | 'idle') {
   if (!view) return;
-  if (view.style.display !== display) {
-    view.style.display = display;
+
+  if (state === 'active') {
+    view.style.visibility = 'visible';
+    view.style.pointerEvents = 'auto';
+    view.classList.remove('block-idle');
+    view.classList.add('block-active');
+    view.dataset.blockState = 'active';
+  } else {
+    view.style.visibility = 'hidden';
+    view.style.pointerEvents = 'none';
+    view.classList.remove('block-active');
+    view.classList.add('block-idle');
+    view.dataset.blockState = 'idle';
   }
 }
 
@@ -55,20 +66,31 @@ export class GfxViewportElement extends WithDisposable(ShadowlessElement) {
       display: block;
       transform: none;
     }
-  `;
 
-  optimizedBlocks = new Set<string>();
+    /* CSS for idle blocks that are hidden but maintain layout */
+    .block-idle {
+      visibility: hidden;
+      pointer-events: none;
+      will-change: transform;
+      contain: size layout style;
+    }
+
+    /* CSS for active blocks participating in viewport transformations */
+    .block-active {
+      visibility: visible;
+      pointer-events: auto;
+    }
+  `;
 
   private readonly _hideOutsideBlock = () => {
     if (!this.host) return;
 
-    const { host, optimizedBlocks, enableOptimization } = this;
+    const { host } = this;
     const modelsInViewport = this.getModelsInViewport();
+
     modelsInViewport.forEach(model => {
       const view = host.std.view.getBlock(model.id);
-      const canOptimize = optimizedBlocks.has(model.id) && enableOptimization;
-      const display = canOptimize ? 'none' : 'block';
-      setDisplay(view, display);
+      setBlockState(view, 'active');
 
       if (this._lastVisibleModels?.has(model)) {
         this._lastVisibleModels!.delete(model);
@@ -77,7 +99,7 @@ export class GfxViewportElement extends WithDisposable(ShadowlessElement) {
 
     this._lastVisibleModels?.forEach(model => {
       const view = host.std.view.getBlock(model.id);
-      setDisplay(view, 'none');
+      setBlockState(view, 'idle');
     });
 
     this._lastVisibleModels = modelsInViewport;
@@ -170,28 +192,25 @@ export class GfxViewportElement extends WithDisposable(ShadowlessElement) {
   @property({ attribute: false })
   accessor viewport!: Viewport;
 
-  @property({ attribute: false })
-  accessor enableOptimization: boolean = false;
-
-  updateOptimizedBlocks(blockIds: string[], optimized: boolean): void {
-    let changed = false;
+  setBlocksActive(blockIds: string[]): void {
+    if (!this.host) return;
 
     blockIds.forEach(id => {
-      if (optimized && !this.optimizedBlocks.has(id)) {
-        this.optimizedBlocks.add(id);
-        changed = true;
-      } else if (!optimized && this.optimizedBlocks.has(id)) {
-        this.optimizedBlocks.delete(id);
-        changed = true;
+      const view = this.host?.std.view.getBlock(id);
+      if (view) {
+        setBlockState(view, 'active');
       }
     });
-
-    if (changed) this._refreshViewport();
   }
 
-  clearOptimizedBlocks(): void {
-    if (this.optimizedBlocks.size === 0) return;
-    this.optimizedBlocks.clear();
-    this._refreshViewport();
+  setBlocksIdle(blockIds: string[]): void {
+    if (!this.host) return;
+
+    blockIds.forEach(id => {
+      const view = this.host?.std.view.getBlock(id);
+      if (view) {
+        setBlockState(view, 'idle');
+      }
+    });
   }
 }

@@ -1,8 +1,6 @@
-import {
-  AffineSchemas,
-  type SurfaceBlockModel,
-  ZipTransformer,
-} from '@blocksuite/blocks';
+import { ZipTransformer } from '@blocksuite/affine/blocks/root';
+import type { SurfaceBlockModel } from '@blocksuite/affine/blocks/surface';
+import { AffineSchemas } from '@blocksuite/affine/schemas';
 import type { PointLocation } from '@blocksuite/global/gfx';
 import { Schema } from '@blocksuite/store';
 import { beforeEach, expect, test } from 'vitest';

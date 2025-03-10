@@ -1,7 +1,7 @@
 import { IconButton } from '@affine/component';
 import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import {
   CloseIcon,
   ExpandFullIcon,

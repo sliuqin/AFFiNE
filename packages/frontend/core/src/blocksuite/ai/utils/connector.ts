@@ -1,8 +1,6 @@
-import {
-  type ConnectorElementModel,
-  type EdgelessRootService,
-  SurfaceBlockComponent,
-} from '@blocksuite/affine/blocks';
+import type { EdgelessRootService } from '@blocksuite/affine/blocks/root';
+import { SurfaceBlockComponent } from '@blocksuite/affine/blocks/surface';
+import type { ConnectorElementModel } from '@blocksuite/affine/model';
 
 export const getConnectorFromId = (
   id: string,

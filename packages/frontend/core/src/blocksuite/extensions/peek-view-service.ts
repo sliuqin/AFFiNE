@@ -3,8 +3,8 @@ import { DebugLogger } from '@affine/debug';
 import type {
   PeekOptions,
   PeekViewService as BSPeekViewService,
-} from '@blocksuite/affine/blocks';
-import { PeekViewExtension } from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/components/peek';
+import { PeekViewExtension } from '@blocksuite/affine/components/peek';
 import type { TemplateResult } from 'lit';
 
 const logger = new DebugLogger('affine::patch-peek-view-service');

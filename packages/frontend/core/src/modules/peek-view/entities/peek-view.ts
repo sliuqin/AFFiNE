@@ -1,14 +1,14 @@
 import type { BlockComponent, EditorHost } from '@blocksuite/affine/block-std';
+import type { SurfaceRefBlockComponent } from '@blocksuite/affine/blocks/surface-ref';
 import type {
   AttachmentBlockModel,
   DocMode,
   EmbedLinkedDocModel,
   EmbedSyncedDocModel,
   ImageBlockModel,
-  SurfaceRefBlockComponent,
   SurfaceRefBlockModel,
-} from '@blocksuite/affine/blocks';
-import { AffineReference } from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/model';
+import { AffineReference } from '@blocksuite/affine/rich-text';
 import type { Block, BlockModel } from '@blocksuite/affine/store';
 import { Entity, LiveData } from '@toeverything/infra';
 import type { TemplateResult } from 'lit';

@@ -1,20 +1,20 @@
 import { createReactComponentFromLit } from '@affine/component';
+import { defaultBlockMarkdownAdapterMatchers } from '@blocksuite/affine/adapters';
 import {
   BlockStdScope,
   BlockViewIdentifier,
   type EditorHost,
   ShadowlessElement,
 } from '@blocksuite/affine/block-std';
-import {
-  codeBlockWrapMiddleware,
-  defaultBlockMarkdownAdapterMatchers,
-  defaultImageProxyMiddleware,
-  InlineDeltaToMarkdownAdapterExtensions,
-  MarkdownInlineToDeltaAdapterExtensions,
-  PageEditorBlockSpecs,
-} from '@blocksuite/affine/blocks';
+import { defaultImageProxyMiddleware } from '@blocksuite/affine/blocks/image';
+import { PageEditorBlockSpecs } from '@blocksuite/affine/extensions';
 import { Container, type ServiceProvider } from '@blocksuite/affine/global/di';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
+import {
+  InlineDeltaToMarkdownAdapterExtensions,
+  MarkdownInlineToDeltaAdapterExtensions,
+} from '@blocksuite/affine/rich-text';
+import { codeBlockWrapMiddleware } from '@blocksuite/affine/shared/adapters';
 import type {
   ExtensionType,
   Query,

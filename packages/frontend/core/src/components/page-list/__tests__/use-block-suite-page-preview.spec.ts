@@ -3,7 +3,7 @@
  */
 import 'fake-indexeddb/auto';
 
-import { StoreExtensions } from '@blocksuite/affine/blocks';
+import { StoreExtensions } from '@blocksuite/affine/extensions';
 import { type Store, Text } from '@blocksuite/affine/store';
 import { TestWorkspace } from '@blocksuite/affine/store/test';
 import { renderHook } from '@testing-library/react';

@@ -10,7 +10,7 @@ import { WorkspaceService } from '@affine/core/modules/workspace';
 import { inferOpenMode } from '@affine/core/utils';
 import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import {
   ArrowDownSmallIcon,
   EdgelessIcon,

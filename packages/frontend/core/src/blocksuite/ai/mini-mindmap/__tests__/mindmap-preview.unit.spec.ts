@@ -1,9 +1,9 @@
+import { defaultBlockMarkdownAdapterMatchers } from '@blocksuite/affine/adapters';
+import { Container } from '@blocksuite/affine/global/di';
 import {
-  defaultBlockMarkdownAdapterMatchers,
   InlineDeltaToMarkdownAdapterExtensions,
   MarkdownInlineToDeltaAdapterExtensions,
-} from '@blocksuite/affine/blocks';
-import { Container } from '@blocksuite/affine/global/di';
+} from '@blocksuite/affine/rich-text';
 import { TestWorkspace } from '@blocksuite/affine/store/test';
 import { describe, expect, test } from 'vitest';
 

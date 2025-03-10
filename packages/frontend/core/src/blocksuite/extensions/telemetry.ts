@@ -2,7 +2,7 @@ import { mixpanel } from '@affine/track';
 import {
   type TelemetryEventMap,
   TelemetryProvider,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/shared/services';
 import type { ExtensionType } from '@blocksuite/affine/store';
 
 export function getTelemetryExtension(): ExtensionType {

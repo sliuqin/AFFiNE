@@ -1,10 +1,8 @@
 import '@toeverything/theme/style.css';
 
-import {
-  ColorScheme,
-  type EdgelessRootBlockComponent,
-  ThemeProvider,
-} from '@blocksuite/blocks';
+import type { EdgelessRootBlockComponent } from '@blocksuite/affine/blocks/root';
+import { ColorScheme } from '@blocksuite/affine/model';
+import { ThemeProvider } from '@blocksuite/affine/shared/services';
 import { beforeEach, describe, expect, test } from 'vitest';
 
 import { getDocRootBlock } from '../utils/edgeless.js';

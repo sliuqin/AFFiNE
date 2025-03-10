@@ -1,5 +1,5 @@
 import type { SearchDocMenuAction } from '@affine/core/modules/doc-search-menu/services';
-import type { LinkedMenuGroup } from '@blocksuite/affine/blocks';
+import type { LinkedMenuGroup } from '@blocksuite/affine/blocks/root';
 import type { Store } from '@blocksuite/affine/store';
 import type { Signal } from '@preact/signals-core';
 

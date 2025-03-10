@@ -1,5 +1,5 @@
 import { IconButton, Menu, MenuItem } from '@affine/component';
-import type { AttachmentBlockModel } from '@blocksuite/affine/blocks';
+import type { AttachmentBlockModel } from '@blocksuite/affine/model';
 import {
   //EditIcon,
   LocalDataIcon,

@@ -1,5 +1,5 @@
 import type { MemberSearchService } from '@affine/core/modules/permissions';
-import { UserListServiceExtension } from '@blocksuite/affine/blocks';
+import { UserListServiceExtension } from '@blocksuite/affine/shared/services';
 
 export function patchUserListExtensions(memberSearch: MemberSearchService) {
   return UserListServiceExtension({

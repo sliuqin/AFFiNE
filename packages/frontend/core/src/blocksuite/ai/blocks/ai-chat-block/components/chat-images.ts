@@ -1,4 +1,4 @@
-import { LoadingIcon } from '@blocksuite/affine/blocks';
+import { LoadingIcon } from '@blocksuite/affine/blocks/image';
 import { css, html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { choose } from 'lit/directives/choose.js';

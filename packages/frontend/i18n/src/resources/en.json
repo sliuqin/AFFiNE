@@ -1736,6 +1736,7 @@
   "com.affine.page-starter-bar.edgeless": "Edgeless",
   "tips": "Tips",
   "Template": "Template",
+  "com.affine.template-list.delete": "Delete Template",
   "com.affine.template-list.empty": "No template",
   "com.affine.template-list.create-new": "Create new template",
   "com.affine.template-journal-onboarding.title": "Set a Template for the Journal",

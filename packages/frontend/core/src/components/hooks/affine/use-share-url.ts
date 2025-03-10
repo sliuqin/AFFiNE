@@ -9,13 +9,13 @@ import {
   GfxBlockElementModel,
   GfxControllerIdentifier,
 } from '@blocksuite/affine/block-std/gfx';
+import { type DocMode } from '@blocksuite/affine/model';
 import {
-  type DocMode,
   getBlockSelectionsCommand,
   getImageSelectionsCommand,
   getSelectedModelsCommand,
   getTextSelectionCommand,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/shared/commands';
 import { useService } from '@toeverything/infra';
 import { useCallback } from 'react';
 

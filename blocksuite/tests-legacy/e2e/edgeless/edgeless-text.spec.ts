@@ -1,5 +1,5 @@
-import type { EdgelessTextBlockComponent } from '@blocksuite/blocks';
-import { Bound } from '@blocksuite/global/gfx';
+import type { EdgelessTextBlockComponent } from '@blocksuite/affine/blocks/edgeless-text';
+import { Bound } from '@blocksuite/affine/global/gfx';
 import { expect, type Page } from '@playwright/test';
 
 import {

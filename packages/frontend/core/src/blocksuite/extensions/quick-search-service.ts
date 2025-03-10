@@ -10,14 +10,21 @@ import {
 import { ExternalLinksQuickSearchSession } from '@affine/core/modules/quicksearch/impls/external-links';
 import { JournalsQuickSearchSession } from '@affine/core/modules/quicksearch/impls/journals';
 import { track } from '@affine/track';
-import { LifeCycleWatcher } from '@blocksuite/affine/block-std';
-import type { QuickSearchResult } from '@blocksuite/affine/blocks';
 import {
-  AffineSlashMenuWidget,
+  BookmarkSlashMenuConfigIdentifier,
   insertLinkByQuickSearchCommand,
+} from '@blocksuite/affine/blocks/bookmark';
+import { LinkedDocSlashMenuConfigIdentifier } from '@blocksuite/affine/blocks/embed';
+import type { ServiceIdentifier } from '@blocksuite/affine/global/di';
+import {
   QuickSearchExtension,
-} from '@blocksuite/affine/blocks';
-import { Text } from '@blocksuite/affine/store';
+  type QuickSearchResult,
+} from '@blocksuite/affine/shared/services';
+import { type ExtensionType, Text } from '@blocksuite/affine/store';
+import type {
+  SlashMenuConfig,
+  SlashMenuItem,
+} from '@blocksuite/affine/widgets/slash-menu';
 import type { FrameworkProvider } from '@toeverything/infra';
 import { pick } from 'lodash-es';
 
@@ -120,56 +127,66 @@ export function patchQuickSearchService(framework: FrameworkProvider) {
     },
   });
 
-  class SlashMenuQuickSearchExtension extends LifeCycleWatcher {
-    static override key = 'slash-menu-quick-search-extension';
+  const SlashMenuQuickSearchExtension: ExtensionType = {
+    setup: di => {
+      const overrideFn = (identifier: ServiceIdentifier<SlashMenuConfig>) => {
+        const prev = di.getFactory(identifier);
+        if (!prev) return;
 
-    override mounted() {
-      super.mounted();
-      const { view } = this.std;
-      view.viewUpdated.on(payload => {
-        if (payload.type !== 'widget' || payload.method !== 'add') {
-          return;
-        }
-        const component = payload.view;
-        if (component instanceof AffineSlashMenuWidget) {
-          component.configItemTransform = item => {
-            if (
-              'action' in item &&
-              (item.name === 'Linked Doc' || item.name === 'Link')
-            ) {
-              item.action = ({ std }) => {
-                const [success, { insertedLinkType }] = std.command.exec(
-                  insertLinkByQuickSearchCommand
-                );
+        di.override(identifier, provider => {
+          const prevConfig: SlashMenuConfig = prev(provider);
 
-                if (!success) return;
+          if (typeof prevConfig.items === 'function') {
+            const prevConfigItemGenerator = prevConfig.items;
+            prevConfig.items = ctx =>
+              prevConfigItemGenerator(ctx).map(modifyFn);
+          } else {
+            prevConfig.items = prevConfig.items.map(modifyFn);
+          }
 
-                insertedLinkType
-                  ?.then(type => {
-                    const flavour = type?.flavour;
-                    if (!flavour) return;
+          return prevConfig;
+        });
+      };
 
-                    if (flavour === 'affine:bookmark') {
-                      track.doc.editor.slashMenu.bookmark();
-                      return;
-                    }
+      overrideFn(LinkedDocSlashMenuConfigIdentifier);
+      overrideFn(BookmarkSlashMenuConfigIdentifier);
 
-                    if (flavour === 'affine:embed-linked-doc') {
-                      track.doc.editor.slashMenu.linkDoc({
-                        control: 'linkDoc',
-                      });
-                      return;
-                    }
-                  })
-                  .catch(console.error);
-              };
-            }
-            return item;
+      const modifyFn = (item: SlashMenuItem): SlashMenuItem => {
+        if (
+          'action' in item &&
+          (item.name === 'Linked Doc' || item.name === 'Link')
+        ) {
+          item.action = ({ std }) => {
+            const [success, { insertedLinkType }] = std.command.exec(
+              insertLinkByQuickSearchCommand
+            );
+
+            if (!success) return;
+
+            insertedLinkType
+              ?.then(type => {
+                const flavour = type?.flavour;
+                if (!flavour) return;
+
+                if (flavour === 'affine:bookmark') {
+                  track.doc.editor.slashMenu.bookmark();
+                  return;
+                }
+
+                if (flavour === 'affine:embed-linked-doc') {
+                  track.doc.editor.slashMenu.linkDoc({
+                    control: 'linkDoc',
+                  });
+                  return;
+                }
+              })
+              .catch(console.error);
           };
         }
-      });
-    }
-  }
+        return item;
+      };
+    },
+  };
 
   return [QuickSearch, SlashMenuQuickSearchExtension];
 }

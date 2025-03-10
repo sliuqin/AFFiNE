@@ -4,7 +4,7 @@ import type { AIChatBlockModel } from '@affine/core/blocksuite/ai/blocks/ai-chat
 import { enableFootnoteConfigExtension } from '@affine/core/blocksuite/extensions';
 import { AINetworkSearchService } from '@affine/core/modules/ai-button/services/network-search';
 import type { EditorHost } from '@blocksuite/affine/block-std';
-import { SpecProvider } from '@blocksuite/affine/blocks';
+import { SpecProvider } from '@blocksuite/affine/shared/utils';
 import { useFramework } from '@toeverything/infra';
 import { useMemo } from 'react';
 

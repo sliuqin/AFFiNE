@@ -1,6 +1,1 @@
-export {
-  createAutoIncrementIdGenerator,
-  TestDoc,
-  TestMeta,
-  TestWorkspace,
-} from '@blocksuite/store/test';
+export * from '@blocksuite/store/test';

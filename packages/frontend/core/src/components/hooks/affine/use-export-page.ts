@@ -10,18 +10,20 @@ import { track } from '@affine/track';
 import type { BlockStdScope } from '@blocksuite/affine/block-std';
 import {
   createAssetsArchive,
-  docLinkBaseURLMiddleware,
   download,
-  embedSyncedDocMiddleware,
-  ExportManager,
-  HtmlAdapterFactoryIdentifier,
   HtmlTransformer,
-  MarkdownAdapterFactoryIdentifier,
   MarkdownTransformer,
-  printToPdf,
-  titleMiddleware,
   ZipTransformer,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/blocks/root';
+import { ExportManager } from '@blocksuite/affine/blocks/surface';
+import {
+  docLinkBaseURLMiddleware,
+  embedSyncedDocMiddleware,
+  HtmlAdapterFactoryIdentifier,
+  MarkdownAdapterFactoryIdentifier,
+  titleMiddleware,
+} from '@blocksuite/affine/shared/adapters';
+import { printToPdf } from '@blocksuite/affine/shared/utils';
 import { type Store, Transformer } from '@blocksuite/affine/store';
 import { useLiveData, useService } from '@toeverything/infra';
 import { useSetAtom } from 'jotai';

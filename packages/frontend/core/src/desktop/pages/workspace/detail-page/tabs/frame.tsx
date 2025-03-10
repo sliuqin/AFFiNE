@@ -1,5 +1,5 @@
 import type { EditorHost } from '@blocksuite/affine/block-std';
-import { FramePanel } from '@blocksuite/affine/blocks';
+import { FramePanel } from '@blocksuite/affine/fragments/frame-panel';
 import { useCallback, useEffect, useRef } from 'react';
 
 import * as styles from './frame.css';

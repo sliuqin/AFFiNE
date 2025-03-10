@@ -17,7 +17,7 @@ import {
   WorkspacesService,
 } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import { AllDocsIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 import { cssVar } from '@toeverything/theme';

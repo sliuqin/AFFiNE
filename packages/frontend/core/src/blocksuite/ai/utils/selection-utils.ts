@@ -3,20 +3,24 @@ import {
   GfxControllerIdentifier,
   type GfxModel,
 } from '@blocksuite/affine/block-std/gfx';
+import { isCanvasElement, splitElements } from '@blocksuite/affine/blocks/root';
+import {
+  getSurfaceBlock,
+  type SurfaceBlockComponent,
+} from '@blocksuite/affine/blocks/surface';
 import {
   DatabaseBlockModel,
   type FrameBlockModel,
+  ImageBlockModel,
+} from '@blocksuite/affine/model';
+import {
   getBlockSelectionsCommand,
   getImageSelectionsCommand,
   getSelectedBlocksCommand,
   getSelectedModelsCommand,
   getTextSelectionCommand,
-  ImageBlockModel,
-  isCanvasElement,
-  matchModels,
-  splitElements,
-  type SurfaceBlockComponent,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/shared/commands';
+import { matchModels } from '@blocksuite/affine/shared/utils';
 import {
   type BlockModel,
   type DraftModel,
@@ -197,7 +201,7 @@ export const stopPropagation = (e: Event) => {
 
 export function getSurfaceElementFromEditor(editor: EditorHost) {
   const { doc } = editor;
-  const surfaceModel = doc.getBlockByFlavour('affine:surface')[0];
+  const surfaceModel = getSurfaceBlock(doc);
   if (!surfaceModel) return null;
 
   const surfaceId = surfaceModel.id;

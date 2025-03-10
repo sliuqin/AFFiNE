@@ -7,7 +7,7 @@ import {
 import { AffinePageReference } from '@affine/core/components/affine/reference-link';
 import { DocService } from '@affine/core/modules/doc';
 import { useI18n } from '@affine/i18n';
-import type { DatabaseBlockDataSource } from '@blocksuite/affine/blocks';
+import type { DatabaseBlockDataSource } from '@blocksuite/affine/blocks/database';
 import { DatabaseTableViewIcon, PageIcon } from '@blocksuite/icons/rc';
 import { LiveData, useLiveData, useService } from '@toeverything/infra';
 import { Fragment, useMemo } from 'react';

@@ -1,6 +1,6 @@
-import { DocModeProvider } from '@blocksuite/blocks';
+import { DocModeProvider } from '@blocksuite/affine/shared/services';
+import type { Workspace } from '@blocksuite/affine/store';
 import { TestAffineEditorContainer } from '@blocksuite/integration-test';
-import type { Workspace } from '@blocksuite/store';
 
 import {
   getDocFromUrlParams,

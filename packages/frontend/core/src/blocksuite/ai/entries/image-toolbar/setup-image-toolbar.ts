@@ -1,9 +1,7 @@
 import '../../components/ask-ai-button';
 
-import {
-  type AffineImageToolbarWidget,
-  ImageSelection,
-} from '@blocksuite/affine/blocks';
+import type { AffineImageToolbarWidget } from '@blocksuite/affine/blocks/root';
+import { ImageSelection } from '@blocksuite/affine/shared/selection';
 import { html } from 'lit';
 
 import { buildAIImageItemGroups } from '../../_common/config';

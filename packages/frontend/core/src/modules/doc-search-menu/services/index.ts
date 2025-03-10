@@ -3,8 +3,8 @@ import { I18n } from '@affine/i18n';
 import type {
   LinkedMenuGroup,
   LinkedMenuItem,
-} from '@blocksuite/affine/blocks';
-import { createSignalFromObservable } from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/blocks/root';
+import { createSignalFromObservable } from '@blocksuite/affine/shared/utils';
 import type { DocMeta } from '@blocksuite/affine/store';
 import { computed } from '@preact/signals-core';
 import { Service } from '@toeverything/infra';

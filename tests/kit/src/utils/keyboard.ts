@@ -38,6 +38,12 @@ export async function pressArrowUp(page: Page, count = 1) {
   }
 }
 
+export async function pressArrowDown(page: Page, count = 1) {
+  for (let i = 0; i < count; i++) {
+    await page.keyboard.press('ArrowDown', { delay: 20 });
+  }
+}
+
 export async function pressTab(page: Page) {
   await page.keyboard.press('Tab', { delay: 50 });
 }

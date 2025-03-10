@@ -13,7 +13,7 @@ import { WorkspaceQuotaService } from '@affine/core/modules/quota';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { i18nTime, Trans, useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import type { Store, Workspace } from '@blocksuite/affine/store';
 import { CloseIcon, ToggleRightIcon } from '@blocksuite/icons/rc';
 import * as Collapsible from '@radix-ui/react-collapsible';

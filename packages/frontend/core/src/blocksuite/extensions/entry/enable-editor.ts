@@ -1,7 +1,9 @@
 import { enableAIExtension } from '@affine/core/blocksuite/ai';
 import { enableAffineExtension } from '@affine/core/blocksuite/extensions';
-import type { SpecBuilder } from '@blocksuite/affine/blocks';
-import { SpecProvider } from '@blocksuite/affine/blocks';
+import {
+  type SpecBuilder,
+  SpecProvider,
+} from '@blocksuite/affine/shared/utils';
 import { type FrameworkProvider } from '@toeverything/infra';
 
 export function enableEditorExtension(

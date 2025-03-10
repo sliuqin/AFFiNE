@@ -110,7 +110,7 @@ test.describe('auto-complete', () => {
       await enterPlaygroundRoom(page);
       await page.evaluate(() => {
         window.doc
-          .get(window.$blocksuite.blocks.FeatureFlagService)
+          .get(window.$blocksuite.services.FeatureFlagService)
           .setFlag('enable_edgeless_text', false);
       });
       await initEmptyEdgelessState(page);

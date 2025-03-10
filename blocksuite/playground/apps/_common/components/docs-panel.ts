@@ -1,12 +1,10 @@
-import { ShadowlessElement } from '@blocksuite/block-std';
-import {
-  CloseIcon,
-  createDefaultDoc,
-  GenerateDocUrlProvider,
-} from '@blocksuite/blocks';
-import { WithDisposable } from '@blocksuite/global/lit';
+import { ShadowlessElement } from '@blocksuite/affine/block-std';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
+import { GenerateDocUrlProvider } from '@blocksuite/affine/shared/services';
+import { createDefaultDoc } from '@blocksuite/affine/shared/utils';
+import type { Doc, Workspace } from '@blocksuite/affine/store';
+import { CloseIcon } from '@blocksuite/icons/lit';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
-import type { Doc, Workspace } from '@blocksuite/store';
 import { css, html, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -153,7 +151,7 @@ export class DocsPanel extends WithDisposable(ShadowlessElement) {
             ${doc.meta?.title || 'Untitled'}
             ${docs.length > 1
               ? html`<div @click="${deleteDoc}" class="delete-doc-icon">
-                  ${CloseIcon}
+                  ${CloseIcon()}
                 </div>`
               : nothing}
           </div>`;

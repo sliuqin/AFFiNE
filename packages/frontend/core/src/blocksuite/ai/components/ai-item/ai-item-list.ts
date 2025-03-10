@@ -3,7 +3,7 @@ import {
   PropTypes,
   requiredProperties,
 } from '@blocksuite/affine/block-std';
-import { createLitPortal } from '@blocksuite/affine/blocks';
+import { createLitPortal } from '@blocksuite/affine/components/portal';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { flip, offset } from '@floating-ui/dom';
 import { baseTheme } from '@toeverything/theme';

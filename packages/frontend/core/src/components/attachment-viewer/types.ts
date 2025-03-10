@@ -1,4 +1,4 @@
-import type { AttachmentBlockModel } from '@blocksuite/affine/blocks';
+import type { AttachmentBlockModel } from '@blocksuite/affine/model';
 
 export type AttachmentViewerProps = {
   model: AttachmentBlockModel;

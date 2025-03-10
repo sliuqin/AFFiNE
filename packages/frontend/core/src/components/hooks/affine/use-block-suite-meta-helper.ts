@@ -3,7 +3,7 @@ import { useDocMetaHelper } from '@affine/core/components/hooks/use-block-suite-
 import { useDocCollectionHelper } from '@affine/core/components/hooks/use-block-suite-workspace-helper';
 import { DocsService } from '@affine/core/modules/doc';
 import { WorkspaceService } from '@affine/core/modules/workspace';
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import { useService } from '@toeverything/infra';
 import { useCallback } from 'react';
 import { applyUpdate, encodeStateAsUpdate } from 'yjs';

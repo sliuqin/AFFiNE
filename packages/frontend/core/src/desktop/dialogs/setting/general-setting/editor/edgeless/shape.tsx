@@ -9,10 +9,13 @@ import { SettingRow } from '@affine/component/setting-components';
 import { EditorSettingService } from '@affine/core/modules/editor-setting';
 import { useI18n } from '@affine/i18n';
 import type { EditorHost } from '@blocksuite/affine/block-std';
-import type { ShapeElementModel, ShapeName } from '@blocksuite/affine/blocks';
+import {
+  EdgelessCRUDIdentifier,
+  getSurfaceBlock,
+} from '@blocksuite/affine/blocks/surface';
+import type { ShapeElementModel, ShapeName } from '@blocksuite/affine/model';
 import {
   DefaultTheme,
-  EdgelessCRUDIdentifier,
   FontFamily,
   FontFamilyMap,
   FontStyle,
@@ -22,7 +25,7 @@ import {
   ShapeType,
   StrokeStyle,
   TextAlign,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/model';
 import type { Store } from '@blocksuite/affine/store';
 import { useFramework, useLiveData } from '@toeverything/infra';
 import { isEqual } from 'lodash-es';
@@ -39,7 +42,6 @@ import { sortedFontWeightEntries, usePalettes } from '../utils';
 import type { DocName } from './docs';
 import { Point } from './point';
 import { EdgelessSnapshot } from './snapshot';
-import { getSurfaceBlock } from './utils';
 
 enum ShapeTextFontSize {
   '16px' = '16',

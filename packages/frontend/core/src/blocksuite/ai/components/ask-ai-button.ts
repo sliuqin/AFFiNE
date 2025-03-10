@@ -1,7 +1,8 @@
 import './ask-ai-panel';
 
 import { type EditorHost } from '@blocksuite/affine/block-std';
-import { createLitPortal, HoverController } from '@blocksuite/affine/blocks';
+import { HoverController } from '@blocksuite/affine/components/hover';
+import { createLitPortal } from '@blocksuite/affine/components/portal';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { flip, offset } from '@floating-ui/dom';
 import { css, html, LitElement, nothing } from 'lit';

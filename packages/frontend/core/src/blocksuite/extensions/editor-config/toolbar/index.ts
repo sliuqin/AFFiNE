@@ -17,40 +17,49 @@ import {
   GfxBlockElementModel,
   GfxPrimitiveElementModel,
 } from '@blocksuite/affine/block-std/gfx';
+import { BookmarkBlockComponent } from '@blocksuite/affine/blocks/bookmark';
 import {
-  ActionPlacement,
-  AffineReference,
-  BookmarkBlockComponent,
-  BookmarkBlockModel,
   EmbedFigmaBlockComponent,
   EmbedGithubBlockComponent,
   EmbedLinkedDocBlockComponent,
-  EmbedLinkedDocModel,
   EmbedLoomBlockComponent,
   EmbedSyncedDocBlockComponent,
-  EmbedSyncedDocModel,
   EmbedYoutubeBlockComponent,
-  GenerateDocUrlProvider,
   getDocContentWithMaxLength,
-  getSelectedModelsCommand,
-  ImageSelection,
-  isPeekable,
-  matchModels,
-  type MenuContext,
-  type MenuItemGroup,
+} from '@blocksuite/affine/blocks/embed';
+import { toggleEmbedCardEditModal } from '@blocksuite/affine/components/embed-card-modal';
+import {
   notifyLinkedDocClearedAliases,
   notifyLinkedDocSwitchedToCard,
-  type OpenDocMode,
-  peek,
-  toast,
-  toggleEmbedCardEditModal,
+} from '@blocksuite/affine/components/notification';
+import { isPeekable, peek } from '@blocksuite/affine/components/peek';
+import { toast } from '@blocksuite/affine/components/toast';
+import type {
+  MenuContext,
+  MenuItemGroup,
+} from '@blocksuite/affine/components/toolbar';
+import {
+  BookmarkBlockModel,
+  EmbedLinkedDocModel,
+  EmbedSyncedDocModel,
+} from '@blocksuite/affine/model';
+import {
+  AffineReference,
   toggleReferencePopup,
+} from '@blocksuite/affine/rich-text';
+import { getSelectedModelsCommand } from '@blocksuite/affine/shared/commands';
+import { ImageSelection } from '@blocksuite/affine/shared/selection';
+import {
+  ActionPlacement,
+  GenerateDocUrlProvider,
+  type OpenDocMode,
   type ToolbarAction,
   type ToolbarActionGroup,
   type ToolbarContext,
   type ToolbarModuleConfig,
   ToolbarModuleExtension,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/shared/services';
+import { matchModels } from '@blocksuite/affine/shared/utils';
 import type { ExtensionType } from '@blocksuite/affine/store';
 import {
   ArrowDownSmallIcon,

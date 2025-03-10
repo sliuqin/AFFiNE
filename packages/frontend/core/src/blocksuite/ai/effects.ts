@@ -1,4 +1,4 @@
-import { SpecProvider } from '@blocksuite/affine/blocks';
+import { SpecProvider } from '@blocksuite/affine/shared/utils';
 
 import { AIChatBlockComponent } from './blocks/ai-chat-block/ai-chat-block';
 import { EdgelessAIChatBlockComponent } from './blocks/ai-chat-block/ai-chat-edgeless-block';

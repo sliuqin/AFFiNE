@@ -1,11 +1,12 @@
-import { BlockStdScope, ShadowlessElement } from '@blocksuite/block-std';
-import { type DocMode, ThemeProvider } from '@blocksuite/blocks';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
+import { BlockStdScope, ShadowlessElement } from '@blocksuite/affine/block-std';
+import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
+import type { DocMode } from '@blocksuite/affine/model';
+import { ThemeProvider } from '@blocksuite/affine/shared/services';
 import {
   type BlockModel,
   type ExtensionType,
   type Store,
-} from '@blocksuite/store';
+} from '@blocksuite/affine/store';
 import { computed, signal } from '@preact/signals-core';
 import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';

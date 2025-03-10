@@ -1,9 +1,7 @@
-import {
-  AIStarIcon,
-  stopPropagation,
-  unsafeCSSVarV2,
-} from '@blocksuite/affine/blocks';
+import { AIStarIcon } from '@blocksuite/affine/components/icons';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
+import { unsafeCSSVarV2 } from '@blocksuite/affine/shared/theme';
+import { stopPropagation } from '@blocksuite/affine/shared/utils';
 import { PublishIcon, SendIcon } from '@blocksuite/icons/lit';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query, state } from 'lit/decorators.js';

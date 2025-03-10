@@ -1,6 +1,6 @@
 import { AIChatBlockSchema } from '@affine/core/blocksuite/ai/blocks';
 import { LifeCycleWatcher } from '@blocksuite/affine/block-std';
-import { EdgelessRootBlockComponent } from '@blocksuite/affine/blocks';
+import { EdgelessRootBlockComponent } from '@blocksuite/affine/blocks/root';
 import type { BlockSnapshot } from '@blocksuite/affine/store';
 
 export class EdgelessClipboardWatcher extends LifeCycleWatcher {

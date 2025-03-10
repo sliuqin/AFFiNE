@@ -3,11 +3,9 @@ import './chat-panel-messages';
 
 import type { EditorHost } from '@blocksuite/affine/block-std';
 import { ShadowlessElement } from '@blocksuite/affine/block-std';
-import {
-  NotificationProvider,
-  type SpecBuilder,
-} from '@blocksuite/affine/blocks';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
+import { NotificationProvider } from '@blocksuite/affine/shared/services';
+import type { SpecBuilder } from '@blocksuite/affine/shared/utils';
 import type { Store } from '@blocksuite/affine/store';
 import { HelpIcon, InformationIcon } from '@blocksuite/icons/lit';
 import { type Signal, signal } from '@preact/signals-core';

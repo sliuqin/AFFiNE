@@ -24,6 +24,29 @@ export const ZOOM_INITIAL = 1.0;
 
 export const FIT_TO_SCREEN_PADDING = 100;
 
+export interface ViewportRecord {
+  left: number;
+  top: number;
+  viewportX: number;
+  viewportY: number;
+  zoom: number;
+  viewScale: number;
+}
+
+export function clientToModelCoord(
+  viewport: ViewportRecord,
+  clientCoord: [number, number]
+): IVec {
+  const { left, top, viewportX, viewportY, zoom, viewScale } = viewport;
+
+  const [clientX, clientY] = clientCoord;
+  const viewportInternalX = clientX - left;
+  const viewportInternalY = clientY - top;
+  const modelX = viewportX + viewportInternalX / zoom / viewScale;
+  const modelY = viewportY + viewportInternalY / zoom / viewScale;
+  return [modelX, modelY];
+}
+
 export class Viewport {
   private _cachedBoundingClientRect: DOMRect | null = null;
 
@@ -461,8 +484,7 @@ export class Viewport {
   }
 
   toModelCoordFromClientCoord([x, y]: IVec): IVec {
-    const { left, top } = this;
-    return this.toModelCoord(x - left, y - top);
+    return clientToModelCoord(this, [x, y]);
   }
 
   toViewBound(bound: Bound) {
@@ -483,5 +505,27 @@ export class Viewport {
   toViewCoordFromClientCoord([x, y]: IVec): IVec {
     const { left, top } = this;
     return [x - left, y - top];
+  }
+
+  serializeRecord() {
+    return JSON.stringify({
+      left: this.left,
+      top: this.top,
+      viewportX: this.viewportX,
+      viewportY: this.viewportY,
+      zoom: this.zoom,
+      viewScale: this.viewScale,
+    });
+  }
+
+  deserializeRecord(record?: string) {
+    try {
+      const result = JSON.parse(record || '{}') as ViewportRecord;
+      if (!('zoom' in result)) return null;
+      return result;
+    } catch (error) {
+      console.error('Failed to deserialize viewport record:', error);
+      return null;
+    }
   }
 }

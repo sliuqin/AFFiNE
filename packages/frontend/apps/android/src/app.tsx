@@ -25,15 +25,17 @@ import { WorkspacesService } from '@affine/core/modules/workspace';
 import { configureBrowserWorkspaceFlavours } from '@affine/core/modules/workspace-engine';
 import { I18n } from '@affine/i18n';
 import { StoreManagerClient } from '@affine/nbstore/worker/client';
-import {
-  defaultBlockMarkdownAdapterMatchers,
-  docLinkBaseURLMiddleware,
-  InlineDeltaToMarkdownAdapterExtensions,
-  MarkdownAdapter,
-  MarkdownInlineToDeltaAdapterExtensions,
-  titleMiddleware,
-} from '@blocksuite/affine/blocks';
+import { defaultBlockMarkdownAdapterMatchers } from '@blocksuite/affine/adapters';
 import { Container } from '@blocksuite/affine/global/di';
+import {
+  InlineDeltaToMarkdownAdapterExtensions,
+  MarkdownInlineToDeltaAdapterExtensions,
+} from '@blocksuite/affine/rich-text';
+import {
+  docLinkBaseURLMiddleware,
+  MarkdownAdapter,
+  titleMiddleware,
+} from '@blocksuite/affine/shared/adapters';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Keyboard } from '@capacitor/keyboard';
 import { StatusBar, Style } from '@capacitor/status-bar';

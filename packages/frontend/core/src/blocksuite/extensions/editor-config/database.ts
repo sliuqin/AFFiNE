@@ -8,11 +8,11 @@ import { EditorService } from '@affine/core/modules/editor';
 import { copyLinkToBlockStdScopeClipboard } from '@affine/core/utils/clipboard';
 import { I18n } from '@affine/i18n';
 import { track } from '@affine/track';
-import type {
-  DatabaseBlockModel,
-  MenuOptions,
-} from '@blocksuite/affine/blocks';
-import { menu } from '@blocksuite/affine/blocks';
+import {
+  menu,
+  type MenuOptions,
+} from '@blocksuite/affine/components/context-menu';
+import type { DatabaseBlockModel } from '@blocksuite/affine/model';
 import { LinkIcon } from '@blocksuite/icons/lit';
 import type { FrameworkProvider } from '@toeverything/infra';
 

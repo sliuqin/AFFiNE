@@ -1,5 +1,6 @@
 import { test } from '@affine-test/kit/playwright';
-import { locateFormatBar } from '@affine-test/kit/utils/editor';
+import { locateToolbar } from '@affine-test/kit/utils/editor';
+import { selectAllByKeyboard } from '@affine-test/kit/utils/keyboard';
 import { openHomePage } from '@affine-test/kit/utils/load-page';
 import {
   clickNewPageButton,
@@ -34,6 +35,33 @@ test.beforeEach(async ({ page }) => {
   await waitForEmptyEditor(page);
 });
 
+test('should toggle toolbar when dragging page area', async ({ page }) => {
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Roman');
+  await selectAllByKeyboard(page);
+
+  const toolbar = locateToolbar(page);
+
+  await expect(toolbar).toBeVisible();
+  await expect(toolbar).toBeInViewport();
+
+  const paragraph = page.locator('affine-note affine-paragraph').nth(0);
+  const bounds = await paragraph.boundingBox();
+
+  expect(bounds).toBeTruthy();
+  const { x, y, width } = bounds!;
+
+  await page.mouse.move(x + width + 10, y - 10, { steps: 2 });
+  await page.mouse.down();
+  await page.mouse.move(x + width - 10, y + 10, { steps: 2 });
+
+  await expect(toolbar).toBeHidden();
+
+  await page.mouse.up();
+
+  await expect(toolbar).toBeVisible();
+});
+
 test.describe('Formatting', () => {
   test('should change text color', async ({ page }) => {
     await page.keyboard.press('Enter');
@@ -43,12 +71,12 @@ test.describe('Formatting', () => {
     await page.keyboard.press('Shift+ArrowLeft');
     await page.keyboard.press('Shift+ArrowLeft');
 
-    const formatBar = locateFormatBar(page);
-    const highlightButton = formatBar.locator('affine-highlight-duotone-icon');
+    const toolbar = locateToolbar(page);
+    const highlightButton = toolbar.locator('affine-highlight-duotone-icon');
 
     await highlightButton.click();
 
-    const fgGreenButton = formatBar.locator('[data-testid="foreground-green"]');
+    const fgGreenButton = toolbar.locator('[data-testid="foreground-green"]');
     await fgGreenButton.click();
     const fgColor = await fgGreenButton
       .locator('affine-text-duotone-icon')
@@ -73,12 +101,12 @@ test.describe('Formatting', () => {
     await page.keyboard.press('Shift+ArrowLeft');
     await page.keyboard.press('Shift+ArrowLeft');
 
-    const formatBar = locateFormatBar(page);
-    const highlightButton = formatBar.locator('affine-highlight-duotone-icon');
+    const toolbar = locateToolbar(page);
+    const highlightButton = toolbar.locator('affine-highlight-duotone-icon');
 
     await highlightButton.click();
 
-    const fgGreenButton = formatBar.locator('[data-testid="foreground-green"]');
+    const fgGreenButton = toolbar.locator('[data-testid="foreground-green"]');
     await fgGreenButton.click();
 
     await page.waitForTimeout(200);
@@ -104,9 +132,7 @@ test.describe('Formatting', () => {
     await highlightButton.click();
 
     const yellow = 'var(--affine-text-highlight-yellow)';
-    const bgYellowButton = formatBar.locator(
-      '[data-testid="background-yellow"]'
-    );
+    const bgYellowButton = toolbar.locator('[data-testid="background-yellow"]');
     await bgYellowButton.click();
 
     const textSpan2 = paragraph

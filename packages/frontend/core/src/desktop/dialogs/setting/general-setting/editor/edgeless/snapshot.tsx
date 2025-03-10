@@ -7,12 +7,10 @@ import {
   GfxControllerIdentifier,
   type GfxPrimitiveElementModel,
 } from '@blocksuite/affine/block-std/gfx';
-import {
-  EdgelessCRUDIdentifier,
-  type EdgelessRootPreviewBlockComponent,
-  SpecProvider,
-} from '@blocksuite/affine/blocks';
+import { EdgelessCRUDIdentifier } from '@blocksuite/affine/blocks/surface';
 import { Bound } from '@blocksuite/affine/global/gfx';
+import { ViewportElementExtension } from '@blocksuite/affine/shared/services';
+import { SpecProvider } from '@blocksuite/affine/shared/utils';
 import type { Block, Store } from '@blocksuite/affine/store';
 import { useFramework } from '@toeverything/infra';
 import { isEqual } from 'lodash-es';
@@ -78,7 +76,9 @@ export const EdgelessSnapshot = (props: Props) => {
 
     const editorHost = new BlockStdScope({
       store: doc,
-      extensions: SpecProvider._.getSpec('preview:edgeless').value,
+      extensions: SpecProvider._.getSpec('preview:edgeless').extend([
+        ViewportElementExtension('.ref-viewport'),
+      ]).value,
     }).render();
     docRef.current = doc;
     editorHostRef.current?.remove();
@@ -100,9 +100,7 @@ export const EdgelessSnapshot = (props: Props) => {
       ) {
         return;
       }
-      const component = payload.view as EdgelessRootPreviewBlockComponent;
       doc.readonly = false;
-      component.editorViewportSelector = 'ref-viewport';
       const frame = getFrameBlock(doc);
       if (frame && docName !== 'frame') {
         // docName with value 'frame' shouldn't be deleted, it is a part of frame settings

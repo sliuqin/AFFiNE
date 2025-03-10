@@ -1,4 +1,4 @@
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import type { DocMeta } from '@blocksuite/affine/store';
 import {
   Store,

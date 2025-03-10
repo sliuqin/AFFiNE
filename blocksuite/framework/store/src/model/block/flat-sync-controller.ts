@@ -72,6 +72,7 @@ export class FlatSyncController {
         if (key in proxy) {
           return;
         }
+        if (value === undefined) return;
         proxy[key] = value;
       });
     }

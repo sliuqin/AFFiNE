@@ -1,10 +1,10 @@
+import type { SurfaceBlockModel } from '@blocksuite/affine/blocks/surface';
 import type {
   BrushElementModel,
   GroupElementModel,
   ShapeElementModel,
-  SurfaceBlockModel,
-} from '@blocksuite/blocks';
-import { DefaultTheme } from '@blocksuite/blocks';
+} from '@blocksuite/affine/model';
+import { DefaultTheme } from '@blocksuite/affine/model';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { wait } from '../utils/common.js';

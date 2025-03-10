@@ -3,7 +3,7 @@ import {
   PropTypes,
   requiredProperties,
 } from '@blocksuite/affine/block-std';
-import { ArrowRightIcon, EnterIcon } from '@blocksuite/affine/blocks';
+import { ArrowRightIcon, EnterIcon } from '@blocksuite/affine/components/icons';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';

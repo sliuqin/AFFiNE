@@ -1,4 +1,4 @@
-import { MarkdownTransformer } from '@blocksuite/affine/blocks';
+import { MarkdownTransformer } from '@blocksuite/affine/blocks/root';
 import { Service } from '@toeverything/infra';
 
 import { DocsService } from '../../doc';

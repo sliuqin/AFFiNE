@@ -1,9 +1,9 @@
+import type { FrameBlockComponent } from '@blocksuite/affine/blocks/frame';
 import type {
   AffineFrameTitleWidget,
   EdgelessRootBlockComponent,
-  FrameBlockComponent,
-  FrameBlockModel,
-} from '@blocksuite/blocks';
+} from '@blocksuite/affine/blocks/root';
+import type { FrameBlockModel } from '@blocksuite/affine/model';
 import { assertType } from '@blocksuite/global/utils';
 import { Text } from '@blocksuite/store';
 import { beforeEach, describe, expect, test } from 'vitest';

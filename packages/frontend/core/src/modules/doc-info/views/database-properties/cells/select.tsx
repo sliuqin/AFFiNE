@@ -7,7 +7,7 @@ import {
   affineLabelToDatabaseTagColor,
   databaseTagColorToV2,
 } from '@affine/core/modules/tag/entities/utils';
-import type { DatabaseBlockDataSource } from '@blocksuite/affine/blocks';
+import type { DatabaseBlockDataSource } from '@blocksuite/affine/blocks/database';
 import type { SelectTag } from '@blocksuite/data-view';
 import { MultiSelectIcon, SingleSelectIcon } from '@blocksuite/icons/rc';
 import { LiveData, useLiveData, useService } from '@toeverything/infra';

@@ -27,11 +27,9 @@ import {
   type,
   waitForEditorLoad,
 } from '@affine-test/kit/utils/page-logic';
-import type {
-  EdgelessRootBlockComponent,
-  NoteBlockModel,
-} from '@blocksuite/affine/blocks';
+import type { EdgelessRootBlockComponent } from '@blocksuite/affine/blocks/root';
 import type { IVec } from '@blocksuite/affine/global/gfx';
+import type { NoteBlockModel } from '@blocksuite/affine/model';
 import { expect, type Page } from '@playwright/test';
 
 const title = 'Edgeless Note Header Test';

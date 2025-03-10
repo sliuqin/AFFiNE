@@ -302,7 +302,9 @@ export class SyncController {
         if (key in props) return;
 
         const yValue = native2Y(value);
-        this.yBlock.set(`prop:${key}`, yValue);
+        if (value !== undefined) {
+          this.yBlock.set(`prop:${key}`, yValue);
+        }
         props[key] = this._getPropsProxy(key, yValue);
       });
     }

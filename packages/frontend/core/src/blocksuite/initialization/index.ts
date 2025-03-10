@@ -4,7 +4,7 @@ import {
   type NoteProps,
   type ParagraphProps,
   type RootBlockProps,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/model';
 import { type Store, Text } from '@blocksuite/affine/store';
 
 export interface DocProps {

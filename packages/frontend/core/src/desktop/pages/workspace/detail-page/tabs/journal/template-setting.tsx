@@ -1,10 +1,10 @@
-import { Button, Menu } from '@affine/component';
+import { Button, Menu, MenuItem, MenuSeparator } from '@affine/component';
 import { DocsService } from '@affine/core/modules/doc';
 import { DocDisplayMetaService } from '@affine/core/modules/doc-display-meta';
 import { TemplateDocService } from '@affine/core/modules/template-doc';
 import { TemplateListMenuContentScrollable } from '@affine/core/modules/template-doc/view/template-list-menu';
 import { useI18n } from '@affine/i18n';
-import { TemplateIcon } from '@blocksuite/icons/rc';
+import { DeleteIcon, TemplateIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
@@ -33,18 +33,38 @@ export const JournalTemplateSetting = () => {
   const isDeleted = useLiveData(journalTemplateDoc?.trash$);
 
   const updateJournalTemplate = useCallback(
-    (templateId: string) => {
+    (templateId?: string) => {
       templateDocService.setting.updateJournalTemplateDocId(templateId);
     },
     [templateDocService.setting]
   );
+
+  const removeJournalTemplate = useCallback(() => {
+    updateJournalTemplate();
+  }, [updateJournalTemplate]);
 
   return (
     <div className={styles.container}>
       <Menu
         contentOptions={{ className: styles.menu }}
         items={
-          <TemplateListMenuContentScrollable onSelect={updateJournalTemplate} />
+          <TemplateListMenuContentScrollable
+            onSelect={updateJournalTemplate}
+            suffixItems={
+              journalTemplateDocId ? (
+                <>
+                  <MenuSeparator />
+                  <MenuItem
+                    prefixIcon={<DeleteIcon />}
+                    onClick={removeJournalTemplate}
+                    type="danger"
+                  >
+                    {t['com.affine.template-list.delete']()}
+                  </MenuItem>
+                </>
+              ) : null
+            }
+          />
         }
       >
         <Button

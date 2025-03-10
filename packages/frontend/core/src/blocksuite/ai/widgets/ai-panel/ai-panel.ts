@@ -6,14 +6,18 @@ import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
 import {
   AFFINE_VIEWPORT_OVERLAY_WIDGET,
   type AffineViewportOverlayWidget,
+} from '@blocksuite/affine/blocks/root';
+import {
   DocModeProvider,
-  getPageRootByElement,
   NotificationProvider,
-  stopPropagation,
   ThemeProvider,
   ToolbarFlag,
   ToolbarRegistryIdentifier,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/shared/services';
+import {
+  getPageRootByElement,
+  stopPropagation,
+} from '@blocksuite/affine/shared/utils';
 import type { BaseSelection } from '@blocksuite/affine/store';
 import {
   autoPlacement,

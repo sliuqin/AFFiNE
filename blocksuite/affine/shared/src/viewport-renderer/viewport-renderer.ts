@@ -118,7 +118,6 @@ export class ViewportTurboRendererExtension extends LifeCycleWatcher {
     if (this.viewport.zoom > zoomThreshold) {
       this.debugLog('Zoom above threshold, falling back to DOM rendering');
       this.setState('pending');
-      this.toggleOptimization(false);
       this.clearOptimizedBlocks();
     }
     // -> zooming
@@ -138,7 +137,6 @@ export class ViewportTurboRendererExtension extends LifeCycleWatcher {
     // -> rendering
     else {
       this.setState('rendering');
-      this.toggleOptimization(false);
       await this.paintLayout();
       this.drawCachedBitmap();
       this.updateOptimizedBlocks();
@@ -280,28 +278,14 @@ export class ViewportTurboRendererExtension extends LifeCycleWatcher {
       if (!this.viewportElement || !this.layoutCache) return;
       if (!this.canOptimize()) return;
 
-      this.toggleOptimization(true);
       const blockElements = this.viewportElement.getModelsInViewport();
       const blockIds = Array.from(blockElements).map(model => model.id);
-      this.viewportElement.updateOptimizedBlocks(blockIds, true);
       this.debugLog(`Optimized ${blockIds.length} blocks`);
     });
   }
 
   private clearOptimizedBlocks() {
-    if (!this.viewportElement) return;
-    this.viewportElement.clearOptimizedBlocks();
     this.debugLog('Cleared optimized blocks');
-  }
-
-  private toggleOptimization(value: boolean) {
-    if (
-      this.viewportElement &&
-      this.viewportElement.enableOptimization !== value
-    ) {
-      this.viewportElement.enableOptimization = value;
-      this.debugLog(`${value ? 'Enabled' : 'Disabled'} optimization`);
-    }
   }
 
   private handleResize() {

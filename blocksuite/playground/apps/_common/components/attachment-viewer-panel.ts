@@ -1,8 +1,7 @@
-/* oxlint-disable @typescript-eslint/no-non-null-assertion */
+import { getAttachmentFileIcon } from '@blocksuite/affine/components/icons';
+import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import type { AttachmentBlockModel } from '@blocksuite/affine-model';
 import { humanFileSize } from '@blocksuite/affine-shared/utils';
-import { getAttachmentFileIcon } from '@blocksuite/blocks';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import {
   ArrowDownBigIcon,
   ArrowUpBigIcon,

@@ -16,40 +16,45 @@ import '@shoelace-style/shoelace/dist/themes/light.css';
 import '@shoelace-style/shoelace/dist/themes/dark.css';
 import './left-side-panel.js';
 
-import { NotionHtmlAdapter } from '@blocksuite/affine-shared/adapters';
-import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
-import { ShadowlessElement } from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
+import { ShadowlessElement } from '@blocksuite/affine/block-std';
+import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
+import { defaultImageProxyMiddleware } from '@blocksuite/affine/blocks/image';
 import {
-  ColorScheme,
-  ColorVariables,
   createAssetsArchive,
-  defaultImageProxyMiddleware,
-  docLinkBaseURLMiddleware,
-  type DocMode,
-  DocModeProvider,
   download,
-  ExportManager,
-  FontFamilyVariables,
-  HtmlAdapterFactoryIdentifier,
   HtmlTransformer,
-  MarkdownAdapterFactoryIdentifier,
   MarkdownTransformer,
   NotionHtmlTransformer,
-  openFileOrFiles,
+  ZipTransformer,
+} from '@blocksuite/affine/blocks/root';
+import { ExportManager } from '@blocksuite/affine/blocks/surface';
+import { toast } from '@blocksuite/affine/components/toast';
+import {
+  BlockSuiteError,
+  ErrorCode,
+} from '@blocksuite/affine/global/exceptions';
+import type { SerializedXYWH } from '@blocksuite/affine/global/gfx';
+import type { DeltaInsert } from '@blocksuite/affine/inline/types';
+import { ColorScheme, type DocMode } from '@blocksuite/affine/model';
+import {
+  docLinkBaseURLMiddleware,
+  HtmlAdapterFactoryIdentifier,
+  MarkdownAdapterFactoryIdentifier,
   PlainTextAdapterFactoryIdentifier,
-  printToPdf,
+  titleMiddleware,
+} from '@blocksuite/affine/shared/adapters';
+import { DocModeProvider } from '@blocksuite/affine/shared/services';
+import {
+  ColorVariables,
+  FontFamilyVariables,
   SizeVariables,
   StyleVariables,
-  titleMiddleware,
-  toast,
-  ZipTransformer,
-} from '@blocksuite/blocks';
-import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import type { SerializedXYWH } from '@blocksuite/global/gfx';
-import type { DeltaInsert } from '@blocksuite/inline/types';
+} from '@blocksuite/affine/shared/theme';
+import { openFileOrFiles, printToPdf } from '@blocksuite/affine/shared/utils';
+import { Text, type Workspace } from '@blocksuite/affine/store';
+import { NotionHtmlAdapter } from '@blocksuite/affine-shared/adapters';
+import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import { TestAffineEditorContainer } from '@blocksuite/integration-test';
-import { Text, type Workspace } from '@blocksuite/store';
 import type { SlDropdown } from '@shoelace-style/shoelace';
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
 import { css, html } from 'lit';

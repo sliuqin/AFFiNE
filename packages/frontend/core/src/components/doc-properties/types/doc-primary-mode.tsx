@@ -6,7 +6,7 @@ import {
 } from '@affine/component';
 import { DocService } from '@affine/core/modules/doc';
 import { useI18n } from '@affine/i18n';
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useMemo } from 'react';
 

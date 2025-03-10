@@ -1,4 +1,4 @@
-import { AIStarIcon } from '@blocksuite/affine/blocks';
+import { AIStarIcon } from '@blocksuite/affine/components/icons';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { css, html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';

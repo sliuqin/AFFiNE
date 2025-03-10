@@ -1,5 +1,5 @@
 [versions]
-androidGradlePlugin  = "8.8.2"
+androidGradlePlugin  = "8.9.0"
 androidxEspressoCore = "3.6.1"
 androidxJunit        = "1.2.1"
 apollo               = "4.1.1"

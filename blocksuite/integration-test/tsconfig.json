@@ -6,11 +6,5 @@
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
   },
   "include": ["./src", "./src/**/*.json"],
-  "references": [
-    { "path": "../framework/block-std" },
-    { "path": "../blocks" },
-    { "path": "../framework/global" },
-    { "path": "../framework/inline" },
-    { "path": "../framework/store" }
-  ]
+  "references": [{ "path": "../affine/all" }]
 }

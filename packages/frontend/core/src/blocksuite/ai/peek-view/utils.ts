@@ -2,7 +2,7 @@ import type { BlockStdScope } from '@blocksuite/affine/block-std';
 import {
   EdgelessCRUDIdentifier,
   getSurfaceBlock,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/blocks/surface';
 import { Bound } from '@blocksuite/affine/global/gfx';
 
 import {

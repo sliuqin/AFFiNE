@@ -1,9 +1,9 @@
 import type {
-  DocMode,
   EdgelessElementToolbarWidget,
   EdgelessRootBlockComponent,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/blocks/root';
 import { noop } from '@blocksuite/affine/global/utils';
+import type { DocMode } from '@blocksuite/affine/model';
 import { html } from 'lit';
 
 import type { AIItemGroupConfig } from '../../components/ai-item/types';

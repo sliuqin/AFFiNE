@@ -17,7 +17,7 @@ import { inferOpenMode } from '@affine/core/utils';
 import type { Collection } from '@affine/env/filter';
 import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import {
   ArrowDownSmallIcon,
   SearchIcon,

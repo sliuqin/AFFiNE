@@ -7,11 +7,11 @@ import {
 } from '@affine/core/modules/editor-setting';
 import {
   customImageProxyMiddleware,
-  type DocMode,
   ImageProxyService,
-  LinkPreviewerService,
-} from '@blocksuite/affine/blocks';
+} from '@blocksuite/affine/blocks/image';
 import { DisposableGroup } from '@blocksuite/affine/global/slot';
+import type { DocMode } from '@blocksuite/affine/model';
+import { LinkPreviewerService } from '@blocksuite/affine/shared/services';
 import type { Store } from '@blocksuite/affine/store';
 import { Slot } from '@radix-ui/react-slot';
 import { useLiveData, useService } from '@toeverything/infra';

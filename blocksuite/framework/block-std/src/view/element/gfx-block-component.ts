@@ -18,6 +18,10 @@ export function isGfxBlockComponent(
 export const GfxElementSymbol = Symbol('GfxElement');
 
 function updateTransform(element: GfxBlockComponent) {
+  if (element.dataset.blockState === 'idle') return;
+
+  const { viewport } = element.gfx;
+  element.dataset.viewportState = viewport.serializeRecord();
   element.style.transformOrigin = '0 0';
   element.style.transform = element.getCSSTransform();
 }

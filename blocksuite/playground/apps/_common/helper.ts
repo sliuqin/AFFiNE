@@ -1,5 +1,5 @@
-import { SpecProvider } from '@blocksuite/blocks';
-import { TestWorkspace } from '@blocksuite/store/test';
+import { SpecProvider } from '@blocksuite/affine/shared/utils';
+import { TestWorkspace } from '@blocksuite/affine/store/test';
 
 export function createEmptyDoc() {
   const collection = new TestWorkspace();

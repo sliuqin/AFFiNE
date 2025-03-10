@@ -1,4 +1,4 @@
-import type { DocMode, RootBlockModel } from '@blocksuite/affine/blocks';
+import type { DocMode, RootBlockModel } from '@blocksuite/affine/model';
 import { Entity } from '@toeverything/infra';
 
 import type { DocProperties } from '../../db';

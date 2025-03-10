@@ -1,5 +1,5 @@
-import { ShadowlessElement, TextSelection } from '@blocksuite/block-std';
-import { WithDisposable } from '@blocksuite/global/lit';
+import { ShadowlessElement, TextSelection } from '@blocksuite/affine/block-std';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
 import { css, html } from 'lit';
 import { property, query } from 'lit/decorators.js';

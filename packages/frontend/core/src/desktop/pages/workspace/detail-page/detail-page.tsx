@@ -18,11 +18,11 @@ import { ViewService } from '@affine/core/modules/workbench';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { isNewTabTrigger } from '@affine/core/utils';
 import track from '@affine/track';
-import { RefNodeSlotsProvider } from '@blocksuite/affine/blocks';
 import {
   type Disposable,
   DisposableGroup,
 } from '@blocksuite/affine/global/slot';
+import { RefNodeSlotsProvider } from '@blocksuite/affine/rich-text';
 import {
   AiIcon,
   FrameIcon,

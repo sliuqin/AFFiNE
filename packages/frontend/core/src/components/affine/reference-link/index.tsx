@@ -5,7 +5,7 @@ import { PeekViewService } from '@affine/core/modules/peek-view/services/peek-vi
 import { useInsidePeekView } from '@affine/core/modules/peek-view/view/modal-container';
 import { WorkbenchLink } from '@affine/core/modules/workbench';
 import { track } from '@affine/track';
-import type { DocMode } from '@blocksuite/affine/blocks';
+import type { DocMode } from '@blocksuite/affine/model';
 import type { Workspace } from '@blocksuite/affine/store';
 import { LiveData, useLiveData, useService } from '@toeverything/infra';
 import clsx from 'clsx';

@@ -11,7 +11,7 @@ import { BlobManagementService } from '@affine/core/modules/blob-management/serv
 import { useI18n } from '@affine/i18n';
 import type { ListedBlobRecord } from '@affine/nbstore';
 import track from '@affine/track';
-import { getAttachmentFileIcon } from '@blocksuite/affine/blocks';
+import { getAttachmentFileIcon } from '@blocksuite/affine/components/icons';
 import { DeleteIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 import bytes from 'bytes';

@@ -5,7 +5,7 @@ import { DocsService } from '@affine/core/modules/doc';
 import { EditorSettingService } from '@affine/core/modules/editor-setting';
 import { WorkbenchService } from '@affine/core/modules/workbench';
 import { getAFFiNEWorkspaceSchema } from '@affine/core/modules/workspace';
-import { type DocMode } from '@blocksuite/affine/blocks';
+import { type DocMode } from '@blocksuite/affine/model';
 import type { Workspace } from '@blocksuite/affine/store';
 import { useServices } from '@toeverything/infra';
 import { useCallback, useMemo } from 'react';
@@ -81,7 +81,9 @@ export const usePageHelper = (docCollection: Workspace) => {
 
   const importFileAndOpen = useMemo(
     () => async () => {
-      const { showImportModal } = await import('@blocksuite/affine/blocks');
+      const { showImportModal } = await import(
+        '@blocksuite/affine/blocks/root'
+      );
       const { promise, resolve, reject } =
         Promise.withResolvers<
           Parameters<

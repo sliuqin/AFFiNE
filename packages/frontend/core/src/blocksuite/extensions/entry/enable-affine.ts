@@ -1,4 +1,4 @@
-import type { SpecBuilder } from '@blocksuite/affine/blocks';
+import type { SpecBuilder } from '@blocksuite/affine/shared/utils';
 import { type FrameworkProvider } from '@toeverything/infra';
 
 import { buildDocDisplayMetaExtension } from '../display-meta';

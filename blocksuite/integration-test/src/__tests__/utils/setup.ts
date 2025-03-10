@@ -1,7 +1,7 @@
 import '@toeverything/theme/style.css';
 import '@toeverything/theme/fonts.css';
 
-import { effects as blocksEffects } from '@blocksuite/blocks/effects';
+import { effects as blocksEffects } from '@blocksuite/affine/effects';
 import type { ExtensionType, Store, Transformer } from '@blocksuite/store';
 
 import { effects } from '../../effects.js';
@@ -9,16 +9,18 @@ import { effects } from '../../effects.js';
 blocksEffects();
 effects();
 
-import type { ViewportTurboRendererExtension } from '@blocksuite/affine-shared/viewport-renderer';
 import {
-  CommunityCanvasTextFonts,
-  type DocMode,
   EdgelessEditorBlockSpecs,
-  FontConfigExtension,
   PageEditorBlockSpecs,
   StoreExtensions,
-} from '@blocksuite/blocks';
-import { AffineSchemas } from '@blocksuite/blocks/schemas';
+} from '@blocksuite/affine/extensions';
+import type { DocMode } from '@blocksuite/affine/model';
+import { AffineSchemas } from '@blocksuite/affine/schemas';
+import {
+  CommunityCanvasTextFonts,
+  FontConfigExtension,
+} from '@blocksuite/affine/shared/services';
+import type { ViewportTurboRendererExtension } from '@blocksuite/affine-shared/viewport-renderer';
 import { Schema, Text } from '@blocksuite/store';
 import {
   createAutoIncrementIdGenerator,

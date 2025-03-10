@@ -1,4 +1,4 @@
-import type { DatabaseBlockModel } from '@blocksuite/blocks';
+import type { DatabaseBlockModel } from '@blocksuite/affine/model';
 import { expect, type Page } from '@playwright/test';
 
 import { switchEditorMode } from './utils/actions/edgeless.js';
@@ -253,7 +253,7 @@ test.describe('Embed synced doc', () => {
         );
         const model = doc2.getBlockById(databaseId) as DatabaseBlockModel;
         const datasource =
-          new window.$blocksuite.blocks.DatabaseBlockDataSource(model);
+          new window.$blocksuite.blocks.database.DatabaseBlockDataSource(model);
         datasource.viewManager.viewAdd('table');
       });
 

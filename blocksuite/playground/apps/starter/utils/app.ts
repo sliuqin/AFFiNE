@@ -1,4 +1,4 @@
-import type { Store, Workspace } from '@blocksuite/store';
+import type { Store, Workspace } from '@blocksuite/affine/store';
 
 import { AttachmentViewerPanel } from '../../_common/components/attachment-viewer-panel';
 import { CustomFramePanel } from '../../_common/components/custom-frame-panel';

@@ -6,7 +6,7 @@ import {
   toReactNode,
   type useConfirmModal,
 } from '@affine/component';
-import { NotificationExtension } from '@blocksuite/affine/blocks';
+import { NotificationExtension } from '@blocksuite/affine/shared/services';
 
 export function patchNotificationService({
   closeConfirmModal,

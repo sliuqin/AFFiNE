@@ -1,6 +1,6 @@
-import type { DocModeProvider } from '@blocksuite/blocks';
+import type { DocModeProvider } from '@blocksuite/affine/shared/services';
+import type { Doc, Store, Workspace } from '@blocksuite/affine/store';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
-import type { Doc, Store, Workspace } from '@blocksuite/store';
 
 export function getDocFromUrlParams(collection: Workspace, url: URL) {
   let doc: Store | null = null;

@@ -1,8 +1,8 @@
-import type * as BlocksuiteBlocks from '@blocksuite/affine/blocks';
+import type * as BlocksuiteEffects from '@blocksuite/affine/effects';
 import type { IVec, XYWH } from '@blocksuite/affine/global/gfx';
 import { expect, type Locator, type Page } from '@playwright/test';
 
-declare type _GLOBAL_ = typeof BlocksuiteBlocks;
+declare type _GLOBAL_ = typeof BlocksuiteEffects;
 
 const EDGELESS_ELEMENT_TOOLBAR_WIDGET = 'edgeless-element-toolbar-widget';
 const EDGELESS_TOOLBAR_WIDGET = 'edgeless-toolbar-widget';
@@ -64,7 +64,7 @@ export async function focusDocTitle(page: Page, editorIndex = 0) {
 }
 
 // ================== Page ==================
-export function locateFormatBar(page: Page, editorIndex = 0) {
+export function locateToolbar(page: Page, editorIndex = 0) {
   return locateEditorContainer(page, editorIndex).locator(
     'affine-toolbar-widget editor-toolbar'
   );

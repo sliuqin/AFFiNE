@@ -3,7 +3,8 @@ import {
   GfxControllerIdentifier,
   isGfxGroupCompatibleModel,
 } from '@blocksuite/affine/block-std/gfx';
-import { AIStarIcon, sortEdgelessElements } from '@blocksuite/affine/blocks';
+import { sortEdgelessElements } from '@blocksuite/affine/blocks/root';
+import { AIStarIcon } from '@blocksuite/affine/components/icons';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { css, html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';

@@ -1,4 +1,4 @@
-import type { AttachmentBlockModel } from '@blocksuite/affine/blocks';
+import type { AttachmentBlockModel } from '@blocksuite/affine/model';
 import { useMemo } from 'react';
 
 import { AttachmentViewer } from '../../../../components/attachment-viewer';

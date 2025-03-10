@@ -21,12 +21,9 @@ import {
   WorkspacesService,
 } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
-import {
-  type DocMode,
-  DocModes,
-  RefNodeSlotsProvider,
-} from '@blocksuite/affine/blocks';
 import { DisposableGroup } from '@blocksuite/affine/global/slot';
+import { type DocMode, DocModes } from '@blocksuite/affine/model';
+import { RefNodeSlotsProvider } from '@blocksuite/affine/rich-text';
 import { Logo1Icon } from '@blocksuite/icons/rc';
 import { FrameworkScope, useLiveData, useService } from '@toeverything/infra';
 import clsx from 'clsx';
