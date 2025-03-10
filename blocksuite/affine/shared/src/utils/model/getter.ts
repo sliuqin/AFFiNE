@@ -57,3 +57,19 @@ export function getLastNoteBlock(doc: Store) {
   }
   return note;
 }
+
+export function getFirstNoteBlock(doc: Store) {
+  let note: NoteBlockModel | null = null;
+  if (!doc.root) return null;
+  const { children } = doc.root;
+  for (const child of children) {
+    if (
+      matchModels(child, [NoteBlockModel]) &&
+      child.displayMode !== NoteDisplayMode.EdgelessOnly
+    ) {
+      note = child as NoteBlockModel;
+      break;
+    }
+  }
+  return note;
+}
