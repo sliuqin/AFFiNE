@@ -119,6 +119,9 @@ class CopilotContextFile implements ContextFile {
   @Field(() => ContextFileStatus)
   status!: ContextFileStatus;
 
+  @Field(() => String, { nullable: true })
+  error!: string | null;
+
   @Field(() => String)
   blobId!: string;
 

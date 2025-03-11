@@ -163,17 +163,31 @@ export class CopilotContextService implements OnModuleInit {
     return null;
   }
 
-  @OnEvent('workspace.file.embedded')
-  async onFileEmbedded({
+  @OnEvent('workspace.file.embed.finish')
+  async onFileEmbedFinish({
     contextId,
     fileId,
     chunkSize,
-  }: Events['workspace.file.embedded']) {
+  }: Events['workspace.file.embed.finish']) {
     const context = await this.get(contextId);
     await context.saveFileRecord(fileId, file => ({
       ...(file as ContextFile),
       chunkSize,
       status: ContextFileStatus.finished,
+    }));
+  }
+
+  @OnEvent('workspace.file.embed.failed')
+  async onFileEmbedFailed({
+    contextId,
+    fileId,
+    error,
+  }: Events['workspace.file.embed.failed']) {
+    const context = await this.get(contextId);
+    await context.saveFileRecord(fileId, file => ({
+      ...(file as ContextFile),
+      error,
+      status: ContextFileStatus.failed,
     }));
   }
 }

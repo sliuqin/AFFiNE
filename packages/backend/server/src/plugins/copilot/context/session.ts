@@ -86,6 +86,7 @@ export class ContextSession implements AsyncDisposable {
         blobId,
         chunkSize: 0,
         name,
+        error: null,
         createdAt: Date.now(),
       }));
     }

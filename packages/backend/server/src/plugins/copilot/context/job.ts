@@ -155,7 +155,7 @@ export class CopilotContextDocJob implements OnModuleInit {
         `;
       }
 
-      this.event.emit('workspace.file.embedded', {
+      this.event.emit('workspace.file.embed.finish', {
         contextId,
         fileId,
         chunkSize: total,
@@ -168,6 +168,12 @@ export class CopilotContextDocJob implements OnModuleInit {
         `Failed to embed pending file: ${contextId}::${fileId}`,
         e
       );
+
+      this.event.emit('workspace.file.embed.failed', {
+        contextId,
+        fileId,
+        error: e.toString(),
+      });
     }
   }
 

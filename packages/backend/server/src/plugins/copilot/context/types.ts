@@ -11,10 +11,15 @@ declare global {
       workspaceId: string;
       docId: string;
     }>;
-    'workspace.file.embedded': {
+    'workspace.file.embed.finish': {
       contextId: string;
       fileId: string;
       chunkSize: number;
+    };
+    'workspace.file.embed.failed': {
+      contextId: string;
+      fileId: string;
+      error: string;
     };
   }
 }
@@ -39,6 +44,7 @@ export const ContextConfigSchema = z.object({
         ContextFileStatus.finished,
         ContextFileStatus.failed,
       ]),
+      error: z.string().nullable(),
       blobId: z.string(),
       createdAt: z.number(),
     })
