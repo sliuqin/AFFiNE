@@ -951,10 +951,6 @@ export interface Mutation {
   invite: Scalars['String']['output'];
   inviteBatch: Array<InviteResult>;
   leaveWorkspace: Scalars['Boolean']['output'];
-  /** remove a file from context */
-  matchContext: Array<ContextMatchedFileChunk>;
-  /** match workspace doc */
-  matchWorkspaceContext: ContextMatchedDocChunk;
   /** mention user in a doc */
   mentionUser: Scalars['ID']['output'];
   publishDoc: DocType;
@@ -1157,18 +1153,6 @@ export interface MutationLeaveWorkspaceArgs {
   sendLeaveMail?: InputMaybe<Scalars['Boolean']['input']>;
   workspaceId: Scalars['String']['input'];
   workspaceName?: InputMaybe<Scalars['String']['input']>;
-}
-
-export interface MutationMatchContextArgs {
-  content: Scalars['String']['input'];
-  contextId: Scalars['String']['input'];
-  limit?: InputMaybe<Scalars['SafeInt']['input']>;
-}
-
-export interface MutationMatchWorkspaceContextArgs {
-  content: Scalars['String']['input'];
-  contextId: Scalars['String']['input'];
-  limit?: InputMaybe<Scalars['SafeInt']['input']>;
 }
 
 export interface MutationMentionUserArgs {
@@ -1479,6 +1463,10 @@ export interface Query {
   isOwner: Scalars['Boolean']['output'];
   /** List all copilot prompts */
   listCopilotPrompts: Array<CopilotPromptType>;
+  /** remove a file from context */
+  matchContext: Array<ContextMatchedFileChunk>;
+  /** match workspace doc */
+  matchWorkspaceContext: ContextMatchedDocChunk;
   prices: Array<SubscriptionPrice>;
   /** Get public user by id */
   publicUserById: Maybe<PublicUserType>;
@@ -1524,6 +1512,18 @@ export interface QueryIsAdminArgs {
 
 export interface QueryIsOwnerArgs {
   workspaceId: Scalars['String']['input'];
+}
+
+export interface QueryMatchContextArgs {
+  content: Scalars['String']['input'];
+  contextId: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['SafeInt']['input']>;
+}
+
+export interface QueryMatchWorkspaceContextArgs {
+  content: Scalars['String']['input'];
+  contextId: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['SafeInt']['input']>;
 }
 
 export interface QueryPublicUserByIdArgs {
@@ -2341,14 +2341,14 @@ export type ListContextFilesQuery = {
   } | null;
 };
 
-export type MatchContextMutationVariables = Exact<{
+export type MatchContextQueryVariables = Exact<{
   contextId: Scalars['String']['input'];
   content: Scalars['String']['input'];
   limit?: InputMaybe<Scalars['SafeInt']['input']>;
 }>;
 
-export type MatchContextMutation = {
-  __typename?: 'Mutation';
+export type MatchContextQuery = {
+  __typename?: 'Query';
   matchContext: Array<{
     __typename?: 'ContextMatchedFileChunk';
     fileId: string;
@@ -2420,14 +2420,14 @@ export type ListContextQuery = {
   } | null;
 };
 
-export type MatchWorkspaceContextMutationVariables = Exact<{
+export type MatchWorkspaceContextQueryVariables = Exact<{
   contextId: Scalars['String']['input'];
   content: Scalars['String']['input'];
   limit?: InputMaybe<Scalars['SafeInt']['input']>;
 }>;
 
-export type MatchWorkspaceContextMutation = {
-  __typename?: 'Mutation';
+export type MatchWorkspaceContextQuery = {
+  __typename?: 'Query';
   matchWorkspaceContext: {
     __typename?: 'ContextMatchedDocChunk';
     docId: string;
@@ -3875,6 +3875,11 @@ export type Queries =
       response: ListContextFilesQuery;
     }
   | {
+      name: 'matchContextQuery';
+      variables: MatchContextQueryVariables;
+      response: MatchContextQuery;
+    }
+  | {
       name: 'listContextDocsAndFilesQuery';
       variables: ListContextDocsAndFilesQueryVariables;
       response: ListContextDocsAndFilesQuery;
@@ -3883,6 +3888,11 @@ export type Queries =
       name: 'listContextQuery';
       variables: ListContextQueryVariables;
       response: ListContextQuery;
+    }
+  | {
+      name: 'matchWorkspaceContextQuery';
+      variables: MatchWorkspaceContextQueryVariables;
+      response: MatchWorkspaceContextQuery;
     }
   | {
       name: 'getWorkspaceEmbeddingStatusQuery';
@@ -4172,19 +4182,9 @@ export type Mutations =
       response: AddContextFileMutation;
     }
   | {
-      name: 'matchContextMutation';
-      variables: MatchContextMutationVariables;
-      response: MatchContextMutation;
-    }
-  | {
       name: 'removeContextFileMutation';
       variables: RemoveContextFileMutationVariables;
       response: RemoveContextFileMutation;
-    }
-  | {
-      name: 'matchWorkspaceContextMutation';
-      variables: MatchWorkspaceContextMutationVariables;
-      response: MatchWorkspaceContextMutation;
     }
   | {
       name: 'queueWorkspaceEmbeddingMutation';

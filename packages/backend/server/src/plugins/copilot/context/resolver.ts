@@ -474,7 +474,7 @@ export class CopilotContextResolver {
     }
   }
 
-  @Mutation(() => [ContextMatchedFileChunk], {
+  @Query(() => [ContextMatchedFileChunk], {
     description: 'remove a file from context',
   })
   @CallMetric('ai', 'context_file_remove')
@@ -512,7 +512,7 @@ export class CopilotContextResolver {
     }
   }
 
-  @Mutation(() => ContextMatchedDocChunk, {
+  @Query(() => ContextMatchedDocChunk, {
     description: 'match workspace doc',
   })
   @CallMetric('ai', 'context_match_workspace_doc')

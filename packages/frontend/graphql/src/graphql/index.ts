@@ -196,10 +196,10 @@ export const listContextFilesQuery = {
 }`,
 };
 
-export const matchContextMutation = {
-  id: 'matchContextMutation' as const,
+export const matchContextQuery = {
+  id: 'matchContextQuery' as const,
   op: 'matchContext',
-  query: `mutation matchContext($contextId: String!, $content: String!, $limit: SafeInt) {
+  query: `query matchContext($contextId: String!, $content: String!, $limit: SafeInt) {
   matchContext(contextId: $contextId, content: $content, limit: $limit) {
     fileId
     chunk
@@ -257,10 +257,10 @@ export const listContextQuery = {
 }`,
 };
 
-export const matchWorkspaceContextMutation = {
-  id: 'matchWorkspaceContextMutation' as const,
+export const matchWorkspaceContextQuery = {
+  id: 'matchWorkspaceContextQuery' as const,
   op: 'matchWorkspaceContext',
-  query: `mutation matchWorkspaceContext($contextId: String!, $content: String!, $limit: SafeInt) {
+  query: `query matchWorkspaceContext($contextId: String!, $content: String!, $limit: SafeInt) {
   matchWorkspaceContext(contextId: $contextId, content: $content, limit: $limit) {
     docId
     chunk
@@ -598,7 +598,9 @@ export const getCurrentUserQuery = {
     }
   }
 }`,
-  deprecations: ["'token' is deprecated: use [/api/auth/sign-in?native=true] instead"],
+  deprecations: [
+    "'token' is deprecated: use [/api/auth/sign-in?native=true] instead",
+  ],
 };
 
 export const getDocDefaultRoleQuery = {
@@ -850,7 +852,10 @@ export const getWorkspaceInfoQuery = {
     team
   }
 }`,
-  deprecations: ["'isAdmin' is deprecated: use WorkspaceType[role] instead","'isOwner' is deprecated: use WorkspaceType[role] instead"],
+  deprecations: [
+    "'isAdmin' is deprecated: use WorkspaceType[role] instead",
+    "'isOwner' is deprecated: use WorkspaceType[role] instead",
+  ],
 };
 
 export const getWorkspacePageByIdQuery = {
@@ -1089,7 +1094,9 @@ export const quotaQuery = {
     }
   }
 }`,
-  deprecations: ["'storageQuota' is deprecated: use `UserQuotaType['usedStorageQuota']` instead"],
+  deprecations: [
+    "'storageQuota' is deprecated: use `UserQuotaType['usedStorageQuota']` instead",
+  ],
 };
 
 export const recoverDocMutation = {
@@ -1528,7 +1535,9 @@ export const getWorkspaceRolePermissionsQuery = {
     }
   }
 }`,
-  deprecations: ["'workspaceRolePermissions' is deprecated: use WorkspaceType[permissions] instead"],
+  deprecations: [
+    "'workspaceRolePermissions' is deprecated: use WorkspaceType[permissions] instead",
+  ],
 };
 
 export const approveWorkspaceTeamMemberMutation = {

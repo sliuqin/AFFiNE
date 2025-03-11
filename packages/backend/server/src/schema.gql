@@ -838,12 +838,6 @@ type Mutation {
   inviteBatch(emails: [String!]!, sendInviteMail: Boolean, workspaceId: String!): [InviteResult!]!
   leaveWorkspace(sendLeaveMail: Boolean, workspaceId: String!, workspaceName: String @deprecated(reason: "no longer used")): Boolean!
 
-  """remove a file from context"""
-  matchContext(content: String!, contextId: String!, limit: SafeInt): [ContextMatchedFileChunk!]!
-
-  """match workspace doc"""
-  matchWorkspaceContext(content: String!, contextId: String!, limit: SafeInt): ContextMatchedDocChunk!
-
   """mention user in a doc"""
   mentionUser(input: MentionInput!): ID!
   publishDoc(docId: String!, mode: PublicDocMode = Page, workspaceId: String!): DocType!
@@ -1050,6 +1044,12 @@ type Query {
 
   """List all copilot prompts"""
   listCopilotPrompts: [CopilotPromptType!]!
+
+  """remove a file from context"""
+  matchContext(content: String!, contextId: String!, limit: SafeInt): [ContextMatchedFileChunk!]!
+
+  """match workspace doc"""
+  matchWorkspaceContext(content: String!, contextId: String!, limit: SafeInt): ContextMatchedDocChunk!
   prices: [SubscriptionPrice!]!
 
   """Get public user by id"""
