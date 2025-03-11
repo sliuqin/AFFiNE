@@ -10,7 +10,6 @@ import {
   Config,
   EventBus,
   JobQueue,
-  metrics,
   OnEvent,
   OnJob,
 } from '../../../base';
@@ -161,9 +160,6 @@ export class CopilotContextDocJob implements OnModuleInit {
         chunkSize: total,
       });
     } catch (e: any) {
-      metrics.doc
-        .counter('auto_embed_pending_files_error')
-        .add(1, { contextId, fileId });
       this.logger.error(
         `Failed to embed pending file: ${contextId}::${fileId}`,
         e
@@ -200,9 +196,6 @@ export class CopilotContextDocJob implements OnModuleInit {
         }
       }
     } catch (e: any) {
-      metrics.doc
-        .counter('auto_embed_pending_docs_error')
-        .add(1, { workspaceId });
       this.logger.error(
         `Failed to embed pending doc: ${workspaceId}::${docId}`,
         e

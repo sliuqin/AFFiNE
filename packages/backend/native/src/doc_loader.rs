@@ -4,9 +4,11 @@ use napi::{
   bindgen_prelude::{AsyncTask, Buffer},
   Env, JsObject, Result, Task,
 };
+use regex::Regex;
 
 pub struct Document {
   inner: Doc,
+  re: Regex,
 }
 
 impl Document {
@@ -14,12 +16,25 @@ impl Document {
     self.inner.name.clone()
   }
 
+  fn clean_input(&self, input: &str) -> String {
+    self
+      .re
+      .replace_all(input, "")
+      .replace("\n", " ")
+      .replace("  ", " ")
+      .replace("\x00", "")
+      .trim()
+      .to_string()
+  }
+
   fn chunks(&self, env: Env) -> Result<JsObject> {
     let mut array = env.create_array_with_length(self.inner.chunks.len())?;
     for (i, chunk) in self.inner.chunks.iter().enumerate() {
+      let content = self.clean_input(&chunk.content);
+
       let mut obj = env.create_object()?;
       obj.set_named_property("index", i as i64)?;
-      obj.set_named_property("content", chunk.content.clone())?;
+      obj.set_named_property("content", content)?;
       array.set_element(i as u32, obj)?;
     }
     Ok(array)
@@ -45,7 +60,8 @@ impl Task for AsyncParseDocResponse {
 
   fn compute(&mut self) -> Result<Self::Output> {
     let doc = Doc::new(&self.file_path, &self.doc).map_err(|e| anyhow!(e))?;
-    Ok(Document { inner: doc })
+    let re = Regex::new(r"(Figure|Table)\s+\d+\.").map_err(|e| anyhow!(e))?;
+    Ok(Document { inner: doc, re })
   }
 
   fn resolve(&mut self, env: Env, doc: Document) -> Result<Self::JsValue> {

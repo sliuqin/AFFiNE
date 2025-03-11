@@ -153,6 +153,7 @@ dependencies = [
  "napi-derive",
  "rand 0.9.0",
  "rayon",
+ "regex",
  "sha3",
  "tiktoken-rs",
  "tokio",
