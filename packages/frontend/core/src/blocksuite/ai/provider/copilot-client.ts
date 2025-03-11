@@ -18,6 +18,7 @@ import {
   type GraphQLQuery,
   listContextDocsAndFilesQuery,
   listContextQuery,
+  matchContextQuery,
   type QueryOptions,
   type QueryResponse,
   removeContextDocMutation,
@@ -282,6 +283,18 @@ export class CopilotClient {
       },
     });
     return res.currentUser?.copilot?.contexts?.[0];
+  }
+
+  async matchContext(contextId: string, content: string, limit?: number) {
+    const res = await this.gql({
+      query: matchContextQuery,
+      variables: {
+        contextId,
+        content,
+        limit,
+      },
+    });
+    return res.currentUser?.copilot?.contexts?.[0]?.matchContext;
   }
 
   async chatText({

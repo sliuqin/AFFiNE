@@ -203,23 +203,26 @@ export class CopilotContextRootResolver {
   async contexts(
     @Parent() copilot: CopilotType,
     @CurrentUser() user: CurrentUser,
-    @Args('sessionId') sessionId: string,
+    @Args('sessionId', { nullable: true }) sessionId?: string,
     @Args('contextId', { nullable: true }) contextId?: string
   ) {
-    const lockFlag = `${COPILOT_LOCKER}:context:${sessionId}`;
-    await using lock = await this.mutex.acquire(lockFlag);
-    if (!lock) {
-      return new TooManyRequest('Server is busy');
-    }
-    await this.checkChatSession(user, sessionId, copilot.workspaceId);
+    if (sessionId || contextId) {
+      const lockFlag = `${COPILOT_LOCKER}:context:${sessionId || contextId}`;
+      await using lock = await this.mutex.acquire(lockFlag);
+      if (!lock) {
+        return new TooManyRequest('Server is busy');
+      }
 
-    if (contextId) {
-      const context = await this.context.get(contextId);
-      if (context) return [context];
-    } else {
-      const context = await this.context.getBySessionId(sessionId);
-      if (context) return [context];
+      if (contextId) {
+        const context = await this.context.get(contextId);
+        if (context) return [context];
+      } else if (sessionId) {
+        await this.checkChatSession(user, sessionId, copilot.workspaceId);
+        const context = await this.context.getBySessionId(sessionId);
+        if (context) return [context];
+      }
     }
+
     return [];
   }
 
@@ -477,13 +480,13 @@ export class CopilotContextResolver {
     }
   }
 
-  @Query(() => [ContextMatchedFileChunk], {
-    description: 'remove a file from context',
+  @ResolveField(() => [ContextMatchedFileChunk], {
+    description: 'match file context',
   })
   @CallMetric('ai', 'context_file_remove')
   async matchContext(
     @Context() ctx: { req: Request },
-    @Args('contextId') contextId: string,
+    @Parent() context: CopilotContextType,
     @Args('content') content: string,
     @Args('limit', { type: () => SafeIntResolver, nullable: true })
     limit?: number
@@ -492,12 +495,12 @@ export class CopilotContextResolver {
       return [];
     }
 
-    const lockFlag = `${COPILOT_LOCKER}:context:${contextId}`;
+    const lockFlag = `${COPILOT_LOCKER}:context:${context.id}`;
     await using lock = await this.mutex.acquire(lockFlag);
     if (!lock) {
       return new TooManyRequest('Server is busy');
     }
-    const session = await this.context.get(contextId);
+    const session = await this.context.get(context.id);
 
     try {
       return await session.matchFileChunks(
@@ -507,7 +510,7 @@ export class CopilotContextResolver {
       );
     } catch (e: any) {
       throw new CopilotFailedToMatchContext({
-        contextId,
+        contextId: context.id,
         // don't record the large content
         content: content.slice(0, 512),
         message: e.message,
@@ -515,14 +518,14 @@ export class CopilotContextResolver {
     }
   }
 
-  @Query(() => ContextMatchedDocChunk, {
-    description: 'match workspace doc',
+  @ResolveField(() => ContextMatchedDocChunk, {
+    description: 'match workspace doc content',
   })
   @CallMetric('ai', 'context_match_workspace_doc')
   async matchWorkspaceContext(
     @CurrentUser() user: CurrentUser,
     @Context() ctx: { req: Request },
-    @Args('contextId') contextId: string,
+    @Parent() context: CopilotContextType,
     @Args('content') content: string,
     @Args('limit', { type: () => SafeIntResolver, nullable: true })
     limit?: number
@@ -531,7 +534,7 @@ export class CopilotContextResolver {
       return [];
     }
 
-    const session = await this.context.get(contextId);
+    const session = await this.context.get(context.id);
     await this.ac
       .user(user.id)
       .workspace(session.workspaceId)
@@ -546,7 +549,7 @@ export class CopilotContextResolver {
       );
     } catch (e: any) {
       throw new CopilotFailedToMatchContext({
-        contextId,
+        contextId: context.id,
         // don't record the large content
         content: content.slice(0, 512),
         message: e.message,

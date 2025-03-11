@@ -121,7 +121,7 @@ export interface Copilot {
 
 export interface CopilotContextsArgs {
   contextId?: InputMaybe<Scalars['String']['input']>;
-  sessionId: Scalars['String']['input'];
+  sessionId?: InputMaybe<Scalars['String']['input']>;
 }
 
 export interface CopilotHistoriesArgs {
@@ -146,7 +146,21 @@ export interface CopilotContext {
   /** list files in context */
   files: Array<CopilotContextFile>;
   id: Scalars['ID']['output'];
+  /** match file context */
+  matchContext: Array<ContextMatchedFileChunk>;
+  /** match workspace doc content */
+  matchWorkspaceContext: ContextMatchedDocChunk;
   workspaceId: Scalars['String']['output'];
+}
+
+export interface CopilotContextMatchContextArgs {
+  content: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['SafeInt']['input']>;
+}
+
+export interface CopilotContextMatchWorkspaceContextArgs {
+  content: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['SafeInt']['input']>;
 }
 
 export interface CopilotContextDoc {
@@ -160,6 +174,7 @@ export interface CopilotContextFile {
   blobId: Scalars['String']['output'];
   chunkSize: Scalars['SafeInt']['output'];
   createdAt: Scalars['SafeInt']['output'];
+  error: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   status: ContextFileStatus;
@@ -1463,10 +1478,6 @@ export interface Query {
   isOwner: Scalars['Boolean']['output'];
   /** List all copilot prompts */
   listCopilotPrompts: Array<CopilotPromptType>;
-  /** remove a file from context */
-  matchContext: Array<ContextMatchedFileChunk>;
-  /** match workspace doc */
-  matchWorkspaceContext: ContextMatchedDocChunk;
   prices: Array<SubscriptionPrice>;
   /** Get public user by id */
   publicUserById: Maybe<PublicUserType>;
@@ -1512,18 +1523,6 @@ export interface QueryIsAdminArgs {
 
 export interface QueryIsOwnerArgs {
   workspaceId: Scalars['String']['input'];
-}
-
-export interface QueryMatchContextArgs {
-  content: Scalars['String']['input'];
-  contextId: Scalars['String']['input'];
-  limit?: InputMaybe<Scalars['SafeInt']['input']>;
-}
-
-export interface QueryMatchWorkspaceContextArgs {
-  content: Scalars['String']['input'];
-  contextId: Scalars['String']['input'];
-  limit?: InputMaybe<Scalars['SafeInt']['input']>;
 }
 
 export interface QueryPublicUserByIdArgs {
@@ -2349,13 +2348,22 @@ export type MatchContextQueryVariables = Exact<{
 
 export type MatchContextQuery = {
   __typename?: 'Query';
-  matchContext: Array<{
-    __typename?: 'ContextMatchedFileChunk';
-    fileId: string;
-    chunk: number;
-    content: string;
-    distance: number | null;
-  }>;
+  currentUser: {
+    __typename?: 'UserType';
+    copilot: {
+      __typename?: 'Copilot';
+      contexts: Array<{
+        __typename?: 'CopilotContext';
+        matchContext: Array<{
+          __typename?: 'ContextMatchedFileChunk';
+          fileId: string;
+          chunk: number;
+          content: string;
+          distance: number | null;
+        }>;
+      }>;
+    };
+  } | null;
 };
 
 export type RemoveContextFileMutationVariables = Exact<{
@@ -2428,13 +2436,22 @@ export type MatchWorkspaceContextQueryVariables = Exact<{
 
 export type MatchWorkspaceContextQuery = {
   __typename?: 'Query';
-  matchWorkspaceContext: {
-    __typename?: 'ContextMatchedDocChunk';
-    docId: string;
-    chunk: number;
-    content: string;
-    distance: number | null;
-  };
+  currentUser: {
+    __typename?: 'UserType';
+    copilot: {
+      __typename?: 'Copilot';
+      contexts: Array<{
+        __typename?: 'CopilotContext';
+        matchWorkspaceContext: {
+          __typename?: 'ContextMatchedDocChunk';
+          docId: string;
+          chunk: number;
+          content: string;
+          distance: number | null;
+        };
+      }>;
+    };
+  } | null;
 };
 
 export type GetWorkspaceEmbeddingStatusQueryVariables = Exact<{

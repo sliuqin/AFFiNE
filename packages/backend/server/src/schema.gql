@@ -62,7 +62,7 @@ type ContextWorkspaceEmbeddingStatus {
 
 type Copilot {
   """Get the context list of a session"""
-  contexts(contextId: String, sessionId: String!): [CopilotContext!]!
+  contexts(contextId: String, sessionId: String): [CopilotContext!]!
   docId: ID
   histories(docId: String, options: QueryChatHistoriesInput): [CopilotHistories!]!
 
@@ -84,6 +84,12 @@ type CopilotContext {
   """list files in context"""
   files: [CopilotContextFile!]!
   id: ID!
+
+  """match file context"""
+  matchContext(content: String!, limit: SafeInt): [ContextMatchedFileChunk!]!
+
+  """match workspace doc content"""
+  matchWorkspaceContext(content: String!, limit: SafeInt): ContextMatchedDocChunk!
   workspaceId: String!
 }
 
@@ -96,6 +102,7 @@ type CopilotContextFile {
   blobId: String!
   chunkSize: SafeInt!
   createdAt: SafeInt!
+  error: String
   id: ID!
   name: String!
   status: ContextFileStatus!
@@ -1044,12 +1051,6 @@ type Query {
 
   """List all copilot prompts"""
   listCopilotPrompts: [CopilotPromptType!]!
-
-  """remove a file from context"""
-  matchContext(content: String!, contextId: String!, limit: SafeInt): [ContextMatchedFileChunk!]!
-
-  """match workspace doc"""
-  matchWorkspaceContext(content: String!, contextId: String!, limit: SafeInt): ContextMatchedDocChunk!
   prices: [SubscriptionPrice!]!
 
   """Get public user by id"""

@@ -200,11 +200,17 @@ export const matchContextQuery = {
   id: 'matchContextQuery' as const,
   op: 'matchContext',
   query: `query matchContext($contextId: String!, $content: String!, $limit: SafeInt) {
-  matchContext(contextId: $contextId, content: $content, limit: $limit) {
-    fileId
-    chunk
-    content
-    distance
+  currentUser {
+    copilot {
+      contexts(contextId: $contextId) {
+        matchContext(content: $content, limit: $limit) {
+          fileId
+          chunk
+          content
+          distance
+        }
+      }
+    }
   }
 }`,
 };
@@ -261,11 +267,17 @@ export const matchWorkspaceContextQuery = {
   id: 'matchWorkspaceContextQuery' as const,
   op: 'matchWorkspaceContext',
   query: `query matchWorkspaceContext($contextId: String!, $content: String!, $limit: SafeInt) {
-  matchWorkspaceContext(contextId: $contextId, content: $content, limit: $limit) {
-    docId
-    chunk
-    content
-    distance
+  currentUser {
+    copilot {
+      contexts(contextId: $contextId) {
+        matchWorkspaceContext(content: $content, limit: $limit) {
+          docId
+          chunk
+          content
+          distance
+        }
+      }
+    }
   }
 }`,
 };
