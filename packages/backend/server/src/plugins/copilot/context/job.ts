@@ -154,6 +154,7 @@ export class CopilotContextDocJob implements OnModuleInit {
           content = EXCLUDED.content, embedding = EXCLUDED.embedding, updated_at = excluded.updated_at;
         `;
       }
+
       this.event.emit('workspace.file.embedded', {
         contextId,
         fileId,
