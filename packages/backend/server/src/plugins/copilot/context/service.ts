@@ -12,7 +12,6 @@ import {
   PrismaTransaction,
 } from '../../../base';
 import { OpenAIEmbeddingClient } from './embedding';
-import { CopilotContextDocJob } from './job';
 import { ContextSession } from './session';
 import {
   ContextConfig,
@@ -33,8 +32,7 @@ export class CopilotContextService implements OnModuleInit {
   constructor(
     config: Config,
     private readonly cache: Cache,
-    private readonly db: PrismaClient,
-    private readonly jobs: CopilotContextDocJob
+    private readonly db: PrismaClient
   ) {
     const configure = config.plugins.copilot.openai;
     if (configure) {
@@ -85,7 +83,6 @@ export class CopilotContextService implements OnModuleInit {
       if (config.success) {
         return new ContextSession(
           this.embeddingClient,
-          this.jobs,
           contextId,
           config.data,
           this.db,
@@ -108,7 +105,6 @@ export class CopilotContextService implements OnModuleInit {
     await dispatcher(config, undefined, true);
     return new ContextSession(
       this.embeddingClient,
-      this.jobs,
       contextId,
       config,
       this.db,
@@ -171,10 +167,12 @@ export class CopilotContextService implements OnModuleInit {
   async onFileEmbedded({
     contextId,
     fileId,
+    chunkSize,
   }: Events['workspace.file.embedded']) {
     const context = await this.get(contextId);
     await context.saveFileRecord(fileId, file => ({
       ...(file as ContextFile),
+      chunkSize,
       status: ContextFileStatus.finished,
     }));
   }

@@ -1,16 +1,7 @@
-import { File } from 'node:buffer';
-import { Readable } from 'node:stream';
-
 import { PrismaClient } from '@prisma/client';
 import { nanoid } from 'nanoid';
 
-import {
-  BlobQuotaExceeded,
-  CopilotContextFileNotSupported,
-  PrismaTransaction,
-  UserFriendlyError,
-} from '../../../base';
-import { CopilotContextDocJob } from './job';
+import { PrismaTransaction } from '../../../base';
 import {
   ChunkSimilarity,
   ContextConfig,
@@ -21,13 +12,11 @@ import {
   DocChunkSimilarity,
   EmbeddingClient,
   FileChunkSimilarity,
-  MAX_EMBEDDABLE_SIZE,
 } from './types';
 
 export class ContextSession implements AsyncDisposable {
   constructor(
     private readonly client: EmbeddingClient,
-    private readonly jobs: CopilotContextDocJob,
     private readonly contextId: string,
     private readonly config: ContextConfig,
     private readonly db: PrismaClient,
@@ -60,34 +49,6 @@ export class ContextSession implements AsyncDisposable {
     ) as ContextList;
   }
 
-  private readStream(
-    readable: Readable,
-    maxSize = MAX_EMBEDDABLE_SIZE
-  ): Promise<Buffer<ArrayBuffer>> {
-    return new Promise<Buffer<ArrayBuffer>>((resolve, reject) => {
-      const chunks: Uint8Array[] = [];
-      let totalSize = 0;
-
-      readable.on('data', chunk => {
-        totalSize += chunk.length;
-        if (totalSize > maxSize) {
-          reject(new BlobQuotaExceeded());
-          readable.destroy(new BlobQuotaExceeded());
-          return;
-        }
-        chunks.push(chunk);
-      });
-
-      readable.on('end', () => {
-        resolve(Buffer.concat(chunks, totalSize));
-      });
-
-      readable.on('error', err => {
-        reject(err);
-      });
-    });
-  }
-
   async addDocRecord(docId: string): Promise<ContextDoc> {
     const doc = this.config.docs.find(f => f.id === docId);
     if (doc) {
@@ -109,13 +70,7 @@ export class ContextSession implements AsyncDisposable {
     return false;
   }
 
-  async addStream(
-    readable: Readable,
-    name: string,
-    blobId: string,
-    signal?: AbortSignal
-  ): Promise<ContextFile> {
-    // mark the file as processing
+  async addFile(blobId: string, name: string): Promise<ContextFile> {
     let fileId = nanoid();
     const existsBlob = this.config.files.find(f => f.blobId === blobId);
     if (existsBlob) {
@@ -134,49 +89,11 @@ export class ContextSession implements AsyncDisposable {
         createdAt: Date.now(),
       }));
     }
-
-    try {
-      const buffer = await this.readStream(readable);
-      const file = new File([buffer], name);
-      return await this.addFile(file, fileId, signal);
-    } catch (e: any) {
-      await this.saveFileRecord(fileId, file => ({
-        ...(file as ContextFile),
-        status: ContextFileStatus.failed,
-      }));
-      if (e instanceof UserFriendlyError) {
-        throw e;
-      }
-      throw new CopilotContextFileNotSupported({
-        fileName: name,
-        message: e.message || e.toString(),
-      });
-    }
+    return this.getFile(fileId) as ContextFile;
   }
 
-  async addFile(
-    file: File,
-    fileId: string,
-    signal?: AbortSignal
-  ): Promise<ContextFile> {
-    // no need to check if embeddings is empty, will throw internally
-    const chunks = await this.client.getFileChunks(file, signal);
-    const total = chunks.reduce((acc, c) => acc + c.length, 0);
-    await this.saveFileRecord(fileId, file => ({
-      ...(file as ContextFile),
-      chunkSize: total,
-    }));
-
-    await this.jobs.addFileEmbeddingQueue(
-      chunks.map(chunks => ({
-        contextId: this.id,
-        fileId,
-        chunks,
-        total,
-      }))
-    );
-
-    return this.config.files.find(f => f.id === fileId) as ContextFile;
+  getFile(fileId: string): ContextFile | undefined {
+    return this.config.files.find(f => f.id === fileId);
   }
 
   async removeFile(fileId: string): Promise<boolean> {

@@ -6,6 +6,7 @@ import OpenAI from 'openai';
 
 import {
   AFFiNELogger,
+  BlobNotFound,
   Config,
   EventBus,
   JobQueue,
@@ -14,9 +15,10 @@ import {
   OnJob,
 } from '../../../base';
 import { DocReader } from '../../../core/doc';
+import { CopilotStorage } from '../storage';
 import { OpenAIEmbeddingClient } from './embedding';
-import { Chunk, Embedding, EmbeddingClient } from './types';
-import { checkEmbeddingAvailable } from './utils';
+import { Embedding, EmbeddingClient } from './types';
+import { checkEmbeddingAvailable, readStream } from './utils';
 
 declare global {
   interface Jobs {
@@ -27,9 +29,11 @@ declare global {
 
     'doc.embedPendingFiles': {
       contextId: string;
+      userId: string;
+      workspaceId: string;
+      blobId: string;
       fileId: string;
-      chunks: Chunk[];
-      total: number;
+      fileName: string;
     };
   }
 }
@@ -45,7 +49,8 @@ export class CopilotContextDocJob implements OnModuleInit {
     private readonly doc: DocReader,
     private readonly event: EventBus,
     private readonly logger: AFFiNELogger,
-    private readonly queue: JobQueue
+    private readonly queue: JobQueue,
+    private readonly storage: CopilotStorage
   ) {
     this.logger.setContext(CopilotContextDocJob.name);
     const configure = config.plugins.copilot.openai;
@@ -63,17 +68,18 @@ export class CopilotContextDocJob implements OnModuleInit {
     return this.client as EmbeddingClient;
   }
 
-  async addFileEmbeddingQueue(fileChunks: Jobs['doc.embedPendingFiles'][]) {
+  async addFileEmbeddingQueue(file: Jobs['doc.embedPendingFiles']) {
     if (!this.supportEmbedding) return;
 
-    for (const { contextId, fileId, chunks, total } of fileChunks) {
-      await this.queue.add('doc.embedPendingFiles', {
-        contextId,
-        fileId,
-        chunks,
-        total,
-      });
-    }
+    const { userId, workspaceId, contextId, blobId, fileId, fileName } = file;
+    await this.queue.add('doc.embedPendingFiles', {
+      userId,
+      workspaceId,
+      contextId,
+      blobId,
+      fileId,
+      fileName,
+    });
   }
 
   @OnEvent('workspace.doc.embedding')
@@ -102,33 +108,56 @@ export class CopilotContextDocJob implements OnModuleInit {
     return Prisma.join(groups.map(row => Prisma.sql`(${Prisma.join(row)})`));
   }
 
+  async readCopilotBlob(
+    userId: string,
+    workspaceId: string,
+    blobId: string,
+    fileName: string
+  ) {
+    const { body } = await this.storage.get(userId, workspaceId, blobId);
+    if (!body) throw new BlobNotFound({ spaceId: workspaceId, blobId });
+    const buffer = await readStream(body);
+    return new File([buffer], fileName);
+  }
+
   @OnJob('doc.embedPendingFiles')
-  async embedPendingFiles({
+  async embedPendingFile({
+    userId,
+    workspaceId,
     contextId,
+    blobId,
     fileId,
-    chunks,
-    total,
+    fileName,
   }: Jobs['doc.embedPendingFiles']) {
-    if (!this.supportEmbedding) return;
+    if (!this.supportEmbedding || !this.client) return;
 
     try {
-      const embeddings = await this.embeddingClient.generateEmbeddings(chunks);
+      const file = await this.readCopilotBlob(
+        userId,
+        workspaceId,
+        blobId,
+        fileName
+      );
 
-      const values = this.processEmbeddings(contextId, fileId, embeddings);
-      await this.db.$transaction(async tx => {
-        await tx.$executeRaw`
+      // no need to check if embeddings is empty, will throw internally
+      const chunks = await this.client.getFileChunks(file);
+      const total = chunks.reduce((acc, c) => acc + c.length, 0);
+
+      for (const chunk of chunks) {
+        const embeddings = await this.embeddingClient.generateEmbeddings(chunk);
+        const values = this.processEmbeddings(contextId, fileId, embeddings);
+
+        await this.db.$executeRaw`
           INSERT INTO "ai_context_embeddings"
           ("id", "context_id", "file_id", "chunk", "content", "embedding", "updated_at") VALUES ${values}
           ON CONFLICT (context_id, file_id, chunk) DO UPDATE SET
           content = EXCLUDED.content, embedding = EXCLUDED.embedding, updated_at = excluded.updated_at;
         `;
-        const [{ count }] = await tx.$queryRaw<{ count: number }[]>`
-          SELECT count(*) as count FROM "ai_context_embeddings"
-          WHERE context_id = ${contextId} AND file_id = ${fileId};
-        `;
-        if (Number(count) === total) {
-          this.event.emit('workspace.file.embedded', { contextId, fileId });
-        }
+      }
+      this.event.emit('workspace.file.embedded', {
+        contextId,
+        fileId,
+        chunkSize: total,
       });
     } catch (e: any) {
       metrics.doc

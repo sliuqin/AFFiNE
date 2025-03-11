@@ -14,6 +14,7 @@ declare global {
     'workspace.file.embedded': {
       contextId: string;
       fileId: string;
+      chunkSize: number;
     };
   }
 }

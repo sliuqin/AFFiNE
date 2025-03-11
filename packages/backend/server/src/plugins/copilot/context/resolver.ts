@@ -36,6 +36,8 @@ import { CurrentUser } from '../../../core/auth';
 import { AccessController } from '../../../core/permission';
 import { COPILOT_LOCKER, CopilotType } from '../resolver';
 import { ChatSessionService } from '../session';
+import { CopilotStorage } from '../storage';
+import { CopilotContextDocJob } from './job';
 import { CopilotContextService } from './service';
 import {
   ContextDoc,
@@ -45,6 +47,7 @@ import {
   FileChunkSimilarity,
   MAX_EMBEDDABLE_SIZE,
 } from './types';
+import { readStream } from './utils';
 
 @InputType()
 class AddContextDocInput {
@@ -295,7 +298,9 @@ export class CopilotContextResolver {
   constructor(
     private readonly ac: AccessController,
     private readonly mutex: RequestMutex,
-    private readonly context: CopilotContextService
+    private readonly context: CopilotContextService,
+    private readonly jobs: CopilotContextDocJob,
+    private readonly storage: CopilotStorage
   ) {}
 
   private getSignal(req: Request) {
@@ -383,6 +388,7 @@ export class CopilotContextResolver {
   })
   @CallMetric('ai', 'context_file_add')
   async addContextFile(
+    @CurrentUser() user: CurrentUser,
     @Context() ctx: { req: Request },
     @Args({ name: 'options', type: () => AddContextFileInput })
     options: AddContextFileInput,
@@ -407,13 +413,26 @@ export class CopilotContextResolver {
     const session = await this.context.get(options.contextId);
 
     try {
-      const signal = this.getSignal(ctx.req);
-      return await session.addStream(
-        content.createReadStream(),
-        content.filename,
+      const file = await session.addFile(options.blobId, content.filename);
+
+      const buffer = await readStream(content.createReadStream());
+      await this.storage.put(
+        user.id,
+        session.workspaceId,
         options.blobId,
-        signal
+        buffer
       );
+
+      await this.jobs.addFileEmbeddingQueue({
+        userId: user.id,
+        workspaceId: session.workspaceId,
+        contextId: session.id,
+        blobId: file.blobId,
+        fileId: file.id,
+        fileName: file.name,
+      });
+
+      return file;
     } catch (e: any) {
       // passthrough user friendly error
       if (e instanceof UserFriendlyError) {
