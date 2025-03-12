@@ -154,7 +154,7 @@ export class CopilotContextDocJob implements OnModuleInit {
         `;
       }
 
-      this.event.emit('workspace.file.embed.finish', {
+      this.event.emit('workspace.file.embed.finished', {
         contextId,
         fileId,
         chunkSize: total,

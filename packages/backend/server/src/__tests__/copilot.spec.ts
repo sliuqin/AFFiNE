@@ -1353,7 +1353,7 @@ test('should be able to manage context', async t => {
     });
 
     t.assert(
-      handler.lastCall.calledWith('workspace.file.embed.finish', {
+      handler.lastCall.calledWith('workspace.file.embed.finished', {
         contextId: session.id,
         fileId: file.id,
         chunkSize: 3,

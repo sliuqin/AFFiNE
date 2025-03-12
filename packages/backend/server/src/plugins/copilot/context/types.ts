@@ -11,7 +11,7 @@ declare global {
       workspaceId: string;
       docId: string;
     }>;
-    'workspace.file.embed.finish': {
+    'workspace.file.embed.finished': {
       contextId: string;
       fileId: string;
       chunkSize: number;
