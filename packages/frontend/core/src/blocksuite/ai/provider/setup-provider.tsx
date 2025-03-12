@@ -448,6 +448,29 @@ Could you make a new website based on these notes and send back just the html fi
     ) => {
       return client.getContextDocsAndFiles(workspaceId, sessionId, contextId);
     },
+    pollContextDocsAndFiles: async (
+      workspaceId: string,
+      sessionId: string,
+      contextId: string,
+      onPoll: (
+        result: BlockSuitePresets.AIDocsAndFilesContext | undefined
+      ) => void,
+      abortSignal: AbortSignal
+    ) => {
+      const poll = async () => {
+        const result = await client.getContextDocsAndFiles(
+          workspaceId,
+          sessionId,
+          contextId
+        );
+        onPoll(result);
+      };
+      while (!abortSignal.aborted) {
+        await poll();
+        // Wait for one second before next poll
+        await new Promise(resolve => setTimeout(resolve, 3 * 1000));
+      }
+    },
     matchContext: async (
       contextId: string,
       content: string,

@@ -1,6 +1,7 @@
 import './chat-panel-input';
 import './chat-panel-messages';
 
+import type { CopilotContextDoc, CopilotContextFile } from '@affine/graphql';
 import type { EditorHost } from '@blocksuite/affine/block-std';
 import { ShadowlessElement } from '@blocksuite/affine/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
@@ -27,13 +28,9 @@ import type {
   DocDisplayConfig,
   DocSearchMenuConfig,
 } from './chat-config';
-import type {
-  ChatChip,
-  ChatContextValue,
-  ChatItem,
-} from './chat-context';
+import type { ChatChip, ChatContextValue, ChatItem } from './chat-context';
 import type { ChatPanelMessages } from './chat-panel-messages';
-import { isDocContext } from './components/utils';
+import { isDocChip, isDocContext } from './components/utils';
 
 const DEFAULT_CHAT_CONTEXT_VALUE: ChatContextValue = {
   quote: '',
@@ -172,7 +169,7 @@ export class ChatPanel extends SignalWatcher(
     this._scrollToEnd();
   };
 
-  private readonly _updateChips = async () => {
+  private readonly _initChips = async () => {
     // context not initialized, show candidate chip
     if (!this._chatSessionId || !this._chatContextId) {
       return;
@@ -189,12 +186,16 @@ export class ChatPanel extends SignalWatcher(
       (a, b) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
+    let allDone = true;
     const chips: ChatChip[] = await Promise.all(
       list.map(async item => {
+        if (item.status === 'processing') {
+          allDone = false;
+        }
         if (isDocContext(item)) {
           return {
             docId: item.id,
-            state: 'processing',
+            state: item.status || 'processing',
           };
         }
         const file = await this.host.doc.blobSync.get(item.blobId);
@@ -210,7 +211,7 @@ export class ChatPanel extends SignalWatcher(
             file: new File([file], item.name),
             blobId: item.blobId,
             fileId: item.id,
-            state: item.status === 'finished' ? 'success' : item.status,
+            state: item.status,
           };
         }
       })
@@ -220,6 +221,10 @@ export class ChatPanel extends SignalWatcher(
       ...this.chatContextValue,
       chips,
     };
+
+    if (!allDone) {
+      await this._pollContextDocsAndFiles();
+    }
   };
 
   private readonly _getSessionId = async () => {
@@ -282,6 +287,8 @@ export class ChatPanel extends SignalWatcher(
 
   private _width: Signal<number | undefined> = signal(undefined);
 
+  private _pollAbortController: AbortController | null = null;
+
   private readonly _scrollToEnd = () => {
     if (!this._wheelTriggered) {
       this._chatMessages.value?.scrollToEnd();
@@ -342,14 +349,79 @@ export class ChatPanel extends SignalWatcher(
           this._chatSessionId
         );
       }
-      await this._updateChips();
+      await this._initChips();
     } catch (error) {
       console.error(error);
     }
   };
 
+  private readonly _pollContextDocsAndFiles = async () => {
+    if (!this._chatSessionId || !this._chatContextId || !AIProvider.context) {
+      return;
+    }
+    if (this._pollAbortController) {
+      // already polling, return
+      return;
+    }
+    this._pollAbortController = new AbortController();
+    await AIProvider.context.pollContextDocsAndFiles(
+      this.doc.workspace.id,
+      this._chatSessionId,
+      this._chatContextId,
+      this._onPoll,
+      this._pollAbortController.signal
+    );
+  };
+
+  private readonly _onPoll = (
+    result?: BlockSuitePresets.AIDocsAndFilesContext
+  ) => {
+    if (!result) {
+      this._abortPoll();
+      return;
+    }
+    const { docs = [], files = [] } = result;
+    const hashMap = new Map<string, CopilotContextDoc | CopilotContextFile>();
+    let allDone = true;
+    docs.forEach(doc => {
+      hashMap.set(doc.id, doc);
+      if (doc.status === 'processing') {
+        allDone = false;
+      }
+    });
+    files.forEach(file => {
+      hashMap.set(file.id, file);
+      if (file.status === 'processing') {
+        allDone = false;
+      }
+    });
+    const nextChips = this.chatContextValue.chips.map(chip => {
+      const id = isDocChip(chip) ? chip.docId : chip.fileId;
+      const item = id && hashMap.get(id);
+      if (item && item.status) {
+        return {
+          ...chip,
+          state: item.status,
+        };
+      }
+      return chip;
+    });
+    this.updateContext({
+      chips: nextChips,
+    });
+    if (allDone) {
+      this._abortPoll();
+    }
+  };
+
+  private readonly _abortPoll = () => {
+    this._pollAbortController?.abort();
+    this._pollAbortController = null;
+  };
+
   protected override updated(_changedProperties: PropertyValues) {
     if (_changedProperties.has('doc')) {
+      this._abortPoll();
       this._chatSessionId = null;
       this._chatContextId = null;
       this.chatContextValue = DEFAULT_CHAT_CONTEXT_VALUE;
@@ -491,6 +563,7 @@ export class ChatPanel extends SignalWatcher(
         .chatContextValue=${this.chatContextValue}
         .getContextId=${this._getContextId}
         .updateContext=${this.updateContext}
+        .pollContextDocsAndFiles=${this._pollContextDocsAndFiles}
         .docDisplayConfig=${this.docDisplayConfig}
         .docSearchMenuConfig=${this.docSearchMenuConfig}
       ></chat-panel-chips>

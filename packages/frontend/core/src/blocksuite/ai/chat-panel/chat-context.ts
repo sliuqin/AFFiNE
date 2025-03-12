@@ -70,13 +70,13 @@ export type ChatBlockMessage = ChatMessage & {
   avatarUrl?: string;
 };
 
-export type ChipState = 'candidate' | 'processing' | 'success' | 'failed';
+export type ChipState = 'candidate' | 'processing' | 'finished' | 'failed';
 
 export interface BaseChip {
   /**
    * candidate: the chip is a candidate for the chat
    * processing: the chip is processing
-   * success: the chip is successfully processed
+   * finished: the chip is successfully processed
    * failed: the chip is failed to process
    */
   state: ChipState;
