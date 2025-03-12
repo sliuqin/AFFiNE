@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
+import { ProjectRoot } from '@affine-tools/utils/path';
 import type { TestFn } from 'ava';
 import ava from 'ava';
 import Sinon from 'sinon';
@@ -755,7 +756,7 @@ test('should be able to manage context', async t => {
 
   const fs = await import('node:fs');
   const buffer = fs.readFileSync(
-    new URL('../../../../common/native/fixtures/sample.pdf', import.meta.url)
+    ProjectRoot.join('common/native/fixtures/sample.pdf').toFileUrl()
   );
 
   {
