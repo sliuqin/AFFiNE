@@ -1,5 +1,7 @@
 #![deny(clippy::all)]
 
+mod utils;
+
 pub mod doc_loader;
 pub mod file_type;
 pub mod hashcash;

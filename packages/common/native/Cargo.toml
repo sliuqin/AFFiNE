@@ -50,7 +50,6 @@ tree-sitter-scala      = { workspace = true, optional = true }
 tree-sitter-typescript = { workspace = true, optional = true }
 url                    = { workspace = true, optional = true }
 
-
 tiktoken-rs = { workspace = true }
 
 [dev-dependencies]

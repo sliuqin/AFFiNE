@@ -45,7 +45,6 @@ pdf-extract            = "0.8.2"
 rand                   = "0.9"
 rayon                  = "1.10"
 readability            = { version = "0.3.0", default-features = false }
-regex                  = "1"
 rubato                 = "0.16"
 screencapturekit       = "0.3"
 serde                  = "1"
