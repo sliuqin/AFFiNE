@@ -217,7 +217,7 @@ test('drag root node should layout in real time', async ({ page }) => {
   // wait for the font to be loaded
   await waitFontsLoaded(page);
 
-  const mindmapId = await createMindMap(page, [0, 0]);
+  const mindmapId = await createMindMap(page, [150, 0]);
   const { rect: rootRect } = await getMindMapNode(page, mindmapId, [0]);
   const { rect: firstRect } = await getMindMapNode(page, mindmapId, [0, 0]);
   const { rect: secondRect } = await getMindMapNode(page, mindmapId, [0, 1]);

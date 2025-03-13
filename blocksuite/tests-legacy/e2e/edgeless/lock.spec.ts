@@ -17,6 +17,7 @@ import {
   getSelectedIds,
   getTypeById,
   setEdgelessTool,
+  zoomResetByKeyboard,
 } from '../utils/actions/edgeless.js';
 import {
   copyByKeyboard,
@@ -321,6 +322,7 @@ test.describe('lock', () => {
     page,
   }) => {
     await edgelessCommonSetup(page);
+    await zoomResetByKeyboard(page);
     const { lock, unlock } = getButtons(page);
 
     // Shape
@@ -355,7 +357,7 @@ test.describe('lock', () => {
 
     // Mindmap
     {
-      await createMindmap(page, [100, 100]);
+      await createMindmap(page, [150, 150]);
       const bound = await getSelectedBound(page);
       const rootPos: [number, number] = [
         bound[0] + 10,
@@ -382,7 +384,7 @@ test.describe('lock', () => {
       await unlock.click();
       await text.dblclick();
       await type(page, '111');
-      await expect(text).toHaveText('111');
+      await expect(text).toHaveText('text111');
       await deleteAll(page);
     }
 
@@ -475,7 +477,7 @@ test.describe('lock', () => {
     page,
   }) => {
     await edgelessCommonSetup(page);
-    await createMindmap(page, [100, 100]);
+    await createMindmap(page, [150, 150]);
     await selectAllByKeyboard(page);
     const bound = await getSelectedBound(page);
     const rootPos: [number, number] = [

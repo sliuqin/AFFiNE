@@ -2,6 +2,8 @@ import { expect } from '@playwright/test';
 
 import {
   activeNoteInEdgeless,
+  clickView,
+  createNote,
   enterPlaygroundRoom,
   getNoteRect,
   initEmptyEdgelessState,
@@ -23,6 +25,7 @@ import {
   assertNoteRectEqual,
   assertRectEqual,
   assertRichTexts,
+  assertSelectedBound,
 } from '../../utils/asserts.js';
 import { NOTE_MIN_HEIGHT, NOTE_MIN_WIDTH } from '../../utils/bs-alternative.js';
 import { test } from '../../utils/playwright.js';
@@ -192,16 +195,9 @@ test('drag to add customized size note: should clamp to min width and min height
 
   await switchEditorMode(page);
   await zoomResetByKeyboard(page);
-  await setEdgelessTool(page, 'note');
 
-  // add note at 300,300
-  await page.mouse.move(300, 300);
-  await page.mouse.down();
-  await page.mouse.move(400, 360, { steps: 10 });
-  await page.mouse.up();
-  await waitNextFrame(page);
-
-  await waitNextFrame(page);
+  // add note at 200,0
+  await createNote(page, [200, 0, 100, 60]);
 
   // should wait for inline editor update and resizeObserver callback
   await waitForInlineEditorStateUpdated(page);
@@ -209,15 +205,10 @@ test('drag to add customized size note: should clamp to min width and min height
   await assertBlockCount(page, 'edgeless-note', 2);
 
   // click out of note
-  await page.mouse.click(250, 200);
+  await clickView(page, [250, 200]);
   // click on note to select it
-  await page.mouse.click(320, 300);
+  await clickView(page, [250, 30]);
   // assert selected note
   // note add on edgeless mode will have a offsetX of 30 and offsetY of 40
-  await assertEdgelessSelectedRect(page, [
-    270,
-    260,
-    NOTE_MIN_WIDTH,
-    NOTE_MIN_HEIGHT,
-  ]);
+  await assertSelectedBound(page, [170, -40, NOTE_MIN_WIDTH, NOTE_MIN_HEIGHT]);
 });

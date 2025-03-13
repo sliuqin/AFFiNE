@@ -11,6 +11,7 @@ import {
   getAllSortedIds,
   getFirstContainerId,
   pasteByKeyboard,
+  pressEscape,
   selectAllByKeyboard,
   Shape,
   toViewCoord,
@@ -127,8 +128,8 @@ test.describe('group clipboard', () => {
   test('copy and paste group with frame inside', async ({ page }) => {
     await commonSetup(page);
     await createShapeElement(page, [0, 0], [100, 100], Shape.Square);
-    await createNote(page, [100, -100]);
-    await page.mouse.click(10, 50);
+    await createNote(page, [150, 0, 50, 100]);
+    await pressEscape(page, 3);
     await selectAllByKeyboard(page);
     await triggerComponentToolbarAction(page, 'addFrame');
 

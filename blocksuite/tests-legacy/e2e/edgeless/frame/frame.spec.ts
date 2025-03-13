@@ -3,9 +3,9 @@ import { expect, type Page } from '@playwright/test';
 
 import { clickView } from '../../utils/actions/click.js';
 import {
-  addNote,
   autoFit,
   createFrame as _createFrame,
+  createNote,
   createShapeElement,
   dragBetweenViewCoords,
   edgelessCommonSetup,
@@ -32,10 +32,6 @@ import {
   assertEdgelessElementBound,
   assertSelectedBound,
 } from '../../utils/asserts.js';
-import {
-  DEFAULT_NOTE_HEIGHT,
-  DEFAULT_NOTE_WIDTH,
-} from '../../utils/bs-alternative.js';
 import { test } from '../../utils/playwright.js';
 
 const createFrame = async (
@@ -155,8 +151,7 @@ test.describe('add element to frame and then move frame', () => {
         Shape.Square
       );
 
-      const noteCoord = await toViewCoord(page, [200, 200]);
-      const noteId = await addNote(page, '', noteCoord[0], noteCoord[1]);
+      const noteId = await createNote(page, [200, 200, 300, 100]);
 
       const frameTitle = page.locator('affine-frame-title');
 
@@ -167,12 +162,7 @@ test.describe('add element to frame and then move frame', () => {
 
       await assertEdgelessElementBound(page, shapeId, [150, 150, 100, 100]);
       await assertEdgelessElementBound(page, frameId, [100, 100, 500, 500]);
-      await assertEdgelessElementBound(page, noteId, [
-        220,
-        210,
-        DEFAULT_NOTE_WIDTH,
-        DEFAULT_NOTE_HEIGHT,
-      ]);
+      await assertEdgelessElementBound(page, noteId, [220, 210, 300, 100]);
     });
 
     test('element should be not moved since it is created not in frame', async ({

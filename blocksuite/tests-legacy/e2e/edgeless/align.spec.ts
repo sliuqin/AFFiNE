@@ -123,16 +123,15 @@ test.describe('auto arrange align', () => {
   test('arrange note', async ({ page }) => {
     await commonSetup(page);
     await createShapeElement(page, [0, 0], [100, 100], Shape.Square);
-    await createNote(page, [200, 200], 'Hello World');
-    await page.mouse.click(0, 0);
+    await createNote(page, [200, 200, 300, 100], 'Hello World');
 
     await selectAllByKeyboard(page);
-    await assertEdgelessSelectedModelRect(page, [0, 0, 668, 252]);
+    await assertEdgelessSelectedModelRect(page, [0, 0, 470, 260]);
 
     // arrange
     await triggerComponentToolbarAction(page, 'autoArrange');
     await waitNextFrame(page, 200);
-    await assertEdgelessSelectedModelRect(page, [0, 0, 618, 100]);
+    await assertEdgelessSelectedModelRect(page, [0, 0, 420, 100]);
   });
 
   test('arrange group', async ({ page }) => {
@@ -202,7 +201,7 @@ test.describe('auto arrange align', () => {
     await createShapeElement(page, [0, 0], [100, 100], Shape.Square);
     await createShapeElement(page, [150, 150], [300, 300], Shape.Ellipse);
     //note
-    await createNote(page, [200, 100], 'Hello World');
+    await createNote(page, [200, 100, 300, 100], 'Hello World');
     // connector
     await createConnectorElement(page, [200, -200], [400, -100]);
     // brush
@@ -221,11 +220,11 @@ test.describe('auto arrange align', () => {
     await page.mouse.click(0, 0);
     await selectAllByKeyboard(page);
 
-    await assertEdgelessSelectedModelRect(page, [-125, -200, 793, 500]);
+    await assertEdgelessSelectedModelRect(page, [0, -200, 470, 500]);
     // arrange
     await triggerComponentToolbarAction(page, 'autoArrange');
     await waitNextFrame(page, 200);
-    await assertEdgelessSelectedModelRect(page, [-125, -125, 668, 270]);
+    await assertEdgelessSelectedModelRect(page, [0, 0, 744, 270]);
   });
 });
 
@@ -328,16 +327,16 @@ test.describe('auto resize align', () => {
   test('resize and arrange note', async ({ page }) => {
     await commonSetup(page);
     await createShapeElement(page, [0, 0], [100, 100], Shape.Square);
-    await createNote(page, [200, 200], 'Hello World');
+    await createNote(page, [200, 200, 300, 100], 'Hello World');
     await page.mouse.click(0, 0);
 
     await selectAllByKeyboard(page);
-    await assertEdgelessSelectedModelRect(page, [0, 0, 668, 252]);
+    await assertEdgelessSelectedModelRect(page, [0, 0, 470, 260]);
 
     // arrange
     await triggerComponentToolbarAction(page, 'autoResize');
     await waitNextFrame(page, 200);
-    await assertEdgelessSelectedModelRect(page, [0, 0, 1302.5, 200]);
+    await assertEdgelessSelectedModelRect(page, [0, 0, 820, 200]);
   });
 
   test('resize and arrange group', async ({ page }) => {
@@ -407,7 +406,7 @@ test.describe('auto resize align', () => {
     await createShapeElement(page, [0, 0], [100, 100], Shape.Square);
     await createShapeElement(page, [150, 150], [300, 300], Shape.Ellipse);
     //note
-    await createNote(page, [200, 100], 'Hello World');
+    await createNote(page, [200, 100, 300, 100], 'Hello World');
     // connector
     await createConnectorElement(page, [200, -200], [400, -100]);
     // brush
@@ -426,10 +425,10 @@ test.describe('auto resize align', () => {
     await page.mouse.click(0, 0);
     await selectAllByKeyboard(page);
 
-    await assertEdgelessSelectedModelRect(page, [-125, -200, 793, 500]);
+    await assertEdgelessSelectedModelRect(page, [0, -200, 470, 500]);
     // arrange
     await triggerComponentToolbarAction(page, 'autoResize');
     await waitNextFrame(page, 200);
-    await assertEdgelessSelectedModelRect(page, [0, 0, 2352.296875, 420]);
+    await assertEdgelessSelectedModelRect(page, [0, 0, 1260, 420]);
   });
 });

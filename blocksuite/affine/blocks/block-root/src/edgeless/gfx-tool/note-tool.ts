@@ -1,9 +1,6 @@
 import type { SurfaceBlockComponent } from '@blocksuite/affine-block-surface';
 import { addNote } from '@blocksuite/affine-block-surface';
-import {
-  DEFAULT_NOTE_HEIGHT,
-  DEFAULT_NOTE_WIDTH,
-} from '@blocksuite/affine-model';
+import { NOTE_MIN_HEIGHT, NOTE_MIN_WIDTH } from '@blocksuite/affine-model';
 import { EditPropsStore } from '@blocksuite/affine-shared/services';
 import type { NoteChildrenFlavour } from '@blocksuite/affine-shared/types';
 import { hasClassNameInList } from '@blocksuite/affine-shared/utils';
@@ -139,8 +136,8 @@ export class NoteTool extends BaseTool<NoteToolOption> {
       this.std,
       point,
       options,
-      Math.max(width, DEFAULT_NOTE_WIDTH),
-      Math.max(height, DEFAULT_NOTE_HEIGHT)
+      Math.max(width, NOTE_MIN_WIDTH),
+      Math.max(height, NOTE_MIN_HEIGHT)
     );
   }
 

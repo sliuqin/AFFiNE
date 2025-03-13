@@ -1897,11 +1897,28 @@ export async function createMindmap(page: Page, coord: number[]) {
 
 export async function createNote(
   page: Page,
-  coord1: number[],
+  coord: number[],
   content?: string
 ) {
-  const start = await toViewCoord(page, coord1);
-  return addNote(page, content ?? 'note', start[0], start[1]);
+  if (coord.length === 2) {
+    const start = await toViewCoord(page, coord);
+    return addNote(page, content ?? 'note', start[0], start[1]);
+  } else if (coord.length === 4) {
+    await setEdgelessTool(page, 'note');
+    await dragBetweenViewCoords(
+      page,
+      [coord[0], coord[1]],
+      [coord[0] + coord[2], coord[1] + coord[3]]
+    );
+    if (content) {
+      await type(page, content);
+    }
+    await pressEscape(page, 3);
+    await clickView(page, [coord[0], coord[1]]);
+    return (await getSelectedIds(page))[0];
+  } else {
+    throw new Error('coord is not valid');
+  }
 }
 
 export async function hoverOnNote(page: Page, id: string, offset = [0, 0]) {
