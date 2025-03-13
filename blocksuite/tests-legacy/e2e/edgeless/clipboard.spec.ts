@@ -127,7 +127,7 @@ test.describe('frame clipboard', () => {
   test('copy and paste frame with frame inside', async ({ page }) => {
     await commonSetup(page);
     await createShapeElement(page, [0, 0], [100, 100], Shape.Square);
-    await createNote(page, [100, -100]);
+    await createNote(page, [100, -100, 200, 100]);
     await page.mouse.click(10, 50);
     await selectAllByKeyboard(page);
     await triggerComponentToolbarAction(page, 'addFrame');

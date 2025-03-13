@@ -383,8 +383,9 @@ test.describe('lock', () => {
       await expect(text).toHaveText('text');
       await unlock.click();
       await text.dblclick();
+      await selectAllByKeyboard(page);
       await type(page, '111');
-      await expect(text).toHaveText('text111');
+      await expect(text).toHaveText('111');
       await deleteAll(page);
     }
 

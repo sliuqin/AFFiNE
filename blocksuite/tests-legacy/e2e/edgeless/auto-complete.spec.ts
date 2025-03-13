@@ -4,10 +4,11 @@ import { lightThemeV2 } from '@toeverything/theme/v2';
 import { clickView, moveView } from '../utils/actions/click.js';
 import { dragBetweenCoords } from '../utils/actions/drag.js';
 import {
-  addNote,
+  autoFit,
   changeEdgelessNoteBackground,
   changeShapeFillColor,
   changeShapeStrokeColor,
+  createNote,
   createShapeElement,
   deleteAll,
   dragBetweenViewCoords,
@@ -73,18 +74,19 @@ test.describe('auto-complete', () => {
 
     test('click on note auto-complete button', async ({ page }) => {
       await edgelessCommonSetup(page);
-      await addNote(page, 'note', 100, 100);
-      await page.mouse.click(600, 50);
-      await page.mouse.click(300, 50);
-      await page.mouse.click(150, 120);
-      const rect = await getEdgelessSelectedRectModel(page);
-      await moveView(page, [rect[0] + rect[2] + 30, rect[1] + rect[3] / 2]);
-      await clickView(page, [rect[0] + rect[2] + 30, rect[1] + rect[3] / 2]);
-      const newRect = await getEdgelessSelectedRectModel(page);
-      expect(rect[0]).not.toEqual(newRect[0]);
-      expect(rect[1]).toEqual(newRect[1]);
-      expect(rect[2]).toEqual(newRect[2]);
-      expect(rect[3]).toEqual(newRect[3]);
+      await createNote(page, [0, 0, 300, 100]);
+      await clickView(page, [200, 200]);
+      await clickView(page, [0, 0]);
+      await waitNextFrame(page, 100);
+      await moveView(page, [330, 50]);
+      const button = page.locator('.edgeless-auto-complete-arrow').first();
+      await button.click();
+
+      const bound = await getEdgelessSelectedRectModel(page);
+      expect(bound[0]).not.toEqual(0);
+      expect(bound[1]).not.toEqual(0);
+      expect(bound[2]).toEqual(300);
+      expect(bound[3]).toEqual(100);
     });
   });
 
@@ -144,6 +146,7 @@ test.describe('auto-complete', () => {
       await expect(noteButton).toBeVisible();
       await noteButton.click();
       await waitNextFrame(page);
+      await autoFit(page);
 
       const edgelessNote = page.locator('affine-edgeless-note');
 
