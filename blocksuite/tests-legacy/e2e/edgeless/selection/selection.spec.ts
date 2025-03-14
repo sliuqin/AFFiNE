@@ -143,13 +143,13 @@ test('select multiple shapes and translate', async ({ page }) => {
   await assertEdgelessSelectedRect(page, [98, 98, 212, 112]);
 
   await dragBetweenCoords(page, { x: 120, y: 120 }, { x: 150, y: 150 });
-  await assertEdgelessSelectedRect(page, [128, 128, 212, 112]);
+  await assertEdgelessSelectedRect(page, [125, 128, 212, 112]);
 
   await page.mouse.click(160, 160);
-  await assertEdgelessSelectedRect(page, [128, 128, 104, 104]);
+  await assertEdgelessSelectedRect(page, [125, 128, 104, 104]);
 
   await page.mouse.click(250, 150);
-  await assertEdgelessSelectedRect(page, [240, 140, 100, 100]);
+  await assertEdgelessSelectedRect(page, [237, 140, 100, 100]);
 });
 
 test('selection box of shape element sync on fast dragging', async ({

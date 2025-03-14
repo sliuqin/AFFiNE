@@ -220,11 +220,11 @@ test.describe('auto arrange align', () => {
     await page.mouse.click(0, 0);
     await selectAllByKeyboard(page);
 
-    await assertEdgelessSelectedModelRect(page, [0, -200, 470, 500]);
+    await assertEdgelessSelectedModelRect(page, [-125, -200, 595, 500]);
     // arrange
     await triggerComponentToolbarAction(page, 'autoArrange');
     await waitNextFrame(page, 200);
-    await assertEdgelessSelectedModelRect(page, [0, 0, 744, 270]);
+    await assertEdgelessSelectedModelRect(page, [-125, -125, 664, 270]);
   });
 });
 
@@ -425,10 +425,10 @@ test.describe('auto resize align', () => {
     await page.mouse.click(0, 0);
     await selectAllByKeyboard(page);
 
-    await assertEdgelessSelectedModelRect(page, [0, -200, 470, 500]);
+    await assertEdgelessSelectedModelRect(page, [-125, -200, 595, 500]);
     // arrange
     await triggerComponentToolbarAction(page, 'autoResize');
     await waitNextFrame(page, 200);
-    await assertEdgelessSelectedModelRect(page, [0, 0, 1260, 420]);
+    await assertEdgelessSelectedModelRect(page, [0, 0, 2352.296875, 420]);
   });
 });

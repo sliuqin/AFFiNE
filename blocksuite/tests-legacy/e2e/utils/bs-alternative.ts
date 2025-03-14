@@ -4,7 +4,7 @@ export const BLOCK_CHILDREN_CONTAINER_PADDING_LEFT = 24;
 export const NOTE_MIN_WIDTH = 170 + 24 * 2;
 export const NOTE_MIN_HEIGHT = 92;
 
-export const DEFAULT_NOTE_WIDTH = 752 + 24 * 2;
+export const DEFAULT_NOTE_WIDTH = 450 + 24 * 2;
 export const DEFAULT_NOTE_HEIGHT = NOTE_MIN_HEIGHT;
 
 export enum NoteDisplayMode {
