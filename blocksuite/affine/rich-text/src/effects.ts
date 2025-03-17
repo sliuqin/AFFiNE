@@ -10,6 +10,7 @@ import { LatexEditorMenu } from './inline/presets/nodes/latex-node/latex-editor-
 import { LatexEditorUnit } from './inline/presets/nodes/latex-node/latex-editor-unit.js';
 import { AffineLatexNode } from './inline/presets/nodes/latex-node/latex-node.js';
 import { LinkPopup } from './inline/presets/nodes/link-node/link-popup/link-popup.js';
+import { AffineMember } from './inline/presets/nodes/member-node/member-node.js';
 import { ReferencePopup } from './inline/presets/nodes/reference-node/reference-popup/reference-popup.js';
 import { RichText } from './rich-text.js';
 
@@ -26,6 +27,7 @@ export function effects() {
   customElements.define('affine-footnote-node', AffineFootnoteNode);
   customElements.define('footnote-popup', FootNotePopup);
   customElements.define('footnote-popup-chip', FootNotePopupChip);
+  customElements.define('affine-member', AffineMember);
 }
 
 declare global {
@@ -42,5 +44,6 @@ declare global {
     'latex-editor-unit': LatexEditorUnit;
     'latex-editor-menu': LatexEditorMenu;
     'link-popup': LinkPopup;
+    'affine-member': AffineMember;
   }
 }

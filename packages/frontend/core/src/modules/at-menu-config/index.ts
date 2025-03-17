@@ -6,6 +6,7 @@ import { DocDisplayMetaService } from '../doc-display-meta';
 import { DocSearchMenuService } from '../doc-search-menu/services';
 import { EditorSettingService } from '../editor-setting';
 import { JournalService } from '../journal';
+import { MemberSearchService } from '../permissions';
 import { WorkspaceScope } from '../workspace';
 import { AtMenuConfigService } from './services';
 
@@ -19,5 +20,6 @@ export function configAtMenuConfigModule(framework: Framework) {
       EditorSettingService,
       DocsService,
       DocSearchMenuService,
+      MemberSearchService,
     ]);
 }

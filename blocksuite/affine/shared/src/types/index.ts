@@ -72,4 +72,5 @@ export interface AffineTextAttributes {
   color?: string | null;
   latex?: string | null;
   footnote?: FootNote | null;
+  member?: string | null;
 }

@@ -13,10 +13,11 @@ import type { DocMeta } from '@blocksuite/affine/store';
 import { Text } from '@blocksuite/affine/store';
 import {
   DateTimeIcon,
+  MainAvatarIcon,
   NewXxxEdgelessIcon,
   NewXxxPageIcon,
 } from '@blocksuite/icons/lit';
-import { computed, Signal } from '@preact/signals-core';
+import { computed, Signal, signal } from '@preact/signals-core';
 import { Service } from '@toeverything/infra';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { html } from 'lit';
@@ -27,6 +28,7 @@ import type { DocDisplayMetaService } from '../../doc-display-meta';
 import type { DocSearchMenuService } from '../../doc-search-menu/services';
 import type { EditorSettingService } from '../../editor-setting';
 import { type JournalService, suggestJournalDate } from '../../journal';
+import type { Member, MemberSearchService } from '../../permissions';
 
 function resolveSignal<T>(data: T | Signal<T>): T {
   return data instanceof Signal ? data.value : data;
@@ -45,7 +47,8 @@ export class AtMenuConfigService extends Service {
     private readonly dialogService: WorkspaceDialogService,
     private readonly editorSettingService: EditorSettingService,
     private readonly docsService: DocsService,
-    private readonly docsSearchMenuService: DocSearchMenuService
+    private readonly docsSearchMenuService: DocSearchMenuService,
+    private readonly memberSearchService: MemberSearchService
   ) {
     super();
   }
@@ -310,9 +313,85 @@ export class AtMenuConfigService extends Service {
     return result;
   }
 
+  private memberGroup(
+    query: string,
+    close: () => void,
+    inlineEditor: AffineInlineEditor,
+    _: AbortSignal
+  ): LinkedMenuGroup {
+    const inviteItem: LinkedMenuItem = {
+      key: 'invite',
+      name: 'Invite...',
+      icon: MainAvatarIcon(),
+      action: () => {
+        // TODO: open invite modal
+        close();
+      },
+    };
+    const convertMemberToMenuItem = (member: Member) => {
+      const { id, name, avatarUrl } = member;
+      const icon = avatarUrl
+        ? html`<img style="width: 20px; height: 20px;" src="${avatarUrl}" />`
+        : MainAvatarIcon();
+      return {
+        key: id,
+        name: name ?? 'Unknown',
+        icon,
+        action: () => {
+          close();
+
+          // TODO: send notification
+
+          const inlineRange = inlineEditor.getInlineRange();
+          if (inlineRange && inlineRange.length === 0) {
+            inlineEditor.insertText(inlineRange, ' ', {
+              member: id,
+            });
+            inlineEditor.setInlineRange({
+              index: inlineRange.index + 1,
+              length: 0,
+            });
+          }
+        },
+      };
+    };
+
+    if (query.length === 0) {
+      return {
+        // TODO: i18n
+        name: 'Mention Member',
+        items: [
+          ...this.memberSearchService.result$.value
+            .slice(0, 3)
+            .map(member => convertMemberToMenuItem(member)),
+          inviteItem,
+        ],
+      };
+    }
+    this.memberSearchService.reset();
+
+    const items = signal<LinkedMenuItem[]>([inviteItem]);
+    const loading = this.memberSearchService.isLoading$.signal;
+    this.memberSearchService.result$.subscribe(members => {
+      items.value = [
+        ...members.map(member => convertMemberToMenuItem(member)),
+        inviteItem,
+      ];
+    });
+    this.memberSearchService.search(query);
+
+    return {
+      // TODO: i18n
+      name: 'Mention Member',
+      items,
+      loading,
+    };
+  }
+
   private getMenusFn(): LinkedWidgetConfig['getMenus'] {
     return (query, close, editorHost, inlineEditor, abortSignal) => {
       return [
+        this.memberGroup(query, close, inlineEditor, abortSignal),
         this.journalGroup(query, close, inlineEditor),
         this.linkToDocGroup(query, close, inlineEditor, abortSignal),
         this.newDocMenuGroup(query, close, editorHost, inlineEditor),

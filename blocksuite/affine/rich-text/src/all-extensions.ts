@@ -2,6 +2,7 @@ import type { ExtensionType } from '@blocksuite/store';
 
 import { InlineManagerExtension } from './extension/index.js';
 import {
+  AffineMemberInlineSpecExtension,
   BackgroundInlineSpecExtension,
   BoldInlineSpecExtension,
   CodeInlineSpecExtension,
@@ -33,6 +34,7 @@ export const DefaultInlineManagerExtension = InlineManagerExtension({
     ReferenceInlineSpecExtension.identifier,
     LinkInlineSpecExtension.identifier,
     FootNoteInlineSpecExtension.identifier,
+    AffineMemberInlineSpecExtension.identifier,
   ],
 });
 
