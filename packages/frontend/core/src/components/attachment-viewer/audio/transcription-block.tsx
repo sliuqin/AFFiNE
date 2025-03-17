@@ -1,6 +1,5 @@
 import { createReactComponentFromLit } from '@affine/component';
 import { LitTranscriptionBlock } from '@affine/core/blocksuite/ai/blocks/ai-chat-block/ai-transcription-block';
-import type { BlockStdScope } from '@blocksuite/affine/block-std';
 import type { TranscriptionBlockModel } from '@blocksuite/affine/model';
 import { LiveData, useLiveData } from '@toeverything/infra';
 import React, { useCallback, useMemo } from 'react';
@@ -14,10 +13,8 @@ const AdaptedTranscriptionBlock = createReactComponentFromLit({
 
 export const TranscriptionBlock = ({
   block,
-  std,
 }: {
   block: TranscriptionBlockModel;
-  std: BlockStdScope;
 }) => {
   const childMap$ = useMemo(
     () => LiveData.fromSignal(block.childMap),
@@ -37,7 +34,7 @@ export const TranscriptionBlock = ({
       draggable="true"
       onDragStart={onDragStart}
     >
-      <AdaptedTranscriptionBlock blockId={block.id} std={std} />
+      <AdaptedTranscriptionBlock blockId={block.id} />
     </div>
   );
 };

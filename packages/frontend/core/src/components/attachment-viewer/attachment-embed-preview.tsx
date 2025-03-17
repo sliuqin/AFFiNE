@@ -7,21 +7,18 @@ import type { AttachmentViewerProps } from './types';
 import { getAttachmentType } from './utils';
 
 // In Embed view
-export const AttachmentEmbedPreview = ({
-  model,
-  std,
-}: AttachmentViewerProps) => {
+export const AttachmentEmbedPreview = ({ model }: AttachmentViewerProps) => {
   const attachmentType = getAttachmentType(model);
   const element = useMemo(() => {
     switch (attachmentType) {
       case 'pdf':
         return <PDFViewerEmbedded model={model} />;
       case 'audio':
-        return <AudioBlockEmbedded model={model} std={std} />;
+        return <AudioBlockEmbedded model={model} />;
       default:
         return null;
     }
-  }, [attachmentType, model, std]);
+  }, [attachmentType, model]);
   return (
     <AttachmentPreviewErrorBoundary>{element}</AttachmentPreviewErrorBoundary>
   );

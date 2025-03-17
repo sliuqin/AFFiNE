@@ -108,8 +108,8 @@ export const AudioBlockEmbedded = (props: AttachmentViewerProps) => {
       {audioAttachmentBlock && (
         <AttachmentAudioPlayer block={audioAttachmentBlock} />
       )}
-      {transcriptionBlock && expanded && props.std && (
-        <TranscriptionBlock block={transcriptionBlock} std={props.std} />
+      {transcriptionBlock && expanded && (
+        <TranscriptionBlock block={transcriptionBlock} />
       )}
     </div>
   );

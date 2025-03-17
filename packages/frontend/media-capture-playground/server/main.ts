@@ -874,26 +874,16 @@ app.post(
         return res.status(400).json({ error: 'No audio file provided' });
       }
 
-      const tempAudioPath = req.file.path;
-
       // Notify clients that transcription has started
       io.emit('apps:recording-transcription-start', { filename: 'temp' });
 
-      const transcription = await gemini(tempAudioPath, {
+      const transcription = await gemini(req.file.path, {
         mode: 'transcript',
       });
-
-      // Clean up temporary file
-      await fs.remove(tempAudioPath);
 
       res.json({ success: true, transcription });
     } catch (error) {
       console.error('❌ Error during transcription:', error);
-
-      // Clean up temporary file if it exists
-      if (req.file?.path) {
-        await fs.remove(req.file.path).catch(console.error);
-      }
 
       // Notify clients of transcription error
       io.emit('apps:recording-transcription-end', {

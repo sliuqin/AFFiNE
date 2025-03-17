@@ -28,8 +28,8 @@ export function patchForPDFEmbedView(
             xywh: bound.serialize(),
           });
         },
-        template: (model, std, _blobUrl) =>
-          reactToLit(<AttachmentEmbedPreview model={model} std={std} />, false),
+        template: (model, _blobUrl) =>
+          reactToLit(<AttachmentEmbedPreview model={model} />, false),
       }));
     },
   };
@@ -46,13 +46,10 @@ export function patchForAudioEmbedView(
       di.override(AttachmentEmbedConfigIdentifier('audio'), () => ({
         name: 'audio',
         check: (model, maxFileSize) =>
-          (model.props.type.startsWith('audio/') ||
-            ['mp3', 'wav', 'ogg', 'flac', 'm4a'].some(ext =>
-              model.props.name.toLowerCase().endsWith(`.${ext}`)
-            )) &&
+          model.props.type.startsWith('audio/') &&
           model.props.size <= maxFileSize,
-        template: (model, std, _blobUrl) =>
-          reactToLit(<AttachmentEmbedPreview model={model} std={std} />, false),
+        template: (model, _blobUrl) =>
+          reactToLit(<AttachmentEmbedPreview model={model} />, false),
       }));
     },
   };

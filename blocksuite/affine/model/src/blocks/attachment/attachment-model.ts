@@ -77,7 +77,7 @@ export const AttachmentBlockSchema = defineBlockSchema({
   props: (): AttachmentBlockProps => defaultAttachmentProps,
   metadata: {
     version: 1,
-    role: 'hub',
+    role: 'content',
     parent: [
       'affine:note',
       'affine:surface',

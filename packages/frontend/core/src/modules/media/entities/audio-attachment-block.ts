@@ -33,6 +33,11 @@ export interface TranscriptionResult {
   }[];
 }
 
+// BlockSuiteError: yText must not contain "\r" because it will break the range synchronization
+function sanitizeText(text: string) {
+  return text.replace(/\r/g, '');
+}
+
 export class AudioAttachmentBlock extends Entity<AttachmentBlockModel> {
   private readonly refCount$ = new LiveData<number>(0);
   readonly audioMedia: AudioMedia;
@@ -157,14 +162,14 @@ export class AudioAttachmentBlock extends Entity<AttachmentBlockModel> {
       }
       const deltaInserts: DeltaInsert<AffineTextAttributes>[] = [
         {
-          insert: segment.start_time + ' ' + segment.speaker,
+          insert: sanitizeText(segment.start_time + ' ' + segment.speaker),
           attributes: {
             color,
             bold: true,
           },
         },
         {
-          insert: ': ' + segment.transcription,
+          insert: ': ' + sanitizeText(segment.transcription),
         },
       ];
       this.props.doc.addBlock(
