@@ -1,10 +1,10 @@
+import type { ImageSelection } from '@blocksuite/affine/shared/selection';
+import { NotificationProvider } from '@blocksuite/affine/shared/services';
 import type {
   BlockSelection,
   EditorHost,
   TextSelection,
-} from '@blocksuite/affine/block-std';
-import type { ImageSelection } from '@blocksuite/affine/shared/selection';
-import { NotificationProvider } from '@blocksuite/affine/shared/services';
+} from '@blocksuite/affine/std';
 import { css, html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';

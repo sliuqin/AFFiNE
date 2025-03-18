@@ -1,8 +1,4 @@
 import {
-  BlockViewExtension,
-  FlavourExtension,
-} from '@blocksuite/affine/block-std';
-import {
   MindMapView,
   SurfaceBlockSchema,
 } from '@blocksuite/affine/blocks/surface';
@@ -11,6 +7,7 @@ import {
   DocModeService,
   ThemeService,
 } from '@blocksuite/affine/shared/services';
+import { BlockViewExtension, FlavourExtension } from '@blocksuite/affine/std';
 import type { BlockSchema, ExtensionType } from '@blocksuite/affine/store';
 import { literal } from 'lit/static-html.js';
 import type { z } from 'zod';

@@ -1,9 +1,6 @@
 import { EmbedHtmlBlockSchema } from '@blocksuite/affine-model';
 import { ToolbarModuleExtension } from '@blocksuite/affine-shared/services';
-import {
-  BlockFlavourIdentifier,
-  BlockViewExtension,
-} from '@blocksuite/block-std';
+import { BlockFlavourIdentifier, BlockViewExtension } from '@blocksuite/std';
 import type { ExtensionType } from '@blocksuite/store';
 import { literal } from 'lit/static-html.js';
 

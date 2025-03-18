@@ -1,9 +1,9 @@
 import './action-wrapper';
 
-import type { EditorHost } from '@blocksuite/affine/block-std';
-import { ShadowlessElement } from '@blocksuite/affine/block-std';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import type { SpecBuilder } from '@blocksuite/affine/shared/utils';
+import type { EditorHost } from '@blocksuite/affine/std';
+import { ShadowlessElement } from '@blocksuite/affine/std';
 import { html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 

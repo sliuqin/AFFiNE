@@ -1,11 +1,6 @@
 import { createLitPortal } from '@blocksuite/affine-components/portal';
 import { unsafeCSSVar, unsafeCSSVarV2 } from '@blocksuite/affine-shared/theme';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
-import {
-  type BlockComponent,
-  type BlockStdScope,
-  ShadowlessElement,
-} from '@blocksuite/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import {
   type DeltaInsert,
@@ -13,6 +8,11 @@ import {
   ZERO_WIDTH_NON_JOINER,
   ZERO_WIDTH_SPACE,
 } from '@blocksuite/inline';
+import {
+  type BlockComponent,
+  type BlockStdScope,
+  ShadowlessElement,
+} from '@blocksuite/std';
 import { signal } from '@preact/signals-core';
 import katex from 'katex';
 import { css, html, render } from 'lit';

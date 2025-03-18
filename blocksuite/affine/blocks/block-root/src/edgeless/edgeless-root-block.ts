@@ -28,18 +28,18 @@ import {
   requestConnectedFrame,
   requestThrottledConnectedFrame,
 } from '@blocksuite/affine-shared/utils';
+import { IS_WINDOWS } from '@blocksuite/global/env';
+import { Bound, Point, Vec } from '@blocksuite/global/gfx';
 import {
   BlockComponent,
   type GfxBlockComponent,
   SurfaceSelection,
   type UIEventHandler,
-} from '@blocksuite/block-std';
+} from '@blocksuite/std';
 import {
   GfxControllerIdentifier,
   type GfxViewportElement,
-} from '@blocksuite/block-std/gfx';
-import { IS_WINDOWS } from '@blocksuite/global/env';
-import { Bound, Point, Vec } from '@blocksuite/global/gfx';
+} from '@blocksuite/std/gfx';
 import { effect } from '@preact/signals-core';
 import { css, html } from 'lit';
 import { query } from 'lit/decorators.js';

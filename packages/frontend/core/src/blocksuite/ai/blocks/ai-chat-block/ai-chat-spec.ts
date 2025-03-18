@@ -1,4 +1,4 @@
-import { BlockViewExtension } from '@blocksuite/affine/block-std';
+import { BlockViewExtension } from '@blocksuite/affine/std';
 import type { ExtensionType } from '@blocksuite/affine/store';
 import { literal } from 'lit/static-html.js';
 

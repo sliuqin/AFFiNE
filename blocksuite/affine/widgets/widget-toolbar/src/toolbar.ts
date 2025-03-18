@@ -17,15 +17,15 @@ import {
   ToolbarRegistryIdentifier,
 } from '@blocksuite/affine-shared/services';
 import { matchModels } from '@blocksuite/affine-shared/utils';
+import { Bound, getCommonBound } from '@blocksuite/global/gfx';
+import { nextTick } from '@blocksuite/global/utils';
 import {
   BlockSelection,
   SurfaceSelection,
   TextSelection,
   WidgetComponent,
-} from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { Bound, getCommonBound } from '@blocksuite/global/gfx';
-import { nextTick } from '@blocksuite/global/utils';
+} from '@blocksuite/std';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 import type { Placement, ReferenceElement } from '@floating-ui/dom';
 import { batch, effect, signal } from '@preact/signals-core';
 import { css } from 'lit';

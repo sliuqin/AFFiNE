@@ -20,10 +20,6 @@ import {
   TelemetryProvider,
 } from '@blocksuite/affine-shared/services';
 import {
-  type BlockComponent,
-  RANGE_SYNC_EXCLUDE_ATTR,
-} from '@blocksuite/block-std';
-import {
   createRecordDetail,
   createUniComponentFromWebComponent,
   type DataSource,
@@ -39,6 +35,7 @@ import {
 } from '@blocksuite/data-view';
 import { widgetPresets } from '@blocksuite/data-view/widget-presets';
 import { MoreHorizontalIcon } from '@blocksuite/icons/lit';
+import { type BlockComponent, RANGE_SYNC_EXCLUDE_ATTR } from '@blocksuite/std';
 import { Slice } from '@blocksuite/store';
 import { computed, signal } from '@preact/signals-core';
 import { css, nothing, unsafeCSS } from 'lit';

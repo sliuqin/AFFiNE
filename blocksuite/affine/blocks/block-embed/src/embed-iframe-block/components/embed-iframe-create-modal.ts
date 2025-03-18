@@ -1,8 +1,8 @@
 import { unsafeCSSVar, unsafeCSSVarV2 } from '@blocksuite/affine-shared/theme';
 import { isValidUrl, stopPropagation } from '@blocksuite/affine-shared/utils';
-import type { BlockStdScope } from '@blocksuite/block-std';
 import { WithDisposable } from '@blocksuite/global/lit';
 import { CloseIcon, EmbedIcon } from '@blocksuite/icons/lit';
+import type { BlockStdScope } from '@blocksuite/std';
 import type { BlockModel } from '@blocksuite/store';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query, state } from 'lit/decorators.js';

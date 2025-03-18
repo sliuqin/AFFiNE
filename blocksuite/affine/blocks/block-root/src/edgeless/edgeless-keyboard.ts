@@ -20,16 +20,16 @@ import {
 } from '@blocksuite/affine-shared/services';
 import { LassoMode } from '@blocksuite/affine-shared/types';
 import { matchModels } from '@blocksuite/affine-shared/utils';
-import { SurfaceSelection, TextSelection } from '@blocksuite/block-std';
+import { IS_MAC } from '@blocksuite/global/env';
+import { Bound, getCommonBound } from '@blocksuite/global/gfx';
+import { SurfaceSelection, TextSelection } from '@blocksuite/std';
 import {
   GfxBlockElementModel,
   type GfxPrimitiveElementModel,
   type GfxToolsMap,
   type GfxToolsOption,
   isGfxGroupCompatibleModel,
-} from '@blocksuite/block-std/gfx';
-import { IS_MAC } from '@blocksuite/global/env';
-import { Bound, getCommonBound } from '@blocksuite/global/gfx';
+} from '@blocksuite/std/gfx';
 
 import { PageKeyboardManager } from '../keyboard/keyboard-manager.js';
 import type { EdgelessRootBlockComponent } from './edgeless-root-block.js';

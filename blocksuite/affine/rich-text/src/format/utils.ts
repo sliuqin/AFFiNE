@@ -5,18 +5,18 @@ import {
 } from '@blocksuite/affine-shared/commands';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import {
-  BLOCK_ID_ATTR,
-  type BlockComponent,
-  type Chain,
-  type EditorHost,
-  type InitCommandCtx,
-} from '@blocksuite/block-std';
-import {
   INLINE_ROOT_ATTR,
   type InlineEditor,
   type InlineRange,
   type InlineRootElement,
 } from '@blocksuite/inline';
+import {
+  BLOCK_ID_ATTR,
+  type BlockComponent,
+  type Chain,
+  type EditorHost,
+  type InitCommandCtx,
+} from '@blocksuite/std';
 import type { BlockModel } from '@blocksuite/store';
 import { effect } from '@preact/signals-core';
 

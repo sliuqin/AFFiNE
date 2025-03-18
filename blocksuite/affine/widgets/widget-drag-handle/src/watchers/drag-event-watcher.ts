@@ -31,12 +31,20 @@ import {
   matchModels,
 } from '@blocksuite/affine-shared/utils';
 import {
+  Bound,
+  type IVec,
+  Point,
+  Rect,
+  type SerializedXYWH,
+} from '@blocksuite/global/gfx';
+import { assertType } from '@blocksuite/global/utils';
+import {
   BlockComponent,
   type BlockStdScope,
   type DragFromBlockSuite,
   type DragPayload,
   type DropPayload,
-} from '@blocksuite/block-std';
+} from '@blocksuite/std';
 import {
   GfxBlockElementModel,
   GfxControllerIdentifier,
@@ -46,15 +54,7 @@ import {
   isGfxGroupCompatibleModel,
   SURFACE_YMAP_UNIQ_IDENTIFIER,
   SurfaceBlockModel,
-} from '@blocksuite/block-std/gfx';
-import {
-  Bound,
-  type IVec,
-  Point,
-  Rect,
-  type SerializedXYWH,
-} from '@blocksuite/global/gfx';
-import { assertType } from '@blocksuite/global/utils';
+} from '@blocksuite/std/gfx';
 import {
   type BlockModel,
   type BlockSnapshot,
@@ -92,7 +92,7 @@ export type DragBlockEntity = {
 
 export type DragBlockPayload = DragPayload<DragBlockEntity, DragFromBlockSuite>;
 
-declare module '@blocksuite/block-std' {
+declare module '@blocksuite/std' {
   interface DNDEntity {
     blocks: DragBlockPayload;
   }

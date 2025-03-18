@@ -1,5 +1,5 @@
-import type { EditorHost } from '@blocksuite/affine/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
+import type { EditorHost } from '@blocksuite/affine/std';
+import { GfxControllerIdentifier } from '@blocksuite/affine/std/gfx';
 import type { BlockSnapshot } from '@blocksuite/affine/store';
 
 import { markdownToSnapshot } from '../../utils';

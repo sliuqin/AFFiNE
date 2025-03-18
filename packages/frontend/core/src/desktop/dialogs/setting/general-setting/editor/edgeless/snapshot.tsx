@@ -1,16 +1,16 @@
 import { Skeleton } from '@affine/component';
 import type { EditorSettingSchema } from '@affine/core/modules/editor-setting';
 import { EditorSettingService } from '@affine/core/modules/editor-setting';
-import type { EditorHost } from '@blocksuite/affine/block-std';
-import { BlockStdScope } from '@blocksuite/affine/block-std';
-import {
-  GfxControllerIdentifier,
-  type GfxPrimitiveElementModel,
-} from '@blocksuite/affine/block-std/gfx';
 import { EdgelessCRUDIdentifier } from '@blocksuite/affine/blocks/surface';
 import { Bound } from '@blocksuite/affine/global/gfx';
 import { ViewportElementExtension } from '@blocksuite/affine/shared/services';
 import { SpecProvider } from '@blocksuite/affine/shared/utils';
+import type { EditorHost } from '@blocksuite/affine/std';
+import { BlockStdScope } from '@blocksuite/affine/std';
+import {
+  GfxControllerIdentifier,
+  type GfxPrimitiveElementModel,
+} from '@blocksuite/affine/std/gfx';
 import type { Block, Store } from '@blocksuite/affine/store';
 import { useFramework } from '@toeverything/infra';
 import { isEqual } from 'lodash-es';

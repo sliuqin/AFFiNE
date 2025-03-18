@@ -5,7 +5,7 @@ import {
   BlockServiceIdentifier,
   BlockViewExtension,
   FlavourExtension,
-} from '@blocksuite/block-std';
+} from '@blocksuite/std';
 import type { ExtensionType } from '@blocksuite/store';
 import { literal } from 'lit/static-html.js';
 

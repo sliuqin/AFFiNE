@@ -49,9 +49,9 @@ import { effects as widgetRemoteSelectionEffects } from '@blocksuite/affine-widg
 import { effects as widgetScrollAnchoringEffects } from '@blocksuite/affine-widget-scroll-anchoring/effects';
 import { effects as widgetSlashMenuEffects } from '@blocksuite/affine-widget-slash-menu/effects';
 import { effects as widgetToolbarEffects } from '@blocksuite/affine-widget-toolbar/effects';
-import { effects as stdEffects } from '@blocksuite/block-std/effects';
 import { effects as dataViewEffects } from '@blocksuite/data-view/effects';
 import { effects as inlineEffects } from '@blocksuite/inline/effects';
+import { effects as stdEffects } from '@blocksuite/std/effects';
 
 import { registerSpecs } from './extensions/register.js';
 

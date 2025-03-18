@@ -1,5 +1,4 @@
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
-import { type BlockStdScope, StdIdentifier } from '@blocksuite/block-std';
 import {
   createIdentifier,
   type ServiceIdentifier,
@@ -10,6 +9,7 @@ import {
   type DeltaInsert,
   getDefaultAttributeRenderer,
 } from '@blocksuite/inline';
+import { type BlockStdScope, StdIdentifier } from '@blocksuite/std';
 import type { ExtensionType } from '@blocksuite/store';
 import { z, type ZodObject, type ZodTypeAny } from 'zod';
 

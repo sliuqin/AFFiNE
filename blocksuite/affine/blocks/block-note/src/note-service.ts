@@ -24,7 +24,7 @@ import {
   TextSelection,
   type UIEventHandler,
   type UIEventStateContext,
-} from '@blocksuite/block-std';
+} from '@blocksuite/std';
 import type { BaseSelection, BlockModel } from '@blocksuite/store';
 
 import {

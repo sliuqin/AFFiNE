@@ -1,9 +1,3 @@
-import { type EditorHost, TextSelection } from '@blocksuite/affine/block-std';
-import {
-  GfxBlockElementModel,
-  type GfxModel,
-  LayerManager,
-} from '@blocksuite/affine/block-std/gfx';
 import { uploadBlobForImage } from '@blocksuite/affine/blocks/image';
 import {
   fitContent,
@@ -16,6 +10,12 @@ import type {
   ShapeElementModel,
 } from '@blocksuite/affine/model';
 import { TelemetryProvider } from '@blocksuite/affine/shared/services';
+import { type EditorHost, TextSelection } from '@blocksuite/affine/std';
+import {
+  GfxBlockElementModel,
+  type GfxModel,
+  LayerManager,
+} from '@blocksuite/affine/std/gfx';
 import { type BlockProps, Text } from '@blocksuite/affine/store';
 import * as Y from 'yjs';
 

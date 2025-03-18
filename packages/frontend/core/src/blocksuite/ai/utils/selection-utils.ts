@@ -1,8 +1,3 @@
-import { type EditorHost, TextSelection } from '@blocksuite/affine/block-std';
-import {
-  GfxControllerIdentifier,
-  type GfxModel,
-} from '@blocksuite/affine/block-std/gfx';
 import { isCanvasElement, splitElements } from '@blocksuite/affine/blocks/root';
 import {
   getSurfaceBlock,
@@ -21,6 +16,11 @@ import {
   getTextSelectionCommand,
 } from '@blocksuite/affine/shared/commands';
 import { matchModels } from '@blocksuite/affine/shared/utils';
+import { type EditorHost, TextSelection } from '@blocksuite/affine/std';
+import {
+  GfxControllerIdentifier,
+  type GfxModel,
+} from '@blocksuite/affine/std/gfx';
 import {
   type BlockModel,
   type DraftModel,

@@ -1,5 +1,3 @@
-import type { EditorHost } from '@blocksuite/affine/block-std';
-import { ShadowlessElement } from '@blocksuite/affine/block-std';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import {
   DocModeProvider,
@@ -9,6 +7,8 @@ import {
   isInsidePageEditor,
   type SpecBuilder,
 } from '@blocksuite/affine/shared/utils';
+import type { EditorHost } from '@blocksuite/affine/std';
+import { ShadowlessElement } from '@blocksuite/affine/std';
 import type { BaseSelection } from '@blocksuite/affine/store';
 import {
   AiIcon,

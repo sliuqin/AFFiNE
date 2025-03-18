@@ -5,12 +5,9 @@ import {
   type AffineFrameTitleWidget,
   frameTitleStyleVars,
 } from '@blocksuite/affine-widget-frame-title';
-import {
-  RANGE_SYNC_EXCLUDE_ATTR,
-  ShadowlessElement,
-} from '@blocksuite/block-std';
 import { Bound } from '@blocksuite/global/gfx';
 import { WithDisposable } from '@blocksuite/global/lit';
+import { RANGE_SYNC_EXCLUDE_ATTR, ShadowlessElement } from '@blocksuite/std';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { css, html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';

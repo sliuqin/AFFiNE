@@ -2,14 +2,14 @@ import {
   EdgelessCRUDIdentifier,
   SurfaceBlockComponent,
 } from '@blocksuite/affine-block-surface';
+import { Bound, Vec } from '@blocksuite/global/gfx';
 import {
   BlockSelection,
   type Command,
   SurfaceSelection,
   TextSelection,
-} from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { Bound, Vec } from '@blocksuite/global/gfx';
+} from '@blocksuite/std';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 
 import {
   EMBED_IFRAME_DEFAULT_HEIGHT_IN_SURFACE,

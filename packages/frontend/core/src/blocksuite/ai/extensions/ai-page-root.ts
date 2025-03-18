@@ -1,9 +1,9 @@
+import { PageRootBlockSpec } from '@blocksuite/affine/blocks/root';
+import { ToolbarModuleExtension } from '@blocksuite/affine/shared/services';
 import {
   BlockFlavourIdentifier,
   LifeCycleWatcher,
-} from '@blocksuite/affine/block-std';
-import { PageRootBlockSpec } from '@blocksuite/affine/blocks/root';
-import { ToolbarModuleExtension } from '@blocksuite/affine/shared/services';
+} from '@blocksuite/affine/std';
 import type { ExtensionType } from '@blocksuite/affine/store';
 import type { FrameworkProvider } from '@toeverything/infra';
 

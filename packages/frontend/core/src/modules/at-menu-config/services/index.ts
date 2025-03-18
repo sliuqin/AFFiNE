@@ -1,6 +1,5 @@
 import { I18n, i18nTime } from '@affine/i18n';
 import track from '@affine/track';
-import type { EditorHost } from '@blocksuite/affine/block-std';
 import {
   type LinkedMenuGroup,
   type LinkedMenuItem,
@@ -9,6 +8,7 @@ import {
 } from '@blocksuite/affine/blocks/root';
 import type { DocMode } from '@blocksuite/affine/model';
 import type { AffineInlineEditor } from '@blocksuite/affine/rich-text';
+import type { EditorHost } from '@blocksuite/affine/std';
 import type { DocMeta } from '@blocksuite/affine/store';
 import { Text } from '@blocksuite/affine/store';
 import {

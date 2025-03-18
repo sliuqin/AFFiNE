@@ -4,8 +4,6 @@ import {
   type SurfaceBlockComponent,
 } from '@blocksuite/affine-block-surface';
 import { isTopLevelBlock } from '@blocksuite/affine-shared/utils';
-import type { PointerEventState } from '@blocksuite/block-std';
-import { BaseTool, type GfxModel } from '@blocksuite/block-std/gfx';
 import {
   Bound,
   getStroke,
@@ -13,6 +11,8 @@ import {
   type IVec,
   linePolygonIntersects,
 } from '@blocksuite/global/gfx';
+import type { PointerEventState } from '@blocksuite/std';
+import { BaseTool, type GfxModel } from '@blocksuite/std/gfx';
 
 class EraserOverlay extends Overlay {
   d = '';
@@ -156,7 +156,7 @@ export class EraserTool extends BaseTool {
   }
 }
 
-declare module '@blocksuite/block-std/gfx' {
+declare module '@blocksuite/std/gfx' {
   interface GfxToolsMap {
     eraser: EraserTool;
   }

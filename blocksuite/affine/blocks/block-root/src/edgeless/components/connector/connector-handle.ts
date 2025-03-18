@@ -3,15 +3,11 @@ import {
   OverlayIdentifier,
 } from '@blocksuite/affine-block-surface';
 import type { ConnectorElementModel } from '@blocksuite/affine-model';
-import {
-  type BlockStdScope,
-  docContext,
-  stdContext,
-} from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
 import { DisposableGroup } from '@blocksuite/global/disposable';
 import { Vec } from '@blocksuite/global/gfx';
 import { WithDisposable } from '@blocksuite/global/lit';
+import { type BlockStdScope, docContext, stdContext } from '@blocksuite/std';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 import type { Store } from '@blocksuite/store';
 import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';

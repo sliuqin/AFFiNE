@@ -1,5 +1,4 @@
 import { WorkspaceImpl } from '@affine/core/modules/workspace/impls/workspace.js';
-import { BlockStdScope, type EditorHost } from '@blocksuite/affine/block-std';
 import {
   MindmapStyleFour,
   MindmapStyleOne,
@@ -14,6 +13,7 @@ import {
   MindmapStyle,
 } from '@blocksuite/affine/model';
 import { MarkdownAdapter } from '@blocksuite/affine/shared/adapters';
+import { BlockStdScope, type EditorHost } from '@blocksuite/affine/std';
 import { Schema, type Store } from '@blocksuite/affine/store';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';

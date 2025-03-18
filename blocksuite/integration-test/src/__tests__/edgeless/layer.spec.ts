@@ -4,8 +4,8 @@ import type {
   GroupElementModel,
   NoteBlockModel,
 } from '@blocksuite/affine/model';
-import type { BlockComponent } from '@blocksuite/block-std';
-import { generateKeyBetween } from '@blocksuite/block-std/gfx';
+import type { BlockComponent } from '@blocksuite/std';
+import { generateKeyBetween } from '@blocksuite/std/gfx';
 import type { BlockModel, Store } from '@blocksuite/store';
 import { beforeEach, describe, expect, test } from 'vitest';
 import * as Y from 'yjs';

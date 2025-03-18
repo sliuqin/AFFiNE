@@ -1,10 +1,5 @@
 import './declare-test-window.js';
 
-import type {
-  BlockComponent,
-  EditorHost,
-  TextSelection,
-} from '@blocksuite/affine/block-std';
 import type { EdgelessNoteBackground } from '@blocksuite/affine/blocks/note';
 import type { InlineRootElement } from '@blocksuite/affine/inline';
 import type { NoteBlockModel, RootBlockModel } from '@blocksuite/affine/model';
@@ -12,6 +7,11 @@ import type {
   AffineInlineEditor,
   RichText,
 } from '@blocksuite/affine/rich-text';
+import type {
+  BlockComponent,
+  EditorHost,
+  TextSelection,
+} from '@blocksuite/affine/std';
 import type { BlockModel } from '@blocksuite/affine/store';
 import { expect, type Locator, type Page } from '@playwright/test';
 

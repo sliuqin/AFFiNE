@@ -1,13 +1,13 @@
+import { defaultImageProxyMiddleware } from '@blocksuite/affine/blocks/image';
+import { deleteTextCommand } from '@blocksuite/affine/rich-text';
+import { isInsideEdgelessEditor } from '@blocksuite/affine/shared/utils';
 import {
   type BlockComponent,
   BlockSelection,
   type EditorHost,
   SurfaceSelection,
   type TextSelection,
-} from '@blocksuite/affine/block-std';
-import { defaultImageProxyMiddleware } from '@blocksuite/affine/blocks/image';
-import { deleteTextCommand } from '@blocksuite/affine/rich-text';
-import { isInsideEdgelessEditor } from '@blocksuite/affine/shared/utils';
+} from '@blocksuite/affine/std';
 import { type BlockModel, Slice } from '@blocksuite/affine/store';
 
 import {

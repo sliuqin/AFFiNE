@@ -1,5 +1,5 @@
-import type { GfxPrimitiveElementModel } from '@blocksuite/block-std/gfx';
 import type { IBound } from '@blocksuite/global/gfx';
+import type { GfxPrimitiveElementModel } from '@blocksuite/std/gfx';
 
 import type { RoughCanvas } from '../../index.js';
 import type { CanvasRenderer } from '../canvas-renderer.js';

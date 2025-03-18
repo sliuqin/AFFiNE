@@ -1,5 +1,4 @@
 import { DocDisplayMetaService } from '@affine/core/modules/doc-display-meta';
-import { LifeCycleWatcher, StdIdentifier } from '@blocksuite/affine/block-std';
 import type { Container } from '@blocksuite/affine/global/di';
 import type {
   DocDisplayMetaExtension,
@@ -11,6 +10,7 @@ import {
   referenceToNode,
   type Signal,
 } from '@blocksuite/affine/shared/utils';
+import { LifeCycleWatcher, StdIdentifier } from '@blocksuite/affine/std';
 import { LinkedPageIcon, PageIcon } from '@blocksuite/icons/lit';
 import { type FrameworkProvider } from '@toeverything/infra';
 import type { TemplateResult } from 'lit';

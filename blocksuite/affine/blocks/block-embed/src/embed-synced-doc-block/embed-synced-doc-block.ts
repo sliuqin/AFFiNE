@@ -24,17 +24,14 @@ import {
   cloneReferenceInfo,
   SpecProvider,
 } from '@blocksuite/affine-shared/utils';
+import { Bound, getCommonBound } from '@blocksuite/global/gfx';
 import {
   BlockSelection,
   BlockStdScope,
   type EditorHost,
   LifeCycleWatcher,
-} from '@blocksuite/block-std';
-import {
-  GfxControllerIdentifier,
-  GfxExtension,
-} from '@blocksuite/block-std/gfx';
-import { Bound, getCommonBound } from '@blocksuite/global/gfx';
+} from '@blocksuite/std';
+import { GfxControllerIdentifier, GfxExtension } from '@blocksuite/std/gfx';
 import { type GetBlocksOptions, type Query, Text } from '@blocksuite/store';
 import { computed, signal } from '@preact/signals-core';
 import { html, nothing, type PropertyValues } from 'lit';

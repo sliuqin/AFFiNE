@@ -1,8 +1,8 @@
-import { LifeCycleWatcher } from '@blocksuite/affine/block-std';
 import {
   ParagraphBlockService,
   ParagraphBlockSpec,
 } from '@blocksuite/affine/blocks/paragraph';
+import { LifeCycleWatcher } from '@blocksuite/affine/std';
 import type { ExtensionType } from '@blocksuite/affine/store';
 
 class AIParagraphBlockWatcher extends LifeCycleWatcher {

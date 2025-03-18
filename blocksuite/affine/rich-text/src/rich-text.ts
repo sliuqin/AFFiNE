@@ -1,5 +1,4 @@
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
-import { ShadowlessElement } from '@blocksuite/block-std';
 import { WithDisposable } from '@blocksuite/global/lit';
 import {
   type AttributeRenderer,
@@ -9,6 +8,7 @@ import {
   type InlineRangeProvider,
   type VLine,
 } from '@blocksuite/inline';
+import { ShadowlessElement } from '@blocksuite/std';
 import { Text } from '@blocksuite/store';
 import { effect, signal } from '@preact/signals-core';
 import { css, html, type TemplateResult } from 'lit';

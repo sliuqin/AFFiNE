@@ -6,7 +6,7 @@ import {
   StrikethroughIcon,
   UnderlineIcon,
 } from '@blocksuite/affine-components/icons';
-import { type EditorHost, TextSelection } from '@blocksuite/block-std';
+import { type EditorHost, TextSelection } from '@blocksuite/std';
 import type { TemplateResult } from 'lit';
 
 import {

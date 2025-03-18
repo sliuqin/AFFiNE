@@ -1,7 +1,7 @@
-import { BlockStdScope, ShadowlessElement } from '@blocksuite/affine/block-std';
 import { EdgelessEditorBlockSpecs } from '@blocksuite/affine/extensions';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { ThemeProvider } from '@blocksuite/affine/shared/services';
+import { BlockStdScope, ShadowlessElement } from '@blocksuite/affine/std';
 import type { Store } from '@blocksuite/affine/store';
 import { css, html, nothing, type TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';

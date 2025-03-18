@@ -8,7 +8,7 @@ import {
   FeatureFlagService,
   QuickSearchProvider,
 } from '@blocksuite/affine-shared/services';
-import type { Command } from '@blocksuite/block-std';
+import type { Command } from '@blocksuite/std';
 
 import { insertBookmarkCommand } from './insert-bookmark';
 

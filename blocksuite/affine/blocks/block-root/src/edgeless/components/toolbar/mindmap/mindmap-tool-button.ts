@@ -8,9 +8,9 @@ import {
   ThemeProvider,
   ViewportElementProvider,
 } from '@blocksuite/affine-shared/services';
-import type { GfxToolsFullOptionValue } from '@blocksuite/block-std/gfx';
 import type { Bound } from '@blocksuite/global/gfx';
 import { SignalWatcher } from '@blocksuite/global/lit';
+import type { GfxToolsFullOptionValue } from '@blocksuite/std/gfx';
 import { computed } from '@preact/signals-core';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query, state } from 'lit/decorators.js';

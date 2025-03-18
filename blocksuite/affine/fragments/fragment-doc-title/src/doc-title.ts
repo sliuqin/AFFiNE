@@ -8,8 +8,8 @@ import {
 } from '@blocksuite/affine-model';
 import { focusTextModel, type RichText } from '@blocksuite/affine-rich-text';
 import { matchModels } from '@blocksuite/affine-shared/utils';
-import { ShadowlessElement } from '@blocksuite/block-std';
 import { WithDisposable } from '@blocksuite/global/lit';
+import { ShadowlessElement } from '@blocksuite/std';
 import type { Store } from '@blocksuite/store';
 import { effect } from '@preact/signals-core';
 import { css, html } from 'lit';

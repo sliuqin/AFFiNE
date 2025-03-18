@@ -45,10 +45,10 @@
     "@blocksuite/affine-widget-scroll-anchoring": "workspace:*",
     "@blocksuite/affine-widget-slash-menu": "workspace:*",
     "@blocksuite/affine-widget-toolbar": "workspace:*",
-    "@blocksuite/block-std": "workspace:*",
     "@blocksuite/data-view": "workspace:*",
     "@blocksuite/global": "workspace:*",
     "@blocksuite/inline": "workspace:*",
+    "@blocksuite/std": "workspace:*",
     "@blocksuite/store": "workspace:*",
     "@blocksuite/sync": "workspace:*",
     "rxjs": "^7.8.1"
@@ -56,8 +56,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./effects": "./src/effects.ts",
-    "./block-std": "./src/block-std/index.ts",
-    "./block-std/gfx": "./src/block-std/gfx.ts",
+    "./std": "./src/std/index.ts",
+    "./std/gfx": "./src/std/gfx.ts",
     "./global": "./src/global/index.ts",
     "./global/utils": "./src/global/utils.ts",
     "./global/env": "./src/global/env.ts",

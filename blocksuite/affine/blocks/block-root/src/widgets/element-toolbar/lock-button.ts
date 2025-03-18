@@ -6,10 +6,10 @@ import {
   type ElementLockEvent,
   TelemetryProvider,
 } from '@blocksuite/affine-shared/services';
-import type { BlockStdScope } from '@blocksuite/block-std';
-import type { GfxModel } from '@blocksuite/block-std/gfx';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { LockIcon, UnlockIcon } from '@blocksuite/icons/lit';
+import type { BlockStdScope } from '@blocksuite/std';
+import type { GfxModel } from '@blocksuite/std/gfx';
 import { html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 

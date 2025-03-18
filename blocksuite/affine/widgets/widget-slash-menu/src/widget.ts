@@ -2,10 +2,10 @@ import {
   type AffineInlineEditor,
   getInlineEditorByModel,
 } from '@blocksuite/affine-rich-text';
-import type { UIEventStateContext } from '@blocksuite/block-std';
-import { TextSelection, WidgetComponent } from '@blocksuite/block-std';
 import { DisposableGroup } from '@blocksuite/global/disposable';
 import { InlineEditor } from '@blocksuite/inline';
+import type { UIEventStateContext } from '@blocksuite/std';
+import { TextSelection, WidgetComponent } from '@blocksuite/std';
 import debounce from 'lodash-es/debounce';
 
 import { AFFINE_SLASH_MENU_TRIGGER_KEY } from './consts';

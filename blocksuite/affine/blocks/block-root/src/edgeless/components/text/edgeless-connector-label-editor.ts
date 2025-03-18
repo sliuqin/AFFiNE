@@ -6,12 +6,9 @@ import type { ConnectorElementModel } from '@blocksuite/affine-model';
 import type { RichText } from '@blocksuite/affine-rich-text';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
 import { almostEqual } from '@blocksuite/affine-shared/utils';
-import {
-  RANGE_SYNC_EXCLUDE_ATTR,
-  ShadowlessElement,
-} from '@blocksuite/block-std';
 import { Bound, Vec } from '@blocksuite/global/gfx';
 import { WithDisposable } from '@blocksuite/global/lit';
+import { RANGE_SYNC_EXCLUDE_ATTR, ShadowlessElement } from '@blocksuite/std';
 import { css, html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';

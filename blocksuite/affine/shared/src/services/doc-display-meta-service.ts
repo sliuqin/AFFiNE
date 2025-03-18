@@ -1,5 +1,4 @@
 import type { AliasInfo, ReferenceParams } from '@blocksuite/affine-model';
-import { LifeCycleWatcher, StdIdentifier } from '@blocksuite/block-std';
 import { type Container, createIdentifier } from '@blocksuite/global/di';
 import {
   type DisposableMember,
@@ -14,6 +13,7 @@ import {
   LinkedPageIcon,
   PageIcon,
 } from '@blocksuite/icons/lit';
+import { LifeCycleWatcher, StdIdentifier } from '@blocksuite/std';
 import type { Store } from '@blocksuite/store';
 import { computed, type Signal, signal } from '@preact/signals-core';
 import type { TemplateResult } from 'lit';

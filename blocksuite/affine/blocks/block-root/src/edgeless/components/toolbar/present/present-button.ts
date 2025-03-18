@@ -1,5 +1,5 @@
-import type { GfxToolsFullOptionValue } from '@blocksuite/block-std/gfx';
 import { PresentationIcon } from '@blocksuite/icons/lit';
+import type { GfxToolsFullOptionValue } from '@blocksuite/std/gfx';
 import { css, html, LitElement } from 'lit';
 
 import { QuickToolMixin } from '../mixins/quick-tool.mixin.js';

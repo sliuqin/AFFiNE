@@ -1,14 +1,14 @@
-import type {
-  BlockSelection,
-  EditorHost,
-  TextSelection,
-} from '@blocksuite/affine/block-std';
 import { Tooltip } from '@blocksuite/affine/components/toolbar';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { noop } from '@blocksuite/affine/global/utils';
 import { NotificationProvider } from '@blocksuite/affine/shared/services';
 import { unsafeCSSVarV2 } from '@blocksuite/affine/shared/theme';
 import { createButtonPopper } from '@blocksuite/affine/shared/utils';
+import type {
+  BlockSelection,
+  EditorHost,
+  TextSelection,
+} from '@blocksuite/affine/std';
 import { CopyIcon, MoreHorizontalIcon, ResetIcon } from '@blocksuite/icons/lit';
 import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 import { property, query, state } from 'lit/decorators.js';

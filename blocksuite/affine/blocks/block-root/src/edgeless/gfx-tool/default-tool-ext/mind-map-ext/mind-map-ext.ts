@@ -11,13 +11,13 @@ import {
   MindmapElementModel,
   type MindmapNode,
 } from '@blocksuite/affine-model';
-import type { PointerEventState } from '@blocksuite/block-std';
+import type { Bound, IVec } from '@blocksuite/global/gfx';
+import type { PointerEventState } from '@blocksuite/std';
 import {
   type GfxModel,
   type GfxPrimitiveElementModel,
   isGfxGroupCompatibleModel,
-} from '@blocksuite/block-std/gfx';
-import type { Bound, IVec } from '@blocksuite/global/gfx';
+} from '@blocksuite/std/gfx';
 
 import { isSingleMindMapNode } from '../../../utils/mindmap.js';
 import { isMindmapNode } from '../../../utils/query.js';

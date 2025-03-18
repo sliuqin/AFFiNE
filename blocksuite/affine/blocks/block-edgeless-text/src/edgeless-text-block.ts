@@ -7,13 +7,13 @@ import {
 import { formatBlockCommand } from '@blocksuite/affine-rich-text';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
 import { matchModels } from '@blocksuite/affine-shared/utils';
-import type { BlockComponent } from '@blocksuite/block-std';
+import { Bound } from '@blocksuite/global/gfx';
+import type { BlockComponent } from '@blocksuite/std';
 import {
   BlockSelection,
   GfxBlockComponent,
   TextSelection,
-} from '@blocksuite/block-std';
-import { Bound } from '@blocksuite/global/gfx';
+} from '@blocksuite/std';
 import { css, html } from 'lit';
 import { query, state } from 'lit/decorators.js';
 import { type StyleInfo, styleMap } from 'lit/directives/style-map.js';

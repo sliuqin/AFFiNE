@@ -3,16 +3,16 @@ import { isMindmapChild, isMindMapRoot } from '@affine/core/blocksuite/ai';
 import { EditorService } from '@affine/core/modules/editor';
 import { apis } from '@affine/electron-api';
 import { I18n } from '@affine/i18n';
-import type { BlockStdScope } from '@blocksuite/affine/block-std';
+import type { MenuContext } from '@blocksuite/affine/components/toolbar';
+import { Bound, getCommonBound } from '@blocksuite/affine/global/gfx';
+import type { BlockStdScope } from '@blocksuite/affine/std';
 import {
   type GfxBlockElementModel,
   GfxControllerIdentifier,
   type GfxModel,
   GfxPrimitiveElementModel,
   isGfxGroupCompatibleModel,
-} from '@blocksuite/affine/block-std/gfx';
-import type { MenuContext } from '@blocksuite/affine/components/toolbar';
-import { Bound, getCommonBound } from '@blocksuite/affine/global/gfx';
+} from '@blocksuite/affine/std/gfx';
 import { CopyAsImgaeIcon } from '@blocksuite/icons/lit';
 import type { FrameworkProvider } from '@toeverything/infra';
 

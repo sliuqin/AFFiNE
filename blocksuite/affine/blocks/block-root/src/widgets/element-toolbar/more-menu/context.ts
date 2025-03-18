@@ -8,7 +8,7 @@ import { getSelectedModelsCommand } from '@blocksuite/affine-shared/commands';
 import {
   GfxPrimitiveElementModel,
   type GfxSelectionManager,
-} from '@blocksuite/block-std/gfx';
+} from '@blocksuite/std/gfx';
 import type { BlockModel } from '@blocksuite/store';
 
 import type { EdgelessRootBlockComponent } from '../../../edgeless/edgeless-root-block.js';

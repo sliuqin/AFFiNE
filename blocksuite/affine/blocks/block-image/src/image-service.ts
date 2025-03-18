@@ -9,8 +9,8 @@ import {
   isInsideEdgelessEditor,
   matchModels,
 } from '@blocksuite/affine-shared/utils';
-import { BlockService } from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
+import { BlockService } from '@blocksuite/std';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 
 import { addImages, addSiblingImageBlock } from './utils.js';
 

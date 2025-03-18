@@ -5,12 +5,9 @@ import {
 } from '@blocksuite/affine-block-surface';
 import type { GroupElementModel } from '@blocksuite/affine-model';
 import type { RichText } from '@blocksuite/affine-rich-text';
-import {
-  RANGE_SYNC_EXCLUDE_ATTR,
-  ShadowlessElement,
-} from '@blocksuite/block-std';
 import { Bound } from '@blocksuite/global/gfx';
 import { WithDisposable } from '@blocksuite/global/lit';
+import { RANGE_SYNC_EXCLUDE_ATTR, ShadowlessElement } from '@blocksuite/std';
 import { html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';

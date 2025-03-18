@@ -1,5 +1,5 @@
 import { ViewportElementExtension } from '@blocksuite/affine-shared/services';
-import { BlockViewExtension, WidgetViewExtension } from '@blocksuite/block-std';
+import { BlockViewExtension, WidgetViewExtension } from '@blocksuite/std';
 import type { ExtensionType } from '@blocksuite/store';
 import { literal, unsafeStatic } from 'lit/static-html.js';
 

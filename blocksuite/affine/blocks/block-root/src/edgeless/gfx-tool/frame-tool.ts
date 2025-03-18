@@ -8,10 +8,10 @@ import {
   EditPropsStore,
   TelemetryProvider,
 } from '@blocksuite/affine-shared/services';
-import type { PointerEventState } from '@blocksuite/block-std';
-import { BaseTool, getTopElements } from '@blocksuite/block-std/gfx';
 import type { IPoint, IVec } from '@blocksuite/global/gfx';
 import { Bound, Vec } from '@blocksuite/global/gfx';
+import type { PointerEventState } from '@blocksuite/std';
+import { BaseTool, getTopElements } from '@blocksuite/std/gfx';
 import { Text } from '@blocksuite/store';
 import * as Y from 'yjs';
 
@@ -107,7 +107,7 @@ export class FrameTool extends BaseTool {
   }
 }
 
-declare module '@blocksuite/block-std/gfx' {
+declare module '@blocksuite/std/gfx' {
   interface GfxToolsMap {
     frame: FrameTool;
   }

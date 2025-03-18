@@ -9,12 +9,12 @@ import {
   type NodeType,
   type ShapeElementModel,
 } from '@blocksuite/affine-model';
+import type { IVec } from '@blocksuite/global/gfx';
+import { assertType } from '@blocksuite/global/utils';
 import {
   generateKeyBetween,
   type SurfaceBlockModel,
-} from '@blocksuite/block-std/gfx';
-import type { IVec } from '@blocksuite/global/gfx';
-import { assertType } from '@blocksuite/global/utils';
+} from '@blocksuite/std/gfx';
 import isEqual from 'lodash-es/isEqual';
 import last from 'lodash-es/last';
 import * as Y from 'yjs';

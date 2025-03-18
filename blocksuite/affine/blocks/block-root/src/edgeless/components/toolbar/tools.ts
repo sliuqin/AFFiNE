@@ -1,5 +1,5 @@
 import type { MenuConfig } from '@blocksuite/affine-components/context-menu';
-import type { GfxToolsMap } from '@blocksuite/block-std/gfx';
+import type { GfxToolsMap } from '@blocksuite/std/gfx';
 import { html, type TemplateResult } from 'lit';
 
 import type { EdgelessRootBlockComponent } from '../../edgeless-root-block.js';

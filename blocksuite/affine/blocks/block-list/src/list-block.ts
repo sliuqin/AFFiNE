@@ -14,13 +14,13 @@ import {
 } from '@blocksuite/affine-shared/consts';
 import { DocModeProvider } from '@blocksuite/affine-shared/services';
 import { getViewportElement } from '@blocksuite/affine-shared/utils';
-import type { BlockComponent } from '@blocksuite/block-std';
+import type { InlineRangeProvider } from '@blocksuite/inline';
+import type { BlockComponent } from '@blocksuite/std';
 import {
   BlockSelection,
   getInlineRangeProvider,
   TextSelection,
-} from '@blocksuite/block-std';
-import type { InlineRangeProvider } from '@blocksuite/inline';
+} from '@blocksuite/std';
 import type { BaseSelection } from '@blocksuite/store';
 import { effect } from '@preact/signals-core';
 import { html, nothing, type TemplateResult } from 'lit';

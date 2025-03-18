@@ -10,7 +10,7 @@ import {
 import { EMBED_CARD_HEIGHT } from '@blocksuite/affine-shared/consts';
 import { NotificationProvider } from '@blocksuite/affine-shared/services';
 import { matchModels, SpecProvider } from '@blocksuite/affine-shared/utils';
-import { BlockStdScope, EditorLifeCycleExtension } from '@blocksuite/block-std';
+import { BlockStdScope, EditorLifeCycleExtension } from '@blocksuite/std';
 import {
   type BlockModel,
   type BlockSnapshot,

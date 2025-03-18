@@ -33,21 +33,6 @@ import {
   matchModels,
   referenceToNode,
 } from '@blocksuite/affine-shared/utils';
-import type {
-  BlockStdScope,
-  EditorHost,
-  SurfaceSelection,
-  UIEventStateContext,
-} from '@blocksuite/block-std';
-import {
-  compareLayer,
-  type GfxBlockElementModel,
-  type GfxCompatibleProps,
-  type GfxModel,
-  type GfxPrimitiveElementModel,
-  type SerializedElement,
-  SortOrder,
-} from '@blocksuite/block-std/gfx';
 import { DisposableGroup } from '@blocksuite/global/disposable';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
 import {
@@ -59,6 +44,21 @@ import {
   Vec,
 } from '@blocksuite/global/gfx';
 import { assertType } from '@blocksuite/global/utils';
+import type {
+  BlockStdScope,
+  EditorHost,
+  SurfaceSelection,
+  UIEventStateContext,
+} from '@blocksuite/std';
+import {
+  compareLayer,
+  type GfxBlockElementModel,
+  type GfxCompatibleProps,
+  type GfxModel,
+  type GfxPrimitiveElementModel,
+  type SerializedElement,
+  SortOrder,
+} from '@blocksuite/std/gfx';
 import {
   type BlockSnapshot,
   BlockSnapshotSchema,

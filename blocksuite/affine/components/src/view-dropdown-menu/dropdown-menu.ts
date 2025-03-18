@@ -2,13 +2,13 @@ import {
   type ToolbarAction,
   ToolbarContext,
 } from '@blocksuite/affine-shared/services';
+import { SignalWatcher } from '@blocksuite/global/lit';
+import { ArrowDownSmallIcon } from '@blocksuite/icons/lit';
 import {
   PropTypes,
   requiredProperties,
   ShadowlessElement,
-} from '@blocksuite/block-std';
-import { SignalWatcher } from '@blocksuite/global/lit';
-import { ArrowDownSmallIcon } from '@blocksuite/icons/lit';
+} from '@blocksuite/std';
 import type { ReadonlySignal, Signal } from '@preact/signals-core';
 import { property } from 'lit/decorators.js';
 import { html } from 'lit-html';

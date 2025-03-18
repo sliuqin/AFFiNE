@@ -1,10 +1,5 @@
 import { PeekViewService } from '@affine/core/modules/peek-view/services/peek-view';
 import { AppThemeService } from '@affine/core/modules/theme';
-import {
-  type BlockStdScope,
-  LifeCycleWatcher,
-  StdIdentifier,
-} from '@blocksuite/affine/block-std';
 import type { Container } from '@blocksuite/affine/global/di';
 import { ColorScheme } from '@blocksuite/affine/model';
 import {
@@ -16,6 +11,11 @@ import {
   type Signal,
   SpecProvider,
 } from '@blocksuite/affine/shared/utils';
+import {
+  type BlockStdScope,
+  LifeCycleWatcher,
+  StdIdentifier,
+} from '@blocksuite/affine/std';
 import type { ExtensionType } from '@blocksuite/affine/store';
 import type { FrameworkProvider } from '@toeverything/infra';
 import type { Observable } from 'rxjs';

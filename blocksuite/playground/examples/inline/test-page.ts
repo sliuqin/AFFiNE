@@ -1,6 +1,5 @@
 import '@shoelace-style/shoelace';
 
-import { ShadowlessElement } from '@blocksuite/affine/block-std';
 import {
   type AttributeRenderer,
   type BaseTextAttributes,
@@ -9,6 +8,7 @@ import {
   ZERO_WIDTH_NON_JOINER,
 } from '@blocksuite/affine/inline';
 import { effects } from '@blocksuite/affine/inline/effects';
+import { ShadowlessElement } from '@blocksuite/affine/std';
 import { effect } from '@preact/signals-core';
 import { css, html, nothing } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';

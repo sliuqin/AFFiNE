@@ -14,8 +14,8 @@ import {
   getTextSelectionCommand,
   retainFirstModelCommand,
 } from '@blocksuite/affine-shared/commands';
-import type { UIEventHandler } from '@blocksuite/block-std';
 import { DisposableGroup } from '@blocksuite/global/disposable';
+import type { UIEventHandler } from '@blocksuite/std';
 import type { BlockSnapshot, Store } from '@blocksuite/store';
 
 import { ReadOnlyClipboard } from './readonly-clipboard';

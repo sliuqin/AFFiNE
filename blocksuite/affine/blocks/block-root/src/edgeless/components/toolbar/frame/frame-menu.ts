@@ -1,4 +1,4 @@
-import type { GfxToolsFullOptionValue } from '@blocksuite/block-std/gfx';
+import type { GfxToolsFullOptionValue } from '@blocksuite/std/gfx';
 import { css, html, LitElement } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 

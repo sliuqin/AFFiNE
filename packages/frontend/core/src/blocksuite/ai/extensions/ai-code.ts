@@ -1,8 +1,8 @@
-import { LifeCycleWatcher } from '@blocksuite/affine/block-std';
 import {
   AffineCodeToolbarWidget,
   CodeBlockSpec,
 } from '@blocksuite/affine/blocks/code';
+import { LifeCycleWatcher } from '@blocksuite/affine/std';
 import type { ExtensionType } from '@blocksuite/affine/store';
 
 import { setupCodeToolbarAIEntry } from '../entries/code-toolbar/setup-code-toolbar';

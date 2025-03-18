@@ -1,10 +1,10 @@
-import type { SurfaceBlockProps } from '@blocksuite/affine/block-std/gfx';
 import {
   NoteDisplayMode,
   type NoteProps,
   type ParagraphProps,
   type RootBlockProps,
 } from '@blocksuite/affine/model';
+import type { SurfaceBlockProps } from '@blocksuite/affine/std/gfx';
 import { type Store, Text } from '@blocksuite/affine/store';
 
 export interface DocProps {

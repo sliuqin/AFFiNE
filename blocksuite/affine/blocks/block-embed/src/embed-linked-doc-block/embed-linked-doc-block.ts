@@ -26,8 +26,8 @@ import {
   matchModels,
   referenceToNode,
 } from '@blocksuite/affine-shared/utils';
-import { BlockSelection } from '@blocksuite/block-std';
 import { Bound } from '@blocksuite/global/gfx';
+import { BlockSelection } from '@blocksuite/std';
 import { Text } from '@blocksuite/store';
 import { computed } from '@preact/signals-core';
 import { html, nothing } from 'lit';

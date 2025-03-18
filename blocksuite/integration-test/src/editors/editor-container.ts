@@ -1,7 +1,7 @@
-import { BlockStdScope, ShadowlessElement } from '@blocksuite/affine/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import type { DocMode } from '@blocksuite/affine/model';
 import { ThemeProvider } from '@blocksuite/affine/shared/services';
+import { BlockStdScope, ShadowlessElement } from '@blocksuite/affine/std';
 import {
   type BlockModel,
   type ExtensionType,

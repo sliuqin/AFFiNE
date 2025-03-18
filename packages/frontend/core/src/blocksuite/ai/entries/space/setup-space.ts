@@ -1,4 +1,4 @@
-import { TextSelection } from '@blocksuite/affine/block-std';
+import { TextSelection } from '@blocksuite/affine/std';
 
 import { handleInlineAskAIAction } from '../../actions/doc-handler';
 import { AIProvider } from '../../provider';

@@ -13,8 +13,8 @@ import {
   draftSelectedModelsCommand,
   getSelectedModelsCommand,
 } from '@blocksuite/affine-shared/commands';
-import type { BlockComponent, UIEventHandler } from '@blocksuite/block-std';
 import { DisposableGroup } from '@blocksuite/global/disposable';
+import type { BlockComponent, UIEventHandler } from '@blocksuite/std';
 
 import { ClipboardAdapter } from './adapter.js';
 

@@ -7,10 +7,10 @@ import {
   SlashMenuConfigExtension,
   type SlashMenuItem,
 } from '@blocksuite/affine-widget-slash-menu';
-import { BlockSelection } from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
 import { Bound } from '@blocksuite/global/gfx';
 import { FrameIcon, GroupingIcon, MindmapIcon } from '@blocksuite/icons/lit';
+import { BlockSelection } from '@blocksuite/std';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 
 import { insertSurfaceRefBlockCommand } from '../commands';
 import { EdgelessTooltip } from './tooltips';

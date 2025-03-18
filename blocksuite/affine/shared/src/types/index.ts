@@ -3,7 +3,7 @@ import type {
   FootNote,
   ReferenceInfo,
 } from '@blocksuite/affine-model';
-import type { BlockComponent } from '@blocksuite/block-std';
+import type { BlockComponent } from '@blocksuite/std';
 import type { BlockModel } from '@blocksuite/store';
 export * from './uni-component';
 export interface EditingState {

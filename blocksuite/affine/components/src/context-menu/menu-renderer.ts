@@ -1,5 +1,4 @@
 import { unsafeCSSVar, unsafeCSSVarV2 } from '@blocksuite/affine-shared/theme';
-import { ShadowlessElement } from '@blocksuite/block-std';
 import { IS_MOBILE } from '@blocksuite/global/env';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import {
@@ -8,6 +7,7 @@ import {
   CloseIcon,
   SearchIcon,
 } from '@blocksuite/icons/lit';
+import { ShadowlessElement } from '@blocksuite/std';
 import {
   autoPlacement,
   autoUpdate,

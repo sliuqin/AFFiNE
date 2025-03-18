@@ -1,11 +1,11 @@
-import type { EditorHost } from '@blocksuite/affine/block-std';
-import { GfxController, LayerManager } from '@blocksuite/affine/block-std/gfx';
 import {
   TemplateJob,
   TemplateMiddlewares,
 } from '@blocksuite/affine/blocks/root';
 import { getSurfaceBlock } from '@blocksuite/affine/blocks/surface';
 import { Bound, getCommonBound } from '@blocksuite/affine/global/gfx';
+import type { EditorHost } from '@blocksuite/affine/std';
+import { GfxController, LayerManager } from '@blocksuite/affine/std/gfx';
 
 export function createTemplateJob(host: EditorHost) {
   const surface = getSurfaceBlock(host.doc);

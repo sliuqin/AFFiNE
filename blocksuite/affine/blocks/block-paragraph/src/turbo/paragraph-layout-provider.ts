@@ -5,9 +5,9 @@ import {
   getSentenceRects,
   segmentSentences,
 } from '@blocksuite/affine-gfx-turbo-renderer';
-import type { GfxBlockComponent } from '@blocksuite/block-std';
-import { clientToModelCoord } from '@blocksuite/block-std/gfx';
 import type { Container } from '@blocksuite/global/di';
+import type { GfxBlockComponent } from '@blocksuite/std';
+import { clientToModelCoord } from '@blocksuite/std/gfx';
 
 import type { ParagraphLayout } from './paragraph-painter.worker';
 

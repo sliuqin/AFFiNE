@@ -1,6 +1,5 @@
 import { DocService, DocsService } from '@affine/core/modules/doc';
 import { AppThemeService } from '@affine/core/modules/theme';
-import { LifeCycleWatcher, StdIdentifier } from '@blocksuite/affine/block-std';
 import type { Container } from '@blocksuite/affine/global/di';
 import { ColorScheme } from '@blocksuite/affine/model';
 import {
@@ -11,6 +10,7 @@ import {
   createSignalFromObservable,
   type Signal,
 } from '@blocksuite/affine/shared/utils';
+import { LifeCycleWatcher, StdIdentifier } from '@blocksuite/affine/std';
 import { type FrameworkProvider } from '@toeverything/infra';
 import type { Observable } from 'rxjs';
 import { combineLatest, map } from 'rxjs';

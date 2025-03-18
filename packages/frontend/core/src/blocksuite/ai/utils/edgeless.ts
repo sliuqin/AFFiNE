@@ -1,5 +1,3 @@
-import type { BlockComponent, EditorHost } from '@blocksuite/affine/block-std';
-import type { GfxModel } from '@blocksuite/affine/block-std/gfx';
 import { SurfaceBlockModel } from '@blocksuite/affine/blocks/surface';
 import {
   MindmapElementModel,
@@ -8,6 +6,8 @@ import {
   type ShapeElementModel,
 } from '@blocksuite/affine/model';
 import { matchModels } from '@blocksuite/affine/shared/utils';
+import type { BlockComponent, EditorHost } from '@blocksuite/affine/std';
+import type { GfxModel } from '@blocksuite/affine/std/gfx';
 
 import {
   AFFINE_EDGELESS_COPILOT_WIDGET,

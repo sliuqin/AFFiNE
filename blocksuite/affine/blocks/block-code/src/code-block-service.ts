@@ -1,7 +1,7 @@
 import { CodeBlockSchema, ColorScheme } from '@blocksuite/affine-model';
 import { textKeymap } from '@blocksuite/affine-rich-text';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
-import { BlockService } from '@blocksuite/block-std';
+import { BlockService } from '@blocksuite/std';
 import { type Signal, signal } from '@preact/signals-core';
 import {
   bundledLanguagesInfo,

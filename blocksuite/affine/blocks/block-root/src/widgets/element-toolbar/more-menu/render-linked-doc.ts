@@ -4,8 +4,8 @@ import type { FrameBlockModel, NoteBlockModel } from '@blocksuite/affine-model';
 import { NoteDisplayMode } from '@blocksuite/affine-model';
 import { DocModeProvider } from '@blocksuite/affine-shared/services';
 import { getBlockProps } from '@blocksuite/affine-shared/utils';
-import type { EditorHost } from '@blocksuite/block-std';
-import { GfxBlockElementModel, type GfxModel } from '@blocksuite/block-std/gfx';
+import type { EditorHost } from '@blocksuite/std';
+import { GfxBlockElementModel, type GfxModel } from '@blocksuite/std/gfx';
 import { type BlockModel, type Store, Text } from '@blocksuite/store';
 
 import {

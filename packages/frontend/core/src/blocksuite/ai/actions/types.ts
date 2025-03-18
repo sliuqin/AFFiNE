@@ -7,8 +7,8 @@ import type {
   getCopilotHistoriesQuery,
   RequestOptions,
 } from '@affine/graphql';
-import type { EditorHost } from '@blocksuite/affine/block-std';
-import type { GfxModel } from '@blocksuite/affine/block-std/gfx';
+import type { EditorHost } from '@blocksuite/affine/std';
+import type { GfxModel } from '@blocksuite/affine/std/gfx';
 import type { BlockModel } from '@blocksuite/affine/store';
 
 import type { DocContext, FileContext } from '../chat-panel/chat-context';

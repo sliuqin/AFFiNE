@@ -7,8 +7,8 @@ import {
 } from '@blocksuite/affine-model';
 import { TelemetryProvider } from '@blocksuite/affine-shared/services';
 import { requestThrottledConnectedFrame } from '@blocksuite/affine-shared/utils';
-import type { PointerEventState } from '@blocksuite/block-std';
-import { GfxElementModelView } from '@blocksuite/block-std/gfx';
+import type { PointerEventState } from '@blocksuite/std';
+import { GfxElementModelView } from '@blocksuite/std/gfx';
 
 import { handleLayout } from '../utils/mindmap/utils.js';
 

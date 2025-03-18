@@ -22,20 +22,6 @@ import {
   requestConnectedFrame,
   SpecProvider,
 } from '@blocksuite/affine-shared/utils';
-import {
-  BlockComponent,
-  BlockSelection,
-  BlockStdScope,
-  type EditorHost,
-  LifeCycleWatcher,
-  TextSelection,
-} from '@blocksuite/block-std';
-import {
-  GfxBlockElementModel,
-  GfxControllerIdentifier,
-  type GfxModel,
-  GfxPrimitiveElementModel,
-} from '@blocksuite/block-std/gfx';
 import { DisposableGroup } from '@blocksuite/global/disposable';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
 import {
@@ -44,6 +30,20 @@ import {
   type SerializedXYWH,
 } from '@blocksuite/global/gfx';
 import { DeleteIcon, EdgelessIcon, FrameIcon } from '@blocksuite/icons/lit';
+import {
+  BlockComponent,
+  BlockSelection,
+  BlockStdScope,
+  type EditorHost,
+  LifeCycleWatcher,
+  TextSelection,
+} from '@blocksuite/std';
+import {
+  GfxBlockElementModel,
+  GfxControllerIdentifier,
+  type GfxModel,
+  GfxPrimitiveElementModel,
+} from '@blocksuite/std/gfx';
 import type { BaseSelection, Store } from '@blocksuite/store';
 import { css, html, nothing, type TemplateResult } from 'lit';
 import { query, state } from 'lit/decorators.js';

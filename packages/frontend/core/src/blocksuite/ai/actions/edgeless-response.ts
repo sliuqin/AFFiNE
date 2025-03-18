@@ -1,5 +1,3 @@
-import type { EditorHost } from '@blocksuite/affine/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
 import {
   EDGELESS_TEXT_BLOCK_MIN_HEIGHT,
   EDGELESS_TEXT_BLOCK_MIN_WIDTH,
@@ -26,6 +24,8 @@ import {
   NoteDisplayMode,
 } from '@blocksuite/affine/model';
 import { TelemetryProvider } from '@blocksuite/affine/shared/services';
+import type { EditorHost } from '@blocksuite/affine/std';
+import { GfxControllerIdentifier } from '@blocksuite/affine/std/gfx';
 import {
   ChatWithAiIcon,
   DeleteIcon,

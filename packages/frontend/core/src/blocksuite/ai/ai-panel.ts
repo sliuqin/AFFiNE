@@ -1,6 +1,4 @@
 import { AINetworkSearchService } from '@affine/core/modules/ai-button/services/network-search';
-import type { EditorHost } from '@blocksuite/affine/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
 import { Bound } from '@blocksuite/affine/global/gfx';
 import {
   ImageBlockModel,
@@ -11,6 +9,8 @@ import {
   isInsideEdgelessEditor,
   matchModels,
 } from '@blocksuite/affine/shared/utils';
+import type { EditorHost } from '@blocksuite/affine/std';
+import { GfxControllerIdentifier } from '@blocksuite/affine/std/gfx';
 import {
   ChatWithAiIcon,
   DeleteIcon,

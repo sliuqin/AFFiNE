@@ -1,12 +1,12 @@
 import { CodeBlockModel } from '@blocksuite/affine-model';
 import { BRACKET_PAIRS } from '@blocksuite/affine-shared/consts';
 import { createDefaultDoc, matchModels } from '@blocksuite/affine-shared/utils';
+import type { InlineEditor } from '@blocksuite/inline';
 import {
   type BlockStdScope,
   TextSelection,
   type UIEventHandler,
-} from '@blocksuite/block-std';
-import type { InlineEditor } from '@blocksuite/inline';
+} from '@blocksuite/std';
 
 import { getInlineEditorByModel } from '../dom.js';
 import { insertLinkedNode } from '../linked-node.js';

@@ -5,7 +5,6 @@ import {
 import { toast } from '@blocksuite/affine-components/toast';
 import type { FrameBlockModel } from '@blocksuite/affine-model';
 import { EditPropsStore } from '@blocksuite/affine-shared/services';
-import type { GfxToolsFullOptionValue } from '@blocksuite/block-std/gfx';
 import { Bound, clamp } from '@blocksuite/global/gfx';
 import { SignalWatcher } from '@blocksuite/global/lit';
 import {
@@ -15,6 +14,7 @@ import {
   StartPointArrowIcon,
   StopAiIcon,
 } from '@blocksuite/icons/lit';
+import type { GfxToolsFullOptionValue } from '@blocksuite/std/gfx';
 import { effect } from '@preact/signals-core';
 import { cssVar } from '@toeverything/theme';
 import { css, html, LitElement, nothing, type PropertyValues } from 'lit';

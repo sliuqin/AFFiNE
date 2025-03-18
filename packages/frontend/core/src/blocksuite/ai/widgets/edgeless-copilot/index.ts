@@ -1,8 +1,3 @@
-import {
-  WidgetComponent,
-  WidgetViewExtension,
-} from '@blocksuite/affine/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
 import { EdgelessLegacySlotIdentifier } from '@blocksuite/affine/blocks/surface';
 import {
   Bound,
@@ -13,6 +8,8 @@ import {
   MOUSE_BUTTON,
   requestConnectedFrame,
 } from '@blocksuite/affine/shared/utils';
+import { WidgetComponent, WidgetViewExtension } from '@blocksuite/affine/std';
+import { GfxControllerIdentifier } from '@blocksuite/affine/std/gfx';
 import {
   autoUpdate,
   computePosition,

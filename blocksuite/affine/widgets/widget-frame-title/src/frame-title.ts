@@ -5,15 +5,15 @@ import {
   isTransparent,
 } from '@blocksuite/affine-model';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
+import { Bound, type SerializedXYWH } from '@blocksuite/global/gfx';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import {
   type BlockStdScope,
   PropTypes,
   requiredProperties,
   stdContext,
-} from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { Bound, type SerializedXYWH } from '@blocksuite/global/gfx';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
+} from '@blocksuite/std';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 import { consume } from '@lit/context';
 import { themeToVar } from '@toeverything/theme/v2';
 import { LitElement } from 'lit';

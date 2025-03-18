@@ -1,9 +1,9 @@
 import { MindmapElementModel } from '@blocksuite/affine-model';
 import { TelemetryProvider } from '@blocksuite/affine-shared/services';
-import type { GfxModel } from '@blocksuite/block-std/gfx';
 import { Bound } from '@blocksuite/global/gfx';
 import { WithDisposable } from '@blocksuite/global/lit';
 import { FrameIcon } from '@blocksuite/icons/lit';
+import type { GfxModel } from '@blocksuite/std/gfx';
 import { css, html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 

@@ -1,4 +1,4 @@
-import { BaseTool } from '@blocksuite/block-std/gfx';
+import { BaseTool } from '@blocksuite/std/gfx';
 
 import type { NavigatorMode } from './frame-manager';
 
@@ -10,7 +10,7 @@ export class PresentTool extends BaseTool<PresentToolOption> {
   static override toolName: string = 'frameNavigator';
 }
 
-declare module '@blocksuite/block-std/gfx' {
+declare module '@blocksuite/std/gfx' {
   interface GfxToolsMap {
     frameNavigator: PresentTool;
   }

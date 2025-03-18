@@ -1,7 +1,7 @@
 import { affineTextStyles } from '@blocksuite/affine-rich-text';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
-import { ShadowlessElement } from '@blocksuite/block-std';
 import { type DeltaInsert, ZERO_WIDTH_SPACE } from '@blocksuite/inline';
+import { ShadowlessElement } from '@blocksuite/std';
 import { html } from 'lit';
 import { property } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';

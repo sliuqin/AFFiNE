@@ -13,16 +13,16 @@ import {
 import type { SurfaceRefBlockModel } from '@blocksuite/affine-model';
 import { PAGE_HEADER_HEIGHT } from '@blocksuite/affine-shared/consts';
 import {
-  BlockSelection,
-  TextSelection,
-  WidgetComponent,
-} from '@blocksuite/block-std';
-import {
   ArrowDownSmallIcon,
   CenterPeekIcon,
   EdgelessIcon,
   MoreVerticalIcon,
 } from '@blocksuite/icons/lit';
+import {
+  BlockSelection,
+  TextSelection,
+  WidgetComponent,
+} from '@blocksuite/std';
 import { offset, shift } from '@floating-ui/dom';
 import { html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';

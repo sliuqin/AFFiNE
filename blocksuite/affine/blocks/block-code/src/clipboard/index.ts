@@ -9,12 +9,12 @@ import {
   getBlockSelectionsCommand,
   getTextSelectionCommand,
 } from '@blocksuite/affine-shared/commands';
+import { DisposableGroup } from '@blocksuite/global/disposable';
 import {
   type BlockComponent,
   Clipboard,
   type UIEventHandler,
-} from '@blocksuite/block-std';
-import { DisposableGroup } from '@blocksuite/global/disposable';
+} from '@blocksuite/std';
 
 export class CodeClipboardController {
   private _clipboard!: Clipboard;

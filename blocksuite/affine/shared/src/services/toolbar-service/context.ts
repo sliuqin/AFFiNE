@@ -1,10 +1,10 @@
+import { nextTick } from '@blocksuite/global/utils';
 import {
   type BlockComponent,
   BlockSelection,
   type BlockStdScope,
-} from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { nextTick } from '@blocksuite/global/utils';
+} from '@blocksuite/std';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 import type {
   BaseSelection,
   Block,

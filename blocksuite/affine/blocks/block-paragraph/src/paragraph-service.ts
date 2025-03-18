@@ -2,7 +2,7 @@ import {
   type ParagraphBlockModel,
   ParagraphBlockSchema,
 } from '@blocksuite/affine-model';
-import { BlockService } from '@blocksuite/block-std';
+import { BlockService } from '@blocksuite/std';
 
 export class ParagraphBlockService extends BlockService {
   static override readonly flavour = ParagraphBlockSchema.model.flavour;

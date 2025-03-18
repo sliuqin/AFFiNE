@@ -9,9 +9,9 @@ import {
   type ToolbarContext,
   type ToolbarModuleConfig,
 } from '@blocksuite/affine-shared/services';
-import { BlockSelection } from '@blocksuite/block-std';
 import { nextTick } from '@blocksuite/global/utils';
 import { MoreVerticalIcon } from '@blocksuite/icons/lit';
+import { BlockSelection } from '@blocksuite/std';
 import type {
   AutoUpdateOptions,
   Placement,

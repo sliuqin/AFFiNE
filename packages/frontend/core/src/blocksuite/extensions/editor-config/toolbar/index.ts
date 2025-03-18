@@ -8,15 +8,6 @@ import { EditorService } from '@affine/core/modules/editor';
 import { copyLinkToBlockStdScopeClipboard } from '@affine/core/utils/clipboard';
 import { I18n, i18nTime } from '@affine/i18n';
 import { track } from '@affine/track';
-import {
-  BlockFlavourIdentifier,
-  BlockSelection,
-  TextSelection,
-} from '@blocksuite/affine/block-std';
-import {
-  GfxBlockElementModel,
-  GfxPrimitiveElementModel,
-} from '@blocksuite/affine/block-std/gfx';
 import { BookmarkBlockComponent } from '@blocksuite/affine/blocks/bookmark';
 import {
   EmbedFigmaBlockComponent,
@@ -65,6 +56,15 @@ import {
   UserProvider,
 } from '@blocksuite/affine/shared/services';
 import { matchModels } from '@blocksuite/affine/shared/utils';
+import {
+  BlockFlavourIdentifier,
+  BlockSelection,
+  TextSelection,
+} from '@blocksuite/affine/std';
+import {
+  GfxBlockElementModel,
+  GfxPrimitiveElementModel,
+} from '@blocksuite/affine/std/gfx';
 import type { ExtensionType } from '@blocksuite/affine/store';
 import {
   ArrowDownSmallIcon,

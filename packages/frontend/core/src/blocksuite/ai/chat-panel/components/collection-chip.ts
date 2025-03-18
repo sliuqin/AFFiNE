@@ -1,5 +1,5 @@
-import { ShadowlessElement } from '@blocksuite/affine/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
+import { ShadowlessElement } from '@blocksuite/affine/std';
 import { AddCollectionIcon } from '@blocksuite/icons/lit';
 import { html } from 'lit';
 import { property } from 'lit/decorators.js';

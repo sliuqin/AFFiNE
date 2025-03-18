@@ -7,15 +7,15 @@ import type { TextElementModel } from '@blocksuite/affine-model';
 import type { RichText } from '@blocksuite/affine-rich-text';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
 import { getSelectedRect } from '@blocksuite/affine-shared/utils';
+import { Bound, toRadian, Vec } from '@blocksuite/global/gfx';
+import { WithDisposable } from '@blocksuite/global/lit';
 import {
   type BlockStdScope,
   RANGE_SYNC_EXCLUDE_ATTR,
   ShadowlessElement,
   stdContext,
-} from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { Bound, toRadian, Vec } from '@blocksuite/global/gfx';
-import { WithDisposable } from '@blocksuite/global/lit';
+} from '@blocksuite/std';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 import { consume } from '@lit/context';
 import { css, html, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';

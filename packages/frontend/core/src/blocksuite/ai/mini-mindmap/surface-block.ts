@@ -1,6 +1,4 @@
 /* oxlint-disable @typescript-eslint/no-non-null-assertion */
-import { BlockComponent } from '@blocksuite/affine/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
 import {
   CanvasRenderer,
   elementRenderers,
@@ -10,6 +8,8 @@ import {
 import type { Bound } from '@blocksuite/affine/global/gfx';
 import type { Color, ShapeElementModel } from '@blocksuite/affine/model';
 import { ThemeProvider } from '@blocksuite/affine/shared/services';
+import { BlockComponent } from '@blocksuite/affine/std';
+import { GfxControllerIdentifier } from '@blocksuite/affine/std/gfx';
 import { html } from 'lit';
 import { query } from 'lit/decorators.js';
 

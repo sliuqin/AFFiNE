@@ -1,5 +1,5 @@
-import { type BlockStdScope, StdIdentifier } from '@blocksuite/block-std';
 import { type Container, createIdentifier } from '@blocksuite/global/di';
+import { type BlockStdScope, StdIdentifier } from '@blocksuite/std';
 import { Extension, type ExtensionType } from '@blocksuite/store';
 import { signal } from '@preact/signals-core';
 

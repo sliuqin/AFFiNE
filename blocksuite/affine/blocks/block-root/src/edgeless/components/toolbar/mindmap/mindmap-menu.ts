@@ -5,11 +5,11 @@ import {
   FeatureFlagService,
   TelemetryProvider,
 } from '@blocksuite/affine-shared/services';
-import type { BlockStdScope } from '@blocksuite/block-std';
-import { modelContext, stdContext } from '@blocksuite/block-std';
 import { ErrorCode } from '@blocksuite/global/exceptions';
 import type { Bound } from '@blocksuite/global/gfx';
 import { SignalWatcher } from '@blocksuite/global/lit';
+import type { BlockStdScope } from '@blocksuite/std';
+import { modelContext, stdContext } from '@blocksuite/std';
 import type { BlockModel } from '@blocksuite/store';
 import { consume } from '@lit/context';
 import { computed } from '@preact/signals-core';

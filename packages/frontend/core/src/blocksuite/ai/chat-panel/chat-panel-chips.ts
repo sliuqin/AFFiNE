@@ -1,9 +1,6 @@
-import {
-  type EditorHost,
-  ShadowlessElement,
-} from '@blocksuite/affine/block-std';
 import { createLitPortal } from '@blocksuite/affine/components/portal';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
+import { type EditorHost, ShadowlessElement } from '@blocksuite/affine/std';
 import { PlusIcon } from '@blocksuite/icons/lit';
 import { flip, offset } from '@floating-ui/dom';
 import { css, html, nothing, type PropertyValues } from 'lit';

@@ -1,8 +1,8 @@
 import { popupTargetFromElement } from '@blocksuite/affine-components/context-menu';
 import { unsafeCSSVarV2 } from '@blocksuite/affine-shared/theme';
-import { ShadowlessElement } from '@blocksuite/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { CenterPeekIcon, MoreHorizontalIcon } from '@blocksuite/icons/lit';
+import { ShadowlessElement } from '@blocksuite/std';
 import { css } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';

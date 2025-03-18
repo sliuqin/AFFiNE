@@ -4,12 +4,12 @@ import {
   getCurrentNativeRange,
   matchModels,
 } from '@blocksuite/affine-shared/utils';
+import type { InlineEditor, InlineRange } from '@blocksuite/inline';
 import {
   type BlockStdScope,
   type EditorHost,
   TextSelection,
-} from '@blocksuite/block-std';
-import type { InlineEditor, InlineRange } from '@blocksuite/inline';
+} from '@blocksuite/std';
 import { BlockModel } from '@blocksuite/store';
 
 import type { AffineInlineEditor } from './inline/index.js';

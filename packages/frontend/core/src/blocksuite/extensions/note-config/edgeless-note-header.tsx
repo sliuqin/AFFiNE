@@ -8,9 +8,9 @@ import { WorkspaceService } from '@affine/core/modules/workspace';
 import { extractEmojiIcon } from '@affine/core/utils';
 import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
-import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
 import { Bound } from '@blocksuite/affine/global/gfx';
 import { type NoteBlockModel } from '@blocksuite/affine/model';
+import { GfxControllerIdentifier } from '@blocksuite/affine/std/gfx';
 import {
   InformationIcon,
   LinkedPageIcon,

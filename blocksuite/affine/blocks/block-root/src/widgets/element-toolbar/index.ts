@@ -28,10 +28,10 @@ import {
 } from '@blocksuite/affine-model';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
 import { requestConnectedFrame } from '@blocksuite/affine-shared/utils';
-import { WidgetComponent } from '@blocksuite/block-std';
-import type { GfxModel } from '@blocksuite/block-std/gfx';
 import { clamp, getCommonBoundWithRotation } from '@blocksuite/global/gfx';
 import { ConnectorCIcon } from '@blocksuite/icons/lit';
+import { WidgetComponent } from '@blocksuite/std';
+import type { GfxModel } from '@blocksuite/std/gfx';
 import { css, html, nothing, type TemplateResult, unsafeCSS } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { join } from 'lit/directives/join.js';

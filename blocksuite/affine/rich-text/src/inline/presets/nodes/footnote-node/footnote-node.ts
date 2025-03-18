@@ -2,12 +2,6 @@ import { HoverController } from '@blocksuite/affine-components/hover';
 import type { FootNote } from '@blocksuite/affine-model';
 import { unsafeCSSVarV2 } from '@blocksuite/affine-shared/theme';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
-import {
-  BlockSelection,
-  type BlockStdScope,
-  ShadowlessElement,
-  TextSelection,
-} from '@blocksuite/block-std';
 import { WithDisposable } from '@blocksuite/global/lit';
 import {
   type DeltaInsert,
@@ -16,6 +10,12 @@ import {
   ZERO_WIDTH_NON_JOINER,
   ZERO_WIDTH_SPACE,
 } from '@blocksuite/inline';
+import {
+  BlockSelection,
+  type BlockStdScope,
+  ShadowlessElement,
+  TextSelection,
+} from '@blocksuite/std';
 import { shift } from '@floating-ui/dom';
 import { baseTheme } from '@toeverything/theme';
 import { css, html, nothing, unsafeCSS } from 'lit';

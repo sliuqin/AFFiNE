@@ -6,11 +6,8 @@ import {
   BlockViewExtension,
   LifeCycleWatcher,
   WidgetViewExtension,
-} from '@blocksuite/block-std';
-import {
-  GfxControllerIdentifier,
-  ToolController,
-} from '@blocksuite/block-std/gfx';
+} from '@blocksuite/std';
+import { GfxControllerIdentifier, ToolController } from '@blocksuite/std/gfx';
 import type { ExtensionType } from '@blocksuite/store';
 import { literal, unsafeStatic } from 'lit/static-html.js';
 

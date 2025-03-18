@@ -14,7 +14,6 @@ import {
   type ToolbarContext,
   type ToolbarModuleConfig,
 } from '@blocksuite/affine-shared/services';
-import { BlockSelection, SurfaceSelection } from '@blocksuite/block-std';
 import { Bound } from '@blocksuite/global/gfx';
 import {
   CaptionIcon,
@@ -25,6 +24,7 @@ import {
   EditIcon,
   ResetIcon,
 } from '@blocksuite/icons/lit';
+import { BlockSelection, SurfaceSelection } from '@blocksuite/std';
 import type { SelectionConstructor } from '@blocksuite/store';
 import { flip, offset } from '@floating-ui/dom';
 import { computed } from '@preact/signals-core';

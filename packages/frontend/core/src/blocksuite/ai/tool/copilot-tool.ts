@@ -1,15 +1,15 @@
 /* oxlint-disable @typescript-eslint/no-non-null-assertion */
-import type { PointerEventState } from '@blocksuite/affine/block-std';
-import {
-  BaseTool,
-  type GfxModel,
-  MouseButton,
-} from '@blocksuite/affine/block-std/gfx';
 import { IS_MAC } from '@blocksuite/affine/global/env';
 import {
   Bound,
   getCommonBoundWithRotation,
 } from '@blocksuite/affine/global/gfx';
+import type { PointerEventState } from '@blocksuite/affine/std';
+import {
+  BaseTool,
+  type GfxModel,
+  MouseButton,
+} from '@blocksuite/affine/std/gfx';
 import { Subject } from 'rxjs';
 
 import {
@@ -172,7 +172,7 @@ export class CopilotTool extends BaseTool {
   }
 }
 
-declare module '@blocksuite/block-std/gfx' {
+declare module '@blocksuite/std/gfx' {
   interface GfxToolsMap {
     copilot: CopilotTool;
   }

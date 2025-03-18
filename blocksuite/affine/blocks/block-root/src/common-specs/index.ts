@@ -14,10 +14,7 @@ import { docRemoteSelectionWidget } from '@blocksuite/affine-widget-remote-selec
 import { scrollAnchoringWidget } from '@blocksuite/affine-widget-scroll-anchoring';
 import { SlashMenuExtension } from '@blocksuite/affine-widget-slash-menu';
 import { toolbarWidget } from '@blocksuite/affine-widget-toolbar';
-import {
-  BlockFlavourIdentifier,
-  FlavourExtension,
-} from '@blocksuite/block-std';
+import { BlockFlavourIdentifier, FlavourExtension } from '@blocksuite/std';
 import type { ExtensionType } from '@blocksuite/store';
 
 import { RootBlockAdapterExtensions } from '../adapters/extension';

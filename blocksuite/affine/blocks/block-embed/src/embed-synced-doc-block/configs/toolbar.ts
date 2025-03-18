@@ -9,7 +9,6 @@ import {
   type ToolbarModuleConfig,
 } from '@blocksuite/affine-shared/services';
 import { getBlockProps } from '@blocksuite/affine-shared/utils';
-import { BlockSelection } from '@blocksuite/block-std';
 import {
   ArrowDownSmallIcon,
   CaptionIcon,
@@ -19,6 +18,7 @@ import {
   ExpandFullIcon,
   OpenInNewIcon,
 } from '@blocksuite/icons/lit';
+import { BlockSelection } from '@blocksuite/std';
 import { Slice } from '@blocksuite/store';
 import { signal } from '@preact/signals-core';
 import { html } from 'lit';

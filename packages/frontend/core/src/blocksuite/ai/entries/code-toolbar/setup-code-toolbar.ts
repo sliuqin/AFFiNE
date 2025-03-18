@@ -8,8 +8,8 @@ const buttonOptions: AskAIButtonOptions = {
   panelWidth: 240,
 };
 
-import { BlockSelection } from '@blocksuite/affine/block-std';
 import type { AffineCodeToolbarWidget } from '@blocksuite/affine/blocks/code';
+import { BlockSelection } from '@blocksuite/affine/std';
 
 import { buildAICodeItemGroups } from '../../_common/config';
 import type { AskAIButtonOptions } from '../../components/ask-ai-button';

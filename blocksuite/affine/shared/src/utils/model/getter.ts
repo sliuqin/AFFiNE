@@ -1,5 +1,5 @@
 import { NoteBlockModel, NoteDisplayMode } from '@blocksuite/affine-model';
-import type { BlockComponent, EditorHost } from '@blocksuite/block-std';
+import type { BlockComponent, EditorHost } from '@blocksuite/std';
 import type { BlockModel, Store } from '@blocksuite/store';
 
 import { matchModels } from './checker.js';

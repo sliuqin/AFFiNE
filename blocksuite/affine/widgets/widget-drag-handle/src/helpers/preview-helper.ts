@@ -12,8 +12,8 @@ import {
   BlockStdScope,
   BlockViewIdentifier,
   LifeCycleWatcher,
-} from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
+} from '@blocksuite/std';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 import type {
   BlockModel,
   BlockViewType,

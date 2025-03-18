@@ -1,9 +1,9 @@
 import { toast } from '@affine/component';
-import { ShadowlessElement } from '@blocksuite/affine/block-std';
 import { type LinkedMenuGroup } from '@blocksuite/affine/blocks/root';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { scrollbarStyle } from '@blocksuite/affine/shared/styles';
 import { openFileOrFiles } from '@blocksuite/affine/shared/utils';
+import { ShadowlessElement } from '@blocksuite/affine/std';
 import { SearchIcon, UploadIcon } from '@blocksuite/icons/lit';
 import type { DocMeta } from '@blocksuite/store';
 import { css, html } from 'lit';

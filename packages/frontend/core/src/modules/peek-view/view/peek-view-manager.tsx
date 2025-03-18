@@ -1,5 +1,5 @@
 import { toReactNode } from '@affine/component';
-import { BlockComponent } from '@blocksuite/affine/block-std';
+import { BlockComponent } from '@blocksuite/affine/std';
 import { useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

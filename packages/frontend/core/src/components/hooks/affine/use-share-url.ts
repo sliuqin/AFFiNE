@@ -4,11 +4,6 @@ import { toURLSearchParams } from '@affine/core/modules/navigation';
 import { copyTextToClipboard } from '@affine/core/utils/clipboard';
 import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
-import { type EditorHost } from '@blocksuite/affine/block-std';
-import {
-  GfxBlockElementModel,
-  GfxControllerIdentifier,
-} from '@blocksuite/affine/block-std/gfx';
 import { type DocMode } from '@blocksuite/affine/model';
 import {
   getBlockSelectionsCommand,
@@ -16,6 +11,11 @@ import {
   getSelectedModelsCommand,
   getTextSelectionCommand,
 } from '@blocksuite/affine/shared/commands';
+import { type EditorHost } from '@blocksuite/affine/std';
+import {
+  GfxBlockElementModel,
+  GfxControllerIdentifier,
+} from '@blocksuite/affine/std/gfx';
 import { useService } from '@toeverything/infra';
 import { useCallback } from 'react';
 

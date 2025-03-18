@@ -2,7 +2,7 @@ import {
   PropTypes,
   requiredProperties,
   ShadowlessElement,
-} from '@blocksuite/block-std';
+} from '@blocksuite/std';
 import { css } from 'lit';
 import { property } from 'lit/decorators.js';
 import { html } from 'lit-html';

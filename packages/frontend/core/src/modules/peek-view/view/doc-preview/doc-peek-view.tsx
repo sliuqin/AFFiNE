@@ -8,10 +8,10 @@ import { PageNotFound } from '@affine/core/desktop/pages/404';
 import { EditorService } from '@affine/core/modules/editor';
 import { GuardService } from '@affine/core/modules/permissions';
 import { DebugLogger } from '@affine/debug';
-import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
 import { DisposableGroup } from '@blocksuite/affine/global/disposable';
 import { Bound } from '@blocksuite/affine/global/gfx';
 import { RefNodeSlotsProvider } from '@blocksuite/affine/rich-text';
+import { GfxControllerIdentifier } from '@blocksuite/affine/std/gfx';
 import {
   FrameworkScope,
   useLiveData,

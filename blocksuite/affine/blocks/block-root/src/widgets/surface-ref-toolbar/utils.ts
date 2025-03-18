@@ -2,13 +2,10 @@ import type { CanvasRenderer } from '@blocksuite/affine-block-surface';
 import { ExportManager } from '@blocksuite/affine-block-surface';
 import type { SurfaceRefBlockComponent } from '@blocksuite/affine-block-surface-ref';
 import { isTopLevelBlock } from '@blocksuite/affine-shared/utils';
-import type { EditorHost } from '@blocksuite/block-std';
-import {
-  GfxControllerIdentifier,
-  type GfxModel,
-} from '@blocksuite/block-std/gfx';
 import { BlockSuiteError } from '@blocksuite/global/exceptions';
 import { Bound } from '@blocksuite/global/gfx';
+import type { EditorHost } from '@blocksuite/std';
+import { GfxControllerIdentifier, type GfxModel } from '@blocksuite/std/gfx';
 
 export const edgelessToBlob = async (
   host: EditorHost,

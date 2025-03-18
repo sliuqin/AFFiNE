@@ -1,5 +1,5 @@
-import type { EditorHost } from '@blocksuite/affine/block-std';
 import type * as Effects from '@blocksuite/affine/effects';
+import type { EditorHost } from '@blocksuite/affine/std';
 import type { Store, Transformer, Workspace } from '@blocksuite/affine/store';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
 
@@ -21,7 +21,7 @@ declare global {
       };
       services: typeof import('@blocksuite/affine/shared/services');
       editor: typeof import('@blocksuite/integration-test');
-      blockStd: typeof import('@blocksuite/affine/block-std');
+      blockStd: typeof import('@blocksuite/affine/std');
     };
     collection: Workspace;
     doc: Store;

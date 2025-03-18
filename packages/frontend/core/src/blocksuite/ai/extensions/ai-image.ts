@@ -1,6 +1,6 @@
-import { LifeCycleWatcher } from '@blocksuite/affine/block-std';
 import { ImageBlockSpec } from '@blocksuite/affine/blocks/image';
 import { AffineImageToolbarWidget } from '@blocksuite/affine/blocks/root';
+import { LifeCycleWatcher } from '@blocksuite/affine/std';
 import type { ExtensionType } from '@blocksuite/affine/store';
 
 import { setupImageToolbarAIEntry } from '../entries/image-toolbar/setup-image-toolbar';

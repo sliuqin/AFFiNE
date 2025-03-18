@@ -11,11 +11,11 @@ import {
   type ShapeStyle,
 } from '@blocksuite/affine-model';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
-import type { GfxController, GfxToolsMap } from '@blocksuite/block-std/gfx';
 import { DisposableGroup } from '@blocksuite/global/disposable';
 import type { XYWH } from '@blocksuite/global/gfx';
 import { Bound } from '@blocksuite/global/gfx';
 import { assertType, noop } from '@blocksuite/global/utils';
+import type { GfxController, GfxToolsMap } from '@blocksuite/std/gfx';
 import { effect } from '@preact/signals-core';
 import { Subject } from 'rxjs';
 

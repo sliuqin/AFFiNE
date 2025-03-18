@@ -1,4 +1,4 @@
-import type { BlockComponent } from '@blocksuite/block-std';
+import type { BlockComponent } from '@blocksuite/std';
 import type { ExtensionType } from '@blocksuite/store';
 
 import { InlineMarkdownExtension } from '../../extension/markdown-matcher.js';

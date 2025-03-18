@@ -42,10 +42,10 @@
     { "path": "../widgets/widget-scroll-anchoring" },
     { "path": "../widgets/widget-slash-menu" },
     { "path": "../widgets/widget-toolbar" },
-    { "path": "../../framework/block-std" },
     { "path": "../data-view" },
     { "path": "../../framework/global" },
     { "path": "../../framework/inline" },
+    { "path": "../../framework/std" },
     { "path": "../../framework/store" },
     { "path": "../../framework/sync" }
   ]

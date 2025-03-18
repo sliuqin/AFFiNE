@@ -5,8 +5,8 @@ import {
   ThemeProvider,
 } from '@blocksuite/affine-shared/services';
 import type { ColorEvent } from '@blocksuite/affine-shared/utils';
-import type { GfxToolsFullOptionValue } from '@blocksuite/block-std/gfx';
 import { SignalWatcher } from '@blocksuite/global/lit';
+import type { GfxToolsFullOptionValue } from '@blocksuite/std/gfx';
 import { computed } from '@preact/signals-core';
 import { css, html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';

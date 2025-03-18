@@ -1,5 +1,5 @@
-import type { BlockStdScope } from '@blocksuite/block-std';
 import type { InlineEditor } from '@blocksuite/inline';
+import type { BlockStdScope } from '@blocksuite/std';
 import type { BlockModel } from '@blocksuite/store';
 
 import { focusTextModel } from '../dom.js';

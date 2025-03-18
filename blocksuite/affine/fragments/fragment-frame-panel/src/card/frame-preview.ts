@@ -1,16 +1,16 @@
 import type { FrameBlockModel } from '@blocksuite/affine-model';
 import { ViewportElementExtension } from '@blocksuite/affine-shared/services';
 import { SpecProvider } from '@blocksuite/affine-shared/utils';
+import { DisposableGroup } from '@blocksuite/global/disposable';
+import { Bound, deserializeXYWH } from '@blocksuite/global/gfx';
+import { WithDisposable } from '@blocksuite/global/lit';
 import {
   BlockStdScope,
   type EditorHost,
   LifeCycleWatcher,
   ShadowlessElement,
-} from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
-import { DisposableGroup } from '@blocksuite/global/disposable';
-import { Bound, deserializeXYWH } from '@blocksuite/global/gfx';
-import { WithDisposable } from '@blocksuite/global/lit';
+} from '@blocksuite/std';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 import { type Query, type Store } from '@blocksuite/store';
 import { css, html, nothing, type PropertyValues } from 'lit';
 import { property, query, state } from 'lit/decorators.js';

@@ -1,8 +1,8 @@
 import type { MenuItemGroup } from '@blocksuite/affine-components/toolbar';
 import { renderGroups } from '@blocksuite/affine-components/toolbar';
-import type { GfxModel } from '@blocksuite/block-std/gfx';
 import { WithDisposable } from '@blocksuite/global/lit';
 import { MoreHorizontalIcon, MoreVerticalIcon } from '@blocksuite/icons/lit';
+import type { GfxModel } from '@blocksuite/std/gfx';
 import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 

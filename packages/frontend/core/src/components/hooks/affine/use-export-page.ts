@@ -7,7 +7,6 @@ import { EditorService } from '@affine/core/modules/editor';
 import { getAFFiNEWorkspaceSchema } from '@affine/core/modules/workspace/global-schema';
 import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
-import type { BlockStdScope } from '@blocksuite/affine/block-std';
 import {
   createAssetsArchive,
   download,
@@ -24,6 +23,7 @@ import {
   titleMiddleware,
 } from '@blocksuite/affine/shared/adapters';
 import { printToPdf } from '@blocksuite/affine/shared/utils';
+import type { BlockStdScope } from '@blocksuite/affine/std';
 import { type Store, Transformer } from '@blocksuite/affine/store';
 import { useLiveData, useService } from '@toeverything/infra';
 import { useSetAtom } from 'jotai';

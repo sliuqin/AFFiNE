@@ -1,7 +1,7 @@
-import type { EditorHost } from '@blocksuite/affine/block-std';
 import { SignalWatcher } from '@blocksuite/affine/global/lit';
 import { unsafeCSSVarV2 } from '@blocksuite/affine/shared/theme';
 import { openFileOrFiles } from '@blocksuite/affine/shared/utils';
+import type { EditorHost } from '@blocksuite/affine/std';
 import { BroomIcon, ImageIcon, PublishIcon } from '@blocksuite/icons/lit';
 import { css, html, LitElement, nothing } from 'lit';
 import { property, query, state } from 'lit/decorators.js';

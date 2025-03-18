@@ -1,10 +1,10 @@
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
+import { INLINE_ROOT_ATTR, type InlineRootElement } from '@blocksuite/inline';
 import {
   BLOCK_ID_ATTR,
   type BlockComponent,
   type Command,
-} from '@blocksuite/block-std';
-import { INLINE_ROOT_ATTR, type InlineRootElement } from '@blocksuite/inline';
+} from '@blocksuite/std';
 
 import { FORMAT_NATIVE_SUPPORT_FLAVOURS } from './consts.js';
 

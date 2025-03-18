@@ -3,7 +3,7 @@ import type {
   EmbedFigmaModel,
   EmbedFigmaStyles,
 } from '@blocksuite/affine-model';
-import { BlockSelection } from '@blocksuite/block-std';
+import { BlockSelection } from '@blocksuite/std';
 import { html, nothing } from 'lit';
 import { state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';

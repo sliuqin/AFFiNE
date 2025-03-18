@@ -1,9 +1,9 @@
 import { CanvasElementType } from '@blocksuite/affine-block-surface';
 import type { BrushElementModel } from '@blocksuite/affine-model';
 import { TelemetryProvider } from '@blocksuite/affine-shared/services';
-import type { PointerEventState } from '@blocksuite/block-std';
-import { BaseTool } from '@blocksuite/block-std/gfx';
 import type { IVec } from '@blocksuite/global/gfx';
+import type { PointerEventState } from '@blocksuite/std';
+import { BaseTool } from '@blocksuite/std/gfx';
 
 export class BrushTool extends BaseTool {
   static BRUSH_POP_GAP = 20;
@@ -176,7 +176,7 @@ export class BrushTool extends BaseTool {
   }
 }
 
-declare module '@blocksuite/block-std/gfx' {
+declare module '@blocksuite/std/gfx' {
   interface GfxToolsMap {
     brush: BrushTool;
   }

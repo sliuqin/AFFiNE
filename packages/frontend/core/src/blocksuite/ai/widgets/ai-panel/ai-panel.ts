@@ -1,9 +1,4 @@
 import {
-  WidgetComponent,
-  WidgetViewExtension,
-} from '@blocksuite/affine/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
-import {
   AFFINE_VIEWPORT_OVERLAY_WIDGET,
   type AffineViewportOverlayWidget,
 } from '@blocksuite/affine/blocks/root';
@@ -18,6 +13,8 @@ import {
   getPageRootByElement,
   stopPropagation,
 } from '@blocksuite/affine/shared/utils';
+import { WidgetComponent, WidgetViewExtension } from '@blocksuite/affine/std';
+import { GfxControllerIdentifier } from '@blocksuite/affine/std/gfx';
 import type { BaseSelection } from '@blocksuite/affine/store';
 import {
   autoPlacement,

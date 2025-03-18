@@ -2,7 +2,7 @@ import {
   type BlockComponent,
   type Command,
   TextSelection,
-} from '@blocksuite/block-std';
+} from '@blocksuite/std';
 
 /**
  * Focus the end of the block

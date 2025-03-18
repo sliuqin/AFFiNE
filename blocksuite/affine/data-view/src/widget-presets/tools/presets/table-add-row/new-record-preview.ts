@@ -1,5 +1,5 @@
-import { ShadowlessElement } from '@blocksuite/block-std';
 import { PlusIcon } from '@blocksuite/icons/lit';
+import { ShadowlessElement } from '@blocksuite/std';
 import { html } from 'lit';
 
 export class NewRecordPreview extends ShadowlessElement {

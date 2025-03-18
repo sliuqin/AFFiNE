@@ -1,10 +1,10 @@
+import { createLitPortal } from '@blocksuite/affine/components/portal';
+import { WithDisposable } from '@blocksuite/affine/global/lit';
 import {
   BlockSelection,
   type EditorHost,
   TextSelection,
-} from '@blocksuite/affine/block-std';
-import { createLitPortal } from '@blocksuite/affine/components/portal';
-import { WithDisposable } from '@blocksuite/affine/global/lit';
+} from '@blocksuite/affine/std';
 import { flip, offset } from '@floating-ui/dom';
 import { css, html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';

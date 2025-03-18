@@ -1,4 +1,3 @@
-import type { EditorHost } from '@blocksuite/affine/block-std';
 import {
   CanvasElementType,
   EdgelessCRUDIdentifier,
@@ -11,6 +10,7 @@ import {
   TelemetryProvider,
 } from '@blocksuite/affine/shared/services';
 import type { SpecBuilder } from '@blocksuite/affine/shared/utils';
+import type { EditorHost } from '@blocksuite/affine/std';
 import { InformationIcon } from '@blocksuite/icons/lit';
 import { html, LitElement, nothing } from 'lit';
 import { property, query, state } from 'lit/decorators.js';

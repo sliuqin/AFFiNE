@@ -1,11 +1,11 @@
-import type { EditorHost } from '@blocksuite/affine/block-std';
-import {
-  GfxControllerIdentifier,
-  isGfxGroupCompatibleModel,
-} from '@blocksuite/affine/block-std/gfx';
 import { sortEdgelessElements } from '@blocksuite/affine/blocks/root';
 import { AIStarIcon } from '@blocksuite/affine/components/icons';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
+import type { EditorHost } from '@blocksuite/affine/std';
+import {
+  GfxControllerIdentifier,
+  isGfxGroupCompatibleModel,
+} from '@blocksuite/affine/std/gfx';
 import { css, html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 

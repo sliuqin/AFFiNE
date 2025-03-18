@@ -3,8 +3,8 @@ import {
   getAreaByOffsets,
   getTargetIndexByDraggingOffset,
 } from '@blocksuite/affine-shared/utils';
-import type { UIEventStateContext } from '@blocksuite/block-std';
 import { IS_MOBILE } from '@blocksuite/global/env';
+import type { UIEventStateContext } from '@blocksuite/std';
 import { computed } from '@preact/signals-core';
 import type { ReactiveController } from 'lit';
 

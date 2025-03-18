@@ -10,13 +10,13 @@ import {
   getBlockProps,
   referenceToNode,
 } from '@blocksuite/affine-shared/utils';
-import { BlockSelection } from '@blocksuite/block-std';
 import {
   CaptionIcon,
   CopyIcon,
   DeleteIcon,
   DuplicateIcon,
 } from '@blocksuite/icons/lit';
+import { BlockSelection } from '@blocksuite/std';
 import { Slice } from '@blocksuite/store';
 import { signal } from '@preact/signals-core';
 import { html } from 'lit';

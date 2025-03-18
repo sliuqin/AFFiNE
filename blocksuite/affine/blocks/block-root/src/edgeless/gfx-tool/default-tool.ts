@@ -31,7 +31,11 @@ import {
   handleNativeRangeAtPoint,
   resetNativeSelection,
 } from '@blocksuite/affine-shared/utils';
-import type { PointerEventState } from '@blocksuite/block-std';
+import { DisposableGroup } from '@blocksuite/global/disposable';
+import type { IVec } from '@blocksuite/global/gfx';
+import { Bound, getCommonBoundWithRotation, Vec } from '@blocksuite/global/gfx';
+import { noop } from '@blocksuite/global/utils';
+import type { PointerEventState } from '@blocksuite/std';
 import {
   BaseTool,
   getTopElements,
@@ -40,11 +44,7 @@ import {
   type GfxPrimitiveElementModel,
   isGfxGroupCompatibleModel,
   type PointTestOptions,
-} from '@blocksuite/block-std/gfx';
-import { DisposableGroup } from '@blocksuite/global/disposable';
-import type { IVec } from '@blocksuite/global/gfx';
-import { Bound, getCommonBoundWithRotation, Vec } from '@blocksuite/global/gfx';
-import { noop } from '@blocksuite/global/utils';
+} from '@blocksuite/std/gfx';
 import { effect } from '@preact/signals-core';
 import clamp from 'lodash-es/clamp';
 import last from 'lodash-es/last';
@@ -1046,7 +1046,7 @@ export class DefaultTool extends BaseTool {
   }
 }
 
-declare module '@blocksuite/block-std/gfx' {
+declare module '@blocksuite/std/gfx' {
   interface GfxToolsMap {
     default: DefaultTool;
   }

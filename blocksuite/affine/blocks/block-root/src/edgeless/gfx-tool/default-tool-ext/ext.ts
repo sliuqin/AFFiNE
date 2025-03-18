@@ -1,5 +1,5 @@
-import type { PointerEventState } from '@blocksuite/block-std';
-import type { GfxModel } from '@blocksuite/block-std/gfx';
+import type { PointerEventState } from '@blocksuite/std';
+import type { GfxModel } from '@blocksuite/std/gfx';
 
 import type { DefaultTool } from '../default-tool.js';
 

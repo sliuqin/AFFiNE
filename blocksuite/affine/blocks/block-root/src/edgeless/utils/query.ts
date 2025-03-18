@@ -22,15 +22,15 @@ import {
   getElementsWithoutGroup,
   isTopLevelBlock,
 } from '@blocksuite/affine-shared/utils';
+import type { PointLocation } from '@blocksuite/global/gfx';
+import { Bound } from '@blocksuite/global/gfx';
 import type {
   GfxBlockElementModel,
   GfxModel,
   GfxPrimitiveElementModel,
   GfxToolsFullOptionValue,
   Viewport,
-} from '@blocksuite/block-std/gfx';
-import type { PointLocation } from '@blocksuite/global/gfx';
-import { Bound } from '@blocksuite/global/gfx';
+} from '@blocksuite/std/gfx';
 import type { BlockModel } from '@blocksuite/store';
 
 export function isMindmapNode(element: GfxBlockElementModel | GfxModel | null) {

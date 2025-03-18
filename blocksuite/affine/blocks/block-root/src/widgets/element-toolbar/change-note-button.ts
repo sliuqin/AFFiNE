@@ -27,7 +27,6 @@ import {
   TelemetryProvider,
   ThemeProvider,
 } from '@blocksuite/affine-shared/services';
-import { EditorLifeCycleExtension } from '@blocksuite/block-std';
 import { Bound } from '@blocksuite/global/gfx';
 import { WithDisposable } from '@blocksuite/global/lit';
 import {
@@ -39,6 +38,7 @@ import {
   NoteShadowDuotoneIcon,
   ScissorsIcon,
 } from '@blocksuite/icons/lit';
+import { EditorLifeCycleExtension } from '@blocksuite/std';
 import { html, LitElement, nothing, type TemplateResult } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { join } from 'lit/directives/join.js';

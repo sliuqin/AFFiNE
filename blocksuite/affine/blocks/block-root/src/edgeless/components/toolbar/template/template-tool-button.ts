@@ -1,6 +1,6 @@
 import { ArrowDownSmallIcon } from '@blocksuite/affine-components/icons';
 import { once } from '@blocksuite/affine-shared/utils';
-import type { GfxToolsFullOptionValue } from '@blocksuite/block-std/gfx';
+import type { GfxToolsFullOptionValue } from '@blocksuite/std/gfx';
 import {
   arrow,
   autoUpdate,

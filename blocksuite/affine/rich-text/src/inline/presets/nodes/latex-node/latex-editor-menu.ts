@@ -1,10 +1,10 @@
 import { ColorScheme } from '@blocksuite/affine-model';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
 import { unsafeCSSVar } from '@blocksuite/affine-shared/theme';
-import { type BlockStdScope, ShadowlessElement } from '@blocksuite/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { noop } from '@blocksuite/global/utils';
 import { DoneIcon } from '@blocksuite/icons/lit';
+import { type BlockStdScope, ShadowlessElement } from '@blocksuite/std';
 import { effect, type Signal, signal } from '@preact/signals-core';
 import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';

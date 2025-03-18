@@ -3,8 +3,8 @@ import {
   getTextSelectionCommand,
 } from '@blocksuite/affine-shared/commands';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
-import type { Command } from '@blocksuite/block-std';
 import { INLINE_ROOT_ATTR, type InlineRootElement } from '@blocksuite/inline';
+import type { Command } from '@blocksuite/std';
 
 import { toggleLinkPopup } from '../inline/index.js';
 import { formatBlockCommand } from './format-block.js';

@@ -1,5 +1,5 @@
 import type { EmbedHtmlModel, EmbedHtmlStyles } from '@blocksuite/affine-model';
-import { BlockSelection } from '@blocksuite/block-std';
+import { BlockSelection } from '@blocksuite/std';
 import { html } from 'lit';
 import { query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';

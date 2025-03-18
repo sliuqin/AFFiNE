@@ -13,12 +13,12 @@ import type {
   ShapeElementModel,
 } from '@blocksuite/affine-model';
 import { getElementsWithoutGroup } from '@blocksuite/affine-shared/utils';
+import { getCommonBoundWithRotation } from '@blocksuite/global/gfx';
 import {
   generateKeyBetweenV2,
   type GfxModel,
   type SerializedElement,
-} from '@blocksuite/block-std/gfx';
-import { getCommonBoundWithRotation } from '@blocksuite/global/gfx';
+} from '@blocksuite/std/gfx';
 import { type BlockSnapshot, BlockSnapshotSchema } from '@blocksuite/store';
 import groupBy from 'lodash-es/groupBy';
 

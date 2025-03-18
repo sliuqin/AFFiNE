@@ -3,11 +3,8 @@ import type { TableBlockModel } from '@blocksuite/affine-model';
 import { NOTE_SELECTOR } from '@blocksuite/affine-shared/consts';
 import { DocModeProvider } from '@blocksuite/affine-shared/services';
 import { VirtualPaddingController } from '@blocksuite/affine-shared/utils';
-import {
-  type BlockComponent,
-  RANGE_SYNC_EXCLUDE_ATTR,
-} from '@blocksuite/block-std';
 import { IS_MOBILE } from '@blocksuite/global/env';
+import { type BlockComponent, RANGE_SYNC_EXCLUDE_ATTR } from '@blocksuite/std';
 import { signal } from '@preact/signals-core';
 import { html, nothing } from 'lit';
 import { ref } from 'lit/directives/ref.js';

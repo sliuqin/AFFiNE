@@ -1,8 +1,5 @@
-import {
-  type EditorHost,
-  ShadowlessElement,
-} from '@blocksuite/affine/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
+import { type EditorHost, ShadowlessElement } from '@blocksuite/affine/std';
 import { Signal } from '@preact/signals-core';
 import { html, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';

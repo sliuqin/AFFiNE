@@ -1,9 +1,6 @@
 import { EmbedLinkedDocBlockSchema } from '@blocksuite/affine-model';
 import { ToolbarModuleExtension } from '@blocksuite/affine-shared/services';
-import {
-  BlockServiceIdentifier,
-  BlockViewExtension,
-} from '@blocksuite/block-std';
+import { BlockServiceIdentifier, BlockViewExtension } from '@blocksuite/std';
 import type { ExtensionType } from '@blocksuite/store';
 import { literal } from 'lit/static-html.js';
 

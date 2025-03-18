@@ -2,9 +2,9 @@ import {
   GroupElementModel,
   MindmapElementModel,
 } from '@blocksuite/affine-model';
-import type { GfxModel } from '@blocksuite/block-std/gfx';
 import { WithDisposable } from '@blocksuite/global/lit';
 import { GroupingIcon } from '@blocksuite/icons/lit';
+import type { GfxModel } from '@blocksuite/std/gfx';
 import { css, html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 

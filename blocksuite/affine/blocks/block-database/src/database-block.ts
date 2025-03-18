@@ -17,10 +17,6 @@ import {
 } from '@blocksuite/affine-shared/services';
 import { getDropResult } from '@blocksuite/affine-widget-drag-handle';
 import {
-  type BlockComponent,
-  RANGE_SYNC_EXCLUDE_ATTR,
-} from '@blocksuite/block-std';
-import {
   createRecordDetail,
   createUniComponentFromWebComponent,
   DataView,
@@ -42,6 +38,7 @@ import {
   DeleteIcon,
   MoreHorizontalIcon,
 } from '@blocksuite/icons/lit';
+import { type BlockComponent, RANGE_SYNC_EXCLUDE_ATTR } from '@blocksuite/std';
 import { Slice } from '@blocksuite/store';
 import { autoUpdate } from '@floating-ui/dom';
 import { computed, signal } from '@preact/signals-core';

@@ -7,12 +7,6 @@ import {
   NotificationProvider,
 } from '@blocksuite/affine-shared/services';
 import { getViewportElement } from '@blocksuite/affine-shared/utils';
-import type { BlockComponent } from '@blocksuite/block-std';
-import {
-  BlockSelection,
-  getInlineRangeProvider,
-  TextSelection,
-} from '@blocksuite/block-std';
 import { IS_MAC, IS_MOBILE } from '@blocksuite/global/env';
 import { noop } from '@blocksuite/global/utils';
 import {
@@ -21,6 +15,12 @@ import {
   type InlineRootElement,
   type VLine,
 } from '@blocksuite/inline';
+import type { BlockComponent } from '@blocksuite/std';
+import {
+  BlockSelection,
+  getInlineRangeProvider,
+  TextSelection,
+} from '@blocksuite/std';
 import { Slice } from '@blocksuite/store';
 import { computed, effect, type Signal, signal } from '@preact/signals-core';
 import { html, nothing, type TemplateResult } from 'lit';

@@ -1,6 +1,6 @@
 import { NoteBlockModel, NoteDisplayMode } from '@blocksuite/affine-model';
 import { matchModels } from '@blocksuite/affine-shared/utils';
-import { BlockComponent } from '@blocksuite/block-std';
+import { BlockComponent } from '@blocksuite/std';
 import { css, html } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 

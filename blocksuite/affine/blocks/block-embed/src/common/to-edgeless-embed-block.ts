@@ -1,16 +1,16 @@
 import { EdgelessLegacySlotIdentifier } from '@blocksuite/affine-block-surface';
+import { Bound } from '@blocksuite/global/gfx';
 import {
   blockComponentSymbol,
   type BlockService,
   type GfxBlockComponent,
   GfxElementSymbol,
   toGfxBlockComponent,
-} from '@blocksuite/block-std';
+} from '@blocksuite/std';
 import type {
   GfxBlockElementModel,
   GfxCompatibleProps,
-} from '@blocksuite/block-std/gfx';
-import { Bound } from '@blocksuite/global/gfx';
+} from '@blocksuite/std/gfx';
 import type { StyleInfo } from 'lit/directives/style-map.js';
 
 import type { EmbedBlockComponent } from './embed-block-element.js';

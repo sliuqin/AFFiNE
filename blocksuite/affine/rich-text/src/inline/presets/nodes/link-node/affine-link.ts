@@ -5,8 +5,6 @@ import {
   ToolbarRegistryIdentifier,
 } from '@blocksuite/affine-shared/services';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
-import type { BlockComponent, BlockStdScope } from '@blocksuite/block-std';
-import { BLOCK_ID_ATTR, ShadowlessElement } from '@blocksuite/block-std';
 import { WithDisposable } from '@blocksuite/global/lit';
 import {
   type DeltaInsert,
@@ -14,6 +12,8 @@ import {
   type InlineRootElement,
   ZERO_WIDTH_SPACE,
 } from '@blocksuite/inline';
+import type { BlockComponent, BlockStdScope } from '@blocksuite/std';
+import { BLOCK_ID_ATTR, ShadowlessElement } from '@blocksuite/std';
 import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';
 import { type StyleInfo, styleMap } from 'lit/directives/style-map.js';

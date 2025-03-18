@@ -9,8 +9,8 @@ import {
   LinkPreviewerService,
 } from '@blocksuite/affine-shared/services';
 import { matchModels } from '@blocksuite/affine-shared/utils';
-import { BlockSelection } from '@blocksuite/block-std';
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
+import { BlockSelection } from '@blocksuite/std';
 import { computed, type ReadonlySignal, signal } from '@preact/signals-core';
 import { html, nothing } from 'lit';
 import { type ClassInfo, classMap } from 'lit/directives/class-map.js';

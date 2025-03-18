@@ -20,13 +20,9 @@ import {
   getScrollContainer,
   matchModels,
 } from '@blocksuite/affine-shared/utils';
-import type { PointerEventState } from '@blocksuite/block-std';
-import {
-  BlockComponent,
-  BlockSelection,
-  TextSelection,
-} from '@blocksuite/block-std';
 import { Point } from '@blocksuite/global/gfx';
+import type { PointerEventState } from '@blocksuite/std';
+import { BlockComponent, BlockSelection, TextSelection } from '@blocksuite/std';
 import type { BlockModel, Text } from '@blocksuite/store';
 import { css, html } from 'lit';
 import { query } from 'lit/decorators.js';

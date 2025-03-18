@@ -1,12 +1,4 @@
 import { ChatHistoryOrder } from '@affine/graphql';
-import {
-  type BlockComponent,
-  type BlockSelection,
-  type BlockStdScope,
-  type EditorHost,
-  type TextSelection,
-} from '@blocksuite/affine/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/affine/block-std/gfx';
 import { EdgelessCRUDIdentifier } from '@blocksuite/affine/blocks/surface';
 import {
   Bound,
@@ -31,6 +23,14 @@ import {
   NotificationProvider,
   TelemetryProvider,
 } from '@blocksuite/affine/shared/services';
+import {
+  type BlockComponent,
+  type BlockSelection,
+  type BlockStdScope,
+  type EditorHost,
+  type TextSelection,
+} from '@blocksuite/affine/std';
+import { GfxControllerIdentifier } from '@blocksuite/affine/std/gfx';
 import type { Store } from '@blocksuite/affine/store';
 import {
   BlockIcon,

@@ -6,11 +6,11 @@ import {
   type toExternalData,
 } from '@affine/component';
 import type { AffineDNDData } from '@affine/core/types/dnd';
-import { BlockStdScope } from '@blocksuite/affine/block-std';
 import {
   DNDAPIExtension,
   DndApiExtensionIdentifier,
 } from '@blocksuite/affine/shared/services';
+import { BlockStdScope } from '@blocksuite/affine/std';
 import type { SliceSnapshot } from '@blocksuite/affine/store';
 import type { DragBlockPayload } from '@blocksuite/affine/widgets/drag-handle';
 import { Service } from '@toeverything/infra';

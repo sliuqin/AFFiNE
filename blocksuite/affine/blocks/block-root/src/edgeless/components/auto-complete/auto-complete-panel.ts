@@ -31,8 +31,6 @@ import {
   captureEventTarget,
   matchModels,
 } from '@blocksuite/affine-shared/utils';
-import { type BlockStdScope, stdContext } from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
 import type { XYWH } from '@blocksuite/global/gfx';
 import {
   Bound,
@@ -44,6 +42,8 @@ import {
 } from '@blocksuite/global/gfx';
 import { WithDisposable } from '@blocksuite/global/lit';
 import { FrameIcon, PageIcon } from '@blocksuite/icons/lit';
+import { type BlockStdScope, stdContext } from '@blocksuite/std';
+import { GfxControllerIdentifier } from '@blocksuite/std/gfx';
 import { consume } from '@lit/context';
 import { baseTheme } from '@toeverything/theme';
 import { css, html, LitElement, nothing, unsafeCSS } from 'lit';

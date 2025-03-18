@@ -10,7 +10,6 @@ import {
   type ToolbarModuleConfig,
 } from '@blocksuite/affine-shared/services';
 import { getBlockProps } from '@blocksuite/affine-shared/utils';
-import { BlockSelection } from '@blocksuite/block-std';
 import {
   CaptionIcon,
   CopyIcon,
@@ -18,6 +17,7 @@ import {
   DuplicateIcon,
   ResetIcon,
 } from '@blocksuite/icons/lit';
+import { BlockSelection } from '@blocksuite/std';
 import { Slice, Text } from '@blocksuite/store';
 import { signal } from '@preact/signals-core';
 import { html } from 'lit';

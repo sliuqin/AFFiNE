@@ -1,5 +1,5 @@
-import type { SerializedElement } from '@blocksuite/block-std/gfx';
 import { Bound, getBoundWithRotation } from '@blocksuite/global/gfx';
+import type { SerializedElement } from '@blocksuite/std/gfx';
 import { type BlockSnapshot, BlockSnapshotSchema } from '@blocksuite/store';
 
 export function getBoundFromSerializedElement(element: SerializedElement) {

@@ -1,6 +1,6 @@
 import { on } from '@blocksuite/affine-shared/utils';
-import type { PointerEventState } from '@blocksuite/block-std';
-import { BaseTool, MouseButton } from '@blocksuite/block-std/gfx';
+import type { PointerEventState } from '@blocksuite/std';
+import { BaseTool, MouseButton } from '@blocksuite/std/gfx';
 import { Signal } from '@preact/signals-core';
 
 export type PanToolOption = {
@@ -74,7 +74,7 @@ export class PanTool extends BaseTool<PanToolOption> {
   }
 }
 
-declare module '@blocksuite/block-std/gfx' {
+declare module '@blocksuite/std/gfx' {
   interface GfxToolsMap {
     pan: PanTool;
   }

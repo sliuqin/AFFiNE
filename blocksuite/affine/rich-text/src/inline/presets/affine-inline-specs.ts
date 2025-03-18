@@ -1,8 +1,8 @@
 import { FootNoteSchema, ReferenceInfoSchema } from '@blocksuite/affine-model';
 import { ToolbarModuleExtension } from '@blocksuite/affine-shared/services';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
-import { BlockFlavourIdentifier, StdIdentifier } from '@blocksuite/block-std';
 import type { InlineEditor, InlineRootElement } from '@blocksuite/inline';
+import { BlockFlavourIdentifier, StdIdentifier } from '@blocksuite/std';
 import { html } from 'lit';
 import { z } from 'zod';
 

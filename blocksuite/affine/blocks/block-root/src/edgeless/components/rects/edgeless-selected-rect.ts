@@ -40,14 +40,6 @@ import {
   requestThrottledConnectedFrame,
   stopPropagation,
 } from '@blocksuite/affine-shared/utils';
-import { WidgetComponent } from '@blocksuite/block-std';
-import {
-  type CursorType,
-  getTopElements,
-  GfxControllerIdentifier,
-  type GfxModel,
-  type GfxPrimitiveElementModel,
-} from '@blocksuite/block-std/gfx';
 import type { IPoint, IVec, PointLocation } from '@blocksuite/global/gfx';
 import {
   Bound,
@@ -55,6 +47,14 @@ import {
   normalizeDegAngle,
 } from '@blocksuite/global/gfx';
 import { assertType } from '@blocksuite/global/utils';
+import { WidgetComponent } from '@blocksuite/std';
+import {
+  type CursorType,
+  getTopElements,
+  GfxControllerIdentifier,
+  type GfxModel,
+  type GfxPrimitiveElementModel,
+} from '@blocksuite/std/gfx';
 import { css, html, nothing } from 'lit';
 import { state } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';

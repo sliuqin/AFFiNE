@@ -1,11 +1,5 @@
 import { createReactComponentFromLit } from '@affine/component';
 import { defaultBlockMarkdownAdapterMatchers } from '@blocksuite/affine/adapters';
-import {
-  BlockStdScope,
-  BlockViewIdentifier,
-  type EditorHost,
-  ShadowlessElement,
-} from '@blocksuite/affine/block-std';
 import { defaultImageProxyMiddleware } from '@blocksuite/affine/blocks/image';
 import { PageEditorBlockSpecs } from '@blocksuite/affine/extensions';
 import { Container, type ServiceProvider } from '@blocksuite/affine/global/di';
@@ -15,6 +9,12 @@ import {
   MarkdownInlineToDeltaAdapterExtensions,
 } from '@blocksuite/affine/rich-text';
 import { codeBlockWrapMiddleware } from '@blocksuite/affine/shared/adapters';
+import {
+  BlockStdScope,
+  BlockViewIdentifier,
+  type EditorHost,
+  ShadowlessElement,
+} from '@blocksuite/affine/std';
 import type {
   ExtensionType,
   Query,

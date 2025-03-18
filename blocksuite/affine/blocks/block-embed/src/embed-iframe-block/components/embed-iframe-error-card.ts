@@ -1,9 +1,9 @@
 import { createLitPortal } from '@blocksuite/affine-components/portal';
 import type { EmbedIframeBlockModel } from '@blocksuite/affine-model';
 import { unsafeCSSVarV2 } from '@blocksuite/affine-shared/theme';
-import type { BlockStdScope } from '@blocksuite/block-std';
 import { WithDisposable } from '@blocksuite/global/lit';
 import { EditIcon, InformationIcon, ResetIcon } from '@blocksuite/icons/lit';
+import type { BlockStdScope } from '@blocksuite/std';
 import { flip, offset } from '@floating-ui/dom';
 import { baseTheme } from '@toeverything/theme';
 import { css, html, LitElement, unsafeCSS } from 'lit';

@@ -1,12 +1,12 @@
-import { ConfigExtensionFactory } from '@blocksuite/block-std';
+import type { Container } from '@blocksuite/global/di';
+import { DisposableGroup } from '@blocksuite/global/disposable';
+import { ConfigExtensionFactory } from '@blocksuite/std';
 import {
   type GfxController,
   GfxExtension,
   GfxExtensionIdentifier,
   type GfxViewportElement,
-} from '@blocksuite/block-std/gfx';
-import type { Container } from '@blocksuite/global/di';
-import { DisposableGroup } from '@blocksuite/global/disposable';
+} from '@blocksuite/std/gfx';
 import debounce from 'lodash-es/debounce';
 
 import {
