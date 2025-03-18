@@ -467,13 +467,17 @@ export class SubscriptionService implements OnApplicationBootstrap {
       throw new InternalServerError('Failed to parse stripe subscription.');
     }
 
-    const isPlanActive =
+    const shouldSave =
       subscription.status === SubscriptionStatus.Active ||
-      subscription.status === SubscriptionStatus.Trialing;
+      subscription.status === SubscriptionStatus.Trialing ||
+      // PastDue is a temporary status, it will be cancelled after all recurring payments retries failed.
+      // Saved in db to let users be able to cancel further retries manually.
+      subscription.status === SubscriptionStatus.PastDue;
 
     const manager = this.select(knownSubscription.lookupKey.plan);
 
-    if (!isPlanActive) {
+    // TODO(@forehalo): trigger 'subscription.status.changed' event to let strategy handle them. after migrated to Model
+    if (!shouldSave) {
       await manager.deleteStripeSubscription(knownSubscription);
     } else {
       await manager.saveStripeSubscription(knownSubscription);

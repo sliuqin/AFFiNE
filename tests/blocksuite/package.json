@@ -11,6 +11,7 @@
     "@blocksuite/integration-test": "workspace:*",
     "@playwright/test": "=1.51.0",
     "@toeverything/theme": "^1.1.12",
+    "json-stable-stringify": "^1.2.1",
     "rxjs": "^7.8.1"
   },
   "bsImport": {

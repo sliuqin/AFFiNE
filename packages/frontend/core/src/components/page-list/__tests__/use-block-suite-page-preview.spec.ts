@@ -44,12 +44,12 @@ describe('useBlockSuitePagePreview', () => {
       {
         text: new Text('Hello, world!'),
       },
-      page.getBlockByFlavour('affine:note')[0].id
+      page.getModelsByFlavour('affine:note')[0].id
     );
     const hook = renderHook(() => useAtomValue(useBlockSuitePagePreview(page)));
     expect(hook.result.current).toBe('Hello, world!');
     page.transact(() => {
-      page.getBlockById(id)!.text!.insert('Test', 0);
+      page.getModelById(id)!.text!.insert('Test', 0);
     });
     await new Promise(resolve => setTimeout(resolve, 100));
     hook.rerender();
@@ -61,7 +61,7 @@ describe('useBlockSuitePagePreview', () => {
       {
         text: new Text('First block!'),
       },
-      page.getBlockByFlavour('affine:note')[0].id,
+      page.getModelsByFlavour('affine:note')[0].id,
       0
     );
     await new Promise(resolve => setTimeout(resolve, 100));

@@ -106,7 +106,7 @@ export class MiniMindmapPreview extends WithDisposable(LitElement) {
     const doc = collection.createDoc({ id: 'doc:home' }).load();
     const rootId = doc.addBlock('affine:page', {});
     const surfaceId = doc.addBlock('affine:surface', {}, rootId);
-    const surface = doc.getBlockById(surfaceId) as SurfaceBlockModel;
+    const surface = doc.getModelById(surfaceId) as SurfaceBlockModel;
     doc.resetHistory();
 
     return {

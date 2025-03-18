@@ -109,7 +109,7 @@ export class BlockComponent<
     if (this._model) {
       return this._model;
     }
-    const model = this.doc.getBlockById<Model>(this.blockId);
+    const model = this.doc.getModelById<Model>(this.blockId);
     if (!model) {
       throw new BlockSuiteError(
         ErrorCode.MissingViewModelError,

@@ -336,6 +336,7 @@ export const PackageList = [
     location: 'blocksuite/affine/blocks/block-surface-ref',
     name: '@blocksuite/affine-block-surface-ref',
     workspaceDependencies: [
+      'blocksuite/affine/blocks/block-frame',
       'blocksuite/affine/blocks/block-surface',
       'blocksuite/affine/components',
       'blocksuite/affine/model',
@@ -583,6 +584,11 @@ export const PackageList = [
     ],
   },
   {
+    location: 'blocksuite/docs',
+    name: '@blocksuite/bs-docs',
+    workspaceDependencies: ['blocksuite/affine/all'],
+  },
+  {
     location: 'blocksuite/framework/block-std',
     name: '@blocksuite/block-std',
     workspaceDependencies: [
@@ -727,6 +733,7 @@ export const PackageList = [
       'packages/frontend/electron-api',
       'packages/frontend/i18n',
       'packages/common/nbstore',
+      'blocksuite/affine/all',
       'packages/common/infra',
       'tools/utils',
     ],
@@ -965,6 +972,7 @@ export type PackageName =
   | '@blocksuite/affine-widget-scroll-anchoring'
   | '@blocksuite/affine-widget-slash-menu'
   | '@blocksuite/affine-widget-toolbar'
+  | '@blocksuite/bs-docs'
   | '@blocksuite/block-std'
   | '@blocksuite/global'
   | '@blocksuite/inline'

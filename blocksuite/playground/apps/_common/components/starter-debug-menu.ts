@@ -489,7 +489,7 @@ export class StarterDebugMenu extends ShadowlessElement {
         );
         for (const doc of docs) {
           if (doc) {
-            const noteBlock = window.doc.getBlockByFlavour('affine:note');
+            const noteBlock = window.doc.getModelsByFlavour('affine:note');
             window.doc.addBlock(
               'affine:paragraph',
               {

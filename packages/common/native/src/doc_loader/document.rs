@@ -1,4 +1,8 @@
-use std::{io::Cursor, path::PathBuf};
+use std::{
+  io::Cursor,
+  panic::{catch_unwind, AssertUnwindSafe},
+  path::PathBuf,
+};
 
 use path_ext::PathExt;
 
@@ -81,16 +85,28 @@ impl Doc {
 
   fn from_loader(
     file_path: &str,
-    loader: impl Loader,
+    loader: impl Loader + 'static,
     splitter: impl TextSplitter + 'static,
   ) -> Result<Doc, LoaderError> {
     let name = file_path.to_string();
-    let chunks = Self::get_chunks_from_loader(loader, splitter)?;
+    let chunks = catch_unwind(AssertUnwindSafe(|| {
+      Self::get_chunks_from_loader(loader, splitter)
+    }))
+    .map_err(|e| {
+      LoaderError::Other(match e.downcast::<String>() {
+        Ok(v) => *v,
+        Err(e) => match e.downcast::<&str>() {
+          Ok(v) => v.to_string(),
+          _ => "Unknown Source of Error".to_owned(),
+        },
+      })
+    })??;
+
     Ok(Self { name, chunks })
   }
 
   fn get_chunks_from_loader(
-    loader: impl Loader,
+    loader: impl Loader + 'static,
     splitter: impl TextSplitter + 'static,
   ) -> Result<Vec<Chunk>, LoaderError> {
     let docs = loader.load_and_split(splitter)?;

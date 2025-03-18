@@ -35,3 +35,4 @@ packages/frontend/native/index.d.ts
 packages/frontend/native/index.js
 packages/frontend/apps/android/App/app/build/**
 tests/blocksuite/snapshots
+blocksuite/docs/api/**

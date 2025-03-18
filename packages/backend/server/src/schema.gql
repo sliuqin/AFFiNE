@@ -12,6 +12,12 @@ input AddContextFileInput {
   contextId: String!
 }
 
+input AddRemoveContextCategoryInput {
+  categoryId: String!
+  contextId: String!
+  type: ContextCategories!
+}
+
 type AlreadyInSpaceDataType {
   spaceId: String!
 }
@@ -33,6 +39,11 @@ type ChatMessage {
   id: ID
   params: JSON
   role: String!
+}
+
+enum ContextCategories {
+  Collection
+  Tag
 }
 
 enum ContextEmbedStatus {
@@ -90,6 +101,12 @@ type CopilotContext {
   """match workspace doc content"""
   matchWorkspaceContext(content: String!, limit: SafeInt): ContextMatchedDocChunk!
   workspaceId: String!
+}
+
+type CopilotContextCategory {
+  createdAt: SafeInt!
+  id: ID!
+  type: ContextCategories!
 }
 
 type CopilotContextDoc {
@@ -803,6 +820,9 @@ type Mutation {
   acceptInviteById(inviteId: String!, sendAcceptMail: Boolean, workspaceId: String!): Boolean!
   activateLicense(license: String!, workspaceId: String!): License!
 
+  """add a category to context"""
+  addContextCategory(options: AddRemoveContextCategoryInput!): CopilotContextCategory!
+
   """add a doc to context"""
   addContextDoc(options: AddContextDocInput!): CopilotContextDoc!
 
@@ -887,6 +907,9 @@ type Mutation {
   """Remove user avatar"""
   removeAvatar: RemoveAvatar!
 
+  """remove a category from context"""
+  removeContextCategory(options: AddRemoveContextCategoryInput!): Boolean!
+
   """remove a doc from context"""
   removeContextDoc(options: RemoveContextDocInput!): Boolean!
 
@@ -920,6 +943,9 @@ type Mutation {
 
   """update multiple server runtime configurable settings"""
   updateRuntimeConfigs(updates: JSONObject!): [ServerRuntimeConfigType!]!
+
+  """Update user settings"""
+  updateSettings(input: UpdateSettingsInput!): Boolean!
   updateSubscriptionRecurring(idempotencyKey: String @deprecated(reason: "use header `Idempotency-Key`"), plan: SubscriptionPlan = Pro, recurring: SubscriptionRecurring!, workspaceId: String): SubscriptionType!
 
   """Update an user"""
@@ -1255,6 +1281,14 @@ type ServerServiceConfig {
   name: String!
 }
 
+type SettingsType {
+  """Receive invitation email"""
+  receiveInvitationEmail: Boolean!
+
+  """Receive mention email"""
+  receiveMentionEmail: Boolean!
+}
+
 type SpaceAccessDeniedDataType {
   spaceId: String!
 }
@@ -1380,6 +1414,14 @@ input UpdateDocUserRoleInput {
   workspaceId: String!
 }
 
+input UpdateSettingsInput {
+  """Receive invitation email"""
+  receiveInvitationEmail: Boolean
+
+  """Receive mention email"""
+  receiveMentionEmail: Boolean
+}
+
 input UpdateUserInput {
   """User name"""
   name: String
@@ -1472,6 +1514,9 @@ type UserType {
   notifications(pagination: PaginationInput!): PaginatedNotificationObjectType!
   quota: UserQuotaType!
   quotaUsage: UserQuotaUsageType!
+
+  """Get user settings"""
+  settings: SettingsType!
   subscriptions: [SubscriptionType!]!
   token: tokenType! @deprecated(reason: "use [/api/auth/sign-in?native=true] instead")
 }

@@ -40,6 +40,8 @@ import { CopilotStorage } from '../storage';
 import { CopilotContextDocJob } from './job';
 import { CopilotContextService } from './service';
 import {
+  ContextCategories,
+  ContextCategory,
   ContextDoc,
   ContextEmbedStatus,
   type ContextFile,
@@ -48,6 +50,18 @@ import {
   MAX_EMBEDDABLE_SIZE,
 } from './types';
 import { readStream } from './utils';
+
+@InputType()
+class AddRemoveContextCategoryInput {
+  @Field(() => String)
+  contextId!: string;
+
+  @Field(() => ContextCategories)
+  type!: ContextCategories;
+
+  @Field(() => String)
+  categoryId!: string;
+}
 
 @InputType()
 class AddContextDocInput {
@@ -92,6 +106,20 @@ export class CopilotContextType {
 
   @Field(() => String)
   workspaceId!: string;
+}
+
+registerEnumType(ContextCategories, { name: 'ContextCategories' });
+
+@ObjectType()
+class CopilotContextCategory implements ContextCategory {
+  @Field(() => ID)
+  id!: string;
+
+  @Field(() => ContextCategories)
+  type!: ContextCategories;
+
+  @Field(() => SafeIntResolver)
+  createdAt!: number;
 }
 
 registerEnumType(ContextEmbedStatus, { name: 'ContextEmbedStatus' });
@@ -333,6 +361,59 @@ export class CopilotContextResolver {
   async docs(@Parent() context: CopilotContextType): Promise<ContextDoc[]> {
     const session = await this.context.get(context.id);
     return session.listDocs();
+  }
+
+  @Mutation(() => CopilotContextCategory, {
+    description: 'add a category to context',
+  })
+  @CallMetric('ai', 'context_category_add')
+  async addContextCategory(
+    @Args({ name: 'options', type: () => AddRemoveContextCategoryInput })
+    options: AddRemoveContextCategoryInput
+  ) {
+    const lockFlag = `${COPILOT_LOCKER}:context:${options.contextId}`;
+    await using lock = await this.mutex.acquire(lockFlag);
+    if (!lock) {
+      return new TooManyRequest('Server is busy');
+    }
+    const session = await this.context.get(options.contextId);
+
+    try {
+      return await session.addCategoryRecord(options.type, options.categoryId);
+    } catch (e: any) {
+      throw new CopilotFailedToModifyContext({
+        contextId: options.contextId,
+        message: e.message,
+      });
+    }
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'remove a category from context',
+  })
+  @CallMetric('ai', 'context_category_remove')
+  async removeContextCategory(
+    @Args({ name: 'options', type: () => AddRemoveContextCategoryInput })
+    options: AddRemoveContextCategoryInput
+  ) {
+    const lockFlag = `${COPILOT_LOCKER}:context:${options.contextId}`;
+    await using lock = await this.mutex.acquire(lockFlag);
+    if (!lock) {
+      return new TooManyRequest('Server is busy');
+    }
+    const session = await this.context.get(options.contextId);
+
+    try {
+      return await session.removeCategoryRecord(
+        options.type,
+        options.categoryId
+      );
+    } catch (e: any) {
+      throw new CopilotFailedToModifyContext({
+        contextId: options.contextId,
+        message: e.message,
+      });
+    }
   }
 
   @Mutation(() => CopilotContextDoc, {

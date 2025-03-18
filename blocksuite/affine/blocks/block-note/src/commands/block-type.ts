@@ -84,7 +84,7 @@ export const updateBlockType: Command<
     if (flavour !== 'affine:code') return;
     const id = mergeToCodeModel(blockModels);
     if (!id) return;
-    const model = doc.getBlockById(id);
+    const model = doc.getModelById(id);
     if (!model) return;
     asyncSetInlineRange(host, model, {
       index: model.text?.length ?? 0,
@@ -115,7 +115,7 @@ export const updateBlockType: Command<
       nextSiblingId = doc.addBlock('affine:paragraph', {}, parent);
     }
     focusTextModel(host.std, nextSiblingId);
-    const newModel = doc.getBlockById(id);
+    const newModel = doc.getModelById(id);
     if (!newModel) {
       return next({ updatedBlocks: [] });
     }
@@ -217,7 +217,7 @@ export const updateBlockType: Command<
           if (!newId) {
             return;
           }
-          const newModel = doc.getBlockById(newId);
+          const newModel = doc.getModelById(newId);
           if (newModel) {
             newModels.push(newModel);
           }

@@ -1,5 +1,5 @@
 import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
-import type { BaseTextAttributes, DeltaInsert } from '@blocksuite/inline';
+import type { DeltaInsert } from '@blocksuite/inline';
 import { type Signal, signal } from '@preact/signals-core';
 import * as Y from 'yjs';
 
@@ -15,6 +15,24 @@ export type DeltaOperation = {
 
 export type OnTextChange = (data: Y.Text, isLocal: boolean) => void;
 
+/**
+ * Text is an abstraction of Y.Text.
+ * It provides useful methods to manipulate the text content.
+ *
+ * @example
+ * ```ts
+ * const text = new Text('Hello, world!');
+ * text.insert(' blocksuite', 7);
+ * text.delete(7, 1);
+ * text.format(7, 1, { bold: true });
+ * text.join(new Text(' blocksuite'));
+ * text.split(7, 1);
+ * ```
+ *
+ * Text {@link https://docs.yjs.dev/api/delta-format delta} is a format from Y.js.
+ *
+ * @category Reactive
+ */
 export class Text {
   private readonly _deltas$: Signal<DeltaOperation[]>;
 
@@ -24,6 +42,9 @@ export class Text {
 
   private readonly _yText: Y.Text;
 
+  /**
+   * Get the text delta as a signal.
+   */
   get deltas$() {
     return this._deltas$;
   }
@@ -36,11 +57,10 @@ export class Text {
     return this._yText;
   }
 
-  constructor(
-    input?: Y.Text | string | DeltaInsert[],
-    onChange?: OnTextChange
-  ) {
-    this._onChange = onChange;
+  /**
+   * @param input - The input can be a string, a Y.Text instance, or an array of DeltaInsert.
+   */
+  constructor(input?: Y.Text | string | DeltaInsert[]) {
     let length = 0;
     if (typeof input === 'string') {
       const text = input.replaceAll('\r\n', '\n');
@@ -94,16 +114,33 @@ export class Text {
     }, doc.clientID);
   }
 
+  /**
+   * Apply a delta to the text.
+   *
+   * @param delta - The delta to apply.
+   *
+   * @example
+   * ```ts
+   * const text = new Text('Hello, world!');
+   * text.applyDelta([{insert: ' blocksuite', attributes: { bold: true }}]);
+   * ```
+   */
   applyDelta(delta: DeltaOperation[]) {
     this._transact(() => {
       this._yText?.applyDelta(delta);
     });
   }
 
+  /**
+   * @internal
+   */
   bind(onChange?: OnTextChange) {
     this._onChange = onChange;
   }
 
+  /**
+   * Clear the text content.
+   */
   clear() {
     if (!this._yText.length) {
       return;
@@ -113,10 +150,23 @@ export class Text {
     });
   }
 
+  /**
+   * Clone the text to a new Text instance.
+   *
+   * @returns A new Text instance.
+   */
   clone() {
-    return new Text(this._yText.clone(), this._onChange);
+    const text = new Text(this._yText.clone());
+    text.bind(this._onChange);
+    return text;
   }
 
+  /**
+   * Delete the text content.
+   *
+   * @param index - The index to delete.
+   * @param length - The length to delete.
+   */
   delete(index: number, length: number) {
     if (length === 0) {
       return;
@@ -137,7 +187,20 @@ export class Text {
     });
   }
 
-  format(index: number, length: number, format: any) {
+  /**
+   * Format the text content.
+   *
+   * @param index - The index to format.
+   * @param length - The length to format.
+   * @param format - The format to apply.
+   *
+   * @example
+   * ```ts
+   * const text = new Text('Hello, world!');
+   * text.format(7, 1, { bold: true });
+   * ```
+   */
+  format(index: number, length: number, format: Record<string, unknown>) {
     if (length === 0) {
       return;
     }
@@ -157,6 +220,18 @@ export class Text {
     });
   }
 
+  /**
+   * Insert content at the specified index.
+   *
+   * @param content - The content to insert.
+   * @param index - The index to insert.
+   *
+   * @example
+   * ```ts
+   * const text = new Text('Hello, world!');
+   * text.insert(' blocksuite', 7);
+   * ```
+   */
   insert(content: string, index: number, attributes?: Record<string, unknown>) {
     if (!content.length) {
       return;
@@ -177,6 +252,18 @@ export class Text {
     });
   }
 
+  /**
+   * Join current text with another text.
+   *
+   * @param other - The other text to join.
+   *
+   * @example
+   * ```ts
+   * const text = new Text('Hello, world!');
+   * const other = new Text(' blocksuite');
+   * text.join(other);
+   * ```
+   */
   join(other: Text) {
     if (!other || !other.toDelta().length) {
       return;
@@ -189,11 +276,25 @@ export class Text {
     });
   }
 
+  /**
+   * Replace the text content with a new content.
+   *
+   * @param index - The index to replace.
+   * @param length - The length to replace.
+   * @param content - The content to replace.
+   * @param attributes - The attributes to replace.
+   *
+   * @example
+   * ```ts
+   * const text = new Text('Hello, world!');
+   * text.replace(7, 1, ' blocksuite');
+   * ```
+   */
   replace(
     index: number,
     length: number,
     content: string,
-    attributes?: BaseTextAttributes
+    attributes?: Record<string, unknown>
   ) {
     if (index < 0 || length < 0 || index + length > this._yText.length) {
       throw new BlockSuiteError(
@@ -213,6 +314,14 @@ export class Text {
     });
   }
 
+  /**
+   * Slice the text to a delta.
+   *
+   * @param begin - The begin index.
+   * @param end - The end index.
+   *
+   * @returns The delta of the sliced text.
+   */
   sliceToDelta(begin: number, end?: number): DeltaOperation[] {
     const result: DeltaOperation[] = [];
     if (end && begin >= end) {
@@ -269,9 +378,24 @@ export class Text {
   }
 
   /**
+   * Split the text into another Text.
+   *
+   * @param index - The index to split.
+   * @param length - The length to split.
+   *
+   * @returns The right part of the text.
+   *
+   * @example
+   * ```ts
+   * const text = new Text('Hello, world!');
+   * text.split(7, 1);
+   * ```
+   *
    * NOTE: The string included in [index, index + length) will be deleted.
    *
    * Here are three cases for point position(index + length):
+   *
+   * ```
    * [{insert: 'abc', ...}, {insert: 'def', ...}, {insert: 'ghi', ...}]
    * 1. abc|de|fghi
    *    left: [{insert: 'abc', ...}]
@@ -282,6 +406,7 @@ export class Text {
    * 3. abc|defg|hi
    *    left: [{insert: 'abc', ...}]
    *    right: [{insert: 'hi', ...}]
+   * ```
    */
   split(index: number, length = 0): Text {
     if (index < 0 || length < 0 || index + length > this._yText.length) {
@@ -328,15 +453,27 @@ export class Text {
     this.delete(index, this.length - index);
     const rightYText = new Y.Text();
     rightYText.applyDelta(rightDeltas);
-    const rightText = new Text(rightYText, this._onChange);
+    const rightText = new Text(rightYText);
+    rightText.bind(this._onChange);
 
     return rightText;
   }
 
+  /**
+   * Get the text delta.
+   *
+   * @returns The delta of the text.
+   */
   toDelta(): DeltaOperation[] {
     return this._yText?.toDelta() || [];
   }
 
+  /**
+   * Get the text content as a string.
+   * In most cases, you should not use this method. It will lose the delta attributes information.
+   *
+   * @returns The text content.
+   */
   toString() {
     return this._yText?.toString() || '';
   }

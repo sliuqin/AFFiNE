@@ -251,7 +251,7 @@ test.describe('Embed synced doc', () => {
           },
           noteId
         );
-        const model = doc2.getBlockById(databaseId) as DatabaseBlockModel;
+        const model = doc2.getModelById(databaseId) as DatabaseBlockModel;
         const datasource =
           new window.$blocksuite.blocks.database.DatabaseBlockDataSource(model);
         datasource.viewManager.viewAdd('table');

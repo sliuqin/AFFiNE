@@ -10,6 +10,7 @@ import {
   Config,
   EventBus,
   JobQueue,
+  mapAnyError,
   OnEvent,
   OnJob,
 } from '../../../base';
@@ -160,10 +161,11 @@ export class CopilotContextDocJob implements OnModuleInit {
         chunkSize: total,
       });
     } catch (e: any) {
-      this.logger.error(
-        `Failed to embed pending file: ${contextId}::${fileId}`,
-        e
-      );
+      const error = mapAnyError(e);
+      error.log('CopilotJob', {
+        workspaceId,
+        fileId,
+      });
 
       this.event.emit('workspace.file.embed.failed', {
         contextId,

@@ -163,7 +163,7 @@ export class AIChatBlockPeekView extends LitElement {
     const { doc } = this.host;
     // create a new AI chat block
     const surfaceBlock = doc
-      .getStore()
+      .getAllModels()
       .find(block => block.flavour === 'affine:surface');
     if (!surfaceBlock) {
       return;

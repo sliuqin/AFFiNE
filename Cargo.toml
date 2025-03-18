@@ -41,7 +41,7 @@ objc2-foundation       = "0.3"
 once_cell              = "1"
 parking_lot            = "0.12"
 path-ext               = "0.1.1"
-pdf-extract            = "0.8.2"
+pdf-extract            = { git = "https://github.com/toeverything/pdf-extract" }
 rand                   = "0.9"
 rayon                  = "1.10"
 readability            = { version = "0.3.0", default-features = false }

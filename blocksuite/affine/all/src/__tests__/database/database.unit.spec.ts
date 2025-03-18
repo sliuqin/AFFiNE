@@ -82,7 +82,7 @@ describe('DatabaseManager', () => {
       noteBlockId
     );
 
-    const databaseModel = doc.getBlockById(
+    const databaseModel = doc.getModelById(
       databaseBlockId
     ) as DatabaseBlockModel;
     db = databaseModel;
@@ -187,7 +187,7 @@ describe('DatabaseManager', () => {
     addProperty(db, 'end', column);
     updateCell(db, modelId, cell);
 
-    const model = doc.getBlockById(modelId);
+    const model = doc.getModelById(modelId);
 
     expect(model).not.toBeNull();
 

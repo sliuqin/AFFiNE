@@ -346,9 +346,16 @@ function createToolbarMoreMenuConfigV2(baseUrl?: string) {
               const userProvider = cx.std.get(UserProvider);
               userProvider.revalidateUserInfo(createdByUserId);
               const userSignal = userProvider.userInfo$(createdByUserId);
+              const isLoadingSignal = userProvider.isLoading$(createdByUserId);
               const name = computed(() => {
                 const value = userSignal.value;
-                if (!value) return I18n['Unknown User']();
+                if (!value) {
+                  if (isLoadingSignal.value) {
+                    // if user info is loading
+                    return '';
+                  }
+                  return I18n['Unknown User']();
+                }
                 const removed = isRemovedUserInfo(value);
                 if (removed) {
                   return I18n['Deleted User']();

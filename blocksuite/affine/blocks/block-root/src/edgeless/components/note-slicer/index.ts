@@ -182,7 +182,7 @@ export class NoteSlicer extends WidgetComponent<
       doc.root?.id
     );
 
-    doc.moveBlocks(resetBlocks, doc.getBlockById(newNoteId) as NoteBlockModel);
+    doc.moveBlocks(resetBlocks, doc.getModelById(newNoteId) as NoteBlockModel);
 
     this._activeSlicerIndex = 0;
     this._selection.set({

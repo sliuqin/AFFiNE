@@ -28,7 +28,8 @@ jobs:
           extra-flags: workspaces focus @affine/server
       - name: Build Server
         run: |
-          find packages/backend/server -type d -name "__tests__" -exec rm -rf {} +
+          find packages/backend/server/src -type d -name "__tests__" -exec rm -rf {} +
+          rm -rf packages/backend/server/src/seed
           yarn workspace @affine/server build
       - name: Upload server dist
         uses: actions/upload-artifact@v4

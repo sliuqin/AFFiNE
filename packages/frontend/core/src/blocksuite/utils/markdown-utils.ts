@@ -44,7 +44,7 @@ function processSnapshot(
   text: TextSelection,
   host: EditorHost
 ) {
-  const model = host.doc.getBlockById(snapshot.id);
+  const model = host.doc.getModelById(snapshot.id);
   if (!model) {
     return;
   }

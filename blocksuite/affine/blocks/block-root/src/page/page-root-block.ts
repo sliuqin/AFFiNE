@@ -191,7 +191,7 @@ export class PageRootBlockComponent extends BlockComponent<
     const { doc } = this;
 
     const noteId = doc.addBlock('affine:note', {}, doc.root?.id);
-    return doc.getBlockById(noteId) as NoteBlockModel;
+    return doc.getModelById(noteId) as NoteBlockModel;
   }
 
   private _getDefaultNoteBlock() {
@@ -262,7 +262,7 @@ export class PageRootBlockComponent extends BlockComponent<
         );
         if (!sel) return;
         let model: BlockModel | null = null;
-        let current = this.doc.getBlockById(sel.blockId);
+        let current = this.doc.getModelById(sel.blockId);
         while (current && !model) {
           if (current.flavour === 'affine:note') {
             model = current;
@@ -280,7 +280,7 @@ export class PageRootBlockComponent extends BlockComponent<
           }
           return;
         }
-        const notes = this.doc.getBlockByFlavour('affine:note');
+        const notes = this.doc.getModelsByFlavour('affine:note');
         const index = notes.indexOf(prevNote);
         if (index !== 0) return;
 

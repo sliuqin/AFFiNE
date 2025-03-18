@@ -31,6 +31,11 @@ export class ChatPanelChip extends SignalWatcher(
       color: var(--affine-error-color);
       background: var(--affine-background-error-color);
     }
+    .chip-card-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .chip-card[data-state='failed'] svg {
       color: var(--affine-error-color);
     }
@@ -92,11 +97,13 @@ export class ChatPanelChip extends SignalWatcher(
         data-testid="chat-panel-chip"
         data-state=${this.state}
       >
-        ${this.icon}
-        <span class="chip-card-title" @click=${this.onChipClick}>
+        <div class="chip-card-content">
+          ${this.icon}
+          <span class="chip-card-title" @click=${this.onChipClick}>
+            <span data-testid="chat-panel-chip-title">${this.name}</span>
+          </span>
           <affine-tooltip>${this.tooltip}</affine-tooltip>
-          <span data-testid="chat-panel-chip-title">${this.name}</span>
-        </span>
+        </div>
         ${this.closeable
           ? html`
               <div class="chip-card-close" @click=${this.onChipDelete}>

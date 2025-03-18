@@ -2,6 +2,8 @@ import {
   effect,
   fromPromise,
   LiveData,
+  onComplete,
+  onStart,
   Service,
   smartRetry,
 } from '@toeverything/infra';
@@ -28,13 +30,48 @@ export class PublicUserService extends Service {
     super();
   }
 
-  publicUsers$ = new LiveData<Map<string, PublicUserInfo | null>>(new Map());
+  private readonly publicUsers$ = new LiveData<
+    Map<string, PublicUserInfo | null>
+  >(new Map());
+  private readonly isLoadings$ = new LiveData<Map<string, boolean | null>>(
+    new Map()
+  );
+  private readonly errors$ = new LiveData<Map<string, any | null>>(new Map());
 
   publicUser$(id: string) {
     return this.publicUsers$.selector(map => map.get(id) ?? null);
   }
 
-  error$ = new LiveData<any | null>(null);
+  isLoading$(id: string) {
+    return this.isLoadings$.selector(map => map.get(id) ?? false);
+  }
+
+  error$(id: string) {
+    return this.errors$.selector(map => map.get(id));
+  }
+
+  private setPublicUser(id: string, userInfo: PublicUserInfo) {
+    // Reusing the existing publicUsers Map instance instead of creating a new one.
+    // While this doesn't follow immutability best practices, it reduces memory overhead
+    // by avoiding the creation of new Map objects for each update.
+    const publicUsers = this.publicUsers$.value;
+    publicUsers.set(id, userInfo);
+    this.publicUsers$.next(publicUsers);
+  }
+
+  private setLoading(id: string, loading: boolean) {
+    // Similar to setPublicUser, reusing the existing Map instance to reduce memory overhead
+    const loadings = this.isLoadings$.value;
+    loadings.set(id, loading);
+    this.isLoadings$.next(loadings);
+  }
+
+  private setError(id: string, error: any | null) {
+    // Reusing the existing Map instance instead of creating a new one
+    const errors = this.errors$.value;
+    errors.set(id, error);
+    this.errors$.next(errors);
+  }
 
   revalidate = effect(
     groupBy((id: string) => id),
@@ -58,15 +95,16 @@ export class PublicUserService extends Service {
             smartRetry(),
             catchError(error => {
               console.error(error);
-              this.error$.next(error);
+              this.setError(id, error);
               return EMPTY;
             }),
             mergeMap(user => {
-              const publicUsers = new Map(this.publicUsers$.value);
-              publicUsers.set(user.id, user);
-              this.publicUsers$.next(publicUsers);
+              this.setPublicUser(id, user);
+              this.setError(id, null); // clear error
               return EMPTY;
-            })
+            }),
+            onStart(() => this.setLoading(id, true)),
+            onComplete(() => this.setLoading(id, false))
           )
         )
       )

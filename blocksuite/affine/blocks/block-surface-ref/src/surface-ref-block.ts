@@ -281,7 +281,7 @@ export class SurfaceRefBlockComponent extends BlockComponent<SurfaceRefBlockMode
           flavour: 'affine:paragraph',
         },
       ]);
-      const model = this.doc.getBlockById(paragraphId);
+      const model = this.doc.getModelById(paragraphId);
       if (!model) return;
 
       requestConnectedFrame(() => {

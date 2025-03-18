@@ -162,7 +162,7 @@ function addAIChatBlock(
 
   const { doc } = host;
   const surfaceBlock = doc
-    .getStore()
+    .getAllModels()
     .find(block => block.flavour === 'affine:surface');
   if (!surfaceBlock) {
     return;
@@ -520,7 +520,7 @@ const CREATE_AS_LINKED_DOC = {
 
     const { doc } = host;
     const surfaceBlock = doc
-      .getStore()
+      .getAllModels()
       .find(block => block.flavour === 'affine:surface');
     if (!surfaceBlock) {
       return false;

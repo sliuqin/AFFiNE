@@ -380,7 +380,7 @@ export class EdgelessAutoComplete extends WithDisposable(LitElement) {
         this.edgeless
       );
     } else {
-      const model = doc.getBlockById(id);
+      const model = doc.getModelById(id);
       if (!model) {
         return;
       }

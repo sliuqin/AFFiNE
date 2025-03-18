@@ -8,6 +8,7 @@ import { uuidv4 } from '@blocksuite/affine/store';
 import type { TestAffineEditorContainer } from '@blocksuite/integration-test';
 import type { ConsoleMessage, Locator, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
+import stringify from 'json-stable-stringify';
 import lz from 'lz-string';
 
 import { currentEditorIndex } from '../multiple-editor.js';
@@ -337,7 +338,7 @@ export async function initEmptyDatabaseState(page: Page, rootId?: string) {
       },
       noteId
     );
-    const model = doc.getBlockById(databaseId) as DatabaseBlockModel;
+    const model = doc.getModelById(databaseId) as DatabaseBlockModel;
     const datasource =
       new window.$blocksuite.blocks.database.DatabaseBlockDataSource(model);
     datasource.viewManager.viewAdd('table');
@@ -373,7 +374,7 @@ export async function initKanbanViewState(
         },
         noteId
       );
-      const model = doc.getBlockById(databaseId) as DatabaseBlockModel;
+      const model = doc.getModelById(databaseId) as DatabaseBlockModel;
       const datasource =
         new window.$blocksuite.blocks.database.DatabaseBlockDataSource(model);
       const rowIds = config.rows.map(rowText => {
@@ -432,7 +433,7 @@ export async function initEmptyDatabaseWithParagraphState(
       },
       noteId
     );
-    const model = doc.getBlockById(databaseId) as DatabaseBlockModel;
+    const model = doc.getModelById(databaseId) as DatabaseBlockModel;
     const datasource =
       new window.$blocksuite.blocks.database.DatabaseBlockDataSource(model);
     datasource.viewManager.viewAdd('table');
@@ -881,7 +882,7 @@ export async function getPageSnapshot(page: Page, toJSON?: boolean) {
     return snapshot.blocks;
   });
   if (toJSON) {
-    return JSON.stringify(json, null, 2);
+    return stringify(json, { space: '  ' });
   }
   return json;
 }

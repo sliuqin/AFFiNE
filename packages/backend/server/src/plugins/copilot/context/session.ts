@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import { PrismaTransaction } from '../../../base';
 import {
   ChunkSimilarity,
+  ContextCategories,
   ContextConfig,
   ContextDoc,
   ContextEmbedStatus,
@@ -49,6 +50,30 @@ export class ContextSession implements AsyncDisposable {
     ) as ContextList;
   }
 
+  async addCategoryRecord(type: ContextCategories, id: string) {
+    const category = this.config.categories.find(
+      c => c.type === type && c.id === id
+    );
+    if (category) {
+      return category;
+    }
+    const record = { id, type, createdAt: Date.now() };
+    this.config.categories.push(record);
+    await this.save();
+    return record;
+  }
+
+  async removeCategoryRecord(type: ContextCategories, id: string) {
+    const index = this.config.categories.findIndex(
+      c => c.type === type && c.id === id
+    );
+    if (index >= 0) {
+      this.config.categories.splice(index, 1);
+      await this.save();
+    }
+    return true;
+  }
+
   async addDocRecord(docId: string): Promise<ContextDoc> {
     const doc = this.config.docs.find(f => f.id === docId);
     if (doc) {
@@ -65,9 +90,8 @@ export class ContextSession implements AsyncDisposable {
     if (index >= 0) {
       this.config.docs.splice(index, 1);
       await this.save();
-      return true;
     }
-    return false;
+    return true;
   }
 
   async addFile(blobId: string, name: string): Promise<ContextFile> {

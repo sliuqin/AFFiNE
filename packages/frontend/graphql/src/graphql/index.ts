@@ -134,6 +134,26 @@ export const changePasswordMutation = {
 }`,
 };
 
+export const addContextCategoryMutation = {
+  id: 'addContextCategoryMutation' as const,
+  op: 'addContextCategory',
+  query: `mutation addContextCategory($options: AddRemoveContextCategoryInput!) {
+  addContextCategory(options: $options) {
+    id
+    createdAt
+    type
+  }
+}`,
+};
+
+export const removeContextCategoryMutation = {
+  id: 'removeContextCategoryMutation' as const,
+  op: 'removeContextCategory',
+  query: `mutation removeContextCategory($options: AddRemoveContextCategoryInput!) {
+  removeContextCategory(options: $options)
+}`,
+};
+
 export const createCopilotContextMutation = {
   id: 'createCopilotContextMutation' as const,
   op: 'createCopilotContext',

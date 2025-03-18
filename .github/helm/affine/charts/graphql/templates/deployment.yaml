@@ -77,8 +77,6 @@ spec:
             value: "{{ .Values.app.https }}"
           - name: ENABLE_R2_OBJECT_STORAGE
             value: "{{ .Values.global.objectStorage.r2.enabled }}"
-          - name: FEATURES_EARLY_ACCESS_PREVIEW
-            value: "{{ .Values.app.features.earlyAccessPreview }}"
           - name: FEATURES_SYNC_CLIENT_VERSION_CHECK
             value: "{{ .Values.app.features.syncClientVersionCheck }}"
           - name: MAILER_HOST

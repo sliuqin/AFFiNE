@@ -19,6 +19,7 @@ import {
   ContextEmbedStatus,
   ContextFile,
   EmbeddingClient,
+  MinimalContextConfigSchema,
 } from './types';
 import { checkEmbeddingAvailable } from './utils';
 
@@ -128,7 +129,12 @@ export class CopilotContextService implements OnModuleInit {
     const context = await this.db.aiContext.create({
       data: {
         sessionId,
-        config: { workspaceId: session.workspaceId, docs: [], files: [] },
+        config: {
+          workspaceId: session.workspaceId,
+          docs: [],
+          files: [],
+          categories: [],
+        },
       },
     });
 
@@ -149,7 +155,19 @@ export class CopilotContextService implements OnModuleInit {
     });
     if (ret) {
       const config = ContextConfigSchema.safeParse(ret.config);
-      if (config.success) return this.cacheSession(id, config.data);
+      if (config.success) {
+        return this.cacheSession(id, config.data);
+      }
+      const minimalConfig = MinimalContextConfigSchema.safeParse(ret.config);
+      if (minimalConfig.success) {
+        // fulfill the missing fields
+        return this.cacheSession(id, {
+          ...minimalConfig.data,
+          docs: [],
+          files: [],
+          categories: [],
+        });
+      }
     }
     throw new CopilotInvalidContext({ contextId: id });
   }

@@ -1,8 +1,4 @@
-import {
-  EdgelessFrameManager,
-  FrameOverlay,
-  PresentTool,
-} from '@blocksuite/affine-block-frame';
+import { PresentTool } from '@blocksuite/affine-block-frame';
 import { ConnectionOverlay } from '@blocksuite/affine-block-surface';
 import { TextTool } from '@blocksuite/affine-gfx-text';
 import type { ExtensionType } from '@blocksuite/store';
@@ -41,10 +37,8 @@ export const EdgelessToolExtension: ExtensionType[] = [
 
 export const EdgelessBuiltInManager: ExtensionType[] = [
   ConnectionOverlay,
-  FrameOverlay,
   MindMapIndicatorOverlay,
   SnapManager,
-  EdgelessFrameManager,
   EditPropsMiddlewareBuilder,
 ];
 

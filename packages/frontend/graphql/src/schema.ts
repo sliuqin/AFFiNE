@@ -47,6 +47,12 @@ export interface AddContextFileInput {
   contextId: Scalars['String']['input'];
 }
 
+export interface AddRemoveContextCategoryInput {
+  categoryId: Scalars['String']['input'];
+  contextId: Scalars['String']['input'];
+  type: ContextCategories;
+}
+
 export interface AlreadyInSpaceDataType {
   __typename?: 'AlreadyInSpaceDataType';
   spaceId: Scalars['String']['output'];
@@ -71,6 +77,11 @@ export interface ChatMessage {
   id: Maybe<Scalars['ID']['output']>;
   params: Maybe<Scalars['JSON']['output']>;
   role: Scalars['String']['output'];
+}
+
+export enum ContextCategories {
+  Collection = 'Collection',
+  Tag = 'Tag',
 }
 
 export enum ContextEmbedStatus {
@@ -161,6 +172,13 @@ export interface CopilotContextMatchContextArgs {
 export interface CopilotContextMatchWorkspaceContextArgs {
   content: Scalars['String']['input'];
   limit?: InputMaybe<Scalars['SafeInt']['input']>;
+}
+
+export interface CopilotContextCategory {
+  __typename?: 'CopilotContextCategory';
+  createdAt: Scalars['SafeInt']['output'];
+  id: Scalars['ID']['output'];
+  type: ContextCategories;
 }
 
 export interface CopilotContextDoc {
@@ -938,6 +956,8 @@ export interface Mutation {
   __typename?: 'Mutation';
   acceptInviteById: Scalars['Boolean']['output'];
   activateLicense: License;
+  /** add a category to context */
+  addContextCategory: CopilotContextCategory;
   /** add a doc to context */
   addContextDoc: CopilotContextDoc;
   /** add a file to context */
@@ -1002,6 +1022,8 @@ export interface Mutation {
   releaseDeletedBlobs: Scalars['Boolean']['output'];
   /** Remove user avatar */
   removeAvatar: RemoveAvatar;
+  /** remove a category from context */
+  removeContextCategory: Scalars['Boolean']['output'];
   /** remove a doc from context */
   removeContextDoc: Scalars['Boolean']['output'];
   /** remove a file from context */
@@ -1031,6 +1053,8 @@ export interface Mutation {
   updateRuntimeConfig: ServerRuntimeConfigType;
   /** update multiple server runtime configurable settings */
   updateRuntimeConfigs: Array<ServerRuntimeConfigType>;
+  /** Update user settings */
+  updateSettings: Scalars['Boolean']['output'];
   updateSubscriptionRecurring: SubscriptionType;
   /** Update an user */
   updateUser: UserType;
@@ -1052,6 +1076,10 @@ export interface MutationAcceptInviteByIdArgs {
 export interface MutationActivateLicenseArgs {
   license: Scalars['String']['input'];
   workspaceId: Scalars['String']['input'];
+}
+
+export interface MutationAddContextCategoryArgs {
+  options: AddRemoveContextCategoryInput;
 }
 
 export interface MutationAddContextDocArgs {
@@ -1240,6 +1268,10 @@ export interface MutationReleaseDeletedBlobsArgs {
   workspaceId: Scalars['String']['input'];
 }
 
+export interface MutationRemoveContextCategoryArgs {
+  options: AddRemoveContextCategoryInput;
+}
+
 export interface MutationRemoveContextDocArgs {
   options: RemoveContextDocInput;
 }
@@ -1340,6 +1372,10 @@ export interface MutationUpdateRuntimeConfigArgs {
 
 export interface MutationUpdateRuntimeConfigsArgs {
   updates: Scalars['JSONObject']['input'];
+}
+
+export interface MutationUpdateSettingsArgs {
+  input: UpdateSettingsInput;
 }
 
 export interface MutationUpdateSubscriptionRecurringArgs {
@@ -1726,6 +1762,14 @@ export interface ServerServiceConfig {
   name: Scalars['String']['output'];
 }
 
+export interface SettingsType {
+  __typename?: 'SettingsType';
+  /** Receive invitation email */
+  receiveInvitationEmail: Scalars['Boolean']['output'];
+  /** Receive mention email */
+  receiveMentionEmail: Scalars['Boolean']['output'];
+}
+
 export interface SpaceAccessDeniedDataType {
   __typename?: 'SpaceAccessDeniedDataType';
   spaceId: Scalars['String']['output'];
@@ -1867,6 +1911,13 @@ export interface UpdateDocUserRoleInput {
   workspaceId: Scalars['String']['input'];
 }
 
+export interface UpdateSettingsInput {
+  /** Receive invitation email */
+  receiveInvitationEmail?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Receive mention email */
+  receiveMentionEmail?: InputMaybe<Scalars['Boolean']['input']>;
+}
+
 export interface UpdateUserInput {
   /** User name */
   name?: InputMaybe<Scalars['String']['input']>;
@@ -1953,6 +2004,8 @@ export interface UserType {
   notifications: PaginatedNotificationObjectType;
   quota: UserQuotaType;
   quotaUsage: UserQuotaUsageType;
+  /** Get user settings */
+  settings: SettingsType;
   subscriptions: Array<SubscriptionType>;
   /** @deprecated use [/api/auth/sign-in?native=true] instead */
   token: TokenType;
@@ -2317,6 +2370,29 @@ export type ChangePasswordMutationVariables = Exact<{
 export type ChangePasswordMutation = {
   __typename?: 'Mutation';
   changePassword: boolean;
+};
+
+export type AddContextCategoryMutationVariables = Exact<{
+  options: AddRemoveContextCategoryInput;
+}>;
+
+export type AddContextCategoryMutation = {
+  __typename?: 'Mutation';
+  addContextCategory: {
+    __typename?: 'CopilotContextCategory';
+    id: string;
+    createdAt: number;
+    type: ContextCategories;
+  };
+};
+
+export type RemoveContextCategoryMutationVariables = Exact<{
+  options: AddRemoveContextCategoryInput;
+}>;
+
+export type RemoveContextCategoryMutation = {
+  __typename?: 'Mutation';
+  removeContextCategory: boolean;
 };
 
 export type CreateCopilotContextMutationVariables = Exact<{
@@ -4307,6 +4383,16 @@ export type Mutations =
       name: 'changePasswordMutation';
       variables: ChangePasswordMutationVariables;
       response: ChangePasswordMutation;
+    }
+  | {
+      name: 'addContextCategoryMutation';
+      variables: AddContextCategoryMutationVariables;
+      response: AddContextCategoryMutation;
+    }
+  | {
+      name: 'removeContextCategoryMutation';
+      variables: RemoveContextCategoryMutationVariables;
+      response: RemoveContextCategoryMutation;
     }
   | {
       name: 'createCopilotContextMutation';

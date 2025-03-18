@@ -602,7 +602,7 @@ function getNotesInFrameBound(
 ): NoteBlockModel[] {
   const bound = Bound.deserialize(frame.xywh);
 
-  return (doc.getBlockByFlavour('affine:note') as NoteBlockModel[]).filter(
+  return (doc.getModelsByFlavour('affine:note') as NoteBlockModel[]).filter(
     ele => {
       const xywh = Bound.deserialize(ele.xywh);
 

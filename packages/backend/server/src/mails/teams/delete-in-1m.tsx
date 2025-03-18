@@ -1,8 +1,8 @@
 import { TEST_WORKSPACE } from '../common';
 import {
-  Bold,
   Button,
   Content,
+  IOSDate,
   P,
   Template,
   Text,
@@ -27,10 +27,9 @@ export default function TeamDeleteInOneMonth(props: TeamDeleteInOneMonthProps) {
       <Content>
         <P>
           Your <Workspace {...workspace} /> team workspace expired on{' '}
-          <Bold>{expirationDate.toLocaleDateString()}</Bold>. All workspace data
-          will be permanently deleted on{' '}
-          <Bold>{deletionDate.toLocaleDateString()}</Bold> (180 days after
-          expiration). To prevent data loss, please either:
+          <IOSDate value={expirationDate} />. All workspace data will be
+          permanently deleted on <IOSDate value={deletionDate} /> (180 days
+          after expiration). To prevent data loss, please either:
           <li>
             <Text>Renew your subscription to restore team features</Text>
           </li>

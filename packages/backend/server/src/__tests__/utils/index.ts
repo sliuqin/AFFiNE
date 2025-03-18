@@ -2,6 +2,7 @@ export * from './blobs';
 export * from './invite';
 export * from './notification';
 export * from './permission';
+export * from './settings';
 export * from './testing-app';
 export * from './testing-module';
 export * from './user';

@@ -32,6 +32,11 @@ export enum ContextEmbedStatus {
   failed = 'failed',
 }
 
+export enum ContextCategories {
+  Tag = 'tag',
+  Collection = 'collection',
+}
+
 export const ContextConfigSchema = z.object({
   workspaceId: z.string(),
   files: z
@@ -64,9 +69,23 @@ export const ContextConfigSchema = z.object({
       createdAt: z.number(),
     })
     .array(),
+  categories: z
+    .object({
+      id: z.string(),
+      type: z.enum([ContextCategories.Tag, ContextCategories.Collection]),
+      createdAt: z.number(),
+    })
+    .array(),
+});
+
+export const MinimalContextConfigSchema = ContextConfigSchema.pick({
+  workspaceId: true,
 });
 
 export type ContextConfig = z.infer<typeof ContextConfigSchema>;
+export type ContextCategory = z.infer<
+  typeof ContextConfigSchema
+>['categories'][number];
 export type ContextDoc = z.infer<typeof ContextConfigSchema>['docs'][number];
 export type ContextFile = z.infer<typeof ContextConfigSchema>['files'][number];
 export type ContextListItem = ContextDoc | ContextFile;

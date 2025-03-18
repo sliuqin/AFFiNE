@@ -1,11 +1,6 @@
 import type { Container } from '@blocksuite/global/di';
 
 /**
- * Generic extension.
- * Extensions are used to set up the dependency injection container.
- * In most cases, you won't need to use this class directly.
- * We provide helper classes like `CommandExtension` and `BlockViewExtension` to make it easier to create extensions.
- *
  * # Understanding Extensions
  *
  * Extensions provide a way to extend the functionality of a system using dependency injection.
@@ -125,6 +120,8 @@ import type { Container } from '@blocksuite/global/di';
  * pattern can be applied to any entity that can be configured by third parties, not just blocks.
  * This includes different tools in the whiteboard, different column types in database blocks,
  * and many other extensible components. The pattern remains the same regardless of what you're extending.
+ *
+ * @category Extension
  */
 export abstract class Extension {
   static setup(_di: Container): void {

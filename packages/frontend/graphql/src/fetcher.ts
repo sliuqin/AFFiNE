@@ -8,6 +8,8 @@ import type { Mutations, Queries } from './schema';
 
 export type NotArray<T> = T extends Array<unknown> ? never : T;
 
+export type FetchInit = RequestInit & { timeout?: number };
+
 export type _QueryVariables<Q extends GraphQLQuery> =
   Q['id'] extends Queries['name']
     ? Extract<Queries, { name: Q['id'] }>['variables']
@@ -75,6 +77,11 @@ export type RequestOptions<Q extends GraphQLQuery> = QueryVariablesOption<Q> & {
    * @default true
    */
   keepNilVariables?: boolean;
+  /**
+   * Request timeout in milliseconds
+   * @default 15000
+   */
+  timeout?: number;
 };
 
 export type QueryOptions<Q extends GraphQLQuery> = RequestOptions<Q> & {
@@ -169,7 +176,7 @@ function formatRequestBody<Q extends GraphQLQuery>({
 
 export const gqlFetcherFactory = (
   endpoint: string,
-  fetcher: (input: string, init?: RequestInit) => Promise<Response> = fetch
+  fetcher: (input: string, init?: FetchInit) => Promise<Response> = fetch
 ) => {
   const logger = new DebugLogger('GraphQL');
   const gqlFetch = async <Query extends GraphQLQuery>(
@@ -199,6 +206,7 @@ export const gqlFetcherFactory = (
         method: 'POST',
         headers,
         body: isFormData ? body : JSON.stringify(body),
+        timeout: options.timeout,
       })
     ).then(async res => {
       if (res.headers.get('content-type')?.startsWith('application/json')) {

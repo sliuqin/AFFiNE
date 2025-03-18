@@ -117,6 +117,15 @@ jobs:
         run: yarn dedupe --check
       - name: Run Type Check
         run: yarn typecheck
+      - name: Run BS Docs Build
+        run: |
+          yarn affine bs-docs build
+          git status --porcelain | grep . && {
+            echo "Run 'yarn typecheck && yarn affine bs-docs build' and make sure all changes are submitted"
+            exit 1
+          } || {
+            echo "All changes are submitted"
+          }
 
   lint-rust:
     name: Lint Rust
@@ -452,7 +461,6 @@ jobs:
         total_nodes: [3]
     env:
       NODE_ENV: test
-      DISTRIBUTION: web
       DATABASE_URL: postgresql://affine:affine@localhost:5432/affine
       REDIS_SERVER_HOST: localhost
     services:
@@ -499,8 +507,69 @@ jobs:
         env:
           CARGO_TARGET_DIR: '${{ github.workspace }}/target'
           COPILOT_OPENAI_API_KEY: 'use_fake_openai_api_key'
+          COPILOT_GOOGLE_API_KEY: 'use_fake_google_api_key'
           CI_NODE_INDEX: ${{ matrix.node_index }}
           CI_NODE_TOTAL: ${{ matrix.total_nodes }}
+
+      - name: Upload server test coverage results
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./packages/backend/server/.coverage/lcov.info
+          flags: server-test
+          name: affine
+          fail_ci_if_error: false
+
+  server-e2e-test:
+    # the new version of server e2e test should be super fast, so sharding testing is not needed
+    name: Server E2E Test
+    runs-on: ubuntu-latest
+    needs:
+      - optimize_ci
+      - build-server-native
+    if: needs.optimize_ci.outputs.skip == 'false'
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://affine:affine@localhost:5432/affine
+      REDIS_SERVER_HOST: localhost
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: affine
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-node
+        with:
+          electron-install: false
+          full-cache: true
+
+      - name: Download server-native.node
+        uses: actions/download-artifact@v4
+        with:
+          name: server-native.node
+          path: ./packages/backend/server
+
+      - name: Prepare Server Test Environment
+        uses: ./.github/actions/server-test-env
+
+      - name: Run server tests
+        run: yarn affine @affine/server e2e:coverage --forbid-only
+        env:
+          COPILOT_OPENAI_API_KEY: 'use_fake_openai_api_key'
 
       - name: Upload server test coverage results
         uses: codecov/codecov-action@v5
@@ -611,6 +680,7 @@ jobs:
         env:
           CARGO_TARGET_DIR: '${{ github.workspace }}/target'
           COPILOT_OPENAI_API_KEY: ${{ secrets.COPILOT_OPENAI_API_KEY }}
+          COPILOT_GOOGLE_API_KEY: ${{ secrets.COPILOT_GOOGLE_API_KEY }}
           COPILOT_FAL_API_KEY: ${{ secrets.COPILOT_FAL_API_KEY }}
           COPILOT_PERPLEXITY_API_KEY: ${{ secrets.COPILOT_PERPLEXITY_API_KEY }}
 
@@ -699,10 +769,11 @@ jobs:
         with:
           script: yarn affine @affine-test/affine-cloud-copilot e2e --forbid-only --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
           openai-key: ${{ secrets.COPILOT_OPENAI_API_KEY }}
+          google-key: ${{ secrets.COPILOT_GOOGLE_API_KEY }}
           fal-key: ${{ secrets.COPILOT_FAL_API_KEY }}
           perplexity-key: ${{ secrets.COPILOT_PERPLEXITY_API_KEY }}
 
-  server-e2e-test:
+  cloud-e2e-test:
     name: ${{ matrix.tests.name }}
     runs-on: ubuntu-latest
     needs:
@@ -719,16 +790,16 @@ jobs:
       fail-fast: false
       matrix:
         tests:
-          - name: 'Server E2E Test 1/3'
+          - name: 'Cloud E2E Test 1/3'
             shard: 1
             script: yarn affine @affine-test/affine-cloud e2e --forbid-only --shard=1/3
-          - name: 'Server E2E Test 2/3'
+          - name: 'Cloud E2E Test 2/3'
             shard: 2
             script: yarn affine @affine-test/affine-cloud e2e --forbid-only --shard=2/3
-          - name: 'Server E2E Test 3/3'
+          - name: 'Cloud E2E Test 3/3'
             shard: 3
             script: yarn affine @affine-test/affine-cloud e2e --forbid-only --shard=3/3
-          - name: 'Server Desktop E2E Test'
+          - name: 'Cloud Desktop E2E Test'
             shard: desktop
             script: |
               yarn affine @affine/electron build:dev
@@ -951,11 +1022,12 @@ jobs:
       - build-electron-renderer
       - native-unit-test
       - server-test
+      - server-e2e-test
       - rust-test
       - copilot-api-test
       - copilot-e2e-test
-      - server-e2e-test
       - desktop-test
+      - cloud-e2e-test
       - test-build-mobile-app
     if: always()
     runs-on: ubuntu-latest

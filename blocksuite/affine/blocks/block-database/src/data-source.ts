@@ -466,7 +466,7 @@ export class DatabaseBlockDataSource extends DataSourceBase {
   }
 
   rowMove(rowId: string, position: InsertToPosition): void {
-    const model = this.doc.getBlockById(rowId);
+    const model = this.doc.getModelById(rowId);
     if (model) {
       const index = insertPositionToIndex(position, this._model.children);
       const target = this._model.children[index];

@@ -1091,7 +1091,7 @@ export class EdgelessClipboardController extends PageClipboard {
     const newSelected = [
       ...canvasElementIds,
       ...blockIds.filter(id => {
-        return isTopLevelBlock(this.doc.getBlockById(id));
+        return isTopLevelBlock(this.doc.getModelById(id));
       }),
     ];
 

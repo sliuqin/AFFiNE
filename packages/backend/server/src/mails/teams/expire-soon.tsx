@@ -1,8 +1,8 @@
 import { TEST_WORKSPACE } from '../common';
 import {
-  Bold,
   Button,
   Content,
+  IOSDate,
   P,
   Template,
   Title,
@@ -25,9 +25,9 @@ export default function TeamExpireSoon(props: TeamExpireSoonProps) {
       <Content>
         <P>
           Your <Workspace {...workspace} /> team workspace will expire on{' '}
-          <Bold>{expirationDate.toLocaleDateString()}</Bold>. After expiration,
-          you won&apos;t be able to sync or collaborate with team members.
-          Please renew your subscription to continue using all team features.
+          <IOSDate value={expirationDate} />. After expiration, you won&apos;t
+          be able to sync or collaborate with team members. Please renew your
+          subscription to continue using all team features.
         </P>
         <Button href={url}>Go to Billing</Button>
       </Content>

@@ -213,14 +213,22 @@ export class UserSubscriptionManager extends SubscriptionManager {
 
     // update features first, features modify are idempotent
     // so there is no need to skip if a subscription already exists.
-    // TODO(@forehalo):
-    //   we should move the subscription feature updating logic back to payment module,
-    //   because quota or feature module themself should not be aware of what payment or subscription is.
-    this.event.emit('user.subscription.activated', {
-      userId,
-      plan: lookupKey.plan,
-      recurring: lookupKey.recurring,
-    });
+    if (
+      stripeSubscription.status === SubscriptionStatus.Active ||
+      stripeSubscription.status === SubscriptionStatus.Trialing
+    ) {
+      this.event.emit('user.subscription.activated', {
+        userId,
+        plan: lookupKey.plan,
+        recurring: lookupKey.recurring,
+      });
+    } else {
+      this.event.emit('user.subscription.canceled', {
+        userId,
+        plan: lookupKey.plan,
+        recurring: lookupKey.recurring,
+      });
+    }
 
     const subscriptionData = this.transformSubscription(subscription);
 
@@ -247,20 +255,17 @@ export class UserSubscriptionManager extends SubscriptionManager {
     stripeSubscription,
   }: KnownStripeSubscription) {
     this.assertUserIdExists(userId);
+    this.event.emit('user.subscription.canceled', {
+      userId,
+      plan: lookupKey.plan,
+      recurring: lookupKey.recurring,
+    });
 
-    const deleted = await this.db.subscription.deleteMany({
+    await this.db.subscription.deleteMany({
       where: {
         stripeSubscriptionId: stripeSubscription.id,
       },
     });
-
-    if (deleted.count > 0) {
-      this.event.emit('user.subscription.canceled', {
-        userId,
-        plan: lookupKey.plan,
-        recurring: lookupKey.recurring,
-      });
-    }
   }
 
   async cancelSubscription(subscription: Subscription) {

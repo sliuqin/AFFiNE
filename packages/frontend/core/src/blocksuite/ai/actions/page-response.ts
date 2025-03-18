@@ -236,7 +236,7 @@ function getEdgelessContentBound(host: EditorHost) {
 
   const elements = (
     host.doc
-      .getStore()
+      .getAllModels()
       .filter(
         model =>
           model instanceof GfxBlockElementModel &&

@@ -137,12 +137,23 @@ export class WorkspaceSubscriptionManager extends SubscriptionManager {
 
     const subscriptionData = this.transformSubscription(subscription);
 
-    this.event.emit('workspace.subscription.activated', {
-      workspaceId,
-      plan: lookupKey.plan,
-      recurring: lookupKey.recurring,
-      quantity: subscriptionData.quantity,
-    });
+    if (
+      stripeSubscription.status === SubscriptionStatus.Active ||
+      stripeSubscription.status === SubscriptionStatus.Trialing
+    ) {
+      this.event.emit('workspace.subscription.activated', {
+        workspaceId,
+        plan: lookupKey.plan,
+        recurring: lookupKey.recurring,
+        quantity: subscriptionData.quantity,
+      });
+    } else {
+      this.event.emit('workspace.subscription.canceled', {
+        workspaceId,
+        plan: lookupKey.plan,
+        recurring: lookupKey.recurring,
+      });
+    }
 
     return this.db.subscription.upsert({
       where: {
@@ -176,17 +187,15 @@ export class WorkspaceSubscriptionManager extends SubscriptionManager {
       );
     }
 
-    const deleted = await this.db.subscription.deleteMany({
-      where: { stripeSubscriptionId: stripeSubscription.id },
+    this.event.emit('workspace.subscription.canceled', {
+      workspaceId,
+      plan: lookupKey.plan,
+      recurring: lookupKey.recurring,
     });
 
-    if (deleted.count > 0) {
-      this.event.emit('workspace.subscription.canceled', {
-        workspaceId,
-        plan: lookupKey.plan,
-        recurring: lookupKey.recurring,
-      });
-    }
+    await this.db.subscription.deleteMany({
+      where: { stripeSubscriptionId: stripeSubscription.id },
+    });
   }
 
   getSubscription(identity: z.infer<typeof WorkspaceSubscriptionIdentity>) {

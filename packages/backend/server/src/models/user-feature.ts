@@ -107,7 +107,7 @@ export class UserFeatureModel extends BaseModel {
   }
 
   async remove(userId: string, featureName: UserFeatureName) {
-    await this.db.userFeature.updateMany({
+    const { count } = await this.db.userFeature.updateMany({
       where: {
         userId,
         name: featureName,
@@ -117,9 +117,11 @@ export class UserFeatureModel extends BaseModel {
       },
     });
 
-    this.logger.verbose(
-      `Feature ${featureName} deactivated for user ${userId}`
-    );
+    if (count > 0) {
+      this.logger.verbose(
+        `Feature ${featureName} deactivated for user ${userId}`
+      );
+    }
   }
 
   @Transactional()

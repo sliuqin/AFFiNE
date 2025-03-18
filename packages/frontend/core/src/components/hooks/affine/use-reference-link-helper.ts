@@ -21,7 +21,7 @@ export function useReferenceLinkHelper(docCollection: Workspace) {
           },
         },
       ] as DeltaInsert<AffineTextAttributes>[]);
-      const [frame] = page.getBlockByFlavour('affine:note');
+      const [frame] = page.getModelsByFlavour('affine:note');
 
       frame && page.addBlock('affine:paragraph', { text }, frame.id);
     },

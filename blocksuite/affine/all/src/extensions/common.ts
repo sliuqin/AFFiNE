@@ -57,6 +57,7 @@ export const CommonBlockSpecs: ExtensionType[] = [
   DefaultOpenDocExtension,
   FontLoaderService,
   CalloutBlockSpec,
+  FrameBlockSpec,
 ].flat();
 
 export const PageFirstPartyBlockSpecs: ExtensionType[] = [
@@ -72,6 +73,5 @@ export const EdgelessFirstPartyBlockSpecs: ExtensionType[] = [
   EdgelessNoteBlockSpec,
   EdgelessSurfaceBlockSpec,
   EdgelessSurfaceRefBlockSpec,
-  FrameBlockSpec,
   EdgelessTextBlockSpec,
 ].flat();

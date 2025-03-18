@@ -147,7 +147,9 @@ export class ChatPanelAddPopover extends SignalWatcher(
           height="30px"
           data-id="upload"
           .text=${'Upload files (pdf, txt, csv)'}
+          hover=${this._activatedItemIndex === items.length + 1}
           @click=${this._addFileChip}
+          @mousemove=${() => (this._activatedItemIndex = items.length + 1)}
         >
           ${UploadIcon()}
         </icon-button>

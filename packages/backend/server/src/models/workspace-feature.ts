@@ -194,15 +194,17 @@ export class WorkspaceFeatureModel extends BaseModel {
   }
 
   async remove(workspaceId: string, featureName: WorkspaceFeatureName) {
-    await this.db.workspaceFeature.deleteMany({
+    const { count } = await this.db.workspaceFeature.deleteMany({
       where: {
         workspaceId,
         name: featureName,
       },
     });
 
-    this.logger.verbose(
-      `Feature ${featureName} removed from workspace ${workspaceId}`
-    );
+    if (count > 0) {
+      this.logger.verbose(
+        `Feature ${featureName} removed from workspace ${workspaceId}`
+      );
+    }
   }
 }

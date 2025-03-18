@@ -236,7 +236,7 @@ export class RangeBinding {
       return;
     }
 
-    const model = this.host.doc.getBlockById(textSelection.blockId);
+    const model = this.host.doc.getModelById(textSelection.blockId);
     // If the model is not found, the selection maybe in another editor
     if (!model) return;
 

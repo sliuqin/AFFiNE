@@ -1,8 +1,8 @@
 import { TEST_WORKSPACE } from '../common';
 import {
-  Bold,
   Button,
   Content,
+  IOSDate,
   P,
   Template,
   Text,
@@ -26,9 +26,8 @@ export default function TeamDeleteIn24Hours(props: TeamDeleteIn24HoursProps) {
       <Content>
         <P>
           Your <Workspace {...workspace} /> team workspace data will be
-          permanently deleted in 24 hours on{' '}
-          <Bold>{deletionDate.toLocaleDateString()}</Bold>. To prevent data
-          loss, please take immediate action:
+          permanently deleted in 24 hours on <IOSDate value={deletionDate} />.
+          To prevent data loss, please take immediate action:
           <li>
             <Text>Renew your subscription to restore team features</Text>
           </li>
