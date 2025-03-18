@@ -23,7 +23,8 @@ describe('viewport turbo renderer', () => {
 
   test('should render 6 notes in viewport', async () => {
     addSampleNotes(doc, 6);
-    await wait();
+    doc.load();
+    await wait(500);
 
     const notes = document.querySelectorAll('affine-edgeless-note');
     expect(notes.length).toBe(6);
