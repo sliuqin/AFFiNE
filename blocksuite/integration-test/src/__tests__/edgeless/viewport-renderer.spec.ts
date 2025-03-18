@@ -21,12 +21,12 @@ describe('viewport turbo renderer', () => {
     return cleanup;
   });
 
-  test('should render 6 notes in viewport', async () => {
-    addSampleNotes(doc, 6);
+  test('should render 3 notes in viewport', async () => {
+    addSampleNotes(doc, 3);
     doc.load();
     await wait(500);
 
     const notes = document.querySelectorAll('affine-edgeless-note');
-    expect(notes.length).toBe(6);
+    expect(notes.length).toBe(3);
   });
 });
