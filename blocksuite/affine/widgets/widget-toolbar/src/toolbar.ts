@@ -72,8 +72,6 @@ export class AffineToolbarWidget extends WidgetComponent {
     }
   `;
 
-  flavour$ = signal('affine:note');
-
   placement$ = signal<Placement>('top');
 
   sideOptions$ = signal<Partial<SideObject> | null>(null);
@@ -139,7 +137,6 @@ export class AffineToolbarWidget extends WidgetComponent {
     super.connectedCallback();
 
     const {
-      flavour$,
       placement$,
       sideOptions$,
       referenceElement$,
@@ -149,7 +146,7 @@ export class AffineToolbarWidget extends WidgetComponent {
       host,
       std,
     } = this;
-    const { flags, message$ } = toolbarRegistry;
+    const { flags, elementsMap$, flavour$, message$ } = toolbarRegistry;
     const context = new ToolbarContext(std);
 
     // TODO(@fundon): fix toolbar position shaking when the wheel scrolls
@@ -303,6 +300,7 @@ export class AffineToolbarWidget extends WidgetComponent {
         let elements: GfxModel[] = [];
         let hasLocked = false;
         let sideOptions = null;
+        let paired: [string, GfxModel[]][] = [];
 
         if (activated && surface) {
           elements = elementIds
@@ -326,7 +324,10 @@ export class AffineToolbarWidget extends WidgetComponent {
             e => e.flavour
           );
 
-          const paired = toPairs(grouped);
+          paired = toPairs(grouped).map(([flavour, items]) => [
+            flavour,
+            items.map(({ model }) => model),
+          ]);
 
           if (paired.length === 1) {
             flavour = paired[0][0];
@@ -349,6 +350,8 @@ export class AffineToolbarWidget extends WidgetComponent {
 
         batch(() => {
           flags.toggle(Flag.Surface, activated);
+
+          elementsMap$.value = new Map(paired);
 
           if (!activated || !flavour) return;
 
