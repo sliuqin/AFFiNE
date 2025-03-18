@@ -47,6 +47,7 @@ export class AffineMember extends SignalWatcher(
       font-weight: 500;
       line-height: 24px; /* 160% */
       padding: 0 4px;
+      border-radius: 4px;
     }
     .affine-member:hover {
       background: var(--affine-hover-color);
@@ -70,97 +71,99 @@ export class AffineMember extends SignalWatcher(
 
     .affine-member[data-type='loading'] {
       color: ${unsafeCSSVarV2('text/placeholder')};
+      background: ${unsafeCSSVarV2('skeleton/skeleton')};
+    }
+
+    /* 新增样式 */
+    .loading-text {
+      display: inline-block;
+    }
+
+    .dots {
+      display: inline-block;
+    }
+
+    .dot {
+      display: inline-block;
+      opacity: 0;
+      animation: pulse 1.2s infinite;
+    }
+
+    .dots > .dot:nth-child(2) {
+      animation-delay: 0.4s;
+    }
+
+    .dots > .dot:nth-child(3) {
+      animation-delay: 0.8s;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0;
+      }
+      33.333% {
+        opacity: 1;
+      }
+      66.666% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
     }
   `;
 
-  override connectedCallback() {
-    const result = super.connectedCallback();
+  override render() {
+    const errorContent = html`<span
+      data-selected=${this.selected}
+      data-type="error"
+      class="affine-member"
+      >@Unknown Member<v-text .str=${ZERO_WIDTH_NON_JOINER}></v-text
+    ></span>`;
 
     const userService = this.std.getOptional(UserProvider);
     const memberId = this.delta.attributes?.member;
     if (!userService || !memberId) {
-      this.state = {
-        type: 'error',
-      };
-      return result;
+      return errorContent;
     }
+
     userService.revalidateUserInfo(memberId);
+    const isLoading$ = userService.isLoading$(memberId);
     const userInfo$ = userService.userInfo$(memberId);
+
     if (userInfo$.value) {
       if (userInfo$.value.removed) {
-        this.state = {
-          type: 'removed',
-        };
+        return html`<span
+          data-selected=${this.selected}
+          data-type="removed"
+          class="affine-member"
+          >@Inactive Member<v-text .str=${ZERO_WIDTH_NON_JOINER}></v-text
+        ></span>`;
       } else {
-        this.state = {
-          type: 'default',
-          userInfo: userInfo$.value,
-        };
+        return html`<span
+          data-selected=${this.selected}
+          data-type="default"
+          class="affine-member"
+          >@${userInfo$.value.name ?? 'Unknown'}<v-text
+            .str=${ZERO_WIDTH_NON_JOINER}
+          ></v-text
+        ></span>`;
       }
-    } else {
-      this.state = {
-        type: 'loading',
-      };
-      setTimeout(() => {
-        if (userInfo$.value) {
-          if (userInfo$.value.removed) {
-            this.state = {
-              type: 'removed',
-            };
-          } else {
-            this.state = {
-              type: 'default',
-              userInfo: userInfo$.value,
-            };
-          }
-        } else {
-          this.state = {
-            type: 'error',
-          };
-        }
-      }, 3000);
     }
 
-    return result;
-  }
-
-  override render() {
-    if (this.state.type === 'default') {
-      const { userInfo } = this.state;
+    if (isLoading$.value) {
       return html`<span
         data-selected=${this.selected}
-        data-type="default"
+        data-type="loading"
         class="affine-member"
-        >@${userInfo.name ?? 'Unknown'}<v-text
-          .str=${ZERO_WIDTH_NON_JOINER}
-        ></v-text
+        >@loading<span class="dots"
+          ><span class="dot">.</span><span class="dot">.</span
+          ><span class="dot">.</span></span
+        ><v-text .str=${ZERO_WIDTH_NON_JOINER}></v-text
       ></span>`;
     }
 
-    if (this.state.type === 'removed') {
-      return html`<span
-        data-selected=${this.selected}
-        data-type="removed"
-        class="affine-member"
-        >@Inactive Member<v-text .str=${ZERO_WIDTH_NON_JOINER}></v-text
-      ></span>`;
-    }
-
-    if (this.state.type === 'error') {
-      return html`<span
-        data-selected=${this.selected}
-        data-type="error"
-        class="affine-member"
-        >@Unknown Member<v-text .str=${ZERO_WIDTH_NON_JOINER}></v-text
-      ></span>`;
-    }
-
-    return html`<span
-      data-selected=${this.selected}
-      data-type="loading"
-      class="affine-member"
-      >@loading...<v-text .str=${ZERO_WIDTH_NON_JOINER}></v-text
-    ></span>`;
+    return errorContent;
   }
 
   @property({ type: Object })
