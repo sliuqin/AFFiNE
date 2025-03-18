@@ -910,7 +910,7 @@ const embedIframeToolbarConfig = {
           tooltip: 'Copy link',
           icon: CopyIcon(),
           run(ctx) {
-            const model = ctx.getCurrentBlockComponentBy(
+            const model = ctx.getCurrentBlockByType(
               EmbedIframeBlockComponent
             )?.model;
             if (!model) return;
@@ -921,9 +921,6 @@ const embedIframeToolbarConfig = {
             toast(ctx.host, 'Copied link to clipboard');
 
             ctx.track('CopiedLink', {
-              segment: 'doc',
-              page: 'doc editor',
-              module: 'toolbar',
               category: matchModels(model, [BookmarkBlockModel])
                 ? 'bookmark'
                 : 'link',
@@ -937,7 +934,7 @@ const embedIframeToolbarConfig = {
           tooltip: 'Edit',
           icon: EditIcon(),
           run(ctx) {
-            const component = ctx.getCurrentBlockComponentBy(
+            const component = ctx.getCurrentBlockByType(
               EmbedIframeBlockComponent
             );
             if (!component) return;
@@ -962,9 +959,6 @@ const embedIframeToolbarConfig = {
             );
 
             ctx.track('OpenedAliasPopup', {
-              segment: 'doc',
-              page: 'doc editor',
-              module: 'toolbar',
               category: matchModels(model, [BookmarkBlockModel])
                 ? 'bookmark'
                 : 'link',
