@@ -128,7 +128,7 @@ abstract class ToolbarContextBase {
     );
   }
 
-  getSurfaceElementsByType<M extends abstract new (...args: any) => any>(
+  getSurfaceModelsByType<M extends abstract new (...args: any) => any>(
     klass: M
   ) {
     if (this.hasSelectedSurfaceModels) {
@@ -227,8 +227,14 @@ abstract class ToolbarContextBase {
     return this.std.getOptional(TelemetryProvider);
   }
 
-  track = (...args: Parameters<TelemetryService['track']>) => {
-    this.telemetryProvider?.track(...args);
+  track = (...[name, props]: Parameters<TelemetryService['track']>) => {
+    const segment = this.hasSelectedSurfaceModels ? 'whiteboard' : 'doc';
+    this.telemetryProvider?.track(name, {
+      segment,
+      page: `${segment} editor`,
+      module: 'toolbar',
+      ...props,
+    });
   };
 }
 
