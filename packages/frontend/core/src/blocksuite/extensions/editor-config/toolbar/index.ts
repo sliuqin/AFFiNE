@@ -404,7 +404,7 @@ function createExternalLinkableToolbarConfig(
     | typeof EmbedFigmaBlockComponent
     | typeof EmbedGithubBlockComponent
     | typeof EmbedLoomBlockComponent
-    | typeof EmbedYoutubeBlockComponent
+    | typeof EmbedYoutubeBlockComponent,
 ) {
   return {
     actions: [
@@ -425,8 +425,6 @@ function createExternalLinkableToolbarConfig(
               toast(ctx.host, 'Copied link to clipboard');
 
               ctx.track('CopiedLink', {
-                segment: 'doc',
-                page: 'doc editor',
                 module: 'toolbar',
                 category: matchModels(model, [BookmarkBlockModel])
                   ? 'bookmark'
@@ -464,8 +462,6 @@ function createExternalLinkableToolbarConfig(
               );
 
               ctx.track('OpenedAliasPopup', {
-                segment: 'doc',
-                page: 'doc editor',
                 module: 'toolbar',
                 category: matchModels(model, [BookmarkBlockModel])
                   ? 'bookmark'
@@ -983,6 +979,11 @@ export const createCustomToolbarExtension = (
 
     ToolbarModuleExtension({
       id: BlockFlavourIdentifier('custom:affine:bookmark'),
+      config: createExternalLinkableToolbarConfig(BookmarkBlockComponent),
+    }),
+
+    ToolbarModuleExtension({
+      id: BlockFlavourIdentifier('custom:affine:surface:bookmark'),
       config: createExternalLinkableToolbarConfig(BookmarkBlockComponent),
     }),
 

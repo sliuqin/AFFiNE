@@ -69,6 +69,7 @@ export const PackageList = [
     name: '@blocksuite/affine-block-bookmark',
     workspaceDependencies: [
       'blocksuite/affine/blocks/block-embed',
+      'blocksuite/affine/blocks/block-surface',
       'blocksuite/affine/components',
       'blocksuite/affine/model',
       'blocksuite/affine/shared',
