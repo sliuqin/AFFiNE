@@ -29,7 +29,7 @@ export function AffineContext(props: AffineContextProps) {
       )}
     >
       {props.children}
-      <uniReactRoot.Root />,
+      <uniReactRoot.Root />
     </ProviderComposer>
   );
 }

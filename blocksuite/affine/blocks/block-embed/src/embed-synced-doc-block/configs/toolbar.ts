@@ -9,7 +9,6 @@ import {
   type ToolbarModuleConfig,
 } from '@blocksuite/affine-shared/services';
 import { getBlockProps } from '@blocksuite/affine-shared/utils';
-import { BlockSelection } from '@blocksuite/block-std';
 import {
   ArrowDownSmallIcon,
   CaptionIcon,
@@ -49,11 +48,8 @@ export const builtinToolbarConfig = {
         },
       ],
       content(ctx) {
-        const component = ctx.getCurrentBlockComponentBy(
-          BlockSelection,
-          EmbedSyncedDocBlockComponent
-        );
-        if (!component) return null;
+        const block = ctx.getCurrentBlockByType(EmbedSyncedDocBlockComponent);
+        if (!block) return null;
 
         const actions = this.actions
           .map<ToolbarAction>(action => {
@@ -65,11 +61,11 @@ export const builtinToolbarConfig = {
             return {
               ...action,
               disabled: shouldOpenInActiveView
-                ? component.model.props.pageId === ctx.store.id
+                ? block.model.props.pageId === ctx.store.id
                 : false,
               when: allowed,
               run: (_ctx: ToolbarContext) =>
-                component.open({
+                block.open({
                   openMode: action.id as OpenDocMode,
                 }),
             };
@@ -116,15 +112,14 @@ export const builtinToolbarConfig = {
           id: 'inline',
           label: 'Inline view',
           run(ctx) {
-            const component = ctx.getCurrentBlockComponentBy(
-              BlockSelection,
+            const block = ctx.getCurrentBlockByType(
               EmbedSyncedDocBlockComponent
             );
-            component?.covertToInline();
+            block?.covertToInline();
 
             // Clears
-            ctx.reset();
             ctx.select('note');
+            ctx.reset();
 
             ctx.track('SelectedView', {
               ...trackBaseProps,
@@ -137,11 +132,10 @@ export const builtinToolbarConfig = {
           id: 'card',
           label: 'Card view',
           run(ctx) {
-            const component = ctx.getCurrentBlockComponentBy(
-              BlockSelection,
+            const block = ctx.getCurrentBlockByType(
               EmbedSyncedDocBlockComponent
             );
-            component?.convertToCard();
+            block?.convertToCard();
 
             ctx.track('SelectedView', {
               ...trackBaseProps,
@@ -157,15 +151,11 @@ export const builtinToolbarConfig = {
         },
       ],
       content(ctx) {
-        const model = ctx.getCurrentModelByType(
-          BlockSelection,
-          EmbedSyncedDocModel
-        );
+        const model = ctx.getCurrentModelByType(EmbedSyncedDocModel);
         if (!model) return null;
 
         const actions = this.actions.map(action => ({ ...action }));
-
-        const toggle = (e: CustomEvent<boolean>) => {
+        const onToggle = (e: CustomEvent<boolean>) => {
           const opened = e.detail;
           if (!opened) return;
 
@@ -178,9 +168,9 @@ export const builtinToolbarConfig = {
         return html`${keyed(
           model,
           html`<affine-view-dropdown-menu
+            @toggle=${onToggle}
             .actions=${actions}
             .context=${ctx}
-            .toggle=${toggle}
             .viewType$=${signal(actions[2].label)}
           ></affine-view-dropdown-menu>`
         )}`;
@@ -191,11 +181,8 @@ export const builtinToolbarConfig = {
       tooltip: 'Caption',
       icon: CaptionIcon(),
       run(ctx) {
-        const component = ctx.getCurrentBlockComponentBy(
-          BlockSelection,
-          EmbedSyncedDocBlockComponent
-        );
-        component?.captionEditor?.show();
+        const block = ctx.getCurrentBlockByType(EmbedSyncedDocBlockComponent);
+        block?.captionEditor?.show();
         ctx.track('OpenedCaptionEditor', {
           ...trackBaseProps,
           control: 'add caption',
@@ -211,7 +198,7 @@ export const builtinToolbarConfig = {
           label: 'Copy',
           icon: CopyIcon(),
           run(ctx) {
-            const model = ctx.getCurrentModelBy(BlockSelection);
+            const model = ctx.getCurrentModelByType(EmbedSyncedDocModel);
             if (!model) return;
 
             const slice = Slice.fromModels(ctx.store, [model]);
@@ -226,7 +213,7 @@ export const builtinToolbarConfig = {
           label: 'Duplicate',
           icon: DuplicateIcon(),
           run(ctx) {
-            const model = ctx.getCurrentModelBy(BlockSelection);
+            const model = ctx.getCurrentModelByType(EmbedSyncedDocModel);
             if (!model) return;
 
             const { flavour, parent } = model;
@@ -245,7 +232,7 @@ export const builtinToolbarConfig = {
       icon: DeleteIcon(),
       variant: 'destructive',
       run(ctx) {
-        const model = ctx.getCurrentModelBy(BlockSelection);
+        const model = ctx.getCurrentModelByType(EmbedSyncedDocModel);
         if (!model) return;
 
         ctx.store.deleteBlock(model);

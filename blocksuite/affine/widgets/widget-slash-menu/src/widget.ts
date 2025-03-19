@@ -105,7 +105,7 @@ export class AffineSlashMenuWidget extends WidgetComponent {
       }
     };
 
-    if (this.block.model.flavour !== 'affine:page') {
+    if (this.block?.model.flavour !== 'affine:page') {
       console.error('SlashMenuWidget should be used in RootBlock');
       return;
     }

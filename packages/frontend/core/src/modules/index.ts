@@ -17,7 +17,6 @@ import { configureDocModule } from './doc';
 import { configureDocDisplayMetaModule } from './doc-display-meta';
 import { configureDocInfoModule } from './doc-info';
 import { configureDocLinksModule } from './doc-link';
-import { configDocSearchMenuModule } from './doc-search-menu';
 import { configureDocsSearchModule } from './docs-search';
 import { configureEditorModule } from './editor';
 import { configureEditorSettingModule } from './editor-setting';
@@ -39,6 +38,7 @@ import { configurePDFModule } from './pdf';
 import { configurePeekViewModule } from './peek-view';
 import { configurePermissionsModule } from './permissions';
 import { configureQuickSearchModule } from './quicksearch';
+import { configSearchMenuModule } from './search-menu';
 import { configureShareDocsModule } from './share-doc';
 import { configureShareSettingModule } from './share-setting';
 import {
@@ -96,7 +96,7 @@ export function configureCommonModules(framework: Framework) {
   configureDocInfoModule(framework);
   configureOpenInApp(framework);
   configAtMenuConfigModule(framework);
-  configDocSearchMenuModule(framework);
+  configSearchMenuModule(framework);
   configureDndModule(framework);
   configureCommonGlobalStorageImpls(framework);
   configureAINetworkSearchModule(framework);

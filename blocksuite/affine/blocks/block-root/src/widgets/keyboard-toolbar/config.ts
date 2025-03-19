@@ -1,5 +1,6 @@
 import { addSiblingAttachmentBlocks } from '@blocksuite/affine-block-attachment';
 import { insertDatabaseBlockCommand } from '@blocksuite/affine-block-database';
+import { toggleEmbedIframeCreateModal } from '@blocksuite/affine-block-embed';
 import { insertImagesCommand } from '@blocksuite/affine-block-image';
 import { insertLatexBlockCommand } from '@blocksuite/affine-block-latex';
 import {
@@ -45,7 +46,10 @@ import {
   getTextSelectionCommand,
 } from '@blocksuite/affine-shared/commands';
 import { REFERENCE_NODE } from '@blocksuite/affine-shared/consts';
-import { FileSizeLimitService } from '@blocksuite/affine-shared/services';
+import {
+  FeatureFlagService,
+  FileSizeLimitService,
+} from '@blocksuite/affine-shared/services';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import {
   createDefaultDoc,
@@ -70,6 +74,7 @@ import {
   DeleteIcon,
   DividerIcon,
   DuplicateIcon,
+  EmbedIcon,
   FontIcon,
   FrameIcon,
   GithubIcon,
@@ -445,6 +450,59 @@ const contentMediaToolGroup: KeyboardToolPanelGroup = {
       },
     },
     {
+      name: 'Equation',
+      icon: TeXIcon(),
+      showWhen: ({ std }) =>
+        std.store.schema.flavourSchemaMap.has('affine:latex'),
+      action: ({ std }) => {
+        std.command
+          .chain()
+          .pipe(getSelectedModelsCommand)
+          .pipe(insertLatexBlockCommand, {
+            place: 'after',
+            removeEmptyLine: true,
+          })
+          .run();
+      },
+    },
+  ],
+};
+
+const embedToolGroup: KeyboardToolPanelGroup = {
+  name: 'Embeds',
+  items: [
+    {
+      name: 'Embed',
+      icon: EmbedIcon({ style: `color: black` }),
+      showWhen: ({ std }) => {
+        const featureFlagService = std.get(FeatureFlagService);
+        return (
+          featureFlagService.getFlag('enable_embed_iframe_block') &&
+          std.store.schema.flavourSchemaMap.has('affine:embed-iframe')
+        );
+      },
+      action: async ({ std }) => {
+        const [_, { selectedModels }] = std.command.exec(
+          getSelectedModelsCommand
+        );
+        const model = selectedModels?.[0];
+        if (!model) return;
+
+        const parentModel = std.store.getParent(model);
+        if (!parentModel) return;
+
+        const index = parentModel.children.indexOf(model) + 1;
+        await toggleEmbedIframeCreateModal(std, {
+          parentModel,
+          index,
+          variant: 'compact',
+        });
+        if (model.text?.length === 0) {
+          std.store.deleteBlock(model);
+        }
+      },
+    },
+    {
       name: 'Youtube',
       icon: YoutubeDuotoneIcon({
         style: `color: white`,
@@ -744,6 +802,7 @@ const moreToolPanel: KeyboardToolPanelConfig = {
     { name: 'List', items: listToolActionItems },
     pageToolGroup,
     contentMediaToolGroup,
+    embedToolGroup,
     documentGroupFrameToolGroup,
     dateToolGroup,
     databaseToolGroup,

@@ -28,7 +28,7 @@ export class WidgetComponent<
   };
 
   get block() {
-    return this.std.view.getBlock(this.model.id) as B;
+    return this.std.view.getBlock(this.model.id) as B | null;
   }
 
   get doc() {

@@ -892,6 +892,7 @@ __metadata:
     "@types/cookie-parser": "npm:^1.4.8"
     "@types/express": "npm:^4.17.21"
     "@types/graphql-upload": "npm:^17.0.0"
+    "@types/http-errors": "npm:^2.0.4"
     "@types/lodash-es": "npm:^4.17.12"
     "@types/mixpanel": "npm:^2.14.9"
     "@types/mustache": "npm:^4.2.5"
@@ -921,6 +922,7 @@ __metadata:
     graphql-upload: "npm:^17.0.0"
     html-validate: "npm:^9.0.0"
     htmlrewriter: "npm:^0.0.12"
+    http-errors: "npm:^2.0.0"
     ioredis: "npm:^5.4.1"
     is-mobile: "npm:^5.0.0"
     keyv: "npm:^5.2.2"
@@ -2336,6 +2338,7 @@ __metadata:
   resolution: "@blocksuite/affine-block-bookmark@workspace:blocksuite/affine/blocks/block-bookmark"
   dependencies:
     "@blocksuite/affine-block-embed": "workspace:*"
+    "@blocksuite/affine-block-surface": "workspace:*"
     "@blocksuite/affine-components": "workspace:*"
     "@blocksuite/affine-model": "workspace:*"
     "@blocksuite/affine-shared": "workspace:*"
@@ -3232,6 +3235,7 @@ __metadata:
   resolution: "@blocksuite/affine-widget-toolbar@workspace:blocksuite/affine/widgets/widget-toolbar"
   dependencies:
     "@blocksuite/affine-block-database": "workspace:*"
+    "@blocksuite/affine-block-surface": "workspace:*"
     "@blocksuite/affine-block-table": "workspace:*"
     "@blocksuite/affine-components": "workspace:*"
     "@blocksuite/affine-model": "workspace:*"
@@ -14347,7 +14351,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/http-errors@npm:*":
+"@types/http-errors@npm:*, @types/http-errors@npm:^2.0.4":
   version: 2.0.4
   resolution: "@types/http-errors@npm:2.0.4"
   checksum: 10/1f3d7c3b32c7524811a45690881736b3ef741bf9849ae03d32ad1ab7062608454b150a4e7f1351f83d26a418b2d65af9bdc06198f1c079d75578282884c4e8e3

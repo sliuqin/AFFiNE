@@ -1,16 +1,43 @@
 import { toast } from '@affine/component';
+import type { TagMeta } from '@affine/core/components/page-list';
 import { ShadowlessElement } from '@blocksuite/affine/block-std';
-import { type LinkedMenuGroup } from '@blocksuite/affine/blocks/root';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { scrollbarStyle } from '@blocksuite/affine/shared/styles';
-import { openFileOrFiles } from '@blocksuite/affine/shared/utils';
-import { SearchIcon, UploadIcon } from '@blocksuite/icons/lit';
+import { openFileOrFiles, type Signal } from '@blocksuite/affine/shared/utils';
+import {
+  CollectionsIcon,
+  SearchIcon,
+  TagsIcon,
+  UploadIcon,
+} from '@blocksuite/icons/lit';
 import type { DocMeta } from '@blocksuite/store';
-import { css, html } from 'lit';
+import { css, html, type TemplateResult } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 
-import type { DocSearchMenuConfig } from '../chat-config';
+import type { SearchMenuConfig } from '../chat-config';
 import type { ChatChip } from '../chat-context';
+
+enum AddPopoverMode {
+  Default = 'default',
+  Tags = 'tags',
+  Collections = 'collections',
+}
+
+export type MenuGroup = {
+  name: string;
+  items: MenuItem[] | Signal<MenuItem[]>;
+  maxDisplay?: number;
+};
+
+export type MenuItem = {
+  key: string;
+  name: string | TemplateResult<1>;
+  icon: TemplateResult<1>;
+  action: MenuAction;
+  suffix?: string | TemplateResult<1>;
+};
+
+export type MenuAction = () => Promise<void> | void;
 
 export class ChatPanelAddPopover extends SignalWatcher(
   WithDisposable(ShadowlessElement)
@@ -18,7 +45,7 @@ export class ChatPanelAddPopover extends SignalWatcher(
   static override styles = css`
     .add-popover {
       width: 280px;
-      max-height: 240px;
+      max-height: 450px;
       overflow-y: auto;
       border: 0.5px solid var(--affine-border-color);
       border-radius: 4px;
@@ -68,6 +95,11 @@ export class ChatPanelAddPopover extends SignalWatcher(
       font-size: var(--affine-font-sm);
       color: var(--affine-text-secondary-color);
     }
+    .item-suffix {
+      margin-left: auto;
+      font-size: var(--affine-font-xs);
+      color: var(--affine-text-secondary-color);
+    }
 
     ${scrollbarStyle('.add-popover')}
   `;
@@ -76,86 +108,42 @@ export class ChatPanelAddPopover extends SignalWatcher(
   private accessor _query = '';
 
   @state()
-  private accessor _docGroup: LinkedMenuGroup = {
+  private accessor _searchGroup: MenuGroup = {
     name: 'No Result',
     items: [],
   };
 
-  @state()
-  private accessor _activatedItemIndex = 0;
-
-  @property({ attribute: false })
-  accessor docSearchMenuConfig!: DocSearchMenuConfig;
-
-  @property({ attribute: false })
-  accessor addChip!: (chip: ChatChip) => void;
-
-  @property({ attribute: false })
-  accessor abortController!: AbortController;
-
-  @query('.search-input')
-  accessor searchInput!: HTMLInputElement;
-
-  override connectedCallback() {
-    super.connectedCallback();
-    this._updateDocGroup();
-  }
-
-  override firstUpdated() {
+  private readonly _toggleMode = (mode: AddPopoverMode) => {
+    this._mode = mode;
+    this._activatedIndex = 0;
+    this._query = '';
+    this._updateSearchGroup();
     requestAnimationFrame(() => {
       this.searchInput.focus();
     });
-  }
+  };
 
-  override render() {
-    const items = Array.isArray(this._docGroup.items)
-      ? this._docGroup.items
-      : this._docGroup.items.value;
-    return html`<div class="add-popover">
-      <div class="search-input-wrapper">
-        ${SearchIcon()}
-        <input
-          class="search-input"
-          type="text"
-          placeholder="Search Doc"
-          .value=${this._query}
-          @input=${this._onInput}
-        />
-      </div>
-      <div class="divider"></div>
-      <div class="search-group" style=${this._docGroup.styles ?? ''}>
-        ${items.length > 0
-          ? items.map(({ key, name, icon, action }, curIdx) => {
-              return html`<icon-button
-                width="280px"
-                height="30px"
-                data-id=${key}
-                .text=${name}
-                hover=${this._activatedItemIndex === curIdx}
-                @click=${() => action()?.catch(console.error)}
-                @mousemove=${() => (this._activatedItemIndex = curIdx)}
-              >
-                ${icon}
-              </icon-button>`;
-            })
-          : html`<div class="no-result">No Result</div>`}
-      </div>
-      <div class="divider"></div>
-      <div class="upload-wrapper">
-        <icon-button
-          width="280px"
-          height="30px"
-          data-id="upload"
-          .text=${'Upload files (pdf, txt, csv)'}
-          hover=${this._activatedItemIndex === items.length + 1}
-          @click=${this._addFileChip}
-          @mousemove=${() => (this._activatedItemIndex = items.length + 1)}
-        >
-          ${UploadIcon()}
-        </icon-button>
-      </div>
-    </div>`;
-  }
+  private readonly tcGroup: MenuGroup = {
+    name: 'Tag & Collection',
+    items: [
+      {
+        key: 'tags',
+        name: 'Tags',
+        icon: TagsIcon(),
+        action: () => {
+          this._toggleMode(AddPopoverMode.Tags);
+        },
+      },
+      {
+        key: 'collections',
+        name: 'Collections',
+        icon: CollectionsIcon(),
+        action: () => {
+          this._toggleMode(AddPopoverMode.Collections);
+        },
+      },
+    ],
+  };
 
   private readonly _addFileChip = async () => {
     const file = await openFileOrFiles();
@@ -171,17 +159,168 @@ export class ChatPanelAddPopover extends SignalWatcher(
     this.abortController.abort();
   };
 
-  private _onInput(event: Event) {
-    this._query = (event.target as HTMLInputElement).value;
-    this._updateDocGroup();
+  private readonly uploadGroup: MenuGroup = {
+    name: 'Upload',
+    items: [
+      {
+        key: 'files',
+        name: 'Upload files (pdf, txt, csv)',
+        icon: UploadIcon(),
+        action: this._addFileChip,
+      },
+    ],
+  };
+
+  private get _menuGroup() {
+    switch (this._mode) {
+      case AddPopoverMode.Tags:
+        return [this._searchGroup];
+      case AddPopoverMode.Collections:
+        return [this._searchGroup];
+      default:
+        if (this._query) {
+          return [this._searchGroup, this.uploadGroup];
+        }
+        return [this._searchGroup, this.tcGroup, this.uploadGroup];
+    }
   }
 
-  private _updateDocGroup() {
-    this._docGroup = this.docSearchMenuConfig.getDocMenuGroup(
-      this._query,
-      this._addDocChip,
-      this.abortController.signal
-    );
+  private get _flattenMenuGroup() {
+    return this._menuGroup.flatMap(group => {
+      return Array.isArray(group.items) ? group.items : group.items.value;
+    });
+  }
+
+  @state()
+  private accessor _activatedIndex = 0;
+
+  @state()
+  private accessor _mode: AddPopoverMode = AddPopoverMode.Default;
+
+  @property({ attribute: false })
+  accessor searchMenuConfig!: SearchMenuConfig;
+
+  @property({ attribute: false })
+  accessor addChip!: (chip: ChatChip) => void;
+
+  @property({ attribute: false })
+  accessor abortController!: AbortController;
+
+  @query('.search-input')
+  accessor searchInput!: HTMLInputElement;
+
+  override connectedCallback() {
+    super.connectedCallback();
+    this._updateSearchGroup();
+    this.addEventListener('keydown', this._handleKeyDown);
+  }
+
+  override firstUpdated() {
+    requestAnimationFrame(() => {
+      this.searchInput.focus();
+    });
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener('keydown', this._handleKeyDown);
+  }
+
+  override render() {
+    return html`<div class="add-popover">
+      ${this._renderSearchInput()} ${this._renderDivider()}
+      ${this._renderMenuGroup(this._menuGroup)}
+    </div>`;
+  }
+
+  private _renderSearchInput() {
+    return html`<div class="search-input-wrapper">
+      ${SearchIcon()}
+      <input
+        class="search-input"
+        type="text"
+        placeholder=${this._getPlaceholder()}
+        .value=${this._query}
+        @input=${this._onInput}
+      />
+    </div>`;
+  }
+
+  private _getPlaceholder() {
+    switch (this._mode) {
+      case AddPopoverMode.Tags:
+        return 'Search Tag';
+      case AddPopoverMode.Collections:
+        return 'Search Collection';
+      default:
+        return 'Search docs, tags, collections';
+    }
+  }
+
+  private _renderDivider() {
+    return html`<div class="divider"></div>`;
+  }
+
+  private _renderMenuGroup(groups: MenuGroup[]) {
+    let startIndex = 0;
+    return groups.map((group, idx) => {
+      const items = Array.isArray(group.items)
+        ? group.items
+        : group.items.value;
+      const menuGroup = html`<div class="menu-group">
+        ${this._renderMenuItems(items, startIndex)}
+        ${idx < groups.length - 1 ? this._renderDivider() : ''}
+      </div>`;
+      startIndex += items.length;
+      return menuGroup;
+    });
+  }
+
+  private _renderMenuItems(items: MenuItem[], startIndex: number) {
+    return html`<div>
+      ${items.length > 0
+        ? items.map(({ key, name, icon, action, suffix }, idx) => {
+            const curIdx = startIndex + idx;
+            return html`<icon-button
+              width="280px"
+              height="30px"
+              data-id=${key}
+              data-index=${curIdx}
+              .text=${name}
+              hover=${this._activatedIndex === curIdx}
+              @click=${() => action()?.catch(console.error)}
+              @mousemove=${() => (this._activatedIndex = curIdx)}
+            >
+              ${icon}
+              ${suffix ? html`<div class="item-suffix">${suffix}</div>` : ''}
+            </icon-button>`;
+          })
+        : html`<div class="no-result">No Result</div>`}
+    </div>`;
+  }
+
+  private _onInput(event: Event) {
+    this._query = (event.target as HTMLInputElement).value;
+    this._activatedIndex = 0;
+    this._updateSearchGroup();
+  }
+
+  private _updateSearchGroup() {
+    switch (this._mode) {
+      case AddPopoverMode.Tags:
+        this._searchGroup = this.searchMenuConfig.getTagMenuGroup(
+          this._query,
+          this._addTagChip,
+          this.abortController.signal
+        );
+        break;
+      default:
+        this._searchGroup = this.searchMenuConfig.getDocMenuGroup(
+          this._query,
+          this._addDocChip,
+          this.abortController.signal
+        );
+    }
   }
 
   private readonly _addDocChip = (meta: DocMeta) => {
@@ -191,4 +330,50 @@ export class ChatPanelAddPopover extends SignalWatcher(
     });
     this.abortController.abort();
   };
+
+  private readonly _addTagChip = (_tag: TagMeta) => {
+    this.abortController.abort();
+  };
+
+  private readonly _handleKeyDown = (event: KeyboardEvent) => {
+    if (event.isComposing) return;
+
+    const { key } = event;
+
+    if (key === 'ArrowDown' || key === 'ArrowUp') {
+      event.preventDefault();
+      const totalItems = this._flattenMenuGroup.length;
+      if (totalItems === 0) return;
+
+      if (key === 'ArrowDown') {
+        this._activatedIndex = (this._activatedIndex + 1) % totalItems;
+      } else if (key === 'ArrowUp') {
+        this._activatedIndex =
+          (this._activatedIndex - 1 + totalItems) % totalItems;
+      }
+      this._scrollItemIntoView();
+    } else if (key === 'Enter') {
+      event.preventDefault();
+      this._flattenMenuGroup[this._activatedIndex]
+        .action()
+        ?.catch(console.error);
+    } else if (key === 'Escape') {
+      event.preventDefault();
+      this.abortController.abort();
+    }
+  };
+
+  private _scrollItemIntoView() {
+    requestAnimationFrame(() => {
+      const element = this.renderRoot.querySelector(
+        `[data-index="${this._activatedIndex}"]`
+      );
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }
+    });
+  }
 }

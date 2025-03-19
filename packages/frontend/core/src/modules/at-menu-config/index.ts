@@ -3,10 +3,10 @@ import { type Framework } from '@toeverything/infra';
 import { WorkspaceDialogService } from '../dialogs';
 import { DocsService } from '../doc';
 import { DocDisplayMetaService } from '../doc-display-meta';
-import { DocSearchMenuService } from '../doc-search-menu/services';
 import { EditorSettingService } from '../editor-setting';
 import { JournalService } from '../journal';
 import { MemberSearchService } from '../permissions';
+import { SearchMenuService } from '../search-menu/services';
 import { WorkspaceScope } from '../workspace';
 import { AtMenuConfigService } from './services';
 
@@ -21,5 +21,6 @@ export function configAtMenuConfigModule(framework: Framework) {
       DocsService,
       DocSearchMenuService,
       MemberSearchService,
+      SearchMenuService,
     ]);
 }

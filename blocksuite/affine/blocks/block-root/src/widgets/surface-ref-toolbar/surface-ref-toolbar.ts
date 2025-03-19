@@ -49,6 +49,9 @@ export class AffineSurfaceRefToolbar extends WidgetComponent<
     this,
     ({ abortController }) => {
       const surfaceRefBlock = this.block;
+      if (!surfaceRefBlock) {
+        return null;
+      }
       const selection = this.host.selection;
 
       const textSelection = selection.find(TextSelection);
@@ -100,6 +103,9 @@ export class AffineSurfaceRefToolbar extends WidgetComponent<
     super.connectedCallback();
 
     this.moreGroups = getMoreMenuConfig(this.std).configure(this.moreGroups);
+    if (!this.block) {
+      return;
+    }
     this._hoverController.setReference(this.block);
   }
 }

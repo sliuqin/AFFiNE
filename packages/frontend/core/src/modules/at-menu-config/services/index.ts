@@ -25,10 +25,10 @@ import { html } from 'lit';
 import type { WorkspaceDialogService } from '../../dialogs';
 import type { DocsService } from '../../doc';
 import type { DocDisplayMetaService } from '../../doc-display-meta';
-import type { DocSearchMenuService } from '../../doc-search-menu/services';
 import type { EditorSettingService } from '../../editor-setting';
 import { type JournalService, suggestJournalDate } from '../../journal';
 import type { Member, MemberSearchService } from '../../permissions';
+import type { SearchMenuService } from '../../search-menu/services';
 
 function resolveSignal<T>(data: T | Signal<T>): T {
   return data instanceof Signal ? data.value : data;
@@ -48,7 +48,8 @@ export class AtMenuConfigService extends Service {
     private readonly editorSettingService: EditorSettingService,
     private readonly docsService: DocsService,
     private readonly docsSearchMenuService: DocSearchMenuService,
-    private readonly memberSearchService: MemberSearchService
+    private readonly memberSearchService: MemberSearchService,
+    private readonly searchMenuService: SearchMenuService
   ) {
     super();
   }
@@ -295,7 +296,7 @@ export class AtMenuConfigService extends Service {
       track.doc.editor.atMenu.linkDoc();
       this.insertDoc(inlineEditor, meta.id);
     };
-    const result = this.docsSearchMenuService.getDocMenuGroup(
+    const result = this.searchMenuService.getDocMenuGroup(
       query,
       action,
       abortSignal

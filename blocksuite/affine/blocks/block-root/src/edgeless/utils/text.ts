@@ -27,18 +27,24 @@ export function mountShapeTextEditor(
     );
   }
 
-  if (!shapeElement.text) {
-    const text = new Y.Text();
-    edgeless.std
-      .get(EdgelessCRUDIdentifier)
-      .updateElement(shapeElement.id, { text });
-  }
-
   const updatedElement = edgeless.service.crud.getElementById(shapeElement.id);
 
   if (!(updatedElement instanceof ShapeElementModel)) {
     console.error('Cannot mount text editor on a non-shape element');
     return;
+  }
+
+  edgeless.gfx.tool.setTool('default');
+  edgeless.gfx.selection.set({
+    elements: [shapeElement.id],
+    editing: true,
+  });
+
+  if (!shapeElement.text) {
+    const text = new Y.Text();
+    edgeless.std
+      .get(EdgelessCRUDIdentifier)
+      .updateElement(shapeElement.id, { text });
   }
 
   const shapeEditor = new EdgelessShapeTextEditor();
@@ -47,11 +53,6 @@ export function mountShapeTextEditor(
   shapeEditor.mountEditor = mountShapeTextEditor;
 
   edgeless.mountElm.append(shapeEditor);
-  edgeless.gfx.tool.setTool('default');
-  edgeless.gfx.selection.set({
-    elements: [shapeElement.id],
-    editing: true,
-  });
 }
 
 export function mountFrameTitleEditor(
@@ -65,16 +66,17 @@ export function mountFrameTitleEditor(
     );
   }
 
-  const frameEditor = new EdgelessFrameTitleEditor();
-  frameEditor.frameModel = frame;
-  frameEditor.edgeless = edgeless;
-
-  edgeless.mountElm.append(frameEditor);
   edgeless.gfx.tool.setTool('default');
   edgeless.gfx.selection.set({
     elements: [frame.id],
     editing: true,
   });
+
+  const frameEditor = new EdgelessFrameTitleEditor();
+  frameEditor.frameModel = frame;
+  frameEditor.edgeless = edgeless;
+
+  edgeless.mountElm.append(frameEditor);
 }
 
 export function mountGroupTitleEditor(
@@ -88,16 +90,17 @@ export function mountGroupTitleEditor(
     );
   }
 
-  const groupEditor = new EdgelessGroupTitleEditor();
-  groupEditor.group = group;
-  groupEditor.edgeless = edgeless;
-
-  edgeless.mountElm.append(groupEditor);
   edgeless.gfx.tool.setTool('default');
   edgeless.gfx.selection.set({
     elements: [group.id],
     editing: true,
   });
+
+  const groupEditor = new EdgelessGroupTitleEditor();
+  groupEditor.group = group;
+  groupEditor.edgeless = edgeless;
+
+  edgeless.mountElm.append(groupEditor);
 }
 
 export function mountConnectorLabelEditor(
@@ -111,6 +114,12 @@ export function mountConnectorLabelEditor(
       "edgeless block's mount point does not exist"
     );
   }
+
+  edgeless.gfx.tool.setTool('default');
+  edgeless.gfx.selection.set({
+    elements: [connector.id],
+    editing: true,
+  });
 
   if (!connector.text) {
     const text = new Y.Text();
@@ -143,9 +152,4 @@ export function mountConnectorLabelEditor(
       editor.inlineEditor?.focusEnd();
     })
     .catch(console.error);
-  edgeless.gfx.tool.setTool('default');
-  edgeless.gfx.selection.set({
-    elements: [connector.id],
-    editing: true,
-  });
 }

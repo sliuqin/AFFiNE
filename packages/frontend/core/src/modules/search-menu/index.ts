@@ -3,16 +3,18 @@ import { type Framework } from '@toeverything/infra';
 import { DocDisplayMetaService } from '../doc-display-meta';
 import { DocsSearchService } from '../docs-search';
 import { RecentDocsService } from '../quicksearch';
+import { TagService } from '../tag';
 import { WorkspaceScope, WorkspaceService } from '../workspace';
-import { DocSearchMenuService } from './services';
+import { SearchMenuService } from './services';
 
-export function configDocSearchMenuModule(framework: Framework) {
+export function configSearchMenuModule(framework: Framework) {
   framework
     .scope(WorkspaceScope)
-    .service(DocSearchMenuService, [
+    .service(SearchMenuService, [
       WorkspaceService,
       DocDisplayMetaService,
       RecentDocsService,
       DocsSearchService,
+      TagService,
     ]);
 }

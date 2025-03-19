@@ -1,3 +1,4 @@
+import type { TagMeta } from '@affine/core/components/page-list';
 import { fuzzyMatch } from '@affine/core/utils/fuzzy-match';
 import { I18n } from '@affine/i18n';
 import type {
@@ -9,13 +10,16 @@ import type { DocMeta } from '@blocksuite/affine/store';
 import { computed } from '@preact/signals-core';
 import { Service } from '@toeverything/infra';
 import { cssVarV2 } from '@toeverything/theme/v2';
+import Fuse from 'fuse.js';
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { map, takeWhile } from 'rxjs';
 
 import type { DocDisplayMetaService } from '../../doc-display-meta';
 import type { DocsSearchService } from '../../docs-search';
-import type { RecentDocsService } from '../../quicksearch';
+import { type RecentDocsService } from '../../quicksearch';
+import { highlighter } from '../../quicksearch/utils/highlighter';
+import type { TagService } from '../../tag';
 import type { WorkspaceService } from '../../workspace';
 
 const MAX_DOCS = 3;
@@ -26,12 +30,15 @@ type DocMetaWithHighlights = DocMeta & {
 
 export type SearchDocMenuAction = (meta: DocMeta) => Promise<void> | void;
 
-export class DocSearchMenuService extends Service {
+export type SearchTagMenuAction = (tagId: TagMeta) => Promise<void> | void;
+
+export class SearchMenuService extends Service {
   constructor(
     private readonly workspaceService: WorkspaceService,
     private readonly docDisplayMetaService: DocDisplayMetaService,
     private readonly recentDocsService: RecentDocsService,
-    private readonly docsSearch: DocsSearchService
+    private readonly docsSearch: DocsSearchService,
+    private readonly tagService: TagService
   ) {
     super();
   }
@@ -207,6 +214,83 @@ export class DocSearchMenuService extends Service {
         .value(),
       action: async () => {
         await action(meta);
+      },
+    };
+  }
+
+  getTagMenuGroup(
+    query: string,
+    action: SearchTagMenuAction,
+    _abortSignal: AbortSignal
+  ): LinkedMenuGroup {
+    const tags: TagMeta[] = this.tagService.tagList.tagMetas$.value;
+
+    if (query.trim().length === 0) {
+      return {
+        name: I18n.t('com.affine.editor.at-menu.tags', {
+          query,
+        }),
+        items: tags.map(tag => this.toTagMenuItem(tag, action)),
+      };
+    }
+
+    const fuse = new Fuse(tags, {
+      keys: ['title'],
+      includeMatches: true,
+      includeScore: true,
+      ignoreLocation: true,
+      threshold: 0.0,
+    });
+
+    const result = fuse.search(query);
+
+    return {
+      name: I18n.t('com.affine.editor.at-menu.link-to-doc', {
+        query,
+      }),
+      items: result.map(item => {
+        const normalizedRange = ([start, end]: [number, number]) =>
+          [
+            start,
+            end + 1 /* in fuse, the `end` is different from the `substring` */,
+          ] as [number, number];
+        const titleMatches = item.matches
+          ?.filter(match => match.key === 'title')
+          .flatMap(match => match.indices.map(normalizedRange));
+        const hTitle = highlighter(
+          item.item.title,
+          `<span style="color: ${cssVarV2('text/emphasis')}">`,
+          '</span>',
+          titleMatches ?? []
+        );
+        return this.toTagMenuItem(
+          {
+            ...item.item,
+            title: hTitle ?? item.item.title,
+          },
+          action
+        );
+      }),
+    };
+  }
+
+  private toTagMenuItem(
+    tag: TagMeta,
+    action: SearchTagMenuAction
+  ): LinkedMenuItem {
+    const tagIcon = html`
+      <div style="display: flex; align-items: center; justify-content: center;">
+        <div
+          style="border-radius: 50%; height: 8px; width: 8px; margin: 4px; background-color: ${tag.color};"
+        ></div>
+      </div>
+    `;
+    return {
+      key: tag.id,
+      name: html`${unsafeHTML(tag.title)}`,
+      icon: tagIcon,
+      action: async () => {
+        await action(tag);
       },
     };
   }

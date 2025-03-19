@@ -3256,6 +3256,12 @@ export function useAFFiNEI18N(): {
         readonly due: string;
     }): string;
     /**
+      * `Your recent payment failed, the next payment date is {{due}}.`
+      */
+    ["com.affine.payment.billing-tip.past-due"](options: {
+        readonly due: string;
+    }): string;
+    /**
       * `You are currently on the Free plan.`
       */
     ["com.affine.payment.ai.pricing-plan.caption-free"](): string;
@@ -3310,6 +3316,18 @@ export function useAFFiNEI18N(): {
         used: string;
         limit: string;
     }>): string;
+    /**
+      * `Active`
+      */
+    ["com.affine.payment.subscription-status.active"](): string;
+    /**
+      * `Past-due bill`
+      */
+    ["com.affine.payment.subscription-status.past-due"](): string;
+    /**
+      * `Trialing`
+      */
+    ["com.affine.payment.subscription-status.trialing"](): string;
     /**
       * `Unlimited local workspaces`
       */
@@ -6812,6 +6830,10 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.editor.at-menu.recent-docs"](): string;
     /**
+      * `Tags`
+      */
+    ["com.affine.editor.at-menu.tags"](): string;
+    /**
       * `Loading...`
       */
     ["com.affine.editor.at-menu.loading"](): string;
@@ -7283,6 +7305,12 @@ export function useAFFiNEI18N(): {
         message: string;
     }>): string;
     /**
+      * `HTTP request error, message: {{message}}`
+      */
+    ["error.HTTP_REQUEST_ERROR"](options: {
+        readonly message: string;
+    }): string;
+    /**
       * `Query is too long, max length is {{max}}.`
       */
     ["error.QUERY_TOO_LONG"](options: {
@@ -7720,9 +7748,13 @@ export function useAFFiNEI18N(): {
       */
     ["error.COPILOT_EMBEDDING_UNAVAILABLE"](): string;
     /**
-      * `You have exceeded your blob storage quota.`
+      * `You have exceeded your blob size quota.`
       */
     ["error.BLOB_QUOTA_EXCEEDED"](): string;
+    /**
+      * `You have exceeded your storage quota.`
+      */
+    ["error.STORAGE_QUOTA_EXCEEDED"](): string;
     /**
       * `You have exceeded your workspace member quota.`
       */

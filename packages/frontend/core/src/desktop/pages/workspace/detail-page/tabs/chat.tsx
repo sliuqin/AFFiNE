@@ -3,7 +3,7 @@ import type { AffineEditorContainer } from '@affine/core/blocksuite/block-suite-
 import { enableFootnoteConfigExtension } from '@affine/core/blocksuite/extensions';
 import { AINetworkSearchService } from '@affine/core/modules/ai-button/services/network-search';
 import { DocDisplayMetaService } from '@affine/core/modules/doc-display-meta';
-import { DocSearchMenuService } from '@affine/core/modules/doc-search-menu/services';
+import { SearchMenuService } from '@affine/core/modules/search-menu/services';
 import { WorkbenchService } from '@affine/core/modules/workbench';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { RefNodeSlotsProvider } from '@blocksuite/affine/rich-text';
@@ -57,7 +57,7 @@ export const EditorChatPanel = forwardRef(function EditorChatPanel(
       const searchService = framework.get(AINetworkSearchService);
       const docDisplayMetaService = framework.get(DocDisplayMetaService);
       const workspaceService = framework.get(WorkspaceService);
-      const docSearchMenuService = framework.get(DocSearchMenuService);
+      const searchMenuService = framework.get(SearchMenuService);
       const workbench = framework.get(WorkbenchService).workbench;
       chatPanelRef.current.appSidebarConfig = {
         getWidth: () => {
@@ -87,13 +87,12 @@ export const EditorChatPanel = forwardRef(function EditorChatPanel(
           return doc;
         },
       };
-      chatPanelRef.current.docSearchMenuConfig = {
+      chatPanelRef.current.searchMenuConfig = {
         getDocMenuGroup: (query, action, abortSignal) => {
-          return docSearchMenuService.getDocMenuGroup(
-            query,
-            action,
-            abortSignal
-          );
+          return searchMenuService.getDocMenuGroup(query, action, abortSignal);
+        },
+        getTagMenuGroup: (query, action, abortSignal) => {
+          return searchMenuService.getTagMenuGroup(query, action, abortSignal);
         },
       };
       const previewSpecBuilder = enableFootnoteConfigExtension(

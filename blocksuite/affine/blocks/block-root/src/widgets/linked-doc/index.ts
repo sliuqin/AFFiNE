@@ -72,7 +72,7 @@ export class AffineLinkedDocWidget extends WidgetComponent<
   }
 
   private readonly _renderLinkedDocMenu = () => {
-    if (!this.block.rootComponent) return nothing;
+    if (!this.block?.rootComponent) return nothing;
 
     return html`<affine-mobile-linked-doc-menu
       .context=${this._context}

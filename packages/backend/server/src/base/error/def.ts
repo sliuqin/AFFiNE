@@ -264,6 +264,11 @@ export const USER_FRIENDLY_ERRORS = {
     message: ({ code, message }) =>
       `GraphQL bad request, code: ${code}, ${message}`,
   },
+  http_request_error: {
+    type: 'bad_request',
+    args: { message: 'string' },
+    message: ({ message }) => `HTTP request error, message: ${message}`,
+  },
 
   // Input errors
   query_too_long: {
@@ -690,7 +695,11 @@ export const USER_FRIENDLY_ERRORS = {
   // Quota & Limit errors
   blob_quota_exceeded: {
     type: 'quota_exceeded',
-    message: 'You have exceeded your blob storage quota.',
+    message: 'You have exceeded your blob size quota.',
+  },
+  storage_quota_exceeded: {
+    type: 'quota_exceeded',
+    message: 'You have exceeded your storage quota.',
   },
   member_quota_exceeded: {
     type: 'quota_exceeded',

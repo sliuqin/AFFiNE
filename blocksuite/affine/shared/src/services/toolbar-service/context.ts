@@ -2,16 +2,20 @@ import {
   type BlockComponent,
   BlockSelection,
   type BlockStdScope,
+  SurfaceSelection,
 } from '@blocksuite/block-std';
-import { GfxControllerIdentifier } from '@blocksuite/block-std/gfx';
+import {
+  GfxControllerIdentifier,
+  type GfxElementModelView,
+  type GfxModel,
+} from '@blocksuite/block-std/gfx';
 import { nextTick } from '@blocksuite/global/utils';
 import type {
   BaseSelection,
-  Block,
+  BlockModel,
   SelectionConstructor,
 } from '@blocksuite/store';
 
-import { matchModels } from '../../utils';
 import { DocModeProvider } from '../doc-mode-service';
 import { TelemetryProvider, type TelemetryService } from '../telemetry-service';
 import { ThemeProvider } from '../theme-service';
@@ -61,7 +65,8 @@ abstract class ToolbarContextBase {
     if (this.flags.accept()) return true;
     if (this.host.event.active) return true;
     // Selects `embed-synced-doc-block`
-    return this.host.contains(document.activeElement);
+    if (this.host.contains(document.activeElement)) return true;
+    return this.isEdgelessMode;
   }
 
   get readonly() {
@@ -104,41 +109,113 @@ abstract class ToolbarContextBase {
     return this.toolbarRegistry.flags;
   }
 
+  get flavour$() {
+    return this.toolbarRegistry.flavour$;
+  }
+
   get message$() {
     return this.toolbarRegistry.message$;
   }
 
-  getCurrentBlockBy<T extends SelectionConstructor>(type?: T): Block | null {
-    const selection = this.selection.find(type ?? BlockSelection);
-    return (selection && this.store.getBlock(selection.blockId)) ?? null;
+  get elementsMap$() {
+    return this.toolbarRegistry.elementsMap$;
+  }
+
+  get hasSelectedSurfaceModels() {
+    return (
+      this.flavour$.peek().includes('surface') &&
+      this.elementsMap$.peek().size > 0
+    );
+  }
+
+  getSurfaceModelsByType<T extends abstract new (...args: any) => any>(
+    klass: T
+  ) {
+    if (this.hasSelectedSurfaceModels) {
+      const elements = this.elementsMap$.peek().get(this.flavour$.peek());
+      if (elements?.length) {
+        return elements.filter(e => this.matchModel(e, klass));
+      }
+    }
+    return [];
+  }
+
+  getSurfaceBlocksByType<T extends abstract new (...args: any) => any>(
+    klass: T
+  ) {
+    if (this.hasSelectedSurfaceModels) {
+      const elements = this.elementsMap$.peek().get(this.flavour$.peek());
+      if (elements?.length) {
+        return elements
+          .map(model => this.gfx.view.get(model.id))
+          .filter(block => block && this.matchBlock(block, klass));
+      }
+    }
+    return [];
+  }
+
+  getCurrentBlockBy<T extends SelectionConstructor>(type: T) {
+    const selection = this.selection.find(type);
+    if (!selection) return null;
+    if (selection.is(SurfaceSelection)) {
+      const elementId = selection.elements[0];
+      const model = this.gfx.getElementById(elementId);
+      if (!model) return null;
+      return this.gfx.view.get(model.id) ?? null;
+    }
+    const model = this.store.getBlock(selection.blockId);
+    if (!model) return null;
+    return this.view.getBlock(model.id);
+  }
+
+  getCurrentBlock() {
+    return this.hasSelectedSurfaceModels
+      ? this.getCurrentBlockBy(SurfaceSelection)
+      : this.getCurrentBlockBy(BlockSelection);
+  }
+
+  getCurrentBlockByType<T extends abstract new (...args: any) => any>(
+    klass: T
+  ) {
+    const block = this.getCurrentBlock();
+    return this.matchBlock(block, klass) ? block : null;
+  }
+
+  matchBlock<T extends abstract new (...args: any) => any>(
+    component: GfxElementModelView | BlockComponent | null,
+    klass: T
+  ): component is InstanceType<T> {
+    return component instanceof klass;
   }
 
   getCurrentModelBy<T extends SelectionConstructor>(type: T) {
-    return this.getCurrentBlockBy<T>(type)?.model ?? null;
+    const selection = this.selection.find(type);
+    if (!selection) return null;
+    if (selection.is(SurfaceSelection)) {
+      const elementId = selection.elements[0];
+      return elementId ? this.gfx.getElementById(elementId) : null;
+    }
+    return this.store.getBlock(selection.blockId)?.model ?? null;
   }
 
-  getCurrentModelByType<
-    T extends SelectionConstructor,
-    M extends Parameters<typeof matchModels>[1][number],
-  >(type: T, klass: M) {
-    const model = this.getCurrentModelBy(type);
-    return matchModels(model, [klass]) ? model : null;
+  getCurrentModel(): GfxModel | BlockModel | null {
+    return this.hasSelectedSurfaceModels
+      ? this.getCurrentModelBy(SurfaceSelection)
+      : this.getCurrentModelBy(BlockSelection);
   }
 
-  getCurrentBlockComponentBy<
-    T extends SelectionConstructor,
-    K extends abstract new (...args: any) => any,
-  >(type: T, klass: K): InstanceType<K> | null {
-    const block = this.getCurrentBlockBy<T>(type);
-    const component = block && this.view.getBlock(block.id);
-    return this.blockComponentIs(component, klass) ? component : null;
+  getCurrentModelByType<T extends abstract new (...args: any) => any>(
+    klass: T
+  ) {
+    const model = this.getCurrentModel();
+    return this.matchModel(model, klass) ? model : null;
   }
 
-  blockComponentIs<K extends abstract new (...args: any) => any>(
-    component: BlockComponent | null,
-    ...classes: K[]
-  ): component is InstanceType<K> {
-    return classes.some(k => component instanceof k);
+  matchModel<T extends abstract new (...args: any) => any>(
+    model: GfxModel | BlockModel | null,
+    klass: T
+  ): model is InstanceType<T> {
+    return model instanceof klass;
   }
 
   select(group: string, selections: BaseSelection[] = []) {
@@ -164,8 +241,14 @@ abstract class ToolbarContextBase {
     return this.std.getOptional(TelemetryProvider);
   }
 
-  track = (...args: Parameters<TelemetryService['track']>) => {
-    this.telemetryProvider?.track(...args);
+  track = (...[name, props]: Parameters<TelemetryService['track']>) => {
+    const segment = this.hasSelectedSurfaceModels ? 'whiteboard' : 'doc';
+    this.telemetryProvider?.track(name, {
+      segment,
+      page: `${segment} editor`,
+      module: 'toolbar',
+      ...props,
+    });
   };
 }
 
