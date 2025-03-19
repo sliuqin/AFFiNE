@@ -1,6 +1,3 @@
-import '../content/assistant-avatar';
-import '../content/rich-text';
-
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { isInsidePageEditor } from '@blocksuite/affine/shared/utils';
 import type { EditorHost } from '@blocksuite/affine/std';
@@ -146,7 +143,7 @@ export class ChatMessageAssistant extends WithDisposable(ShadowlessElement) {
     const { isLast, status } = this;
 
     if (isLast && status === 'loading') {
-      return html`<ai-loading></ai-loading>`;
+      return html`<ai-generating></ai-generating>`;
     }
 
     return html`

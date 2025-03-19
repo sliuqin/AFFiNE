@@ -19,7 +19,9 @@ import { ActionMakeReal } from './chat-panel/actions/make-real';
 import { ActionMindmap } from './chat-panel/actions/mindmap';
 import { ActionSlides } from './chat-panel/actions/slides';
 import { ActionText } from './chat-panel/actions/text';
+import { AIGenerating } from './chat-panel/ai-generating';
 import { AILoading } from './chat-panel/ai-loading';
+import { AIThinking } from './chat-panel/ai-thinking';
 import { ChatPanelMessages } from './chat-panel/chat-panel-messages';
 import { AssistantAvatar } from './chat-panel/content/assistant-avatar';
 import { ChatContentImages } from './chat-panel/content/images';
@@ -92,6 +94,8 @@ export function registerAIEffects() {
   customElements.define('action-mindmap', ActionMindmap);
   customElements.define('action-slides', ActionSlides);
   customElements.define('action-text', ActionText);
+  customElements.define('ai-thinking', AIThinking);
+  customElements.define('ai-generating', AIGenerating);
   customElements.define('ai-loading', AILoading);
   customElements.define('chat-panel-messages', ChatPanelMessages);
   customElements.define('chat-panel', ChatPanel);

@@ -213,6 +213,10 @@ export function createHTMLTargetConfig(
               type: 'asset/inline',
             },
             {
+              test: /\.riv$/,
+              type: 'asset/resource',
+            },
+            {
               test: /\.css$/,
               use: [
                 buildConfig.debug

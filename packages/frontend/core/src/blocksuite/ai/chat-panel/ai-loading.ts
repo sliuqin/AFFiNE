@@ -1,60 +1,46 @@
-import { WithDisposable } from '@blocksuite/affine/global/lit';
-import { css, html, LitElement } from 'lit';
+import { unsafeCSSVar } from '@blocksuite/affine/shared/theme';
+import { ShadowlessElement } from '@blocksuite/std';
+import { css, html, type TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
 
-import { AIStarIconWithAnimation } from '../_common/icons';
-
-export class AILoading extends WithDisposable(LitElement) {
+export class AILoading extends ShadowlessElement {
   static override styles = css`
-    :host {
-      width: 100%;
-    }
-
-    .generating-tip {
+    .ai-loading {
       display: flex;
-      width: 100%;
-      height: 22px;
       align-items: center;
-      gap: 8px;
+      margin-left: -14px;
+      color: ${unsafeCSSVar('primaryColor')};
+      /* light/smMedium */
+      font-family: Inter;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 22px;
 
-      color: var(--light-brandColor, #1e96eb);
-
-      .text {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        flex: 1 0 0;
-
-        /* light/smMedium */
-        font-family: Inter;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: 22px; /* 157.143% */
+      rive-player {
+        display: contents;
       }
 
-      .left,
-      .right {
-        display: flex;
-        width: 20px;
-        height: 20px;
-        justify-content: center;
-        align-items: center;
+      .thinking-text {
+        margin-left: -5px;
       }
     }
   `;
 
   @property({ attribute: false })
-  accessor stopGenerating!: () => void;
+  accessor icon!: TemplateResult;
+
+  @property({ attribute: false })
+  accessor text: string = '';
 
   @property({ attribute: 'data-testid', reflect: true })
   accessor testId = 'ai-loading';
 
-  override render() {
+  protected override render() {
     return html`
-      <div class="generating-tip">
-        <div class="left">${AIStarIconWithAnimation}</div>
-        <div class="text">AI is generating...</div>
+      <div class="ai-loading">
+        ${this.icon}
+        <span class="loading-text">${this.text}</span>
       </div>
     `;
   }
@@ -65,3 +51,5 @@ declare global {
     'ai-loading': AILoading;
   }
 }
+
+export default AILoading;
