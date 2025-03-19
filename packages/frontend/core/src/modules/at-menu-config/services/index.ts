@@ -1,6 +1,11 @@
+import { type DocMode as GraphqlDocMode } from '@affine/graphql';
 import { I18n, i18nTime } from '@affine/i18n';
 import track from '@affine/track';
-import type { EditorHost } from '@blocksuite/affine/block-std';
+import {
+  BLOCK_ID_ATTR,
+  type BlockComponent,
+  type EditorHost,
+} from '@blocksuite/affine/block-std';
 import {
   type LinkedMenuGroup,
   type LinkedMenuItem,
@@ -9,6 +14,7 @@ import {
 } from '@blocksuite/affine/blocks/root';
 import type { DocMode } from '@blocksuite/affine/model';
 import type { AffineInlineEditor } from '@blocksuite/affine/rich-text';
+import { DocModeProvider } from '@blocksuite/affine/shared/services';
 import type { DocMeta } from '@blocksuite/affine/store';
 import { Text } from '@blocksuite/affine/store';
 import {
@@ -22,11 +28,13 @@ import { Service } from '@toeverything/infra';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { html } from 'lit';
 
+import type { WorkspaceServerService } from '../../cloud';
 import type { WorkspaceDialogService } from '../../dialogs';
 import type { DocsService } from '../../doc';
 import type { DocDisplayMetaService } from '../../doc-display-meta';
 import type { EditorSettingService } from '../../editor-setting';
 import { type JournalService, suggestJournalDate } from '../../journal';
+import { NotificationService } from '../../notification';
 import type { Member, MemberSearchService } from '../../permissions';
 import type { SearchMenuService } from '../../search-menu/services';
 
@@ -48,7 +56,8 @@ export class AtMenuConfigService extends Service {
     private readonly editorSettingService: EditorSettingService,
     private readonly docsService: DocsService,
     private readonly memberSearchService: MemberSearchService,
-    private readonly searchMenuService: SearchMenuService
+    private readonly searchMenuService: SearchMenuService,
+    private readonly workspaceServerService: WorkspaceServerService
   ) {
     super();
   }
@@ -324,8 +333,11 @@ export class AtMenuConfigService extends Service {
       name: 'Invite...',
       icon: MainAvatarIcon(),
       action: () => {
-        // TODO: open invite modal
         close();
+
+        this.dialogService.open('setting', {
+          activeTab: 'workspace:members',
+        });
       },
     };
     const convertMemberToMenuItem = (member: Member) => {
@@ -340,7 +352,30 @@ export class AtMenuConfigService extends Service {
         action: () => {
           close();
 
-          // TODO: send notification
+          const root = inlineEditor.rootElement;
+          const block = root?.closest<BlockComponent>(`[${BLOCK_ID_ATTR}]`);
+          if (!block) return;
+
+          const notificationService =
+            this.workspaceServerService.server?.scope.get(NotificationService);
+          if (!notificationService) return;
+
+          const doc = block.doc;
+          const workspaceId = doc.workspace.id;
+          const docId = doc.id;
+          const docTitle = doc.meta?.title ?? '';
+          const mode = block.std.get(DocModeProvider).getEditorMode() ?? 'page';
+
+          notificationService
+            .mentionUser(id, workspaceId, {
+              id: docId,
+              title: docTitle,
+              blockId: block.blockId,
+              mode: mode as GraphqlDocMode,
+            })
+            .catch(error => {
+              console.error(error);
+            });
 
           const inlineRange = inlineEditor.getInlineRange();
           if (inlineRange && inlineRange.length === 0) {
@@ -358,8 +393,7 @@ export class AtMenuConfigService extends Service {
 
     if (query.length === 0) {
       return {
-        // TODO: i18n
-        name: 'Mention Member',
+        name: I18n.t('com.affine.editor.at-menu.mention-member'),
         items: [
           ...this.memberSearchService.result$.value
             .slice(0, 3)
@@ -381,8 +415,7 @@ export class AtMenuConfigService extends Service {
     this.memberSearchService.search(query);
 
     return {
-      // TODO: i18n
-      name: 'Mention Member',
+      name: I18n.t('com.affine.editor.at-menu.mention-member'),
       items,
       loading,
     };

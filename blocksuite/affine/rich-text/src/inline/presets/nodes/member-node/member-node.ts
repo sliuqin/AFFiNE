@@ -1,7 +1,4 @@
-import {
-  type ExistedUserInfo,
-  UserProvider,
-} from '@blocksuite/affine-shared/services';
+import { UserProvider } from '@blocksuite/affine-shared/services';
 import { unsafeCSSVarV2 } from '@blocksuite/affine-shared/theme';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import type { BlockStdScope } from '@blocksuite/block-std';
@@ -13,22 +10,7 @@ import {
   ZERO_WIDTH_SPACE,
 } from '@blocksuite/inline';
 import { css, html } from 'lit';
-import { property, state } from 'lit/decorators.js';
-
-type AffineMemberState =
-  | {
-      type: 'default';
-      userInfo: ExistedUserInfo;
-    }
-  | {
-      type: 'removed';
-    }
-  | {
-      type: 'loading';
-    }
-  | {
-      type: 'error';
-    };
+import { property } from 'lit/decorators.js';
 
 export class AffineMember extends SignalWatcher(
   WithDisposable(ShadowlessElement)
@@ -74,7 +56,6 @@ export class AffineMember extends SignalWatcher(
       background: ${unsafeCSSVarV2('skeleton/skeleton')};
     }
 
-    /* 新增样式 */
     .loading-text {
       display: inline-block;
     }
@@ -177,9 +158,4 @@ export class AffineMember extends SignalWatcher(
 
   @property({ attribute: false })
   accessor std!: BlockStdScope;
-
-  @state()
-  accessor state: AffineMemberState = {
-    type: 'loading',
-  };
 }
