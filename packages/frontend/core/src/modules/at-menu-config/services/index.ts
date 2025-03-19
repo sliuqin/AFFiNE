@@ -47,7 +47,6 @@ export class AtMenuConfigService extends Service {
     private readonly dialogService: WorkspaceDialogService,
     private readonly editorSettingService: EditorSettingService,
     private readonly docsService: DocsService,
-    private readonly docsSearchMenuService: DocSearchMenuService,
     private readonly memberSearchService: MemberSearchService,
     private readonly searchMenuService: SearchMenuService
   ) {

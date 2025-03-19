@@ -19,7 +19,6 @@ export function configAtMenuConfigModule(framework: Framework) {
       WorkspaceDialogService,
       EditorSettingService,
       DocsService,
-      DocSearchMenuService,
       MemberSearchService,
       SearchMenuService,
     ]);
