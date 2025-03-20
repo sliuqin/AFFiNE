@@ -21,7 +21,7 @@ import {
   type TransformerMiddleware,
   type YBlock,
 } from '@blocksuite/affine/store';
-import type { DeltaInsert } from '@blocksuite/inline';
+import type { DeltaInsert } from '@blocksuite/store';
 import { Document } from '@toeverything/infra';
 import { toHexString } from 'lib0/buffer.js';
 import { digest as lib0Digest } from 'lib0/hash/sha256';

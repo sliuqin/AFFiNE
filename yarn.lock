@@ -589,16 +589,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@affine/error@workspace:packages/common/error"
   dependencies:
-    vitest: "npm:^3.0.7"
+    vitest: "npm:3.0.8"
   peerDependencies:
     "@affine/graphql": "workspace:*"
     graphql: ^16.9.0
   languageName: unknown
   linkType: soft
 
-"@affine/graphql@workspace:*, @affine/graphql@workspace:packages/frontend/graphql":
+"@affine/graphql@workspace:*, @affine/graphql@workspace:packages/common/graphql":
   version: 0.0.0-use.local
-  resolution: "@affine/graphql@workspace:packages/frontend/graphql"
+  resolution: "@affine/graphql@workspace:packages/common/graphql"
   dependencies:
     "@affine/debug": "workspace:*"
     "@affine/env": "workspace:*"
@@ -842,9 +842,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@affine/server@workspace:packages/backend/server"
   dependencies:
-    "@affine-test/kit": "workspace:*"
     "@affine-tools/cli": "workspace:*"
     "@affine-tools/utils": "workspace:*"
+    "@affine/graphql": "workspace:*"
     "@affine/server-native": "workspace:*"
     "@ai-sdk/google": "npm:^1.1.19"
     "@apollo/server": "npm:^4.11.2"
@@ -979,7 +979,7 @@ __metadata:
     "@types/react": "npm:^19.0.1"
     mixpanel-browser: "npm:^2.56.0"
     react-router-dom: "npm:6.30.0"
-    vitest: "npm:^3.0.0"
+    vitest: "npm:3.0.8"
   languageName: unknown
   linkType: soft
 
@@ -2319,7 +2319,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2346,7 +2345,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
@@ -2371,7 +2369,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@emoji-mart/data": "npm:^1.2.1"
     "@floating-ui/dom": "npm:^1.6.10"
@@ -2399,7 +2396,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2427,7 +2423,6 @@ __metadata:
     "@blocksuite/data-view": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2455,7 +2450,6 @@ __metadata:
     "@blocksuite/data-view": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2481,7 +2475,6 @@ __metadata:
     "@blocksuite/affine-shared": "workspace:*"
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2507,7 +2500,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2533,7 +2525,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2558,9 +2549,10 @@ __metadata:
     "@blocksuite/affine-components": "workspace:*"
     "@blocksuite/affine-model": "workspace:*"
     "@blocksuite/affine-shared": "workspace:*"
+    "@blocksuite/affine-widget-frame-title": "workspace:*"
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
-    "@blocksuite/inline": "workspace:*"
+    "@blocksuite/icons": "npm:^2.2.6"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2588,7 +2580,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2615,7 +2606,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2643,7 +2633,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2673,14 +2662,15 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
+    "@types/lodash-es": "npm:^4.17.12"
     "@types/mdast": "npm:^4.0.4"
     "@vanilla-extract/css": "npm:^1.17.0"
     lit: "npm:^3.2.0"
+    lodash-es: "npm:^4.17.21"
     minimatch: "npm:^10.0.1"
     rxjs: "npm:^7.8.1"
     zod: "npm:^3.23.8"
@@ -2698,7 +2688,6 @@ __metadata:
     "@blocksuite/affine-shared": "workspace:*"
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2748,7 +2737,6 @@ __metadata:
     "@blocksuite/data-view": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2783,8 +2771,8 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
+    "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
     "@toeverything/theme": "npm:^1.1.12"
@@ -2808,7 +2796,6 @@ __metadata:
     "@blocksuite/affine-shared": "workspace:*"
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
@@ -2861,7 +2848,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2899,7 +2885,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2925,7 +2910,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2953,7 +2937,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -2980,7 +2963,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
@@ -3014,7 +2996,6 @@ __metadata:
   dependencies:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@toeverything/theme": "npm:^1.1.12"
     "@types/lodash-es": "npm:^4.17.12"
@@ -3036,7 +3017,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -3069,7 +3049,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -3122,7 +3101,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@lit/context": "npm:^1.1.2"
@@ -3162,6 +3140,7 @@ __metadata:
   dependencies:
     "@blocksuite/affine-components": "workspace:*"
     "@blocksuite/affine-model": "workspace:*"
+    "@blocksuite/affine-rich-text": "workspace:*"
     "@blocksuite/affine-shared": "workspace:*"
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
@@ -3218,7 +3197,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/global": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.6"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@floating-ui/dom": "npm:^1.6.13"
     "@preact/signals-core": "npm:^1.8.0"
@@ -3300,7 +3278,6 @@ __metadata:
     "@blocksuite/block-std": "workspace:*"
     "@blocksuite/data-view": "workspace:*"
     "@blocksuite/global": "workspace:*"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@blocksuite/sync": "workspace:*"
     "@vanilla-extract/vite-plugin": "npm:^5.0.0"
@@ -3317,7 +3294,6 @@ __metadata:
     "@atlaskit/pragmatic-drag-and-drop-auto-scroll": "npm:^2.1.0"
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "npm:^1.0.3"
     "@blocksuite/global": "workspace:*"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/store": "workspace:*"
     "@lit/context": "npm:^1.1.2"
     "@preact/signals-core": "npm:^1.8.0"
@@ -3405,20 +3381,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blocksuite/inline@workspace:*, @blocksuite/inline@workspace:blocksuite/framework/inline":
-  version: 0.0.0-use.local
-  resolution: "@blocksuite/inline@workspace:blocksuite/framework/inline"
-  dependencies:
-    "@blocksuite/global": "workspace:*"
-    "@preact/signals-core": "npm:^1.8.0"
-    lit: "npm:^3.2.0"
-    rxjs: "npm:^7.8.1"
-    vitest: "npm:3.0.8"
-    yjs: "npm:^13.6.21"
-    zod: "npm:^3.23.8"
-  languageName: unknown
-  linkType: soft
-
 "@blocksuite/integration-test@workspace:*, @blocksuite/integration-test@workspace:blocksuite/integration-test":
   version: 0.0.0-use.local
   resolution: "@blocksuite/integration-test@workspace:blocksuite/integration-test"
@@ -3437,7 +3399,7 @@ __metadata:
     vite: "npm:^6.1.0"
     vite-plugin-istanbul: "npm:^7.0.0"
     vite-plugin-wasm: "npm:^3.4.1"
-    vitest: "npm:^3.0.0"
+    vitest: "npm:3.0.8"
     yjs: "npm:^13.6.21"
     zod: "npm:^3.23.8"
   languageName: unknown
@@ -3487,7 +3449,6 @@ __metadata:
   resolution: "@blocksuite/store@workspace:blocksuite/framework/store"
   dependencies:
     "@blocksuite/global": "workspace:*"
-    "@blocksuite/inline": "workspace:*"
     "@blocksuite/sync": "workspace:*"
     "@preact/signals-core": "npm:^1.8.0"
     "@types/lodash.clonedeep": "npm:^4.5.9"
@@ -33467,7 +33428,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:3.0.8, vitest@npm:^3.0.0, vitest@npm:^3.0.7":
+"vitest@npm:3.0.8":
   version: 3.0.8
   resolution: "vitest@npm:3.0.8"
   dependencies:

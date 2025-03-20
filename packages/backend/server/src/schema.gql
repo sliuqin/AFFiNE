@@ -18,6 +18,14 @@ input AddRemoveContextCategoryInput {
   type: ContextCategories!
 }
 
+enum AiJobStatus {
+  claimed
+  failed
+  finished
+  pending
+  running
+}
+
 type AlreadyInSpaceDataType {
   spaceId: String!
 }
@@ -72,6 +80,8 @@ type ContextWorkspaceEmbeddingStatus {
 }
 
 type Copilot {
+  audioTranscription(jobId: String): [TranscriptionResultType!]!
+
   """Get the context list of a session"""
   contexts(contextId: String, sessionId: String): [CopilotContext!]!
   histories(docId: String, options: QueryChatHistoriesInput): [CopilotHistories!]!
@@ -409,6 +419,7 @@ enum ErrorNames {
   COPILOT_QUOTA_EXCEEDED
   COPILOT_SESSION_DELETED
   COPILOT_SESSION_NOT_FOUND
+  COPILOT_TRANSCRIPTION_JOB_EXISTS
   CUSTOMER_PORTAL_CREATE_FAILED
   DOC_ACTION_DENIED
   DOC_DEFAULT_ROLE_CAN_NOT_BE_OWNER
@@ -842,6 +853,7 @@ type Mutation {
   cancelSubscription(idempotencyKey: String @deprecated(reason: "use header `Idempotency-Key`"), plan: SubscriptionPlan = Pro, workspaceId: String): SubscriptionType!
   changeEmail(email: String!, token: String!): UserType!
   changePassword(newPassword: String!, token: String!, userId: String): Boolean!
+  claimAudioTranscription(jobId: String!): TranscriptionResultType
 
   """Cleanup sessions"""
   cleanupCopilotSession(options: DeleteSessionInput!): [String!]!
@@ -934,6 +946,7 @@ type Mutation {
   sendVerifyChangeEmail(callbackUrl: String!, email: String!, token: String!): Boolean!
   sendVerifyEmail(callbackUrl: String!): Boolean!
   setBlob(blob: Upload!, workspaceId: String!): String!
+  submitAudioTranscription(blob: Upload!, blobId: String!, workspaceId: String!): TranscriptionResultType
 
   """Update a copilot prompt"""
   updateCopilotPrompt(messages: [CopilotPromptMessageInput!]!, name: String!): CopilotPromptType!
@@ -1384,6 +1397,20 @@ type SubscriptionType {
 enum SubscriptionVariant {
   EA
   Onetime
+}
+
+type TranscriptionItemType {
+  end: String!
+  speaker: String!
+  start: String!
+  transcription: String!
+}
+
+type TranscriptionResultType {
+  id: ID!
+  status: AiJobStatus!
+  summary: String
+  transcription: [TranscriptionItemType!]
 }
 
 union UnionNotificationBodyType = InvitationAcceptedNotificationBodyType | InvitationBlockedNotificationBodyType | InvitationNotificationBodyType | MentionNotificationBodyType

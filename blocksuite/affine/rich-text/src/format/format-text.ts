@@ -1,7 +1,10 @@
 import { getSelectedBlocksCommand } from '@blocksuite/affine-shared/commands';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import type { Command, TextSelection } from '@blocksuite/block-std';
-import { INLINE_ROOT_ATTR, type InlineRootElement } from '@blocksuite/inline';
+import {
+  INLINE_ROOT_ATTR,
+  type InlineRootElement,
+} from '@blocksuite/block-std/inline';
 
 import { FORMAT_TEXT_SUPPORT_FLAVOURS } from './consts.js';
 import { clearMarksOnDiscontinuousInput } from './utils.js';

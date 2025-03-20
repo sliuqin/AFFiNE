@@ -14,7 +14,7 @@
     "test": "ava --concurrency 1 --serial",
     "test:copilot": "ava \"src/__tests__/**/copilot-*.spec.ts\"",
     "test:coverage": "c8 ava --concurrency 1 --serial",
-    "test:copilot:coverage": "c8 ava --timeout=5m \"src/__tests__/**/copilot-*.spec.ts\"",
+    "test:copilot:coverage": "c8 ava --timeout=5m \"src/__tests__/copilot-*.spec.ts\"",
     "e2e": "cross-env TEST_MODE=e2e ava",
     "e2e:coverage": "cross-env TEST_MODE=e2e c8 ava",
     "data-migration": "cross-env NODE_ENV=development r ./src/data/index.ts",
@@ -112,9 +112,9 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@affine-test/kit": "workspace:*",
     "@affine-tools/cli": "workspace:*",
     "@affine-tools/utils": "workspace:*",
+    "@affine/graphql": "workspace:*",
     "@affine/server-native": "workspace:*",
     "@faker-js/faker": "^9.6.0",
     "@nestjs/testing": "patch:@nestjs/testing@npm%3A10.4.15#~/.yarn/patches/@nestjs-testing-npm-10.4.15-d591a1705a.patch",
@@ -150,6 +150,7 @@
     ],
     "env": {
       "NODE_ENV": "development",
+      "AFFINE_ENV": "dev",
       "AFFINE_SERVER_EXTERNAL_URL": "http://localhost:8080",
       "DEBUG": "affine:*",
       "FORCE_COLOR": true,

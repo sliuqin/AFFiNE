@@ -15,8 +15,7 @@ import {
   TomorrowIcon,
   YesterdayIcon,
 } from '@blocksuite/icons/lit';
-import type { DeltaInsert } from '@blocksuite/inline';
-import { Slice, Text } from '@blocksuite/store';
+import { type DeltaInsert, Slice, Text } from '@blocksuite/store';
 
 import { slashMenuToolTips } from './tooltips';
 import type { SlashMenuConfig } from './types';

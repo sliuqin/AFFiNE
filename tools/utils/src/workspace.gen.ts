@@ -43,7 +43,6 @@ export const PackageList = [
       'blocksuite/framework/block-std',
       'blocksuite/affine/data-view',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
       'blocksuite/framework/sync',
     ],
@@ -60,7 +59,6 @@ export const PackageList = [
       'blocksuite/affine/widgets/widget-slash-menu',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -76,7 +74,6 @@ export const PackageList = [
       'blocksuite/affine/widgets/widget-slash-menu',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -91,7 +88,6 @@ export const PackageList = [
       'blocksuite/affine/widgets/widget-slash-menu',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -106,7 +102,6 @@ export const PackageList = [
       'blocksuite/affine/widgets/widget-slash-menu',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -122,7 +117,6 @@ export const PackageList = [
       'blocksuite/framework/block-std',
       'blocksuite/affine/data-view',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -139,7 +133,6 @@ export const PackageList = [
       'blocksuite/framework/block-std',
       'blocksuite/affine/data-view',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -152,7 +145,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -167,7 +159,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -183,7 +174,6 @@ export const PackageList = [
       'blocksuite/affine/widgets/widget-slash-menu',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -195,9 +185,9 @@ export const PackageList = [
       'blocksuite/affine/components',
       'blocksuite/affine/model',
       'blocksuite/affine/shared',
+      'blocksuite/affine/widgets/widget-frame-title',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -213,7 +203,6 @@ export const PackageList = [
       'blocksuite/affine/widgets/widget-slash-menu',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -229,7 +218,6 @@ export const PackageList = [
       'blocksuite/affine/widgets/widget-slash-menu',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -243,7 +231,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -261,7 +248,6 @@ export const PackageList = [
       'blocksuite/affine/widgets/widget-slash-menu',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -276,7 +262,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -315,7 +300,6 @@ export const PackageList = [
       'blocksuite/framework/block-std',
       'blocksuite/affine/data-view',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -329,7 +313,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -345,7 +328,6 @@ export const PackageList = [
       'blocksuite/affine/widgets/widget-slash-menu',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -372,7 +354,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -399,7 +380,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -415,7 +395,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -431,7 +410,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -447,7 +425,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -466,7 +443,6 @@ export const PackageList = [
     workspaceDependencies: [
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -479,7 +455,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -490,7 +465,6 @@ export const PackageList = [
       'blocksuite/affine/model',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -508,7 +482,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -531,6 +504,7 @@ export const PackageList = [
     workspaceDependencies: [
       'blocksuite/affine/components',
       'blocksuite/affine/model',
+      'blocksuite/affine/rich-text',
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
@@ -567,7 +541,6 @@ export const PackageList = [
       'blocksuite/affine/shared',
       'blocksuite/framework/block-std',
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -595,7 +568,6 @@ export const PackageList = [
     name: '@blocksuite/block-std',
     workspaceDependencies: [
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/store',
     ],
   },
@@ -605,16 +577,10 @@ export const PackageList = [
     workspaceDependencies: [],
   },
   {
-    location: 'blocksuite/framework/inline',
-    name: '@blocksuite/inline',
-    workspaceDependencies: ['blocksuite/framework/global'],
-  },
-  {
     location: 'blocksuite/framework/store',
     name: '@blocksuite/store',
     workspaceDependencies: [
       'blocksuite/framework/global',
-      'blocksuite/framework/inline',
       'blocksuite/framework/sync',
     ],
   },
@@ -654,9 +620,9 @@ export const PackageList = [
     location: 'packages/backend/server',
     name: '@affine/server',
     workspaceDependencies: [
-      'tests/kit',
       'tools/cli',
       'tools/utils',
+      'packages/common/graphql',
       'packages/backend/native',
     ],
   },
@@ -676,6 +642,15 @@ export const PackageList = [
     workspaceDependencies: [],
   },
   {
+    location: 'packages/common/graphql',
+    name: '@affine/graphql',
+    workspaceDependencies: [
+      'packages/common/debug',
+      'packages/common/env',
+      'packages/common/error',
+    ],
+  },
+  {
     location: 'packages/common/infra',
     name: '@toeverything/infra',
     workspaceDependencies: [
@@ -691,7 +666,7 @@ export const PackageList = [
     workspaceDependencies: [
       'packages/common/infra',
       'packages/common/error',
-      'packages/frontend/graphql',
+      'packages/common/graphql',
     ],
   },
   {
@@ -700,7 +675,7 @@ export const PackageList = [
     workspaceDependencies: [
       'packages/frontend/component',
       'packages/frontend/core',
-      'packages/frontend/graphql',
+      'packages/common/graphql',
       'packages/common/infra',
     ],
   },
@@ -784,7 +759,7 @@ export const PackageList = [
       'packages/common/debug',
       'packages/frontend/electron-api',
       'packages/common/error',
-      'packages/frontend/graphql',
+      'packages/common/graphql',
       'packages/frontend/i18n',
       'tools/utils',
       'blocksuite/affine/all',
@@ -799,7 +774,7 @@ export const PackageList = [
       'packages/frontend/electron-api',
       'packages/common/env',
       'packages/common/error',
-      'packages/frontend/graphql',
+      'packages/common/graphql',
       'packages/frontend/i18n',
       'packages/common/nbstore',
       'packages/frontend/templates',
@@ -812,15 +787,6 @@ export const PackageList = [
     location: 'packages/frontend/electron-api',
     name: '@affine/electron-api',
     workspaceDependencies: ['packages/frontend/apps/electron'],
-  },
-  {
-    location: 'packages/frontend/graphql',
-    name: '@affine/graphql',
-    workspaceDependencies: [
-      'packages/common/debug',
-      'packages/common/env',
-      'packages/common/error',
-    ],
   },
   {
     location: 'packages/frontend/i18n',
@@ -977,7 +943,6 @@ export type PackageName =
   | '@blocksuite/bs-docs'
   | '@blocksuite/block-std'
   | '@blocksuite/global'
-  | '@blocksuite/inline'
   | '@blocksuite/store'
   | '@blocksuite/sync'
   | '@blocksuite/integration-test'
@@ -988,6 +953,7 @@ export type PackageName =
   | '@affine/debug'
   | '@affine/env'
   | '@affine/error'
+  | '@affine/graphql'
   | '@toeverything/infra'
   | '@affine/nbstore'
   | '@affine/admin'
@@ -1000,7 +966,6 @@ export type PackageName =
   | '@affine/component'
   | '@affine/core'
   | '@affine/electron-api'
-  | '@affine/graphql'
   | '@affine/i18n'
   | '@affine/media-capture-playground'
   | '@affine/native'

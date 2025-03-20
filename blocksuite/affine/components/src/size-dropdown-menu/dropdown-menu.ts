@@ -1,15 +1,15 @@
 import { stopPropagation } from '@blocksuite/affine-shared/utils';
 import { PropTypes, requiredProperties } from '@blocksuite/block-std';
-import { SignalWatcher } from '@blocksuite/global/lit';
-import { ArrowDownSmallIcon, DoneIcon } from '@blocksuite/icons/lit';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
+import { DoneIcon } from '@blocksuite/icons/lit';
 import type { ReadonlySignal, Signal } from '@preact/signals-core';
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, type TemplateResult } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { repeat } from 'lit-html/directives/repeat.js';
 import { when } from 'lit-html/directives/when.js';
 import clamp from 'lodash-es/clamp';
 
-import type { EditorMenuButton } from '../toolbar';
+import { EditorChevronDown, type EditorMenuButton } from '../toolbar';
 
 type SizeItem = { key?: string | number; value: number };
 
@@ -24,7 +24,9 @@ const SIZE_LIST: SizeItem[] = [
 @requiredProperties({
   size$: PropTypes.object,
 })
-export class SizeDropdownMenu extends SignalWatcher(LitElement) {
+export class SizeDropdownMenu extends SignalWatcher(
+  WithDisposable(LitElement)
+) {
   static override styles = css`
     div[data-orientation] {
       width: 68px;
@@ -35,11 +37,12 @@ export class SizeDropdownMenu extends SignalWatcher(LitElement) {
 
     editor-menu-action {
       justify-content: space-between;
+      color: var(--affine-icon-color);
     }
 
     :host([data-type='check']) editor-menu-action[data-selected] {
       color: var(--affine-primary-color);
-      background-color: none;
+      background-color: unset;
     }
 
     input {
@@ -76,6 +79,12 @@ export class SizeDropdownMenu extends SignalWatcher(LitElement) {
   @property({ attribute: false })
   accessor format: ((e: number) => string) | undefined;
 
+  @property({ attribute: false })
+  accessor label: string = 'Scale';
+
+  @property({ attribute: false })
+  accessor icon: TemplateResult | undefined;
+
   @property({ attribute: 'data-type' })
   accessor type: 'normal' | 'check' = 'normal';
 
@@ -110,14 +119,31 @@ export class SizeDropdownMenu extends SignalWatcher(LitElement) {
     this.menuButton.hide();
   };
 
+  @query('input')
+  accessor input!: HTMLInputElement;
+
   @query('editor-menu-button')
   accessor menuButton!: EditorMenuButton;
+
+  override firstUpdated() {
+    this.disposables.addFromEvent(
+      this.menuButton,
+      'toggle',
+      (e: CustomEvent<boolean>) => {
+        const opened = e.detail;
+        if (opened) return;
+        this.input.value = '';
+      }
+    );
+  }
 
   override render() {
     const {
       sizes,
       format,
       type,
+      icon,
+      label,
       size$: { value: size },
     } = this;
     const isCheckType = type === 'check';
@@ -125,17 +151,19 @@ export class SizeDropdownMenu extends SignalWatcher(LitElement) {
 
     return html`
       <editor-menu-button
+        class="${`${label.toLowerCase()}-menu`}"
         .contentPadding="${'8px'}"
         .button=${html`
           <editor-icon-button
-            aria-label="Scale"
-            .tooltip="${'Scale'}"
+            aria-label="${label}"
+            .tooltip="${label}"
             .justify="${'space-between'}"
             .labelHeight="${'20px'}"
-            .iconContainerWidth="${'65px'}"
+            .iconContainerWidth="${icon ? 'unset' : '65px'}"
           >
-            <span class="label">${format?.(size) ?? size}</span>
-            ${ArrowDownSmallIcon()}
+            ${icon ??
+            html`<span class="label">${format?.(size) ?? size}</span>`}
+            ${EditorChevronDown}
           </editor-icon-button>
         `}
       >
@@ -145,7 +173,7 @@ export class SizeDropdownMenu extends SignalWatcher(LitElement) {
             ({ key, value }) => key ?? value,
             ({ key, value }) => html`
               <editor-menu-action
-                aria-label="${key}"
+                aria-label="${key ?? value}"
                 ?data-selected="${size === value}"
                 @click=${() => this.select(value)}
               >

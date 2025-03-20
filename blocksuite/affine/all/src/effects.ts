@@ -25,6 +25,9 @@ import { effects as componentColorPickerEffects } from '@blocksuite/affine-compo
 import { effects as componentContextMenuEffects } from '@blocksuite/affine-components/context-menu';
 import { effects as componentDatePickerEffects } from '@blocksuite/affine-components/date-picker';
 import { effects as componentDropIndicatorEffects } from '@blocksuite/affine-components/drop-indicator';
+import { effects as componentEdgelessLineStylesEffects } from '@blocksuite/affine-components/edgeless-line-styles-panel';
+import { effects as componentEdgelessLineWidthEffects } from '@blocksuite/affine-components/edgeless-line-width-panel';
+import { effects as componentEdgelessShapeColorPickerEffects } from '@blocksuite/affine-components/edgeless-shape-color-picker';
 import { effects as componentEmbedCardModalEffects } from '@blocksuite/affine-components/embed-card-modal';
 import { FilterableListComponent } from '@blocksuite/affine-components/filterable-list';
 import { effects as componentHighlightDropdownMenuEffects } from '@blocksuite/affine-components/highlight-dropdown-menu';
@@ -52,13 +55,11 @@ import { effects as widgetSlashMenuEffects } from '@blocksuite/affine-widget-sla
 import { effects as widgetToolbarEffects } from '@blocksuite/affine-widget-toolbar/effects';
 import { effects as stdEffects } from '@blocksuite/block-std/effects';
 import { effects as dataViewEffects } from '@blocksuite/data-view/effects';
-import { effects as inlineEffects } from '@blocksuite/inline/effects';
 
 import { registerSpecs } from './extensions/register.js';
 
 export declare const _GLOBAL_:
   | typeof stdEffects
-  | typeof inlineEffects
   | typeof dataViewEffects
   | typeof richTextEffects
   | typeof blockNoteEffects
@@ -108,7 +109,6 @@ export function effects() {
   registerSpecs();
 
   stdEffects();
-  inlineEffects();
 
   dataViewEffects();
   richTextEffects();
@@ -149,6 +149,9 @@ export function effects() {
   componentViewDropdownMenuEffects();
   componentTooltipContentWithShortcutEffects();
   componentSizeDropdownMenuEffects();
+  componentEdgelessLineWidthEffects();
+  componentEdgelessLineStylesEffects();
+  componentEdgelessShapeColorPickerEffects();
 
   widgetScrollAnchoringEffects();
   widgetFrameTitleEffects();

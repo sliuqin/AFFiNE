@@ -19,5 +19,6 @@ export function patchReferenceRenderer(
 
   return ReferenceNodeConfigExtension({
     customContent,
+    hidePopup: BUILD_CONFIG.isMobileEdition,
   });
 }

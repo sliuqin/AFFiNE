@@ -1,6 +1,5 @@
 import type { ColumnDataType, SerializedCells } from '@blocksuite/affine-model';
-import type { DeltaInsert } from '@blocksuite/inline';
-import type { BlockSnapshot } from '@blocksuite/store';
+import type { BlockSnapshot, DeltaInsert } from '@blocksuite/store';
 
 import { databaseBlockModels } from '../properties/model';
 

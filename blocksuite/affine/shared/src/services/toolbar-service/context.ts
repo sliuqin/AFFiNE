@@ -17,6 +17,8 @@ import type {
 } from '@blocksuite/store';
 
 import { DocModeProvider } from '../doc-mode-service';
+import { EditPropsStore } from '../edit-props-store';
+import { FeatureFlagService } from '../feature-flag-service';
 import { TelemetryProvider, type TelemetryService } from '../telemetry-service';
 import { ThemeProvider } from '../theme-service';
 import { ToolbarRegistryIdentifier } from './registry';
@@ -56,6 +58,10 @@ abstract class ToolbarContextBase {
     return this.std.store;
   }
 
+  get history() {
+    return this.store.history;
+  }
+
   get view() {
     return this.std.view;
   }
@@ -93,12 +99,16 @@ abstract class ToolbarContextBase {
     return this.std.get(GfxControllerIdentifier);
   }
 
-  get themeProvider() {
+  get theme() {
     return this.std.get(ThemeProvider);
   }
 
-  get theme() {
-    return this.themeProvider.theme;
+  get settings() {
+    return this.std.get(EditPropsStore);
+  }
+
+  get features() {
+    return this.std.get(FeatureFlagService);
   }
 
   get toolbarRegistry() {
@@ -128,16 +138,24 @@ abstract class ToolbarContextBase {
     );
   }
 
+  getSurfaceModels() {
+    if (this.hasSelectedSurfaceModels) {
+      const flavour = this.flavour$.peek();
+      const elementsMap = this.elementsMap$.peek();
+      const elements = ['affine:surface', 'affine:surface:locked'].includes(
+        flavour
+      )
+        ? Array.from(elementsMap.values()).flat()
+        : elementsMap.get(flavour);
+      return elements ?? [];
+    }
+    return [];
+  }
+
   getSurfaceModelsByType<T extends abstract new (...args: any) => any>(
     klass: T
   ) {
-    if (this.hasSelectedSurfaceModels) {
-      const elements = this.elementsMap$.peek().get(this.flavour$.peek());
-      if (elements?.length) {
-        return elements.filter(e => this.matchModel(e, klass));
-      }
-    }
-    return [];
+    return this.getSurfaceModels().filter(e => this.matchModel(e, klass));
   }
 
   getSurfaceBlocksByType<T extends abstract new (...args: any) => any>(

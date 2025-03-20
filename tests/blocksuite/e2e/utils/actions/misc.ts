@@ -1,6 +1,9 @@
 import '../declare-test-window.js';
 
-import type { InlineRange, InlineRootElement } from '@blocksuite/affine/inline';
+import type {
+  InlineRange,
+  InlineRootElement,
+} from '@blocksuite/affine/block-std/inline';
 import type { DatabaseBlockModel, ListType } from '@blocksuite/affine/model';
 import type { RichText } from '@blocksuite/affine/rich-text';
 import type { BlockModel } from '@blocksuite/affine/store';

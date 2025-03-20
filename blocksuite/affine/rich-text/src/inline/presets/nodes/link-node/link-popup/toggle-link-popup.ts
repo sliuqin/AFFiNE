@@ -1,5 +1,5 @@
 import type { BlockStdScope } from '@blocksuite/block-std';
-import type { InlineRange } from '@blocksuite/inline';
+import type { InlineRange } from '@blocksuite/block-std/inline';
 
 import type { AffineInlineEditor } from '../../../affine-inline-specs';
 import { LinkPopup } from './link-popup';

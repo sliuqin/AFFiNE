@@ -1,7 +1,11 @@
 import { DatabaseSelection } from '@blocksuite/affine-block-database';
 import { EdgelessLegacySlotIdentifier } from '@blocksuite/affine-block-surface';
 import { TableSelection } from '@blocksuite/affine-block-table';
-import { EditorToolbar } from '@blocksuite/affine-components/toolbar';
+import {
+  darkToolbarStyles,
+  EditorToolbar,
+  lightToolbarStyles,
+} from '@blocksuite/affine-components/toolbar';
 import {
   CodeBlockModel,
   ImageBlockModel,
@@ -34,7 +38,7 @@ import {
 import { nextTick } from '@blocksuite/global/utils';
 import type { Placement, ReferenceElement, SideObject } from '@floating-ui/dom';
 import { batch, effect, signal } from '@preact/signals-core';
-import { css } from 'lit';
+import { css, unsafeCSS } from 'lit';
 import groupBy from 'lodash-es/groupBy';
 import throttle from 'lodash-es/throttle';
 import toPairs from 'lodash-es/toPairs';
@@ -70,6 +74,13 @@ export class AffineToolbarWidget extends WidgetComponent {
       @starting-style {
         opacity: 0;
       }
+    }
+
+    editor-toolbar[data-app-theme='dark'] {
+      ${unsafeCSS(darkToolbarStyles.join('\n'))}
+    }
+    editor-toolbar[data-app-theme='light'] {
+      ${unsafeCSS(lightToolbarStyles.join('\n'))}
     }
   `;
 
@@ -128,6 +139,85 @@ export class AffineToolbarWidget extends WidgetComponent {
       : null;
   }
 
+  updateWithSurface(
+    ctx: ToolbarContext,
+    activated: boolean,
+    elementIds: string[]
+  ) {
+    const gfx = ctx.gfx;
+    const surface = gfx.surface;
+    let flavour = 'affine:surface';
+    let elements: GfxModel[] = [];
+    let hasLocked = false;
+    let sideOptions = null;
+    let paired: [string, GfxModel[]][] = [];
+
+    if (activated && surface) {
+      elements = elementIds
+        .map(id => gfx.getElementById(id))
+        .filter(model => model !== null) as GfxModel[];
+
+      // Should double check
+      activated &&= Boolean(elements.length);
+
+      hasLocked = elements.some(e => e.isLocked());
+
+      const grouped = groupBy(
+        elements.map(model => {
+          let flavour = surface.flavour;
+
+          if (model instanceof GfxBlockElementModel) {
+            flavour += `:${model.flavour.split(':').pop()}`;
+          } else if (model instanceof GfxPrimitiveElementModel) {
+            flavour += `:${model.type}`;
+          }
+
+          return { model, flavour };
+        }),
+        e => e.flavour
+      );
+
+      paired = toPairs(grouped).map(([flavour, items]) => [
+        flavour,
+        items.map(({ model }) => model),
+      ]);
+
+      if (hasLocked) {
+        flavour = 'affine:surface:locked';
+      } else {
+        if (paired.length === 1) {
+          flavour = paired[0][0];
+          if (flavour === 'affine:surface:shape' && paired[0][1].length === 1) {
+            sideOptions = sideMap.get(flavour) ?? null;
+          }
+        }
+      }
+      if (!sideOptions) {
+        const flavours = new Set(paired.map(([f]) => f));
+        if (flavours.has('affine:surface:frame')) {
+          sideOptions = sideMap.get('affine:surface:frame') ?? null;
+        } else if (flavours.has('affine:surface:group')) {
+          sideOptions = sideMap.get('affine:surface:group') ?? null;
+        }
+      }
+    }
+
+    batch(() => {
+      ctx.flags.toggle(Flag.Surface, activated);
+
+      ctx.elementsMap$.value = new Map(paired);
+
+      if (!activated || !flavour) return;
+
+      this.setReferenceElementWithElements(gfx, elements);
+
+      this.sideOptions$.value = sideOptions;
+      ctx.flavour$.value = flavour;
+      this.placement$.value = hasLocked ? 'top' : 'top-start';
+      ctx.flags.refresh(Flag.Surface);
+    });
+  }
+
   toolbar = new EditorToolbar();
 
   get toolbarRegistry() {
@@ -147,7 +237,7 @@ export class AffineToolbarWidget extends WidgetComponent {
       host,
       std,
     } = this;
-    const { flags, elementsMap$, flavour$, message$ } = toolbarRegistry;
+    const { flags, flavour$, message$ } = toolbarRegistry;
     const context = new ToolbarContext(std);
 
     // TODO(@fundon): fix toolbar position shaking when the wheel scrolls
@@ -286,83 +376,24 @@ export class AffineToolbarWidget extends WidgetComponent {
     // Triggered only when not in editing state.
     disposables.add(
       context.gfx.selection.slots.updated.subscribe(selections => {
-        // TODO(@fundon): should remove it when edgeless element toolbar is removed
-        if (context.isEdgelessMode) return;
+        // Should remove selections when clicking on frame navigator
+        if (context.isPageMode) {
+          if (
+            std.host.contains(std.range.value?.commonAncestorContainer ?? null)
+          ) {
+            std.range.clear();
+          }
+          context.reset();
+          return;
+        }
 
         const elementIds = selections
           .map(s => (s.editing || s.inoperable ? [] : s.elements))
           .flat();
         const count = elementIds.length;
-        const gfx = context.gfx;
-        const surface = gfx.surface;
-        const activated =
-          context.activated && Boolean(surface) && Boolean(count);
-        let flavour = 'affine:surface';
-        let elements: GfxModel[] = [];
-        let hasLocked = false;
-        let sideOptions = null;
-        let paired: [string, GfxModel[]][] = [];
+        const activated = context.activated && Boolean(count);
 
-        if (activated && surface) {
-          elements = elementIds
-            .map(id => gfx.getElementById(id))
-            .filter(model => model !== null) as GfxModel[];
-
-          hasLocked = elements.some(e => e.isLocked());
-
-          const grouped = groupBy(
-            elements.map(model => {
-              let flavour = surface.flavour;
-
-              if (model instanceof GfxBlockElementModel) {
-                flavour += `:${model.flavour.split(':').pop()}`;
-              } else if (model instanceof GfxPrimitiveElementModel) {
-                flavour += `:${model.type}`;
-              }
-
-              return { model, flavour };
-            }),
-            e => e.flavour
-          );
-
-          paired = toPairs(grouped).map(([flavour, items]) => [
-            flavour,
-            items.map(({ model }) => model),
-          ]);
-
-          if (paired.length === 1) {
-            flavour = paired[0][0];
-            if (
-              flavour === 'affine:surface:shape' &&
-              paired[0][1].length === 1
-            ) {
-              sideOptions = sideMap.get(flavour) ?? null;
-            }
-          }
-          if (!sideOptions) {
-            const flavours = new Set(paired.map(([f]) => f));
-            if (flavours.has('affine:surface:frame')) {
-              sideOptions = sideMap.get('affine:surface:frame') ?? null;
-            } else if (flavours.has('affine:surface:group')) {
-              sideOptions = sideMap.get('affine:surface:group') ?? null;
-            }
-          }
-        }
-
-        batch(() => {
-          flags.toggle(Flag.Surface, activated);
-
-          elementsMap$.value = new Map(paired);
-
-          if (!activated || !flavour) return;
-
-          this.setReferenceElementWithElements(gfx, elements);
-
-          sideOptions$.value = sideOptions;
-          flavour$.value = flavour;
-          placement$.value = hasLocked ? 'top' : 'top-start';
-          flags.refresh(Flag.Surface);
-        });
+        this.updateWithSurface(context, activated, elementIds);
       })
     );
 
@@ -392,14 +423,14 @@ export class AffineToolbarWidget extends WidgetComponent {
       })
     );
 
+    // Handles blocks when adding
     // TODO(@fundon): improve these cases
     // Waits until the view is created when switching the view mode.
     // `card view` or `embed view`
     disposables.add(
       std.view.viewUpdated.subscribe(record => {
-        const hasAddedBlock =
-          record.type === 'block' && record.method === 'add';
-        if (!hasAddedBlock) return;
+        const hasAdded = record.type === 'block' && record.method === 'add';
+        if (!hasAdded) return;
 
         if (flags.isBlock()) {
           const blockIds = std.selection
@@ -426,16 +457,62 @@ export class AffineToolbarWidget extends WidgetComponent {
       })
     );
 
+    // Handles blocks when updating
     disposables.add(
+      // TODO(@fundon): use rxjs' filter
       std.store.slots.blockUpdated.subscribe(record => {
-        if (
-          flags.isBlock() &&
-          record.type === 'update' &&
-          record.props.key === 'text'
-        ) {
-          flags.refresh(Flag.Block);
+        const hasUpdated = record.type === 'update';
+        if (!hasUpdated) return;
+
+        if (flags.isBlock()) {
+          const blockIds = std.selection
+            .filter$(BlockSelection)
+            .peek()
+            .map(s => s.blockId);
+          if (blockIds.includes(record.id)) {
+            batch(() => {
+              this.setReferenceElementWithBlocks(
+                blockIds
+                  .map(id => std.view.getBlock(id))
+                  .filter(block => block !== null)
+              );
+              flags.refresh(Flag.Block);
+            });
+          }
           return;
         }
+
+        if (flags.isSurface()) {
+          const elementIds = context.gfx.selection.selectedIds;
+          this.updateWithSurface(
+            context,
+            context.activated && Boolean(elementIds.length),
+            elementIds
+          );
+          return;
+        }
+      })
+    );
+
+    // Handles elemets when updating
+    disposables.add(
+      context.gfx.surface$.subscribe(surface => {
+        if (!surface) return;
+
+        const subscription = surface.elementUpdated.subscribe(() => {
+          if (!flags.isSurface()) return;
+
+          const elementIds = context.gfx.selection.selectedIds;
+          this.updateWithSurface(
+            context,
+            context.activated && Boolean(elementIds.length),
+            elementIds
+          );
+        });
+
+        return () => {
+          subscription.unsubscribe();
+        };
       })
     );
 
@@ -506,6 +583,13 @@ export class AffineToolbarWidget extends WidgetComponent {
           placement$.value = 'top';
           flags.refresh(Flag.Hovering);
         });
+      })
+    );
+
+    // Updates toolbar theme when `app-theme` changing
+    disposables.add(
+      context.theme.app$.subscribe(theme => {
+        toolbar.dataset.appTheme = theme;
       })
     );
 

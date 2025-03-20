@@ -114,6 +114,12 @@ export class UserFriendlyError extends Error {
     );
   }
 
+  get stacktrace() {
+    return this.name === 'internal_server_error'
+      ? ((this.cause as Error)?.stack ?? super.stack)
+      : super.stack;
+  }
+
   toJSON() {
     return {
       status: this.status,
@@ -690,6 +696,10 @@ export const USER_FRIENDLY_ERRORS = {
   copilot_embedding_unavailable: {
     type: 'action_forbidden',
     message: `Embedding feature not available, you may need to install pgvector extension to your database`,
+  },
+  copilot_transcription_job_exists: {
+    type: 'bad_request',
+    message: () => 'Transcription job already exists',
   },
 
   // Quota & Limit errors

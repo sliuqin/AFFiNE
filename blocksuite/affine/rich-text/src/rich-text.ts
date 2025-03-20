@@ -1,14 +1,14 @@
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import { ShadowlessElement } from '@blocksuite/block-std';
-import { WithDisposable } from '@blocksuite/global/lit';
 import {
   type AttributeRenderer,
-  type DeltaInsert,
   InlineEditor,
   type InlineRange,
   type InlineRangeProvider,
   type VLine,
-} from '@blocksuite/inline';
+} from '@blocksuite/block-std/inline';
+import { WithDisposable } from '@blocksuite/global/lit';
+import type { DeltaInsert } from '@blocksuite/store';
 import { Text } from '@blocksuite/store';
 import { effect, signal } from '@preact/signals-core';
 import { css, html, type TemplateResult } from 'lit';

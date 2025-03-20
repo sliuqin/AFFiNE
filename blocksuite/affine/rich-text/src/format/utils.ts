@@ -16,7 +16,7 @@ import {
   type InlineEditor,
   type InlineRange,
   type InlineRootElement,
-} from '@blocksuite/inline';
+} from '@blocksuite/block-std/inline';
 import type { BlockModel } from '@blocksuite/store';
 import { effect } from '@preact/signals-core';
 

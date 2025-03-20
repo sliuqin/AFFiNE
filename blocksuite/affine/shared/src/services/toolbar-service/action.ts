@@ -19,8 +19,9 @@ type ActionBase = {
 
 export type ToolbarAction = ActionBase & {
   label?: string;
+  showLabel?: boolean;
   icon?: TemplateResult;
-  tooltip?: string;
+  tooltip?: string | TemplateResult;
   variant?: 'destructive';
   disabled?: ((cx: ToolbarContext) => boolean) | boolean;
   content?:

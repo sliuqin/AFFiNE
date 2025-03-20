@@ -13,8 +13,7 @@ import {
 import { BaseCellRenderer } from '@blocksuite/data-view';
 import { IS_MAC } from '@blocksuite/global/env';
 import { LinkedPageIcon } from '@blocksuite/icons/lit';
-import type { DeltaInsert } from '@blocksuite/inline';
-import type { BlockSnapshot, Text } from '@blocksuite/store';
+import type { BlockSnapshot, DeltaInsert, Text } from '@blocksuite/store';
 import { signal } from '@preact/signals-core';
 import { property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';

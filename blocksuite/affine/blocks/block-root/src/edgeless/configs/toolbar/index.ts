@@ -1,22 +1,23 @@
+import { frameToolbarExtension } from '@blocksuite/affine-block-frame';
 import { ToolbarModuleExtension } from '@blocksuite/affine-shared/services';
 import { BlockFlavourIdentifier } from '@blocksuite/block-std';
 import type { ExtensionType } from '@blocksuite/store';
 
 import { builtinBrushToolbarConfig } from './brush';
 import { builtinConnectorToolbarConfig } from './connector';
-import { builtinFrameToolbarConfig } from './frame';
+import { builtinEdgelessTextToolbarConfig } from './edgeless-text';
 import { builtinGroupToolbarConfig } from './group';
-import { builtinImageToolbarConfig } from './image';
 import { builtinMindmapToolbarConfig } from './mindmap';
-import { builtinMiscToolbarConfig } from './misc';
-import { builtinNoteToolbarConfig } from './note';
+import { builtinLockedToolbarConfig, builtinMiscToolbarConfig } from './misc';
 import { builtinShapeToolbarConfig } from './shape';
 import { builtinTextToolbarConfig } from './text';
 
 export const EdgelessElementToolbarExtension: ExtensionType[] = [
+  frameToolbarExtension,
+
   ToolbarModuleExtension({
-    id: BlockFlavourIdentifier('affine:surface:image'),
-    config: builtinImageToolbarConfig,
+    id: BlockFlavourIdentifier('affine:surface:group'),
+    config: builtinGroupToolbarConfig,
   }),
 
   ToolbarModuleExtension({
@@ -30,28 +31,8 @@ export const EdgelessElementToolbarExtension: ExtensionType[] = [
   }),
 
   ToolbarModuleExtension({
-    id: BlockFlavourIdentifier('affine:surface:frame'),
-    config: builtinFrameToolbarConfig,
-  }),
-
-  ToolbarModuleExtension({
-    id: BlockFlavourIdentifier('affine:surface:group'),
-    config: builtinGroupToolbarConfig,
-  }),
-
-  ToolbarModuleExtension({
     id: BlockFlavourIdentifier('affine:surface:mindmap'),
     config: builtinMindmapToolbarConfig,
-  }),
-
-  ToolbarModuleExtension({
-    id: BlockFlavourIdentifier('affine:surface:note'),
-    config: builtinNoteToolbarConfig,
-  }),
-
-  ToolbarModuleExtension({
-    id: BlockFlavourIdentifier('affine:surface:shape'),
-    config: builtinShapeToolbarConfig,
   }),
 
   ToolbarModuleExtension({
@@ -60,7 +41,24 @@ export const EdgelessElementToolbarExtension: ExtensionType[] = [
   }),
 
   ToolbarModuleExtension({
+    id: BlockFlavourIdentifier('affine:surface:edgeless-text'),
+    config: builtinEdgelessTextToolbarConfig,
+  }),
+
+  ToolbarModuleExtension({
+    id: BlockFlavourIdentifier('affine:surface:shape'),
+    config: builtinShapeToolbarConfig,
+  }),
+
+  ToolbarModuleExtension({
     id: BlockFlavourIdentifier('affine:surface:*'),
     config: builtinMiscToolbarConfig,
+  }),
+
+  // Special Scenarios
+  // Only display the `unlock` button when the selection includes a locked element.
+  ToolbarModuleExtension({
+    id: BlockFlavourIdentifier('affine:surface:locked'),
+    config: builtinLockedToolbarConfig,
   }),
 ];

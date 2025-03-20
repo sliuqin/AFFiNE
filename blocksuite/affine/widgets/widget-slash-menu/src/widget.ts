@@ -4,8 +4,8 @@ import {
 } from '@blocksuite/affine-rich-text';
 import type { UIEventStateContext } from '@blocksuite/block-std';
 import { TextSelection, WidgetComponent } from '@blocksuite/block-std';
+import { InlineEditor } from '@blocksuite/block-std/inline';
 import { DisposableGroup } from '@blocksuite/global/disposable';
-import { InlineEditor } from '@blocksuite/inline';
 import debounce from 'lodash-es/debounce';
 
 import { AFFINE_SLASH_MENU_TRIGGER_KEY } from './consts';

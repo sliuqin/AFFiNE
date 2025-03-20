@@ -94,6 +94,13 @@ export const EditorChatPanel = forwardRef(function EditorChatPanel(
         getTagMenuGroup: (query, action, abortSignal) => {
           return searchMenuService.getTagMenuGroup(query, action, abortSignal);
         },
+        getCollectionMenuGroup: (query, action, abortSignal) => {
+          return searchMenuService.getCollectionMenuGroup(
+            query,
+            action,
+            abortSignal
+          );
+        },
       };
       const previewSpecBuilder = enableFootnoteConfigExtension(
         SpecProvider._.getSpec('preview:page')

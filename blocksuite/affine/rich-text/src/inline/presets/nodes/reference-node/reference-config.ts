@@ -1,6 +1,7 @@
-import type { BlockStdScope } from '@blocksuite/block-std';
-import { createIdentifier } from '@blocksuite/global/di';
-import type { ExtensionType } from '@blocksuite/store';
+import {
+  type BlockStdScope,
+  ConfigExtensionFactory,
+} from '@blocksuite/block-std';
 import type { TemplateResult } from 'lit';
 
 import type { AffineReference } from './reference-node';
@@ -11,18 +12,8 @@ export interface ReferenceNodeConfig {
   hidePopup?: boolean;
 }
 
-export const ReferenceNodeConfigIdentifier =
-  createIdentifier<ReferenceNodeConfig>('AffineReferenceNodeConfig');
-
-export function ReferenceNodeConfigExtension(
-  config: ReferenceNodeConfig
-): ExtensionType {
-  return {
-    setup: di => {
-      di.addImpl(ReferenceNodeConfigIdentifier, () => ({ ...config }));
-    },
-  };
-}
+export const ReferenceNodeConfigExtension =
+  ConfigExtensionFactory<ReferenceNodeConfig>('AffineReferenceNodeConfig');
 
 export class ReferenceNodeConfigProvider {
   private _customContent:

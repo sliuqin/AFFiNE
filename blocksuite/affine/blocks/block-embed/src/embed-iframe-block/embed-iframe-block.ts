@@ -17,9 +17,13 @@ import { type ClassInfo, classMap } from 'lit/directives/class-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 
 import type { IframeOptions } from './extension/embed-iframe-config.js';
-import { EmbedIframeService } from './extension/embed-iframe-service.js';
+import {
+  type EmbedIframeData,
+  EmbedIframeService,
+} from './extension/embed-iframe-service.js';
 import { embedIframeBlockStyles } from './style.js';
 import type { EmbedIframeStatusCardOptions } from './types.js';
+import { safeGetIframeSrc } from './utils.js';
 
 export type EmbedIframeStatus = 'idle' | 'loading' | 'success' | 'error';
 const DEFAULT_IFRAME_HEIGHT = 152;
@@ -126,8 +130,9 @@ export class EmbedIframeBlockComponent extends CaptionedBlockComponent<EmbedIfra
       }
 
       // update model
+      const iframeUrl = this._getIframeUrl(embedData) ?? currentIframeUrl;
       this.doc.updateBlock(this.model, {
-        iframeUrl: embedData?.iframe_url,
+        iframeUrl,
         title: embedData?.title || previewData?.title,
         description: embedData?.description || previewData?.description,
       });
@@ -143,6 +148,17 @@ export class EmbedIframeBlockComponent extends CaptionedBlockComponent<EmbedIfra
       this.error$.value = err instanceof Error ? err : new Error(String(err));
       console.error('Failed to refresh iframe data:', err);
     }
+  };
+
+  /**
+   * Get the iframe url from the embed data, first check if iframe_url is set,
+   * if not, check if html is set and get the iframe src from html
+   * @param embedData - The embed data
+   * @returns The iframe url
+   */
+  private readonly _getIframeUrl = (embedData: EmbedIframeData | null) => {
+    const { iframe_url, html } = embedData ?? {};
+    return iframe_url ?? (html && safeGetIframeSrc(html));
   };
 
   private readonly _updateIframeOptions = (url: string) => {

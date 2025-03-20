@@ -1,16 +1,18 @@
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import { type BlockStdScope, StdIdentifier } from '@blocksuite/block-std';
 import {
+  type AttributeRenderer,
+  getDefaultAttributeRenderer,
+} from '@blocksuite/block-std/inline';
+import {
   createIdentifier,
   type ServiceIdentifier,
 } from '@blocksuite/global/di';
 import {
-  type AttributeRenderer,
   baseTextAttributes,
   type DeltaInsert,
-  getDefaultAttributeRenderer,
-} from '@blocksuite/inline';
-import type { ExtensionType } from '@blocksuite/store';
+  type ExtensionType,
+} from '@blocksuite/store';
 import { z, type ZodObject, type ZodTypeAny } from 'zod';
 
 import { MarkdownMatcherIdentifier } from './markdown-matcher.js';

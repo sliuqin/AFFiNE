@@ -9,7 +9,7 @@ import {
   type EditorHost,
   TextSelection,
 } from '@blocksuite/block-std';
-import type { InlineEditor, InlineRange } from '@blocksuite/inline';
+import type { InlineEditor, InlineRange } from '@blocksuite/block-std/inline';
 import { BlockModel } from '@blocksuite/store';
 
 import type { AffineInlineEditor } from './inline/index.js';

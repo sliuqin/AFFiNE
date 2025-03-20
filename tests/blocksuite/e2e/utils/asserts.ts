@@ -5,8 +5,8 @@ import type {
   EditorHost,
   TextSelection,
 } from '@blocksuite/affine/block-std';
+import type { InlineRootElement } from '@blocksuite/affine/block-std/inline';
 import type { EdgelessNoteBackground } from '@blocksuite/affine/blocks/note';
-import type { InlineRootElement } from '@blocksuite/affine/inline';
 import type { NoteBlockModel, RootBlockModel } from '@blocksuite/affine/model';
 import type {
   AffineInlineEditor,
@@ -1197,7 +1197,7 @@ export async function assertConnectorStrokeColor(
   color: string
 ) {
   const colorButton = page
-    .locator('edgeless-change-connector-button')
+    .locator('affine-toolbar-widget editor-toolbar')
     .locator('edgeless-color-panel')
     .locator(`.color-unit[aria-label="${label}"]`)
     .locator('svg');

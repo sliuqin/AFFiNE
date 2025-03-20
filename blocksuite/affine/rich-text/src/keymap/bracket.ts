@@ -6,7 +6,7 @@ import {
   TextSelection,
   type UIEventHandler,
 } from '@blocksuite/block-std';
-import type { InlineEditor } from '@blocksuite/inline';
+import type { InlineEditor } from '@blocksuite/block-std/inline';
 
 import { getInlineEditorByModel } from '../dom.js';
 import { insertLinkedNode } from '../linked-node.js';

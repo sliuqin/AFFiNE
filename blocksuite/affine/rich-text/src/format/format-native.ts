@@ -4,7 +4,10 @@ import {
   type BlockComponent,
   type Command,
 } from '@blocksuite/block-std';
-import { INLINE_ROOT_ATTR, type InlineRootElement } from '@blocksuite/inline';
+import {
+  INLINE_ROOT_ATTR,
+  type InlineRootElement,
+} from '@blocksuite/block-std/inline';
 
 import { FORMAT_NATIVE_SUPPORT_FLAVOURS } from './consts.js';
 

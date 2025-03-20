@@ -19,7 +19,7 @@ import {
   type Signal,
 } from '@blocksuite/affine-shared/utils';
 import type { BlockStdScope, EditorHost } from '@blocksuite/block-std';
-import type { InlineRange } from '@blocksuite/inline';
+import type { InlineRange } from '@blocksuite/block-std/inline';
 import type { TemplateResult } from 'lit';
 
 import { showImportModal } from './import-doc/index.js';

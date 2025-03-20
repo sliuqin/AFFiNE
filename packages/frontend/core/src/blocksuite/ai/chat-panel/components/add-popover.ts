@@ -1,11 +1,15 @@
 import { toast } from '@affine/component';
-import type { TagMeta } from '@affine/core/components/page-list';
+import type {
+  CollectionMeta,
+  TagMeta,
+} from '@affine/core/components/page-list';
 import { ShadowlessElement } from '@blocksuite/affine/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { scrollbarStyle } from '@blocksuite/affine/shared/styles';
 import { openFileOrFiles, type Signal } from '@blocksuite/affine/shared/utils';
 import {
   CollectionsIcon,
+  MoreHorizontalIcon,
   SearchIcon,
   TagsIcon,
   UploadIcon,
@@ -13,6 +17,7 @@ import {
 import type { DocMeta } from '@blocksuite/store';
 import { css, html, type TemplateResult } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
+import { repeat } from 'lit/directives/repeat.js';
 
 import type { SearchMenuConfig } from '../chat-config';
 import type { ChatChip } from '../chat-context';
@@ -27,6 +32,7 @@ export type MenuGroup = {
   name: string;
   items: MenuItem[] | Signal<MenuItem[]>;
   maxDisplay?: number;
+  overflowText?: string | Signal<string>;
 };
 
 export type MenuItem = {
@@ -95,6 +101,9 @@ export class ChatPanelAddPopover extends SignalWatcher(
       font-size: var(--affine-font-sm);
       color: var(--affine-text-secondary-color);
     }
+    .menu-items icon-button {
+      outline: none;
+    }
     .item-suffix {
       margin-left: auto;
       font-size: var(--affine-font-xs);
@@ -118,10 +127,14 @@ export class ChatPanelAddPopover extends SignalWatcher(
     this._activatedIndex = 0;
     this._query = '';
     this._updateSearchGroup();
+    this._focusSearchInput();
+  };
+
+  private _focusSearchInput() {
     requestAnimationFrame(() => {
       this.searchInput.focus();
     });
-  };
+  }
 
   private readonly tcGroup: MenuGroup = {
     name: 'Tag & Collection',
@@ -172,17 +185,50 @@ export class ChatPanelAddPopover extends SignalWatcher(
   };
 
   private get _menuGroup() {
+    let groups: MenuGroup[] = [];
+
     switch (this._mode) {
       case AddPopoverMode.Tags:
-        return [this._searchGroup];
+        groups = [this._searchGroup];
+        break;
       case AddPopoverMode.Collections:
-        return [this._searchGroup];
+        groups = [this._searchGroup];
+        break;
       default:
         if (this._query) {
-          return [this._searchGroup, this.uploadGroup];
+          groups = [this._searchGroup, this.uploadGroup];
+        } else {
+          groups = [this._searchGroup, this.tcGroup, this.uploadGroup];
         }
-        return [this._searchGroup, this.tcGroup, this.uploadGroup];
     }
+
+    // Process maxDisplay for each group
+    return groups.map(group => {
+      let items = Array.isArray(group.items) ? group.items : group.items.value;
+      const maxDisplay = group.maxDisplay ?? items.length;
+      const hasMore = items.length > maxDisplay;
+      if (!hasMore) {
+        return group;
+      }
+      return {
+        ...group,
+        items: [
+          ...items.slice(0, maxDisplay),
+          {
+            key: `${group.name} More`,
+            name:
+              typeof group.overflowText === 'string'
+                ? group.overflowText
+                : (group.overflowText?.value ?? 'more'),
+            icon: MoreHorizontalIcon(),
+            action: () => {
+              this._resetMaxDisplay(group);
+              this._focusSearchInput();
+            },
+          },
+        ],
+      };
+    });
   }
 
   private get _flattenMenuGroup() {
@@ -212,18 +258,16 @@ export class ChatPanelAddPopover extends SignalWatcher(
   override connectedCallback() {
     super.connectedCallback();
     this._updateSearchGroup();
-    this.addEventListener('keydown', this._handleKeyDown);
+    document.addEventListener('keydown', this._handleKeyDown);
   }
 
   override firstUpdated() {
-    requestAnimationFrame(() => {
-      this.searchInput.focus();
-    });
+    this._focusSearchInput();
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    this.removeEventListener('keydown', this._handleKeyDown);
+    document.removeEventListener('keydown', this._handleKeyDown);
   }
 
   override render() {
@@ -263,38 +307,47 @@ export class ChatPanelAddPopover extends SignalWatcher(
 
   private _renderMenuGroup(groups: MenuGroup[]) {
     let startIndex = 0;
-    return groups.map((group, idx) => {
-      const items = Array.isArray(group.items)
-        ? group.items
-        : group.items.value;
-      const menuGroup = html`<div class="menu-group">
-        ${this._renderMenuItems(items, startIndex)}
-        ${idx < groups.length - 1 ? this._renderDivider() : ''}
-      </div>`;
-      startIndex += items.length;
-      return menuGroup;
-    });
+    return repeat(
+      groups,
+      group => group.name,
+      (group, idx) => {
+        const items = Array.isArray(group.items)
+          ? group.items
+          : group.items.value;
+
+        const menuGroup = html`<div class="menu-group">
+          ${this._renderMenuItems(items, startIndex)}
+          ${idx < groups.length - 1 ? this._renderDivider() : ''}
+        </div>`;
+        startIndex += items.length;
+        return menuGroup;
+      }
+    );
   }
 
   private _renderMenuItems(items: MenuItem[], startIndex: number) {
-    return html`<div>
+    return html`<div class="menu-items">
       ${items.length > 0
-        ? items.map(({ key, name, icon, action, suffix }, idx) => {
-            const curIdx = startIndex + idx;
-            return html`<icon-button
-              width="280px"
-              height="30px"
-              data-id=${key}
-              data-index=${curIdx}
-              .text=${name}
-              hover=${this._activatedIndex === curIdx}
-              @click=${() => action()?.catch(console.error)}
-              @mousemove=${() => (this._activatedIndex = curIdx)}
-            >
-              ${icon}
-              ${suffix ? html`<div class="item-suffix">${suffix}</div>` : ''}
-            </icon-button>`;
-          })
+        ? repeat(
+            items,
+            item => item.key,
+            ({ key, name, icon, action, suffix }, idx) => {
+              const curIdx = startIndex + idx;
+              return html`<icon-button
+                width="280px"
+                height="30px"
+                data-id=${key}
+                data-index=${curIdx}
+                .text=${name}
+                hover=${this._activatedIndex === curIdx}
+                @click=${() => action()?.catch(console.error)}
+                @mousemove=${() => (this._activatedIndex = curIdx)}
+              >
+                ${icon}
+                ${suffix ? html`<div class="item-suffix">${suffix}</div>` : ''}
+              </icon-button>`;
+            }
+          )
         : html`<div class="no-result">No Result</div>`}
     </div>`;
   }
@@ -305,12 +358,24 @@ export class ChatPanelAddPopover extends SignalWatcher(
     this._updateSearchGroup();
   }
 
+  private _resetMaxDisplay(group: MenuGroup) {
+    group.maxDisplay = undefined;
+    this.requestUpdate();
+  }
+
   private _updateSearchGroup() {
     switch (this._mode) {
       case AddPopoverMode.Tags:
         this._searchGroup = this.searchMenuConfig.getTagMenuGroup(
           this._query,
           this._addTagChip,
+          this.abortController.signal
+        );
+        break;
+      case AddPopoverMode.Collections:
+        this._searchGroup = this.searchMenuConfig.getCollectionMenuGroup(
+          this._query,
+          this._addCollectionChip,
           this.abortController.signal
         );
         break;
@@ -332,6 +397,10 @@ export class ChatPanelAddPopover extends SignalWatcher(
   };
 
   private readonly _addTagChip = (_tag: TagMeta) => {
+    this.abortController.abort();
+  };
+
+  private readonly _addCollectionChip = (_collection: CollectionMeta) => {
     this.abortController.abort();
   };
 

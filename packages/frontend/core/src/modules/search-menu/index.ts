@@ -1,5 +1,6 @@
 import { type Framework } from '@toeverything/infra';
 
+import { CollectionService } from '../collection';
 import { DocDisplayMetaService } from '../doc-display-meta';
 import { DocsSearchService } from '../docs-search';
 import { RecentDocsService } from '../quicksearch';
@@ -16,5 +17,6 @@ export function configSearchMenuModule(framework: Framework) {
       RecentDocsService,
       DocsSearchService,
       TagService,
+      CollectionService,
     ]);
 }

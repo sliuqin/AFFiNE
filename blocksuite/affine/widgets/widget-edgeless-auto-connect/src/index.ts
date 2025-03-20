@@ -188,13 +188,14 @@ export class EdgelessAutoConnectWidget extends WidgetComponent<RootBlockModel> {
   }
 
   private readonly _updateLabels = () => {
-    const service = this.service;
-    if (!service.doc.root) return;
-
+    const doc = this.std.store;
+    const root = doc.root;
+    if (!root) return;
     const pageVisibleBlocks = new Map<AutoConnectElement, number>();
-    const notes = service.doc.root?.children.filter(child =>
+    const notes = root.children.filter(child =>
       matchModels(child, [NoteBlockModel])
     );
+
     const edgelessOnlyNotesSet = new Set<NoteBlockModel>();
 
     notes.forEach(note => {

@@ -1,4 +1,7 @@
-import type { TagMeta } from '@affine/core/components/page-list';
+import type {
+  CollectionMeta,
+  TagMeta,
+} from '@affine/core/components/page-list';
 import { fuzzyMatch } from '@affine/core/utils/fuzzy-match';
 import { I18n } from '@affine/i18n';
 import type {
@@ -7,14 +10,16 @@ import type {
 } from '@blocksuite/affine/blocks/root';
 import { createSignalFromObservable } from '@blocksuite/affine/shared/utils';
 import type { DocMeta } from '@blocksuite/affine/store';
+import { CollectionsIcon } from '@blocksuite/icons/lit';
 import { computed } from '@preact/signals-core';
 import { Service } from '@toeverything/infra';
 import { cssVarV2 } from '@toeverything/theme/v2';
-import Fuse from 'fuse.js';
+import Fuse, { type FuseResultMatch } from 'fuse.js';
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { map, takeWhile } from 'rxjs';
 
+import type { CollectionService } from '../../collection';
 import type { DocDisplayMetaService } from '../../doc-display-meta';
 import type { DocsSearchService } from '../../docs-search';
 import { type RecentDocsService } from '../../quicksearch';
@@ -32,13 +37,18 @@ export type SearchDocMenuAction = (meta: DocMeta) => Promise<void> | void;
 
 export type SearchTagMenuAction = (tagId: TagMeta) => Promise<void> | void;
 
+export type SearchCollectionMenuAction = (
+  collection: CollectionMeta
+) => Promise<void> | void;
+
 export class SearchMenuService extends Service {
   constructor(
     private readonly workspaceService: WorkspaceService,
     private readonly docDisplayMetaService: DocDisplayMetaService,
     private readonly recentDocsService: RecentDocsService,
     private readonly docsSearch: DocsSearchService,
-    private readonly tagService: TagService
+    private readonly tagService: TagService,
+    private readonly collectionService: CollectionService
   ) {
     super();
   }
@@ -218,13 +228,38 @@ export class SearchMenuService extends Service {
     };
   }
 
+  private highlightFuseTitle(
+    matches: readonly FuseResultMatch[] | undefined,
+    title: string,
+    key: string
+  ): string {
+    if (!matches) {
+      return title;
+    }
+    const normalizedRange = ([start, end]: [number, number]) =>
+      [
+        start,
+        end + 1 /* in fuse, the `end` is different from the `substring` */,
+      ] as [number, number];
+    const titleMatches = matches
+      ?.filter(match => match.key === key)
+      .flatMap(match => match.indices.map(normalizedRange));
+    return (
+      highlighter(
+        title,
+        `<span style="color: ${cssVarV2('text/emphasis')}">`,
+        '</span>',
+        titleMatches ?? []
+      ) ?? title
+    );
+  }
+
   getTagMenuGroup(
     query: string,
     action: SearchTagMenuAction,
     _abortSignal: AbortSignal
   ): LinkedMenuGroup {
     const tags: TagMeta[] = this.tagService.tagList.tagMetas$.value;
-
     if (query.trim().length === 0) {
       return {
         name: I18n.t('com.affine.editor.at-menu.tags', {
@@ -241,7 +276,6 @@ export class SearchMenuService extends Service {
       ignoreLocation: true,
       threshold: 0.0,
     });
-
     const result = fuse.search(query);
 
     return {
@@ -249,27 +283,12 @@ export class SearchMenuService extends Service {
         query,
       }),
       items: result.map(item => {
-        const normalizedRange = ([start, end]: [number, number]) =>
-          [
-            start,
-            end + 1 /* in fuse, the `end` is different from the `substring` */,
-          ] as [number, number];
-        const titleMatches = item.matches
-          ?.filter(match => match.key === 'title')
-          .flatMap(match => match.indices.map(normalizedRange));
-        const hTitle = highlighter(
+        const title = this.highlightFuseTitle(
+          item.matches,
           item.item.title,
-          `<span style="color: ${cssVarV2('text/emphasis')}">`,
-          '</span>',
-          titleMatches ?? []
+          'title'
         );
-        return this.toTagMenuItem(
-          {
-            ...item.item,
-            title: hTitle ?? item.item.title,
-          },
-          action
-        );
+        return this.toTagMenuItem({ ...item.item, title }, action);
       }),
     };
   }
@@ -291,6 +310,67 @@ export class SearchMenuService extends Service {
       icon: tagIcon,
       action: async () => {
         await action(tag);
+      },
+    };
+  }
+
+  getCollectionMenuGroup(
+    query: string,
+    action: SearchCollectionMenuAction,
+    _abortSignal: AbortSignal
+  ): LinkedMenuGroup {
+    const collections = this.collectionService.collections$.value;
+    if (query.trim().length === 0) {
+      return {
+        name: I18n.t('com.affine.editor.at-menu.collections', {
+          query,
+        }),
+        items: collections.map(collection =>
+          this.toCollectionMenuItem(
+            {
+              ...collection,
+              title: collection.name,
+            },
+            action
+          )
+        ),
+      };
+    }
+
+    const fuse = new Fuse(collections, {
+      keys: ['name'],
+      includeMatches: true,
+      includeScore: true,
+      ignoreLocation: true,
+      threshold: 0.0,
+    });
+    const result = fuse.search(query);
+
+    return {
+      name: I18n.t('com.affine.editor.at-menu.link-to-doc', {
+        query,
+      }),
+      items: result.map(item => {
+        const title = this.highlightFuseTitle(
+          item.matches,
+          item.item.name,
+          'name'
+        );
+        return this.toCollectionMenuItem({ ...item.item, title }, action);
+      }),
+    };
+  }
+
+  private toCollectionMenuItem(
+    collection: CollectionMeta,
+    action: SearchCollectionMenuAction
+  ): LinkedMenuItem {
+    return {
+      key: collection.id,
+      name: html`${unsafeHTML(collection.title)}`,
+      icon: CollectionsIcon(),
+      action: async () => {
+        await action(collection);
       },
     };
   }
