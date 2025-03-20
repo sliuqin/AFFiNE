@@ -3,12 +3,12 @@ import { unsafeCSSVarV2 } from '@blocksuite/affine-shared/theme';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import type { BlockStdScope } from '@blocksuite/block-std';
 import { ShadowlessElement } from '@blocksuite/block-std';
-import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import {
-  type DeltaInsert,
   ZERO_WIDTH_NON_JOINER,
   ZERO_WIDTH_SPACE,
-} from '@blocksuite/inline';
+} from '@blocksuite/block-std/inline';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
+import type { DeltaInsert } from '@blocksuite/store';
 import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';
 
