@@ -424,10 +424,10 @@ export class AtMenuConfigService extends Service {
   private getMenusFn(): LinkedWidgetConfig['getMenus'] {
     return (query, close, editorHost, inlineEditor, abortSignal) => {
       return [
-        this.memberGroup(query, close, inlineEditor, abortSignal),
         this.journalGroup(query, close, inlineEditor),
         this.linkToDocGroup(query, close, inlineEditor, abortSignal),
         this.newDocMenuGroup(query, close, editorHost, inlineEditor),
+        this.memberGroup(query, close, inlineEditor, abortSignal),
       ];
     };
   }
