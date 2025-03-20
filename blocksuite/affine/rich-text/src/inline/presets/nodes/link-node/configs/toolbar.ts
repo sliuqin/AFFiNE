@@ -1,7 +1,9 @@
 import { toast } from '@blocksuite/affine-components/toast';
 import {
   ActionPlacement,
+  EmbedIframeService,
   EmbedOptionProvider,
+  FeatureFlagService,
   type ToolbarAction,
   type ToolbarActionGroup,
   type ToolbarModuleConfig,
@@ -193,10 +195,19 @@ export const builtinInlineLinkToolbarConfig = {
             const url = inlineEditor.getFormat(selfInlineRange).link;
             if (!url) return false;
 
+            // check if the url can be embedded as iframe block
+            const featureFlag = ctx.std.get(FeatureFlagService);
+            const embedIframeService = ctx.std.get(EmbedIframeService);
+            const isEmbedIframeEnabled = featureFlag.getFlag(
+              'enable_embed_iframe_block'
+            );
+            const canEmbedAsIframe =
+              isEmbedIframeEnabled && embedIframeService.canEmbed(url);
+
             const options = ctx.std
               .get(EmbedOptionProvider)
               .getEmbedBlockOptions(url);
-            return options?.viewType === 'embed';
+            return canEmbedAsIframe || options?.viewType === 'embed';
           },
           run(ctx) {
             const target = ctx.message$.peek()?.element;
@@ -218,21 +229,34 @@ export const builtinInlineLinkToolbarConfig = {
             // Clears
             ctx.reset();
 
-            const options = ctx.std
-              .get(EmbedOptionProvider)
-              .getEmbedBlockOptions(url);
-            if (options?.viewType !== 'embed') return;
-
-            const flavour = options.flavour;
             const index = parent.children.indexOf(model);
             const props = { url };
+            let blockId: string | undefined;
 
-            const blockId = ctx.store.addBlock(
-              flavour,
-              props,
-              parent,
-              index + 1
+            // first try to embed as iframe block
+            const featureFlag = ctx.std.get(FeatureFlagService);
+            const isEmbedIframeEnabled = featureFlag.getFlag(
+              'enable_embed_iframe_block'
             );
+            const embedIframeService = ctx.std.get(EmbedIframeService);
+            if (isEmbedIframeEnabled && embedIframeService.canEmbed(url)) {
+              blockId = embedIframeService.addEmbedIframeBlock(
+                props,
+                parent.id,
+                index + 1
+              );
+            } else {
+              // if not, try to add as other embed link block
+              const options = ctx.std
+                .get(EmbedOptionProvider)
+                .getEmbedBlockOptions(url);
+              if (options?.viewType !== 'embed') return;
+
+              const flavour = options.flavour;
+              blockId = ctx.store.addBlock(flavour, props, parent, index + 1);
+            }
+
+            if (!blockId) return;
 
             const totalTextLength = inlineEditor.yTextLength;
             const inlineTextLength = selfInlineRange.length;

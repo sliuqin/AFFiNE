@@ -23,7 +23,10 @@ import {
   type Signal,
   signal,
 } from '@preact/signals-core';
-import { generateFractionalIndexingKeyBetween } from '@toeverything/infra';
+import {
+  generateFractionalIndexingKeyBetween,
+  useService,
+} from '@toeverything/infra';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { fileTypeFromBuffer, type FileTypeResult } from 'file-type';
 import { nanoid } from 'nanoid';
@@ -36,6 +39,7 @@ import {
   useMemo,
 } from 'react';
 
+import { WorkspaceDialogService } from '../../../../modules/dialogs';
 import { useSignalValue } from '../../../../modules/doc-info/utils';
 import type {
   FileCellJsonValueType,
@@ -356,6 +360,13 @@ const FileCellComponent: ForwardRefRenderFunction<
   );
   const fileList = useSignalValue(manager.fileList);
   const isEditing = useSignalValue(manager.isEditing);
+  const workspaceDialogService = useService(WorkspaceDialogService);
+  const jumpToPricePlan = useCallback(() => {
+    workspaceDialogService.open('setting', {
+      activeTab: 'plans',
+      scrollAnchor: 'cloudPricingPlan',
+    });
+  }, [workspaceDialogService]);
   const renderPopoverContent = () => {
     if (fileList.length === 0) {
       return (
@@ -382,11 +393,7 @@ const FileCellComponent: ForwardRefRenderFunction<
             <div className={styles.fileSizeInfo}>
               The maximum size per file is 100MB
             </div>
-            <a
-              href="#"
-              className={styles.upgradeLink}
-              onClick={e => e.stopPropagation()}
-            >
+            <a className={styles.upgradeLink} onClick={jumpToPricePlan}>
               Upgrade to Pro
             </a>
           </div>
@@ -420,7 +427,7 @@ const FileCellComponent: ForwardRefRenderFunction<
             }}
             className={styles.uploadButtonStyle}
           >
-            <PlusIcon width={20} height={20} />
+            <PlusIcon className={styles.iconPrimary} width={20} height={20} />
             <span>Add a file or image</span>
           </div>
         </div>
@@ -504,7 +511,7 @@ const useFilePreview = (
   }
 
   return {
-    preview: <FileIcon width={18} height={18} />,
+    preview: <FileIcon className={styles.iconPrimary} width={18} height={18} />,
     fileType: 'file',
   };
 };
@@ -574,6 +581,7 @@ export const FileListItem = (props: {
         onClick={e => {
           handleRemoveFile(file, e);
         }}
+        type={'danger'}
         prefixIcon={<DeleteIcon width={20} height={20} />}
       >
         Delete

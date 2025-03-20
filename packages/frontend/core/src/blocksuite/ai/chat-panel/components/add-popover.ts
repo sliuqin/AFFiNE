@@ -6,7 +6,7 @@ import type {
 import { ShadowlessElement } from '@blocksuite/affine/block-std';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { scrollbarStyle } from '@blocksuite/affine/shared/styles';
-import { openFileOrFiles, type Signal } from '@blocksuite/affine/shared/utils';
+import { openFileOrFiles } from '@blocksuite/affine/shared/utils';
 import {
   CollectionsIcon,
   MoreHorizontalIcon,
@@ -15,6 +15,7 @@ import {
   UploadIcon,
 } from '@blocksuite/icons/lit';
 import type { DocMeta } from '@blocksuite/store';
+import { Signal } from '@preact/signals-core';
 import { css, html, type TemplateResult } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -33,6 +34,8 @@ export type MenuGroup = {
   items: MenuItem[] | Signal<MenuItem[]>;
   maxDisplay?: number;
   overflowText?: string | Signal<string>;
+  divider?: TemplateResult<1>;
+  noResult?: TemplateResult<1>;
 };
 
 export type MenuItem = {
@@ -44,6 +47,10 @@ export type MenuItem = {
 };
 
 export type MenuAction = () => Promise<void> | void;
+
+export function resolveSignal<T>(data: T | Signal<T>): T {
+  return data instanceof Signal ? data.value : data;
+}
 
 export class ChatPanelAddPopover extends SignalWatcher(
   WithDisposable(ShadowlessElement)
@@ -117,10 +124,7 @@ export class ChatPanelAddPopover extends SignalWatcher(
   private accessor _query = '';
 
   @state()
-  private accessor _searchGroup: MenuGroup = {
-    name: 'No Result',
-    items: [],
-  };
+  private accessor _searchGroups: MenuGroup[] = [];
 
   private readonly _toggleMode = (mode: AddPopoverMode) => {
     this._mode = mode;
@@ -189,22 +193,22 @@ export class ChatPanelAddPopover extends SignalWatcher(
 
     switch (this._mode) {
       case AddPopoverMode.Tags:
-        groups = [this._searchGroup];
+        groups = this._searchGroups;
         break;
       case AddPopoverMode.Collections:
-        groups = [this._searchGroup];
+        groups = this._searchGroups;
         break;
       default:
         if (this._query) {
-          groups = [this._searchGroup, this.uploadGroup];
+          groups = [...this._searchGroups, this.uploadGroup];
         } else {
-          groups = [this._searchGroup, this.tcGroup, this.uploadGroup];
+          groups = [...this._searchGroups, this.tcGroup, this.uploadGroup];
         }
     }
 
     // Process maxDisplay for each group
     return groups.map(group => {
-      let items = Array.isArray(group.items) ? group.items : group.items.value;
+      let items = resolveSignal(group.items);
       const maxDisplay = group.maxDisplay ?? items.length;
       const hasMore = items.length > maxDisplay;
       if (!hasMore) {
@@ -216,10 +220,7 @@ export class ChatPanelAddPopover extends SignalWatcher(
           ...items.slice(0, maxDisplay),
           {
             key: `${group.name} More`,
-            name:
-              typeof group.overflowText === 'string'
-                ? group.overflowText
-                : (group.overflowText?.value ?? 'more'),
+            name: resolveSignal(group.overflowText) ?? 'more',
             icon: MoreHorizontalIcon(),
             action: () => {
               this._resetMaxDisplay(group);
@@ -233,7 +234,7 @@ export class ChatPanelAddPopover extends SignalWatcher(
 
   private get _flattenMenuGroup() {
     return this._menuGroup.flatMap(group => {
-      return Array.isArray(group.items) ? group.items : group.items.value;
+      return resolveSignal(group.items);
     });
   }
 
@@ -293,9 +294,9 @@ export class ChatPanelAddPopover extends SignalWatcher(
   private _getPlaceholder() {
     switch (this._mode) {
       case AddPopoverMode.Tags:
-        return 'Search Tag';
+        return 'Search tags';
       case AddPopoverMode.Collections:
-        return 'Search Collection';
+        return 'Search collections';
       default:
         return 'Search docs, tags, collections';
     }
@@ -305,19 +306,25 @@ export class ChatPanelAddPopover extends SignalWatcher(
     return html`<div class="divider"></div>`;
   }
 
+  private _renderNoResult() {
+    return html`<div class="no-result">No Result</div>`;
+  }
+
   private _renderMenuGroup(groups: MenuGroup[]) {
     let startIndex = 0;
     return repeat(
       groups,
       group => group.name,
       (group, idx) => {
-        const items = Array.isArray(group.items)
-          ? group.items
-          : group.items.value;
+        const items = resolveSignal(group.items);
 
         const menuGroup = html`<div class="menu-group">
-          ${this._renderMenuItems(items, startIndex)}
-          ${idx < groups.length - 1 ? this._renderDivider() : ''}
+          ${items.length > 0
+            ? this._renderMenuItems(items, startIndex)
+            : (group.noResult ?? this._renderNoResult())}
+          ${idx < groups.length - 1
+            ? (group.divider ?? this._renderDivider())
+            : ''}
         </div>`;
         startIndex += items.length;
         return menuGroup;
@@ -327,28 +334,26 @@ export class ChatPanelAddPopover extends SignalWatcher(
 
   private _renderMenuItems(items: MenuItem[], startIndex: number) {
     return html`<div class="menu-items">
-      ${items.length > 0
-        ? repeat(
-            items,
-            item => item.key,
-            ({ key, name, icon, action, suffix }, idx) => {
-              const curIdx = startIndex + idx;
-              return html`<icon-button
-                width="280px"
-                height="30px"
-                data-id=${key}
-                data-index=${curIdx}
-                .text=${name}
-                hover=${this._activatedIndex === curIdx}
-                @click=${() => action()?.catch(console.error)}
-                @mousemove=${() => (this._activatedIndex = curIdx)}
-              >
-                ${icon}
-                ${suffix ? html`<div class="item-suffix">${suffix}</div>` : ''}
-              </icon-button>`;
-            }
-          )
-        : html`<div class="no-result">No Result</div>`}
+      ${repeat(
+        items,
+        item => item.key,
+        ({ key, name, icon, action, suffix }, idx) => {
+          const curIdx = startIndex + idx;
+          return html`<icon-button
+            width="280px"
+            height="30px"
+            data-id=${key}
+            data-index=${curIdx}
+            .text=${name}
+            hover=${this._activatedIndex === curIdx}
+            @click=${() => action()?.catch(console.error)}
+            @mousemove=${() => (this._activatedIndex = curIdx)}
+          >
+            ${icon}
+            ${suffix ? html`<div class="item-suffix">${suffix}</div>` : ''}
+          </icon-button>`;
+        }
+      )}
     </div>`;
   }
 
@@ -365,26 +370,78 @@ export class ChatPanelAddPopover extends SignalWatcher(
 
   private _updateSearchGroup() {
     switch (this._mode) {
-      case AddPopoverMode.Tags:
-        this._searchGroup = this.searchMenuConfig.getTagMenuGroup(
-          this._query,
-          this._addTagChip,
-          this.abortController.signal
-        );
+      case AddPopoverMode.Tags: {
+        this._searchGroups = [
+          this.searchMenuConfig.getTagMenuGroup(
+            this._query,
+            this._addTagChip,
+            this.abortController.signal
+          ),
+        ];
         break;
-      case AddPopoverMode.Collections:
-        this._searchGroup = this.searchMenuConfig.getCollectionMenuGroup(
-          this._query,
-          this._addCollectionChip,
-          this.abortController.signal
-        );
+      }
+      case AddPopoverMode.Collections: {
+        this._searchGroups = [
+          this.searchMenuConfig.getCollectionMenuGroup(
+            this._query,
+            this._addCollectionChip,
+            this.abortController.signal
+          ),
+        ];
         break;
-      default:
-        this._searchGroup = this.searchMenuConfig.getDocMenuGroup(
+      }
+      default: {
+        const docGroup = this.searchMenuConfig.getDocMenuGroup(
           this._query,
           this._addDocChip,
           this.abortController.signal
         );
+        if (!this._query) {
+          this._searchGroups = [docGroup];
+        } else {
+          const tagGroup = this.searchMenuConfig.getTagMenuGroup(
+            this._query,
+            this._addTagChip,
+            this.abortController.signal
+          );
+          const collectionGroup = this.searchMenuConfig.getCollectionMenuGroup(
+            this._query,
+            this._addCollectionChip,
+            this.abortController.signal
+          );
+          const hasNoResult =
+            resolveSignal(docGroup.items).length === 0 &&
+            resolveSignal(tagGroup.items).length === 0 &&
+            resolveSignal(collectionGroup.items).length === 0;
+          if (hasNoResult) {
+            this._searchGroups = [
+              {
+                name: 'No Result',
+                items: [],
+              },
+            ];
+          } else {
+            const nothing = html``;
+            this._searchGroups = [
+              {
+                ...docGroup,
+                divider: nothing,
+                noResult: nothing,
+              },
+              {
+                ...tagGroup,
+                divider: nothing,
+                noResult: nothing,
+              },
+              {
+                ...collectionGroup,
+                noResult: nothing,
+              },
+            ];
+          }
+        }
+        break;
+      }
     }
   }
 

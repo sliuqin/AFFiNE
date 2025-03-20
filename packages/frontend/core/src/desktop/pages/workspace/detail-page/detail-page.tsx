@@ -368,6 +368,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
 export const Component = () => {
   const params = useParams();
   const recentPages = useService(RecentDocsService);
+  const guardService = useService(GuardService);
 
   useEffect(() => {
     if (params.pageId) {
@@ -379,10 +380,14 @@ export const Component = () => {
   }, [params, recentPages]);
 
   const pageId = params.pageId;
+  const canAccess = useLiveData(
+    pageId ? guardService.can$('Doc_Read', pageId) : undefined
+  );
 
   return pageId ? (
     <DetailPageWrapper
       pageId={pageId}
+      canAccess={canAccess}
       skeleton={<PageDetailSkeleton />}
       notFound={<PageNotFound noPermission />}
     >

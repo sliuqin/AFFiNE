@@ -1,9 +1,6 @@
 import { DataViewBlockSchemaExtension } from '@blocksuite/affine-block-data-view';
 import { DatabaseSelectionExtension } from '@blocksuite/affine-block-database';
-import {
-  EmbedIframeConfigExtensions,
-  EmbedIframeService,
-} from '@blocksuite/affine-block-embed';
+import { EmbedIframeConfigExtensions } from '@blocksuite/affine-block-embed';
 import { ImageStoreSpec } from '@blocksuite/affine-block-image';
 import { SurfaceBlockSchemaExtension } from '@blocksuite/affine-block-surface';
 import { TableSelectionExtension } from '@blocksuite/affine-block-table';
@@ -39,6 +36,7 @@ import {
 } from '@blocksuite/affine-shared/selection';
 import {
   BlockMetaService,
+  EmbedIframeService,
   FeatureFlagService,
   FileSizeLimitService,
   LinkPreviewerService,

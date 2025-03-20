@@ -1,5 +1,4 @@
 import type { EmbedIframeBlockProps } from '@blocksuite/affine-model';
-import { createIdentifier } from '@blocksuite/global/di';
 import { type Store, StoreExtension } from '@blocksuite/store';
 
 import {
@@ -68,10 +67,6 @@ export interface EmbedIframeProvider {
     index?: number
   ) => string | undefined;
 }
-
-export const EmbedIframeProvider = createIdentifier<EmbedIframeProvider>(
-  'EmbedIframeProvider'
-);
 
 export class EmbedIframeService
   extends StoreExtension

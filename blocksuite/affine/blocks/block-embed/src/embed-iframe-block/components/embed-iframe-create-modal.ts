@@ -1,3 +1,4 @@
+import { EmbedIframeService } from '@blocksuite/affine-shared/services';
 import { unsafeCSSVar, unsafeCSSVarV2 } from '@blocksuite/affine-shared/theme';
 import { isValidUrl, stopPropagation } from '@blocksuite/affine-shared/utils';
 import type { BlockStdScope } from '@blocksuite/block-std';
@@ -8,8 +9,6 @@ import { baseTheme } from '@toeverything/theme';
 import { css, html, LitElement, nothing, unsafeCSS } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
-
-import { EmbedIframeService } from '../extension/embed-iframe-service';
 
 type EmbedModalVariant = 'default' | 'compact';
 

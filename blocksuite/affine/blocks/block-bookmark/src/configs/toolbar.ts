@@ -1,4 +1,3 @@
-import { EmbedIframeService } from '@blocksuite/affine-block-embed';
 import { reassociateConnectorsCommand } from '@blocksuite/affine-block-surface';
 import { toast } from '@blocksuite/affine-components/toast';
 import {
@@ -12,6 +11,7 @@ import {
 } from '@blocksuite/affine-shared/consts';
 import {
   ActionPlacement,
+  EmbedIframeService,
   EmbedOptionProvider,
   FeatureFlagService,
   type LinkEventType,

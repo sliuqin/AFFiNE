@@ -101,6 +101,10 @@ export class SelfhostTeamSubscriptionManager extends SubscriptionManager {
         {
           price: price.price.id,
           quantity,
+          adjustable_quantity: {
+            enabled: true,
+            minimum: 1,
+          },
         },
       ],
       tax_id_collection: {

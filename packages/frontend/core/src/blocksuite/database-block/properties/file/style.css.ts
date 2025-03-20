@@ -1,9 +1,14 @@
+import { cssVar } from '@toeverything/theme';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { style } from '@vanilla-extract/css';
 
+export const iconPrimary = style({
+  color: cssVarV2.icon.primary,
+});
+
 export const filePopoverContainer = style({
   padding: '8px 0 0 0',
-  width: '415px',
+  width: '340px',
 });
 
 export const filePopoverContent = style({
@@ -12,7 +17,7 @@ export const filePopoverContent = style({
 
 export const uploadButton = style({
   width: '100%',
-  fontSize: '16px',
+  fontSize: '12px',
 });
 
 export const fileInfoContainer = style({
@@ -20,6 +25,7 @@ export const fileInfoContainer = style({
   justifyContent: 'center',
   alignItems: 'center',
   fontSize: '14px',
+  fontWeight: cssVar('fontXs'),
   gap: '8px',
   overflow: 'hidden',
 });
@@ -146,22 +152,21 @@ export const imagePreviewContainer = style({
 export const uploadContainer = style({
   display: 'flex',
   alignItems: 'center',
-  padding: '8px 16px',
   borderTop: '1px solid',
   borderColor: cssVarV2.layer.insideBorder.border,
 });
 
 export const uploadButtonStyle = style({
+  flex: 1,
   display: 'flex',
   alignItems: 'center',
   gap: '8px',
-  padding: '4px',
+  padding: '8px',
   cursor: 'pointer',
 });
 
 export const uploadPopoverContainer = style({
   padding: '12px',
-  width: '415px',
   display: 'flex',
   flexDirection: 'column',
   gap: '10px',

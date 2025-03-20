@@ -254,6 +254,9 @@ const MobileDetailPage = ({
   const [showTitle, setShowTitle] = useState(checkShowTitle);
   const title = useLiveData(docDisplayMetaService.title$(pageId));
 
+  const guardService = useService(GuardService);
+  const canAccess = useLiveData(guardService.can$('Doc_Read', pageId));
+
   const allJournalDates = useLiveData(journalService.allJournalDates$);
 
   const location = useLiveData(workbench.location$);
@@ -281,6 +284,7 @@ const MobileDetailPage = ({
         skeleton={date ? skeleton : skeletonWithBack}
         notFound={date ? notFound : notFoundWithBack}
         pageId={pageId}
+        canAccess={canAccess}
       >
         <PageHeader
           back={!fromTab}

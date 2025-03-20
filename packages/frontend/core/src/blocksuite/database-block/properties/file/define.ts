@@ -1,7 +1,7 @@
 import { propertyType, t } from '@blocksuite/affine/blocks/database';
 import zod from 'zod';
 
-export const fileColumnType = propertyType('file');
+export const fileColumnType = propertyType('attachment');
 
 export const FileItemSchema = zod.object({
   id: zod.string(),
@@ -20,7 +20,7 @@ export type FileCellJsonValueType = zod.TypeOf<
   typeof FileCellJsonValueTypeSchema
 >;
 export const filePropertyModelConfig = fileColumnType.modelConfig({
-  name: 'File',
+  name: 'Attachment',
   propertyData: {
     schema: zod.object({}),
     default: () => ({}),
