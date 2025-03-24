@@ -6,6 +6,7 @@ import {
   Config,
   EventBus,
   InternalServerError,
+  JobQueue,
   LicenseNotFound,
   OnEvent,
   UserFriendlyError,
@@ -29,7 +30,8 @@ export class LicenseService implements OnModuleInit {
     private readonly config: Config,
     private readonly db: PrismaClient,
     private readonly event: EventBus,
-    private readonly models: Models
+    private readonly models: Models,
+    private readonly queue: JobQueue
   ) {}
 
   async onModuleInit() {
@@ -237,7 +239,7 @@ export class LicenseService implements OnModuleInit {
       try {
         const res = await this.revalidateLicense(license);
 
-        if (res?.quantity === memberRequired) {
+        if (res?.quantity && res.quantity >= memberRequired) {
           return;
         }
       } catch (e) {
@@ -247,6 +249,9 @@ export class LicenseService implements OnModuleInit {
       await new Promise(resolve => setTimeout(resolve, tried * 2000));
     }
 
+    await this.queue.add('notification.sendInvitationBlocked', {
+      workspaceId: license.workspaceId,
+    });
     // fallback to health check if we can't get the upgrade result immediately
     throw new Error('Timeout checking seat update result.');
   }

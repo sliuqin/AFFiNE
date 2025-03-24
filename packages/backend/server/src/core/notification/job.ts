@@ -29,6 +29,9 @@ declare global {
       userId: string;
       workspaceId: string;
     };
+    'notification.sendInvitationBlocked': {
+      workspaceId: string;
+    };
   }
 }
 
@@ -145,5 +148,12 @@ export class NotificationJob {
         createdByUserId: reviewerId,
       },
     });
+  }
+
+  @OnJob('notification.sendInvitationBlocked')
+  async sendInvitationBlocked({
+    workspaceId,
+  }: Jobs['notification.sendInvitationBlocked']) {
+    await this.service.createInvitationBlocked(workspaceId);
   }
 }

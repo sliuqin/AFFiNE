@@ -176,11 +176,29 @@ export class NotificationService {
     );
   }
 
-  async createInvitationBlocked(input: InvitationNotificationCreate) {
-    await this.ensureWorkspaceContentExists(input.body.workspaceId);
-    return await this.models.notification.createInvitation(
-      input,
-      NotificationType.InvitationBlocked
+  async createInvitationBlocked(workspaceId: string) {
+    await this.ensureWorkspaceContentExists(workspaceId);
+    return await this.models.notification.createInvitationBlocked({
+      userId: workspaceId,
+      body: {
+        workspaceId,
+      },
+    });
+  }
+
+  private async sendInvitationBlockedEmail(workspaceId: string) {
+    const owner = await this.models.workspaceUser.getOwner(workspaceId);
+    await this.mailer.send({
+      name: 'InvitationBlocked',
+      to: owner.email,
+      props: {
+        workspace: {
+          $$workspaceId: workspaceId,
+        },
+      },
+    });
+    this.logger.log(
+      `Invitation blocked email sent to user ${owner.id} for workspace ${workspaceId}`
     );
   }
 
