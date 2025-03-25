@@ -36,7 +36,10 @@ export const PageHeaderMenuButton = () => {
 
   const docId = useService(DocService).doc.id;
   const guardService = useService(GuardService);
-  const canEdit = useLiveData(guardService.can$('Doc_Update', docId));
+  const canEdit = useLiveData(
+    () => guardService.can$('Doc_Update', docId),
+    [docId, guardService]
+  );
 
   const editorService = useService(EditorService);
   const editorContainer = useLiveData(editorService.editor.editorContainer$);

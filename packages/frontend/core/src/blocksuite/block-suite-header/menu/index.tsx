@@ -333,8 +333,14 @@ const PageHeaderMenuItem = ({
     openInAppService?.showOpenInAppPage();
   }, [openInAppService]);
 
-  const canEdit = useLiveData(guardService.can$('Doc_Update', pageId));
-  const canMoveToTrash = useLiveData(guardService.can$('Doc_Trash', pageId));
+  const canEdit = useLiveData(
+    () => guardService.can$('Doc_Update', pageId),
+    [pageId, guardService]
+  );
+  const canMoveToTrash = useLiveData(
+    () => guardService.can$('Doc_Trash', pageId),
+    [pageId, guardService]
+  );
 
   return (
     <>

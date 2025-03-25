@@ -54,16 +54,17 @@ export function PDFViewerEmbedded({ model }: AttachmentViewerProps) {
   const [pageSize, setPageSize] = useState<PageSize | null>(null);
 
   const meta = useLiveData(
-    useMemo(() => {
-      return pdfEntity
+    () =>
+      pdfEntity
         ? pdfEntity.pdf.state$.map(s => {
             return s.status === PDFStatus.Opened ? s.meta : defaultMeta();
           })
-        : new LiveData<PDFMeta>(defaultMeta());
-    }, [pdfEntity])
+        : new LiveData<PDFMeta>(defaultMeta()),
+    [pdfEntity]
   );
   const img = useLiveData(
-    useMemo(() => (pageEntity ? pageEntity.page.bitmap$ : null), [pageEntity])
+    () => (pageEntity ? pageEntity.page.bitmap$ : null),
+    [pageEntity]
   );
 
   const [name, setName] = useState(model.props.name);

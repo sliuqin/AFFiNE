@@ -238,7 +238,7 @@ export default tseslint.config(
         'warn',
         {
           additionalHooks:
-            '(useAsyncCallback|useCatchEventCallback|useDraggable|useDropTarget|useRefEffect)',
+            '(useAsyncCallback|useCatchEventCallback|useDraggable|useDropTarget|useRefEffect|useLiveData)',
         },
       ],
       'rxjs/finnish': [

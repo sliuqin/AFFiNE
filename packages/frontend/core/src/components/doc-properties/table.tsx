@@ -297,10 +297,12 @@ const DocWorkspacePropertiesTableBody = forwardRef<
     const [newPropertyId, setNewPropertyId] = useState<string | null>(null);
 
     const canEditProperty = useLiveData(
-      guardService.can$('Doc_Update', docService.doc.id)
+      () => guardService.can$('Doc_Update', docService.doc.id),
+      [docService.doc.id, guardService]
     );
     const canEditPropertyInfo = useLiveData(
-      guardService.can$('Workspace_Properties_Update')
+      () => guardService.can$('Workspace_Properties_Update'),
+      [guardService]
     );
 
     const handlePropertyAdded = useCallback(

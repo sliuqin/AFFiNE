@@ -21,7 +21,7 @@ import { GuardService } from '@affine/core/modules/permissions';
 import { useI18n } from '@affine/i18n';
 import { PlusIcon } from '@blocksuite/icons/rc';
 import { LiveData, useLiveData, useServices } from '@toeverything/infra';
-import { Suspense, useCallback, useMemo, useState } from 'react';
+import { Suspense, useCallback, useState } from 'react';
 
 import * as styles from './doc-info.css';
 
@@ -39,32 +39,32 @@ export const DocInfoSheet = ({
   const t = useI18n();
 
   const canEditPropertyInfo = useLiveData(
-    guardService.can$('Workspace_Properties_Update')
+    () => guardService.can$('Workspace_Properties_Update'),
+    [guardService]
   );
-  const canEditProperty = useLiveData(guardService.can$('Doc_Update', docId));
+  const canEditProperty = useLiveData(
+    () => guardService.can$('Doc_Update', docId),
+    [docId, guardService]
+  );
   const links = useLiveData(
-    useMemo(
-      () => LiveData.from(docsSearchService.watchRefsFrom(docId), null),
-      [docId, docsSearchService]
-    )
+    () => LiveData.from(docsSearchService.watchRefsFrom(docId), null),
+    [docId, docsSearchService]
   );
-  const backlinks = useLiveData(
-    useMemo(() => {
-      return LiveData.from(docsSearchService.watchRefsTo(docId), []).map(
-        links => {
-          const visitedDoc = new Set<string>();
-          // for each doc, we only show the first block
-          return links.filter(link => {
-            if (visitedDoc.has(link.docId)) {
-              return false;
-            }
-            visitedDoc.add(link.docId);
-            return true;
-          });
-        }
-      );
-    }, [docId, docsSearchService])
-  );
+  const backlinks = useLiveData(() => {
+    return LiveData.from(docsSearchService.watchRefsTo(docId), []).map(
+      links => {
+        const visitedDoc = new Set<string>();
+        // for each doc, we only show the first block
+        return links.filter(link => {
+          if (visitedDoc.has(link.docId)) {
+            return false;
+          }
+          visitedDoc.add(link.docId);
+          return true;
+        });
+      }
+    );
+  }, [docId, docsSearchService]);
 
   const [newPropertyId, setNewPropertyId] = useState<string | null>(null);
 

@@ -381,7 +381,8 @@ export const Component = () => {
 
   const pageId = params.pageId;
   const canAccess = useLiveData(
-    pageId ? guardService.can$('Doc_Read', pageId) : undefined
+    () => (pageId ? guardService.can$('Doc_Read', pageId) : undefined),
+    [pageId, guardService]
   );
 
   return pageId ? (

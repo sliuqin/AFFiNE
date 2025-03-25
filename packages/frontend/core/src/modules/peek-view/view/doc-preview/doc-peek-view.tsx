@@ -151,7 +151,10 @@ function DocPeekPreviewEditor({
     peekView.close();
   }, [doc, peekView, workbench]);
 
-  const canEdit = useLiveData(guardService.can$('Doc_Update', doc.id));
+  const canEdit = useLiveData(
+    () => guardService.can$('Doc_Update', doc.id),
+    [doc.id, guardService]
+  );
 
   const readonly = !canEdit || isInTrash;
 
@@ -221,7 +224,10 @@ export function DocPeekPreview({
   );
 
   const guardService = useService(GuardService);
-  const canAccess = useLiveData(guardService.can$('Doc_Read', docId));
+  const canAccess = useLiveData(
+    () => guardService.can$('Doc_Read', docId),
+    [docId, guardService]
+  );
 
   // if sync engine has been synced and the page is null, show 404 page.
   if (!doc || !editor || !canAccess) {

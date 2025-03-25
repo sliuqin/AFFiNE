@@ -36,7 +36,8 @@ export const MemberManagement = ({
   const guardService = useService(GuardService);
 
   const canManageUsers = useLiveData(
-    guardService.can$('Doc_Users_Manage', docService.doc.id)
+    () => guardService.can$('Doc_Users_Manage', docService.doc.id),
+    [docService.doc.id, guardService]
   );
 
   const t = useI18n();

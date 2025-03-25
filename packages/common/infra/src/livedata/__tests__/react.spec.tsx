@@ -3,7 +3,6 @@
  */
 
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import { useMemo } from 'react';
 import type { Subscriber } from 'rxjs';
 import { Observable } from 'rxjs';
 import { afterEach, describe, expect, test, vi } from 'vitest';
@@ -20,6 +19,22 @@ describe('livedata', () => {
     const Component = () => {
       renderCount++;
       const value = useLiveData(livedata$);
+      return <main>{value}</main>;
+    };
+    render(<Component />);
+    expect(screen.getByRole('main').innerText).toBe('0');
+    livedata$.next(1);
+    // wait for rerender
+    await waitFor(() => expect(screen.getByRole('main').innerText).toBe('1'));
+    expect(renderCount).toBe(2);
+  });
+
+  test('react with deps', async () => {
+    const livedata$ = new LiveData(0);
+    let renderCount = 0;
+    const Component = () => {
+      renderCount++;
+      const value = useLiveData(() => livedata$, []);
       return <main>{value}</main>;
     };
     render(<Component />);
@@ -83,14 +98,12 @@ describe('livedata', () => {
     const Component = () => {
       renderCount++;
       const value = useLiveData(
-        useMemo(
-          () =>
-            livedata$.map(v => {
-              objectCopyCount++;
-              return { ...v };
-            }),
-          []
-        )
+        () =>
+          livedata$.map(v => {
+            objectCopyCount++;
+            return { ...v };
+          }),
+        []
       );
       return <main>{value.hello}</main>;
     };

@@ -38,7 +38,8 @@ export const BlocksuiteHeaderTitle = (props: BlockSuiteHeaderTitleProps) => {
   );
 
   const canEdit = useLiveData(
-    guardService.can$('Doc_Update', docService.doc.id)
+    () => guardService.can$('Doc_Update', docService.doc.id),
+    [docService.doc.id, guardService]
   );
 
   return (

@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { type DependencyList, useMemo, useSyncExternalStore } from 'react';
 
 import type { LiveData } from './livedata';
 
@@ -18,7 +18,8 @@ function undefinedGetSnapshot() {
  * subscribe LiveData and return the value.
  */
 export function useLiveData<Input extends LiveData<any> | null | undefined>(
-  liveData: Input
+  liveDataOrFn: Input | (() => Input),
+  deps?: any[]
 ): NonNullable<Input> extends LiveData<infer T>
   ? Input extends undefined
     ? T | undefined
@@ -26,6 +27,11 @@ export function useLiveData<Input extends LiveData<any> | null | undefined>(
       ? T | null
       : T
   : never {
+  const liveData = useMemo(() => {
+    return typeof liveDataOrFn === 'function' ? liveDataOrFn() : liveDataOrFn;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps as DependencyList);
+
   return useSyncExternalStore(
     liveData ? liveData.reactSubscribe : noopSubscribe,
     liveData

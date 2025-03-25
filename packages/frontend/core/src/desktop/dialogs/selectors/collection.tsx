@@ -23,7 +23,8 @@ const FavoriteOperation = ({ collection }: { collection: ListItem }) => {
   const t = useI18n();
   const favAdapter = useService(CompatibleFavoriteItemsAdapter);
   const isFavorite = useLiveData(
-    favAdapter.isFavorite$(collection.id, 'collection')
+    () => favAdapter.isFavorite$(collection.id, 'collection'),
+    [collection, favAdapter]
   );
 
   const onToggleFavoriteCollection = useCallback(() => {

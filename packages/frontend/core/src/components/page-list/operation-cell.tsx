@@ -76,7 +76,10 @@ const PageOperationCellMenuItem = ({
     GuardService,
   });
 
-  const canMoveToTrash = useLiveData(guardService.can$('Doc_Trash', page.id));
+  const canMoveToTrash = useLiveData(
+    () => guardService.can$('Doc_Trash', page.id),
+    [page.id, guardService]
+  );
   const currentWorkspace = workspaceService.workspace;
   const favourite = useLiveData(favAdapter.isFavorite$(page.id, 'doc'));
   const workbench = workbenchService.workbench;

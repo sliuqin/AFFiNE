@@ -178,24 +178,26 @@ const useBacklinkGroups: () => BacklinkGroups[] = () => {
   });
 
   const backlinkGroups = useLiveData(
-    LiveData.computed(get => {
-      const links = get(docLinksService.backlinks.backlinks$);
+    () =>
+      LiveData.computed(get => {
+        const links = get(docLinksService.backlinks.backlinks$);
 
-      // group by docId
-      const groupedLinks = links.reduce(
-        (acc, link) => {
-          acc[link.docId] = [...(acc[link.docId] || []), link];
-          return acc;
-        },
-        {} as Record<string, Backlink[]>
-      );
+        // group by docId
+        const groupedLinks = links.reduce(
+          (acc, link) => {
+            acc[link.docId] = [...(acc[link.docId] || []), link];
+            return acc;
+          },
+          {} as Record<string, Backlink[]>
+        );
 
-      return Object.entries(groupedLinks).map(([docId, links]) => ({
-        docId,
-        title: links[0].title, // title should be the same for all blocks
-        links,
-      }));
-    })
+        return Object.entries(groupedLinks).map(([docId, links]) => ({
+          docId,
+          title: links[0].title, // title should be the same for all blocks
+          links,
+        }));
+      }),
+    [docLinksService.backlinks.backlinks$]
   );
 
   return backlinkGroups;
@@ -266,7 +268,10 @@ export const LinkPreview = ({
   textRendererOptions: TextRendererOptions;
 }) => {
   const guardService = useService(GuardService);
-  const canAccess = useLiveData(guardService.can$('Doc_Read', linkGroup.docId));
+  const canAccess = useLiveData(
+    () => guardService.can$('Doc_Read', linkGroup.docId),
+    [linkGroup.docId, guardService]
+  );
   const t = useI18n();
 
   if (!canAccess) {

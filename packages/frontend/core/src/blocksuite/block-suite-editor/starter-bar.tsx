@@ -27,7 +27,6 @@ import {
   type HTMLAttributes,
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 
@@ -66,10 +65,8 @@ const StarterBarNotEmpty = ({ doc }: { doc: Store }) => {
   const [templateMenuOpen, setTemplateMenuOpen] = useState(false);
 
   const isTemplate = useLiveData(
-    useMemo(
-      () => templateDocService.list.isTemplate$(doc.id),
-      [doc.id, templateDocService.list]
-    )
+    () => templateDocService.list.isTemplate$(doc.id),
+    [doc.id, templateDocService.list]
   );
   const enableAI = useLiveData(featureFlagService.flags.enable_ai.$);
 
@@ -172,10 +169,8 @@ export const StarterBar = ({ doc }: { doc: Store }) => {
   const templateDocService = useService(TemplateDocService);
 
   const isTemplate = useLiveData(
-    useMemo(
-      () => templateDocService.list.isTemplate$(doc.id),
-      [doc.id, templateDocService.list]
-    )
+    () => templateDocService.list.isTemplate$(doc.id),
+    [doc.id, templateDocService.list]
   );
 
   useEffect(() => {

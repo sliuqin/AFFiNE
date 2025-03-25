@@ -40,16 +40,18 @@ export const InfoTable = ({
     GuardService,
   });
   const canEditPropertyInfo = useLiveData(
-    guardService.can$('Workspace_Properties_Update')
+    () => guardService.can$('Workspace_Properties_Update'),
+    [guardService]
   );
-  const canEditProperty = useLiveData(guardService.can$('Doc_Update', docId));
+  const canEditProperty = useLiveData(
+    () => guardService.can$('Doc_Update', docId),
+    [docId, guardService]
+  );
   const [newPropertyId, setNewPropertyId] = useState<string | null>(null);
   const properties = useLiveData(docsService.propertyList.sortedProperties$);
   const links = useLiveData(
-    useMemo(
-      () => LiveData.from(docsSearchService.watchRefsFrom(docId), null),
-      [docId, docsSearchService]
-    )
+    () => LiveData.from(docsSearchService.watchRefsFrom(docId), null),
+    [docId, docsSearchService]
   );
 
   const backlinks = useLiveData(

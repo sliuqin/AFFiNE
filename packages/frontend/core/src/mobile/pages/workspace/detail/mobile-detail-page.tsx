@@ -192,7 +192,10 @@ const DetailPageImpl = () => {
     [docCollection.id, editor, jumpToPageBlock, openPage, server]
   );
 
-  const canEdit = useLiveData(guardService.can$('Doc_Update', doc.id));
+  const canEdit = useLiveData(
+    () => guardService.can$('Doc_Update', doc.id),
+    [doc.id, guardService]
+  );
 
   const readonly =
     !canEdit ||
@@ -255,7 +258,10 @@ const MobileDetailPage = ({
   const title = useLiveData(docDisplayMetaService.title$(pageId));
 
   const guardService = useService(GuardService);
-  const canAccess = useLiveData(guardService.can$('Doc_Read', pageId));
+  const canAccess = useLiveData(
+    () => guardService.can$('Doc_Read', pageId),
+    [pageId, guardService]
+  );
 
   const allJournalDates = useLiveData(journalService.allJournalDates$);
 

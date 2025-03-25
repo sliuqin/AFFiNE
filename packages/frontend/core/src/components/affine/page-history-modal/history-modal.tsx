@@ -441,7 +441,10 @@ const PageHistoryManager = ({
   const i18n = useI18n();
 
   const title = useLiveData(docDisplayMetaService.title$(pageId));
-  const canEdit = useLiveData(guardService.can$('Doc_Update', pageDocId));
+  const canEdit = useLiveData(
+    () => guardService.can$('Doc_Update', pageDocId),
+    [pageDocId, guardService]
+  );
 
   const onConfirmRestore = useCallback(() => {
     openConfirmModal({
