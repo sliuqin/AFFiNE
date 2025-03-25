@@ -410,10 +410,6 @@ export class AtMenuConfigService extends Service {
                   length: 0,
                 });
               }
-
-              notify.success({
-                title: I18n.t('com.affine.editor.at-menu.mention-success'),
-              });
             })
             .catch(error => {
               const err = UserFriendlyError.fromAny(error);
