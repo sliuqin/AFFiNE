@@ -707,6 +707,7 @@ export class EdgelessPageKeyboardManager extends PageKeyboardManager {
     const edgeless = this.rootComponent;
     const selection = edgeless.service.selection;
     const currentTool = edgeless.gfx.tool.currentTool$.peek()!;
+    const currentSel = selection.surfaceSelections;
     const isKeyDown = event.type === 'keydown';
 
     if (edgeless.gfx.tool.dragging$.peek()) {
@@ -720,6 +721,7 @@ export class EdgelessPageKeyboardManager extends PageKeyboardManager {
           currentTool.toolName,
           currentTool?.activatedOption
         );
+        selection.set(currentSel);
         document.removeEventListener('keyup', revertToPrevTool, false);
       }
     };

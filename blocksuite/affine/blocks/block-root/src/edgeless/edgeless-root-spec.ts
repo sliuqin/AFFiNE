@@ -1,5 +1,8 @@
 import { ConnectorElementView } from '@blocksuite/affine-gfx-connector';
+import { GroupElementView } from '@blocksuite/affine-gfx-group';
 import { MindMapView } from '@blocksuite/affine-gfx-mindmap';
+import { ShapeElementView } from '@blocksuite/affine-gfx-shape';
+import { TextElementView } from '@blocksuite/affine-gfx-text';
 import { ViewportElementExtension } from '@blocksuite/affine-shared/services';
 import { autoConnectWidget } from '@blocksuite/affine-widget-edgeless-auto-connect';
 import { edgelessToolbarWidget } from '@blocksuite/affine-widget-edgeless-toolbar';
@@ -90,13 +93,20 @@ const EdgelessClipboardConfigs: ExtensionType[] = [
   EdgelessClipboardEmbedSyncedDocConfig,
 ];
 
+export const gfxElementViews = [
+  ConnectorElementView,
+  MindMapView,
+  GroupElementView,
+  TextElementView,
+  ShapeElementView,
+];
+
 const EdgelessCommonExtension: ExtensionType[] = [
   CommonSpecs,
   ToolController,
   EdgelessRootService,
   ViewportElementExtension('.affine-edgeless-viewport'),
-  MindMapView,
-  ConnectorElementView,
+  ...gfxElementViews,
   ...quickTools,
   ...seniorTools,
   ...EdgelessClipboardConfigs,

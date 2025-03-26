@@ -58,7 +58,8 @@ function fitViewport(
       viewport.setViewportByBound(
         Bound.deserialize(newViewport.xywh),
         newViewport.padding,
-        false
+        false,
+        true
       );
     } else {
       gfx.fitToScreen({

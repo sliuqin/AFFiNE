@@ -90,7 +90,7 @@ export function patchForEdgelessNoteConfig(
           ]);
 
           const center = Vec.sub(edgelessTitleAnchor, pageTitleAnchor);
-          gfx.viewport.setCenter(center[0], center[1]);
+          gfx.viewport.setCenter(center[0], center[1], true);
           gfx.viewport.smoothZoom(0.65, undefined, 15);
 
           return true;

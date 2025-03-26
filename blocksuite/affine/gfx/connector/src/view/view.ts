@@ -6,6 +6,8 @@ import {
   GfxElementModelView,
 } from '@blocksuite/block-std/gfx';
 
+import { mountConnectorLabelEditor } from '../text/edgeless-connector-label-editor';
+
 export class ConnectorElementView extends GfxElementModelView<ConnectorElementModel> {
   static override type = 'connector';
 
@@ -24,4 +26,24 @@ export class ConnectorElementView extends GfxElementModelView<ConnectorElementMo
 
     this.model.moveTo(currentBound.moveDelta(dx, dy));
   };
+
+  override onCreated(): void {
+    super.onCreated();
+
+    this._initDblClickToEdit();
+  }
+
+  private _initDblClickToEdit(): void {
+    this.on('dblclick', evt => {
+      const edgeless = this.std.view.getBlock(this.std.store.root!.id);
+
+      if (edgeless && !this.model.isLocked()) {
+        mountConnectorLabelEditor(
+          this.model,
+          edgeless,
+          this.gfx.viewport.toModelCoord(evt.x, evt.y)
+        );
+      }
+    });
+  }
 }

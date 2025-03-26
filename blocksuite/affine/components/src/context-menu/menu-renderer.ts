@@ -36,7 +36,7 @@ export class MenuComponent
       display: flex;
       flex-direction: column;
       user-select: none;
-      min-width: 276px;
+      min-width: 180px;
       box-shadow: ${unsafeCSSVar('overlayPanelShadow')};
       border-radius: 4px;
       background-color: ${unsafeCSSVarV2('layer/background/overlayPanel')};

@@ -28,7 +28,6 @@ export function mountGroupTitleEditor(
 
   const groupEditor = new EdgelessGroupTitleEditor();
   groupEditor.group = group;
-  groupEditor.edgeless = edgeless;
 
   mountElm.append(groupEditor);
 }

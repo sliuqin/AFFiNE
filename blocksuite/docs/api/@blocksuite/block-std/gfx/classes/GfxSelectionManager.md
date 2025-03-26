@@ -48,3 +48,21 @@ check if element is selected by remote peers
 #### Returns
 
 `boolean`
+
+***
+
+### toggle()
+
+> **toggle**(`element`): `void`
+
+Toggle the selection state of single element
+
+#### Parameters
+
+##### element
+
+`string` | `GfxModel`
+
+#### Returns
+
+`void`

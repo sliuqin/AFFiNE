@@ -54,7 +54,6 @@ export function mountConnectorLabelEditor(
 
   const editor = new EdgelessConnectorLabelEditor();
   editor.connector = connector;
-  editor.edgeless = edgeless;
 
   mountElm.append(editor);
   editor.updateComplete
