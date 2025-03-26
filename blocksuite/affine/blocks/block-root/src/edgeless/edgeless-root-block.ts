@@ -1,3 +1,4 @@
+import { NoteConfigExtension } from '@blocksuite/affine-block-note';
 import type {
   SurfaceBlockComponent,
   SurfaceBlockModel,
@@ -11,13 +12,10 @@ import { isSingleMindMapNode } from '@blocksuite/affine-gfx-mindmap';
 import { mountShapeTextEditor } from '@blocksuite/affine-gfx-shape';
 import {
   NoteBlockModel,
-  NoteDisplayMode,
   type RootBlockModel,
   type ShapeElementModel,
 } from '@blocksuite/affine-model';
-import { EDGELESS_BLOCK_CHILD_PADDING } from '@blocksuite/affine-shared/consts';
 import {
-  DocModeProvider,
   EditorSettingProvider,
   EditPropsStore,
   FontLoaderService,
@@ -310,71 +308,33 @@ export class EdgelessRootBlockComponent extends BlockComponent<
   private _initViewport() {
     const { std, gfx } = this;
 
-    const pageBlockViewportFitAnimation = () => {
-      const primaryMode = std.get(DocModeProvider).getPrimaryMode(this.doc.id);
-      const note = this.model.children.find(
-        (child): child is NoteBlockModel =>
-          matchModels(child, [NoteBlockModel]) &&
-          child.props.displayMode !== NoteDisplayMode.EdgelessOnly
-      );
-
-      if (primaryMode !== 'page' || !note || note.props.edgeless.collapse)
-        return false;
-
-      const leftPadding = parseInt(
-        window
-          .getComputedStyle(this)
-          .getPropertyValue('--affine-editor-side-padding')
-          .replace('px', '')
-      );
-      if (isNaN(leftPadding)) return false;
-
-      let editorWidth = parseInt(
-        window
-          .getComputedStyle(this)
-          .getPropertyValue('--affine-editor-width')
-          .replace('px', '')
-      );
-      if (isNaN(editorWidth)) return false;
-
-      const containerWidth = this.getBoundingClientRect().width;
-      const leftMargin =
-        containerWidth > editorWidth ? (containerWidth - editorWidth) / 2 : 0;
-
-      const pageTitleAnchor = gfx.viewport.toModelCoord(
-        leftPadding + leftMargin,
-        0
-      );
-
-      const noteBound = Bound.deserialize(note.xywh);
-      const edgelessTitleAnchor = Vec.add(noteBound.tl, [
-        EDGELESS_BLOCK_CHILD_PADDING,
-        12,
-      ]);
-
-      const center = Vec.sub(edgelessTitleAnchor, pageTitleAnchor);
-      gfx.viewport.setCenter(center[0], center[1]);
-      gfx.viewport.smoothZoom(0.65, undefined, 15);
-
-      return true;
-    };
-
     const run = () => {
+      const animationFn = std.getOptional(
+        NoteConfigExtension.identifier
+      )?.pageBlockViewportFitAnimation;
+      if (animationFn) {
+        const pageBlock = this.model.children.find(
+          (child): child is NoteBlockModel =>
+            matchModels(child, [NoteBlockModel]) && child.isPageBlock()
+        );
+        if (pageBlock && animationFn({ std: this.std, note: pageBlock })) {
+          return;
+        }
+      }
+
       const storedViewport = std.get(EditPropsStore).getStorage('viewport');
-      if (!storedViewport) {
-        if (!pageBlockViewportFitAnimation()) {
-          this.gfx.fitToScreen();
+      if (storedViewport) {
+        if ('xywh' in storedViewport) {
+          const bound = Bound.deserialize(storedViewport.xywh);
+          gfx.viewport.setViewportByBound(bound, storedViewport.padding);
+        } else {
+          const { zoom, centerX, centerY } = storedViewport;
+          gfx.viewport.setViewport(zoom, [centerX, centerY]);
         }
         return;
       }
 
-      if ('xywh' in storedViewport) {
-        const bound = Bound.deserialize(storedViewport.xywh);
-        gfx.viewport.setViewportByBound(bound, storedViewport.padding);
-      } else {
-        const { zoom, centerX, centerY } = storedViewport;
-        gfx.viewport.setViewport(zoom, [centerX, centerY]);
-      }
+      this.gfx.fitToScreen();
     };
 
     run();
