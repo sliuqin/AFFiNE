@@ -360,11 +360,13 @@ export class ChatPanelAddPopover extends SignalWatcher(
   }
 
   private _onCompositionEnd(event: CompositionEvent) {
+    event.stopPropagation();
     this._updateQuery((event.target as HTMLInputElement).value.trim());
   }
 
   private _onInput(event: InputEvent) {
     if (event.isComposing) return;
+    event.stopPropagation();
     this._updateQuery((event.target as HTMLInputElement).value.trim());
   }
 
