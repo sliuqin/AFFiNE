@@ -8,6 +8,7 @@ import {
   SearchIcon,
 } from '@blocksuite/icons/lit';
 import { ShadowlessElement } from '@blocksuite/std';
+import { RANGE_SYNC_EXCLUDE_ATTR } from '@blocksuite/std/inline';
 import {
   autoPlacement,
   autoUpdate,
@@ -383,6 +384,7 @@ export const getDefaultModalRoot = (ele: HTMLElement) => {
 };
 export const createModal = (container: HTMLElement = document.body) => {
   const div = document.createElement('div');
+  div.setAttribute(RANGE_SYNC_EXCLUDE_ATTR, 'true');
   div.style.pointerEvents = 'auto';
   div.style.position = 'absolute';
   div.style.left = '0';

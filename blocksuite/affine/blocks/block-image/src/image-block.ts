@@ -3,6 +3,7 @@ import { Peekable } from '@blocksuite/affine-components/peek';
 import type { ImageBlockModel } from '@blocksuite/affine-model';
 import { IS_MOBILE } from '@blocksuite/global/env';
 import { BlockSelection } from '@blocksuite/std';
+import { RANGE_SYNC_EXCLUDE_ATTR } from '@blocksuite/std/inline';
 import { html } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -56,6 +57,7 @@ export class ImageBlockComponent extends CaptionedBlockComponent<ImageBlockModel
 
   override connectedCallback() {
     super.connectedCallback();
+    this.setAttribute(RANGE_SYNC_EXCLUDE_ATTR, 'true');
 
     this.refreshData();
     this.contentEditable = 'false';

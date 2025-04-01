@@ -212,6 +212,9 @@ export class RangeBinding {
     const el = getElement(range.commonAncestorContainer);
     if (!el) return;
     const block = el.closest<BlockComponent>(`[${BLOCK_ID_ATTR}]`);
+    if (!block && el.closest(`[${RANGE_SYNC_EXCLUDE_ATTR}="true"]`)) {
+      return;
+    }
     if (block?.getAttribute(RANGE_SYNC_EXCLUDE_ATTR) === 'true') return;
 
     const startElement = getElement(range.startContainer);
