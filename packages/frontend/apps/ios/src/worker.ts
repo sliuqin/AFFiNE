@@ -1,4 +1,5 @@
-import './setup';
+import '@affine/core/bootstrap/browser';
+import './proxy';
 
 import { broadcastChannelStorages } from '@affine/nbstore/broadcast-channel';
 import {
