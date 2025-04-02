@@ -158,10 +158,6 @@ const usePatchSpecs = (mode: DocMode) => {
     featureFlagService.flags.enable_pdf_embed_preview.$
   );
 
-  const enableAudioBlock = useLiveData(
-    featureFlagService.flags.enable_audio_block.$
-  );
-
   const patchedSpecs = useMemo(() => {
     const builder = enableEditorExtension(framework, mode, enableAI);
 
@@ -177,6 +173,7 @@ const usePatchSpecs = (mode: DocMode) => {
         patchQuickSearchService(framework),
         patchSideBarService(framework),
         patchDocModeService(docService, docsService, editorService),
+        patchForAudioEmbedView(reactToLit),
         isCloud
           ? [
               patchUserListExtensions(memberSearchService),
@@ -193,9 +190,7 @@ const usePatchSpecs = (mode: DocMode) => {
     if (enablePDFEmbedPreview) {
       builder.extend([patchForPDFEmbedView(reactToLit)]);
     }
-    if (enableAudioBlock) {
-      builder.extend([patchForAudioEmbedView(reactToLit)]);
-    }
+
     if (BUILD_CONFIG.isMobileEdition) {
       enableMobileExtension(builder, framework);
     }
@@ -221,7 +216,6 @@ const usePatchSpecs = (mode: DocMode) => {
     publicUserService,
     enableTurboRenderer,
     enablePDFEmbedPreview,
-    enableAudioBlock,
   ]);
 
   return [
