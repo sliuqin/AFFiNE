@@ -28,6 +28,14 @@ const PlayAndPauseIcon = ({
   useEffect(() => {
     if (!lottieRef.current) return;
     const lottie = lottieRef.current;
+    if (prevStateRef.current === 'pause') {
+      lottie.goToAndStop(100, true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!lottieRef.current) return;
+    const lottie = lottieRef.current;
     lottie.setSpeed(2);
 
     // Only animate if state actually changed
