@@ -9,6 +9,7 @@ export const root = style({
   display: 'flex',
   gap: 4,
   alignItems: 'center',
+  ['WebkitAppRegion' as string]: 'drag',
 });
 
 export const affineIcon = style({

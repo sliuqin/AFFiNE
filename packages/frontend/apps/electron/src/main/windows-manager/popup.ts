@@ -70,13 +70,11 @@ abstract class PopupWindow {
 
   async build(): Promise<BrowserWindow> {
     const browserWindow = new BrowserWindow({
-      ...this.windowOptions,
       resizable: false,
       minimizable: false,
       maximizable: false,
       closable: false,
       alwaysOnTop: true,
-      focusable: false,
       hiddenInMissionControl: true,
       movable: false,
       titleBarStyle: 'hidden',
@@ -84,6 +82,7 @@ abstract class PopupWindow {
       backgroundColor: 'transparent',
       visualEffectState: 'active',
       vibrancy: 'under-window',
+      ...this.windowOptions,
       webPreferences: {
         ...this.windowOptions.webPreferences,
         webgl: true,
@@ -99,6 +98,9 @@ abstract class PopupWindow {
 
     // required to make the window transparent
     browserWindow.setBackgroundColor('#00000000');
+    browserWindow.setVisibleOnAllWorkspaces(true, {
+      visibleOnFullScreen: true,
+    });
 
     browserWindow.loadURL(popupViewUrl).catch(err => logger.error(err));
     browserWindow.on('ready-to-show', () => {
@@ -199,6 +201,7 @@ class RecordingPopupWindow extends PopupWindow {
   windowOptions: Partial<BrowserWindowConstructorOptions> = {
     width: RECORDING_SIZE[0],
     height: RECORDING_SIZE[1],
+    movable: true,
   };
 }
 

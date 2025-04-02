@@ -756,7 +756,7 @@ export class WebContentViewsManager {
       }, 100);
     };
 
-    app.on('browser-window-focus', () => {
+    this.mainWindow?.on('focus', () => {
       focusActiveView();
     });
 
