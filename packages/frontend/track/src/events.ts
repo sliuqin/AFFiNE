@@ -177,6 +177,10 @@ type MeetingEvents =
   | 'activeMenubarAppItem';
 // END SECTION
 
+// SECTION: mention
+type MentionEvents = 'mentionMember' | 'noAccessPrompted';
+// END SECTION
+
 type UserEvents =
   | GeneralEvents
   | AppEvents
@@ -198,7 +202,8 @@ type UserEvents =
   | TemplateEvents
   | NotificationEvents
   | IntegrationEvents
-  | MeetingEvents;
+  | MeetingEvents
+  | MentionEvents;
 interface PageDivision {
   [page: string]: {
     [segment: string]: {
@@ -418,6 +423,7 @@ const PageEvents = {
       aiActions: ['requestSignIn'],
       starterBar: ['quickStart', 'openTemplateListMenu'],
       audioBlock: ['transcribeRecording', 'openTranscribeNotes'],
+      mention: ['mentionMember', 'noAccessPrompted'],
     },
     inlineDocInfo: {
       $: ['toggle'],
@@ -623,7 +629,8 @@ export type EventArgs = {
   modifyUserDocRole: { role: string };
   modifyDocDefaultRole: { role: string };
   inviteUserDocRole: {
-    control: 'member list';
+    control: string;
+    role: string;
   };
   openInbox: { unreadCount: number };
   clickNotification: {
@@ -697,6 +704,10 @@ export type EventArgs = {
       | 'Meeting Settings'
       | 'Quit AFFiNE Completely';
   };
+  mentionMember: {
+    type: 'member' | 'invite' | 'more';
+  };
+  noAccessPrompted: {};
 };
 
 // for type checking

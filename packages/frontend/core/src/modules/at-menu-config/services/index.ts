@@ -429,6 +429,14 @@ export class AtMenuConfigService extends Service {
                   },
                 }
               );
+
+              track.doc.editor.mention.mentionMember({
+                type: 'member',
+                page: mode === 'page' ? 'doc' : 'edgeless',
+                segment: mode === 'page' ? 'doc' : 'whiteboard',
+                module: 'at menu',
+                control: 'member control',
+              });
             })
             .catch(error => {
               const err = UserFriendlyError.fromAny(error);
@@ -468,6 +476,13 @@ export class AtMenuConfigService extends Service {
                   });
                 }
 
+                track.doc.editor.mention.noAccessPrompted({
+                  page: mode === 'page' ? 'doc' : 'edgeless',
+                  segment: mode === 'page' ? 'doc' : 'whiteboard',
+                  module: 'user mention',
+                  control: 'toast',
+                });
+
                 return;
               }
 
@@ -487,6 +502,28 @@ export class AtMenuConfigService extends Service {
         close();
         this.dialogService.open('setting', {
           activeTab: 'workspace:members',
+        });
+
+        const rootElement = inlineEditor.rootElement;
+        const block = rootElement?.closest<BlockComponent>(
+          `[${BLOCK_ID_ATTR}]`
+        );
+        if (!block) return;
+        const mode = block.std.get(DocModeProvider).getEditorMode() ?? 'page';
+
+        track.doc.editor.mention.mentionMember({
+          type: 'invite',
+          page: mode === 'page' ? 'doc' : 'edgeless',
+          segment: mode === 'page' ? 'doc' : 'whiteboard',
+          module: 'at menu',
+          control: 'member mention',
+        });
+        track.$.sharePanel.$.inviteUserDocRole({
+          control: 'toast',
+          role: 'reader',
+          page: mode === 'page' ? 'doc' : 'edgeless',
+          segment: mode === 'page' ? 'doc' : 'whiteboard',
+          module: 'user mention',
         });
       },
     };
