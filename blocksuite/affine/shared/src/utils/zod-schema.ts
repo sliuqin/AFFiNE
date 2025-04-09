@@ -189,6 +189,7 @@ export const NodePropsSchema = z.object({
   'shape:rect': ShapeSchema,
   'shape:triangle': ShapeSchema,
   'shape:roundedRect': RoundedShapeSchema,
+  'shape:capsule': ShapeSchema,
 });
 
 export type NodeProps = z.infer<typeof NodePropsSchema>;

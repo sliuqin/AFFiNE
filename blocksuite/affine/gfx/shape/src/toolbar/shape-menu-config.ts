@@ -3,6 +3,7 @@ import { ShapeType } from '@blocksuite/affine-model';
 import {
   DiamondIcon,
   EllipseIcon,
+  PillIcon,
   RoundedRectangleIcon,
   SquareIcon,
   TriangleIcon,
@@ -59,6 +60,13 @@ export const ShapeComponentConfig: Config[] = [
     generalIcon: RoundedRectangleIcon(),
     scribbledIcon: ScribbledRoundedRectangleIcon,
     tooltip: 'Rounded rectangle',
+    disabled: false,
+  },
+  {
+    name: ShapeType.Capsule,
+    generalIcon: PillIcon(),
+    scribbledIcon: PillIcon(),
+    tooltip: 'Pill',
     disabled: false,
   },
 ];

@@ -17,12 +17,9 @@ import type { PointerEventState } from '@blocksuite/std';
 import { BaseTool } from '@blocksuite/std/gfx';
 import { effect } from '@preact/signals-core';
 
-import {
-  SHAPE_OVERLAY_HEIGHT,
-  SHAPE_OVERLAY_OPTIONS,
-  SHAPE_OVERLAY_WIDTH,
-} from './consts.js';
-import { ShapeOverlay } from './overlay/shape-overlay.js';
+import { SHAPE_OVERLAY_OPTIONS } from './consts';
+import { ShapeOverlay } from './overlay/shape-overlay';
+import { buildXYWHWith } from './utils';
 
 export type ShapeToolOption = {
   shapeName: ShapeName;
@@ -50,7 +47,8 @@ export class ShapeTool extends BaseTool<ShapeToolOption> {
   } | null = null;
 
   private _addNewShape(
-    e: PointerEventState,
+    x: number,
+    y: number,
     width: number,
     height: number
   ): string {
@@ -59,11 +57,8 @@ export class ShapeTool extends BaseTool<ShapeToolOption> {
     const attributes =
       this.std.get(EditPropsStore).lastProps$.value[`shape:${shapeName}`];
 
-    if (shapeName === 'roundedRect') {
-      width += 40;
-    }
     // create a shape block when drag start
-    const [modelX, modelY] = viewport.toModelCoord(e.point.x, e.point.y);
+    const [modelX, modelY] = viewport.toModelCoord(x, y);
     const bound = new Bound(modelX, modelY, width, height);
 
     const id = this.gfx.surface!.addElement({
@@ -175,7 +170,12 @@ export class ShapeTool extends BaseTool<ShapeToolOption> {
 
     this.doc.captureSync();
 
-    const id = this._addNewShape(e, SHAPE_OVERLAY_WIDTH, SHAPE_OVERLAY_HEIGHT);
+    const xywh = buildXYWHWith(
+      this.activatedOption.shapeName,
+      [e.point.x, e.point.y],
+      false
+    );
+    const id = this._addNewShape(...xywh);
 
     const element = this.gfx.getElementById(id);
     if (!element) return;
@@ -279,7 +279,7 @@ export class ShapeTool extends BaseTool<ShapeToolOption> {
 
     this.doc.captureSync();
 
-    const id = this._addNewShape(e, 0, 0);
+    const id = this._addNewShape(e.point.x, e.point.y, 0, 0);
 
     this._spacePressedCtx = null;
     this._draggingElementId = id;

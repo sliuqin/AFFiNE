@@ -6,4 +6,5 @@ export * from './overlay';
 export * from './shape-tool';
 export * from './text';
 export * from './toolbar';
+export * from './utils';
 export * from './view';

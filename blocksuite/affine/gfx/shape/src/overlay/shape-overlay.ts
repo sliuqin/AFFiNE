@@ -7,21 +7,16 @@ import {
 import {
   type Color,
   DefaultTheme,
+  type ShapeName,
   type ShapeStyle,
 } from '@blocksuite/affine-model';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
-import type { XYWH } from '@blocksuite/global/gfx';
 import { assertType } from '@blocksuite/global/utils';
 import type { GfxController } from '@blocksuite/std/gfx';
 import { effect } from '@preact/signals-core';
 
-import {
-  SHAPE_OVERLAY_HEIGHT,
-  SHAPE_OVERLAY_OFFSET_X,
-  SHAPE_OVERLAY_OFFSET_Y,
-  SHAPE_OVERLAY_WIDTH,
-} from '../consts';
 import type { ShapeTool } from '../shape-tool';
+import { buildXYWHWith } from '../utils';
 import { ShapeFactory } from './factory';
 import type { Shape } from './shape';
 
@@ -30,7 +25,7 @@ export class ShapeOverlay extends ToolOverlay {
 
   constructor(
     gfx: GfxController,
-    type: string,
+    type: ShapeName,
     options: Options,
     style: {
       shapeStyle: ShapeStyle;
@@ -39,12 +34,6 @@ export class ShapeOverlay extends ToolOverlay {
     }
   ) {
     super(gfx);
-    const xywh = [
-      this.x,
-      this.y,
-      SHAPE_OVERLAY_WIDTH,
-      SHAPE_OVERLAY_HEIGHT,
-    ] as XYWH;
     const { shapeStyle, fillColor, strokeColor } = style;
     const fill = this.gfx.std
       .get(ThemeProvider)
@@ -56,7 +45,8 @@ export class ShapeOverlay extends ToolOverlay {
     options.fill = fill;
     options.stroke = stroke;
 
-    this.shape = ShapeFactory.createShape(xywh, type, options, shapeStyle);
+    const xywh = buildXYWHWith(type, [this.x, this.y]);
+    this.shape = ShapeFactory.createShape(type, xywh, options, shapeStyle);
     this.disposables.add(
       effect(() => {
         const currentTool = this.gfx.tool.currentTool$.value;
@@ -70,19 +60,11 @@ export class ShapeOverlay extends ToolOverlay {
           ...options,
         };
 
-        let { x, y } = this;
-        if (shapeName === 'roundedRect' || shapeName === 'rect') {
-          x += SHAPE_OVERLAY_OFFSET_X;
-          y += SHAPE_OVERLAY_OFFSET_Y;
-        }
-        const w =
-          shapeName === 'roundedRect'
-            ? SHAPE_OVERLAY_WIDTH + 40
-            : SHAPE_OVERLAY_WIDTH;
-        const xywh = [x, y, w, SHAPE_OVERLAY_HEIGHT] as XYWH;
+        const xywh = buildXYWHWith(shapeName, [this.x, this.y]);
         this.shape = ShapeFactory.createShape(
-          xywh,
           shapeName,
+          xywh,
+
           newOptions,
           shapeStyle
         );
@@ -93,17 +75,9 @@ export class ShapeOverlay extends ToolOverlay {
   }
 
   override render(ctx: CanvasRenderingContext2D, rc: RoughCanvas): void {
-    ctx.globalAlpha = this.globalAlpha;
-    let { x, y } = this;
-    const { type } = this.shape;
-    if (type === 'roundedRect' || type === 'rect') {
-      x += SHAPE_OVERLAY_OFFSET_X;
-      y += SHAPE_OVERLAY_OFFSET_Y;
-    }
-    const w =
-      type === 'roundedRect' ? SHAPE_OVERLAY_WIDTH + 40 : SHAPE_OVERLAY_WIDTH;
-    const xywh = [x, y, w, SHAPE_OVERLAY_HEIGHT] as XYWH;
-    this.shape.xywh = xywh;
-    this.shape.draw(ctx, rc);
+    const { globalAlpha, x, y, shape } = this;
+    ctx.globalAlpha = globalAlpha;
+    shape.xywh = buildXYWHWith(shape.type, [x, y]);
+    shape.draw(ctx, rc);
   }
 }

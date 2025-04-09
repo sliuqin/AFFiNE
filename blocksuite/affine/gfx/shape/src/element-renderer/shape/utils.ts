@@ -9,11 +9,12 @@ import {
   wrapText,
   wrapTextDeltas,
 } from '@blocksuite/affine-gfx-text';
-import type {
-  LocalShapeElementModel,
-  ShapeElementModel,
-  TextAlign,
-  TextVerticalAlign,
+import {
+  type LocalShapeElementModel,
+  type ShapeElementModel,
+  ShapeType,
+  type TextAlign,
+  type TextVerticalAlign,
 } from '@blocksuite/affine-model';
 import { FeatureFlagService } from '@blocksuite/affine-shared/services';
 import type { Bound, SerializedXYWH } from '@blocksuite/global/gfx';
@@ -38,17 +39,21 @@ export function drawGeneralShape(
   const h = Math.max(shapeModel.h - sizeOffset, 0);
 
   switch (shapeModel.shapeType) {
-    case 'rect':
+    case ShapeType.Rect:
       drawRect(ctx, 0, 0, w, h, shapeModel.radius ?? 0);
       break;
-    case 'diamond':
+    case ShapeType.Diamond:
       drawDiamond(ctx, 0, 0, w, h);
       break;
-    case 'ellipse':
+    case ShapeType.Ellipse:
       drawEllipse(ctx, 0, 0, w, h);
       break;
-    case 'triangle':
+    case ShapeType.Triangle:
       drawTriangle(ctx, 0, 0, w, h);
+      break;
+    case ShapeType.Capsule:
+      drawCapsule(ctx, 0, 0, w, h);
+      break;
   }
 
   ctx.lineWidth = shapeModel.strokeWidth;
@@ -161,6 +166,30 @@ function drawTriangle(
   ctx.moveTo(width / 2, y);
   ctx.lineTo(width, height);
   ctx.lineTo(x, height);
+  ctx.closePath();
+}
+
+function drawCapsule(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number
+) {
+  const cx = w / 2;
+  const cy = h / 2;
+  const isHorizontal = w > h;
+  const r = isHorizontal ? cy : cx;
+  const startAngle = isHorizontal ? Math.PI / 2 : Math.PI;
+
+  ctx.translate(x, y);
+
+  ctx.beginPath();
+
+  // Two semicircles
+  ctx.arc(r, r, r, startAngle, startAngle + Math.PI);
+  ctx.arc(w - r, h - r, r, startAngle + Math.PI, startAngle + Math.PI * 2);
+
   ctx.closePath();
 }
 

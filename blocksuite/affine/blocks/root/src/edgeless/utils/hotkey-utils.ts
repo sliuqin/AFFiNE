@@ -7,6 +7,7 @@ const shapeMap: Record<ShapeToolOption['shapeName'], number> = {
   [ShapeType.Diamond]: 2,
   [ShapeType.Triangle]: 3,
   roundedRect: 4,
+  [ShapeType.Capsule]: 5,
 };
 const shapes = Object.keys(shapeMap) as ShapeToolOption['shapeName'][];
 

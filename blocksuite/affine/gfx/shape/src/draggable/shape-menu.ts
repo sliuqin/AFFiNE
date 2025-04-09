@@ -128,39 +128,38 @@ export class EdgelessShapeMenu extends SignalWatcher(
     return html`
       <edgeless-slide-menu>
         <div class="menu-content">
-          ${
-            // TODO(@fundon): add a flag
-            when(
-              false,
-              () => html`
-                <div class="shape-style-container">
-                  <edgeless-tool-icon-button
-                    .tooltip=${'General'}
-                    .active=${shapeStyle === ShapeStyle.General}
-                    .activeMode=${'background'}
-                    .iconSize=${'20px'}
-                    @click=${() => {
-                      this._setShapeStyle(ShapeStyle.General);
-                    }}
-                  >
-                    ${StyleGeneralIcon()}
-                  </edgeless-tool-icon-button>
-                  <edgeless-tool-icon-button
-                    .tooltip=${'Scribbled'}
-                    .active=${shapeStyle === ShapeStyle.Scribbled}
-                    .activeMode=${'background'}
-                    .iconSize=${'20px'}
-                    @click=${() => {
-                      this._setShapeStyle(ShapeStyle.Scribbled);
-                    }}
-                  >
-                    ${StyleScribbleIcon()}
-                  </edgeless-tool-icon-button>
-                </div>
-                <menu-divider .vertical=${true}></menu-divider>
-              `
-            )
-          }
+          ${when(
+            this.edgeless.std
+              .get(FeatureFlagService)
+              .getFlag('enable_edgeless_scribbled_style'),
+            () => html`
+              <div class="shape-style-container">
+                <edgeless-tool-icon-button
+                  .tooltip=${'General'}
+                  .active=${shapeStyle === ShapeStyle.General}
+                  .activeMode=${'background'}
+                  .iconSize=${'20px'}
+                  @click=${() => {
+                    this._setShapeStyle(ShapeStyle.General);
+                  }}
+                >
+                  ${StyleGeneralIcon()}
+                </edgeless-tool-icon-button>
+                <edgeless-tool-icon-button
+                  .tooltip=${'Scribbled'}
+                  .active=${shapeStyle === ShapeStyle.Scribbled}
+                  .activeMode=${'background'}
+                  .iconSize=${'20px'}
+                  @click=${() => {
+                    this._setShapeStyle(ShapeStyle.Scribbled);
+                  }}
+                >
+                  ${StyleScribbleIcon()}
+                </edgeless-tool-icon-button>
+              </div>
+              <menu-divider .vertical=${true}></menu-divider>
+            `
+          )}
           <div class="shape-type-container">
             ${ShapeComponentConfig.map(
               ({ name, generalIcon, scribbledIcon, tooltip }) => {

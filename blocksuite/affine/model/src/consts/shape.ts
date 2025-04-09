@@ -15,6 +15,7 @@ export enum ShapeType {
   Ellipse = 'ellipse',
   Rect = 'rect',
   Triangle = 'triangle',
+  Capsule = 'capsule',
 }
 
 export type ShapeName = ShapeType | 'roundedRect';

@@ -22,11 +22,12 @@ import type { IBound } from '@blocksuite/global/gfx';
 import { Bound } from '@blocksuite/global/gfx';
 import { deltaInsertsToChunks } from '@blocksuite/std/inline';
 
-import { diamond } from './diamond.js';
-import { ellipse } from './ellipse.js';
-import { rect } from './rect.js';
-import { triangle } from './triangle.js';
-import { type Colors, horizontalOffset, verticalOffset } from './utils.js';
+import { capsule } from './capsule';
+import { diamond } from './diamond';
+import { ellipse } from './ellipse';
+import { rect } from './rect';
+import { triangle } from './triangle';
+import { type Colors, horizontalOffset, verticalOffset } from './utils';
 
 const shapeRenderers: Record<
   ShapeType,
@@ -43,6 +44,7 @@ const shapeRenderers: Record<
   rect,
   triangle,
   ellipse,
+  capsule,
 };
 
 export const shape: ElementRenderer<ShapeElementModel> = (

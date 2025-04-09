@@ -160,7 +160,7 @@ export class AutoCompleteShapeOverlay extends Overlay {
     shapeStyle: ShapeStyle
   ) {
     super(gfx);
-    this._shape = ShapeFactory.createShape(xywh, type, options, shapeStyle);
+    this._shape = ShapeFactory.createShape(type, xywh, options, shapeStyle);
   }
 
   override render(ctx: CanvasRenderingContext2D, rc: RoughCanvas) {

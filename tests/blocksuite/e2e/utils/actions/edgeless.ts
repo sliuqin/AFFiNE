@@ -1,6 +1,10 @@
 import '../declare-test-window.js';
 
-import type { NoteBlockModel, NoteDisplayMode } from '@blocksuite/affine-model';
+import type {
+  NoteBlockModel,
+  NoteDisplayMode,
+  ShapeType,
+} from '@blocksuite/affine-model';
 import type { IPoint, IVec } from '@blocksuite/global/gfx';
 import { sleep } from '@blocksuite/global/utils';
 import type { Locator, Page } from '@playwright/test';
@@ -380,12 +384,7 @@ export async function setEdgelessTool(
     }
   }
 }
-export type ShapeName =
-  | 'rect'
-  | 'ellipse'
-  | 'diamond'
-  | 'triangle'
-  | 'roundedRect';
+export type ShapeName = `${ShapeType}` | 'roundedRect';
 
 export async function assertEdgelessShapeType(page: Page, type: ShapeName) {
   const curType = await page.evaluate(() => {

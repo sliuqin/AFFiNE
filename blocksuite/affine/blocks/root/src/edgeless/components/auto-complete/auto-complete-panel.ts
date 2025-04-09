@@ -38,6 +38,7 @@ import {
   FeatureFlagService,
   ThemeProvider,
 } from '@blocksuite/affine-shared/services';
+import { panelBaseStyle } from '@blocksuite/affine-shared/styles';
 import {
   captureEventTarget,
   matchModels,
@@ -87,19 +88,24 @@ import {
 
 export class EdgelessAutoCompletePanel extends WithDisposable(LitElement) {
   static override styles = css`
+    ${panelBaseStyle('.auto-complete-panel-container')}
     .auto-complete-panel-container {
       position: absolute;
-      display: flex;
-      width: 136px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 0;
-      gap: 8px;
-      border-radius: 8px;
-      background: var(--affine-background-overlay-panel-color);
-      box-shadow: var(--affine-shadow-2);
+      display: grid;
+      grid-gap: 8px;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto;
+      padding: 8px;
       z-index: 1;
+
+      edgeless-tool-icon-button {
+        &.footer {
+          grid-column-start: 1;
+          grid-column-end: 5;
+          display: flex;
+          justify-self: center;
+        }
+      }
     }
 
     .row-button {
@@ -605,6 +611,7 @@ export class EdgelessAutoCompletePanel extends WithDisposable(LitElement) {
 
     const shapeButtons = repeat(
       ShapeComponentConfig,
+      shape => shape.name,
       ({ name, generalIcon, scribbledIcon, tooltip }) => html`
         <edgeless-tool-icon-button
           .tooltip=${tooltip}
@@ -650,6 +657,7 @@ export class EdgelessAutoCompletePanel extends WithDisposable(LitElement) {
       </edgeless-tool-icon-button>
 
       <edgeless-tool-icon-button
+        class="footer"
         .iconContainerPadding=${0}
         .tooltip=${capitalizeFirstLetter(currentSourceType)}
         @pointerenter=${() => this._showOverlay(currentSourceType)}

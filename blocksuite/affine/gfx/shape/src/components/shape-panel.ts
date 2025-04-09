@@ -61,5 +61,5 @@ export class EdgelessShapePanel extends LitElement {
     | undefined = undefined;
 
   @property({ attribute: false })
-  accessor shapeStyle: ShapeStyle = ShapeStyle.Scribbled;
+  accessor shapeStyle: ShapeStyle = ShapeStyle.General;
 }

@@ -1,6 +1,6 @@
 import {
   Bound,
-  clamp,
+  getNearestPointFromEllipse,
   getPointsFromBoundWithRotation,
   type IBound,
   type IVec,
@@ -87,60 +87,13 @@ export const ellipse = {
     return points.some(point => bounds.containsPoint(point));
   },
 
-  // See links:
-  // * https://github.com/0xfaded/ellipse_demo/issues/1
-  // * https://blog.chatfield.io/simple-method-for-distance-to-ellipse/
-  // * https://gist.github.com/fundon/11331322d3ca223c42e216df48c339e1
-  // * https://github.com/excalidraw/excalidraw/blob/master/packages/utils/geometry/geometry.ts#L888 (MIT)
   getNearestPoint(point: IVec, { rotate, xywh }: ShapeElementModel) {
     const { center, w, h } = Bound.deserialize(xywh);
     const rad = toRadian(rotate);
     const a = w / 2;
     const b = h / 2;
 
-    // Use the center of the ellipse as the origin
-    const [rotatedPointX, rotatedPointY] = Vec.rot(
-      Vec.sub(point, center),
-      -rad
-    );
-
-    const px = Math.abs(rotatedPointX);
-    const py = Math.abs(rotatedPointY);
-
-    let tx = Math.SQRT1_2; // 0.707
-    let ty = Math.SQRT1_2; // 0.707
-    let i = 0;
-
-    for (; i < 3; i++) {
-      const x = a * tx;
-      const y = b * ty;
-
-      const ex = ((a * a - b * b) * tx ** 3) / a;
-      const ey = ((b * b - a * a) * ty ** 3) / b;
-
-      const rx = x - ex;
-      const ry = y - ey;
-
-      const qx = px - ex;
-      const qy = py - ey;
-
-      const r = Math.hypot(ry, rx);
-      const q = Math.hypot(qy, qx);
-
-      tx = clamp(((qx * r) / q + ex) / a, 0, 1);
-      ty = clamp(((qy * r) / q + ey) / b, 0, 1);
-      const t = Math.hypot(ty, tx);
-      tx /= t;
-      ty /= t;
-    }
-
-    return Vec.add(
-      Vec.rot(
-        [a * tx * Math.sign(rotatedPointX), b * ty * Math.sign(rotatedPointY)],
-        rad
-      ),
-      center
-    );
+    return getNearestPointFromEllipse(point, center, rad, a, b);
   },
 
   getLineIntersections(
@@ -182,7 +135,7 @@ export const ellipse = {
       center,
       rotate
     );
-    const rotatedPoint = points.pop() as IVec;
+    const rotatedPoint = points.pop()!;
     const len = points.length;
     let tangent: IVec = [0, 0.5];
     let i = 0;
