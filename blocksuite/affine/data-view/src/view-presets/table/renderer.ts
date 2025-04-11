@@ -2,10 +2,10 @@ import { createUniComponentFromWebComponent } from '../../core/utils/uni-compone
 import { createIcon } from '../../core/utils/uni-icon.js';
 import { tableViewModel } from './define.js';
 import { MobileDataViewTable } from './mobile/table-view.js';
-import { DataViewTable } from './pc/table-view.js';
+import { VirtualTable } from './pc/virtual/virtual-table.js';
 
 export const tableViewMeta = tableViewModel.createMeta({
-  view: createUniComponentFromWebComponent(DataViewTable),
+  view: createUniComponentFromWebComponent(VirtualTable),
   mobileView: createUniComponentFromWebComponent(MobileDataViewTable),
   icon: createIcon('DatabaseTableViewIcon'),
 });
