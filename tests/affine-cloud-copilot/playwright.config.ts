@@ -6,7 +6,7 @@ import type {
 
 const config: PlaywrightTestConfig = {
   testDir: './e2e',
-  fullyParallel: !process.env.CI,
+  fullyParallel: true,
   timeout: 120_000,
   outputDir: testResultDir,
   use: {
@@ -40,8 +40,6 @@ const config: PlaywrightTestConfig = {
       port: 3010,
       timeout: 120 * 1000,
       reuseExistingServer: !process.env.CI,
-      stdout: 'pipe',
-      stderr: 'pipe',
       env: {
         DATABASE_URL:
           process.env.DATABASE_URL ??
