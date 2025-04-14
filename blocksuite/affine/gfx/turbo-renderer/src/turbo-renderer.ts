@@ -83,6 +83,10 @@ export class ViewportTurboRendererExtension extends GfxExtension {
   private viewportElement: GfxViewportElement | null = null;
   private readonly refresh$ = new Subject<void>();
 
+  public get currentState(): RenderingState {
+    return this.state$.value;
+  }
+
   constructor(gfx: GfxController) {
     super(gfx);
 
