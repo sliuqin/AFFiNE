@@ -1,5 +1,5 @@
 /**
- * Plese refer to integration-test/README.md for commands to run tests.
+ * Please refer to integration-test/README.md for commands to run tests.
  */
 import { ParagraphLayoutHandlerExtension } from '@blocksuite/affine/blocks/paragraph';
 import {
