@@ -4,6 +4,7 @@ import { effect, signal } from '@preact/signals-core';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { property } from 'lit/decorators.js';
 import { ref } from 'lit/directives/ref.js';
+import { styleMap } from 'lit/directives/style-map.js';
 import { html } from 'lit/static-html.js';
 
 import { renderUniLit } from '../../../../core/index.js';
@@ -53,28 +54,34 @@ export class VirtualCell extends SignalWatcher(
         const div = this.ref$.value;
         if (div) {
           const resizeObserver = new ResizeObserver(() => {
-            this.gridCell.updateHeight(div.clientHeight);
+            if (div.isConnected) {
+              requestAnimationFrame(() => {
+                this.gridCell.updateHeight(div.clientHeight);
+              });
+            }
           });
           resizeObserver.observe(div);
           return () => {
             resizeObserver.disconnect();
           };
         }
+        return;
       })
     );
   }
   override render() {
-    if (!this.gridCell.isVisible$.value) {
-      return null;
-    }
     const cell = this.column.cellGet(this.rowId);
     const view = this.column.renderer$.value?.view;
     if (!view) {
       return html`<div class="${styles.cellContent}">No renderer</div>`;
     }
 
+    const style = styleMap({
+      width: `${this.gridCell.width$.value}px`,
+    });
+
     return html`
-      <div ${ref(this.ref$)} class="${styles.cell}">
+      <div ${ref(this.ref$)} class="${styles.cell}" style="${style}">
         ${renderUniLit(view, {
           cell,
           isEditing$: signal(false),

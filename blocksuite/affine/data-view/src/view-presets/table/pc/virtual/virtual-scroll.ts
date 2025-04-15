@@ -9,6 +9,7 @@ import {
 export abstract class VirtualScroll {
   protected readonly disposables: (() => void)[] = [];
   readonly container: VirtualScrollContainer;
+
   constructor(containerOptions: VirtualScrollOptions) {
     this.container = new VirtualScrollContainer(containerOptions);
   }
@@ -18,28 +19,36 @@ export abstract class VirtualScroll {
     this.disposables.forEach(disposable => disposable());
   }
 }
+
 export class GridCell {
-  initHeight$ = signal(false);
-  element: HTMLElement;
-  realHeight$ = signal(0);
-  height$ = computed(
-    () => this.grid.fixedRowHeight$.value ?? this.realHeight$.value
+  readonly element: HTMLElement;
+  private readonly realHeight$ = signal<number>();
+  readonly contentHeight$ = computed(() => {
+    return this.realHeight$.value;
+  });
+  readonly height$ = computed(
+    () => this.grid.fixedRowHeight$.value ?? this.contentHeight$.value
   );
-  width$ = computed(
+  readonly width$ = computed(
     () => this.row.grid.columns$.value[this.columnIndex]?.width ?? 0
   );
-  left$ = computed(
+  readonly left$ = computed(
     () => this.row.grid.columnLeft$.value[this.columnIndex] ?? 0
   );
-  top$ = computed(() => this.row.top$.value);
-  right$ = computed(() => this.left$.value + this.width$.value);
-  bottom$ = computed(() => this.top$.value + this.height$.value);
+  readonly top$ = computed(() => this.row.top$.value);
+  readonly right$ = computed(() => this.left$.value + this.width$.value);
+  readonly bottom$ = computed(
+    () => this.top$.value + (this.height$.value ?? 0)
+  );
+
   get rowIndex() {
     return this.row.rowIndex;
   }
+
   get grid() {
     return this.row.grid;
   }
+
   constructor(
     readonly row: GridRow,
     readonly columnIndex: number,
@@ -49,12 +58,6 @@ export class GridCell {
   }
 
   isVisible$ = computed(() => {
-    if (!this.initHeight$.value) {
-      return true;
-    }
-    if (this.height$.value === 0) {
-      return false;
-    }
     const offsetLeft = this.left$.value;
     const offsetTop = this.top$.value;
     const offsetRight = this.right$.value;
@@ -67,54 +70,67 @@ export class GridCell {
     return xInView && yInView;
   });
 
-  updateHeight(height: number = this.element.clientHeight) {
-    if (this.isVisible$.value && height !== 0) {
-      this.realHeight$.value = height;
+  checkRender() {
+    const isVisible = this.isVisible$.value;
+    if (isVisible) {
+      if (!this.element.isConnected) {
+        this.grid.container.addElement(this.element);
+      }
+    } else {
+      if (this.element.isConnected) {
+        this.grid.container.removeElement(this.element);
+      }
     }
+    return isVisible;
   }
 
-  render() {
-    if (!this.initHeight$.value) {
-      this.grid.container.addElement(this.element);
-      requestAnimationFrame(() => {
-        this.initHeight$.value = true;
-      });
-    }
+  updateHeight(height: number = this.element.clientHeight) {
+    this.realHeight$.value = height;
   }
+
+  // render() {
+  //     if (this.renderStatus$.value === 'noInit') {
+  //         this.renderStatus$.value = 'rendering';
+  //         this.grid.container.addElement(this.element);
+  //         requestAnimationFrame(() => {
+  //             this.renderStatus$.value = 'done';
+  //         });
+  //     }
+  // }
 }
+
 export class GridRow {
   protected readonly disposables: (() => void)[] = [];
   cells: GridCell[];
+
   get grid() {
     return this.group.grid;
   }
-  height$ = computed(
-    () =>
-      this.grid.fixedRowHeight$.value ??
-      Math.max(...this.cells.map(cell => cell.height$.value))
-  );
+
+  top$ = computed(() => {
+    return this.group.rowTops$.value[this.rowIndex]?.value ?? 0;
+  });
+
+  height$ = computed(() => {
+    const fixedRowHeight = this.grid.fixedRowHeight$.value;
+    if (fixedRowHeight != null) {
+      return fixedRowHeight;
+    }
+    const cells = this.cells
+      .map(cell => cell.height$.value)
+      .filter(v => v != null);
+    if (cells.length > 0) {
+      return Math.max(...cells);
+    }
+    return 32;
+  });
 
   constructor(
     readonly group: GridGroup,
-    readonly top$: Signal<number>,
     readonly rowIndex: number,
     cells: Array<(cell: GridCell) => HTMLElement>
   ) {
     this.cells = cells.map((cell, index) => new GridCell(this, index, cell));
-    this.listenStyleChange();
-  }
-
-  listenStyleChange() {
-    this.disposables.push(
-      effect(() => {
-        this.updateHeights();
-      })
-    );
-  }
-  render() {
-    for (const cell of this.cells) {
-      cell.render();
-    }
   }
 
   updateHeights() {
@@ -122,15 +138,28 @@ export class GridRow {
       cell.updateHeight();
     }
   }
+
+  checkRender() {
+    let preVisible = false;
+    for (const cell of this.cells) {
+      const isVisible = cell.checkRender();
+      if (preVisible && !isVisible) {
+        return true;
+      }
+      preVisible = isVisible;
+    }
+    return preVisible;
+  }
+
   dispose() {
     this.disposables.forEach(disposable => disposable());
   }
 }
+
 export class GridGroup {
   rows$ = computed(() =>
     this.rowElements$.value.map((row, index) => {
-      const top$ = computed(() => this.rowTops$.value[index] ?? 0);
-      return new GridRow(this, top$, index, row);
+      return new GridRow(this, index, row);
     })
   );
   topNode: {
@@ -141,24 +170,24 @@ export class GridGroup {
     element: HTMLElement;
     height$: Signal<number>;
   };
+
   rowTops$ = computed(() => {
-    const tops: number[] = [];
-    let top = 0;
-    for (const row of this.rows$.value) {
+    const tops: ReadonlySignal<number>[] = [];
+    const length = this.rows$.value.length;
+    for (let i = 0; i < length; i++) {
+      const top = computed(() => {
+        const prevTop = tops[i - 1]?.value ?? 0;
+        const prevHeight = this.rows$.value[i - 1]?.height$.value ?? 0;
+        return prevTop + prevHeight;
+      });
       tops.push(top);
-      top += row.height$.value;
     }
     return tops;
   });
-  render() {
-    this.grid.container.addElement(this.topNode.element);
-    this.grid.container.addElement(this.bottomNode.element);
-    for (const row of this.rows$.value) {
-      row.render();
-    }
-  }
+
   rowsHeight$ = computed(() => {
-    const lastTop = this.rowTops$.value[this.rowTops$.value.length - 1] ?? 0;
+    const lastTop =
+      this.rowTops$.value[this.rowTops$.value.length - 1]?.value ?? 0;
     const lastHeight =
       this.rows$.value[this.rows$.value.length - 1]?.height$.value ?? 0;
     return lastTop + lastHeight;
@@ -195,10 +224,27 @@ export class GridGroup {
     this.topNode.height$.value = this.topNode.element.clientHeight;
     this.bottomNode.height$.value = this.bottomNode.element.clientHeight;
   }
+
+  checkRender() {
+    const rows = this.rows$.value;
+    let preVisible = false;
+    for (const row of rows) {
+      const isVisible = row.checkRender();
+      if (preVisible && !isVisible) {
+        return true;
+      }
+      preVisible = isVisible;
+    }
+    return preVisible;
+  }
 }
 
 export interface GridVirtualScrollOptions extends VirtualScrollOptions {
-  columns$: ReadonlySignal<{ width: number }[]>;
+  columns$: ReadonlySignal<
+    {
+      width: number;
+    }[]
+  >;
   rowHeight$: ReadonlySignal<number | undefined>;
   groups$: ReadonlySignal<
     {
@@ -210,15 +256,21 @@ export interface GridVirtualScrollOptions extends VirtualScrollOptions {
 }
 
 export class GridVirtualScroll extends VirtualScroll {
+  init() {
+    this.container.init();
+    this.listenScroll();
+    this.listenSizeChange();
+  }
+
   groups$ = computed(() => {
     return this.options.groups$.value.map(
       group => new GridGroup(this, group.rows, group.top, group.bottom)
     );
   });
+
   get columns$() {
     return this.options.columns$;
   }
-  cellHeightCache = new WeakMap<HTMLElement, number>();
 
   get fixedRowHeight$() {
     return this.options.rowHeight$;
@@ -234,13 +286,18 @@ export class GridVirtualScroll extends VirtualScroll {
     }
     return lefts;
   });
+  lastLeft$ = computed(() => {
+    return this.columnLeft$.value[this.columnLeft$.value.length - 1];
+  });
+
+  lastWidth$ = computed(() => {
+    return this.options.columns$.value[this.options.columns$.value.length - 1]
+      ?.width;
+  });
 
   totalWidth$ = computed(() => {
-    const lastLeft =
-      this.columnLeft$.value[this.columnLeft$.value.length - 1] ?? 0;
-    const lastWidth =
-      this.options.columns$.value[this.options.columns$.value.length - 1]
-        ?.width ?? 0;
+    const lastLeft = this.lastLeft$.value ?? 0;
+    const lastWidth = this.lastWidth$.value ?? 0;
     return lastLeft + lastWidth;
   });
 
@@ -251,20 +308,25 @@ export class GridVirtualScroll extends VirtualScroll {
     }, 0);
   });
 
-  render() {
-    for (const group of this.groups$.value) {
-      group.render();
-    }
-  }
-
   get content() {
     return this.container.content;
   }
 
   constructor(private readonly options: GridVirtualScrollOptions) {
     super(options);
-    this.render();
-    this.listenSizeChange();
+  }
+
+  checkRender() {
+    const groups = this.groups$.value;
+    let preVisible = false;
+    for (const group of groups) {
+      const isVisible = group.checkRender();
+      if (preVisible && !isVisible) {
+        return true;
+      }
+      preVisible = isVisible;
+    }
+    return preVisible;
   }
 
   private listenSizeChange() {
@@ -274,6 +336,14 @@ export class GridVirtualScroll extends VirtualScroll {
           this.totalWidth$.value,
           this.totalHeight$.value
         );
+      })
+    );
+  }
+
+  private listenScroll() {
+    this.disposables.push(
+      effect(() => {
+        this.checkRender();
       })
     );
   }
@@ -385,6 +455,7 @@ export class VirtualScrollContainer {
   }
 
   addElement(element: HTMLElement) {
+    console.log('addElement');
     this.content.append(element);
   }
 
@@ -433,18 +504,5 @@ export class ListVirtualScroll extends VirtualScroll {
     this.updateTotalSize();
   }
 
-  private updateTotalSize() {
-    let totalHeight = 0;
-    if (typeof this.itemHeight === 'number') {
-      totalHeight = this.itemHeight * this.itemCount;
-    } else {
-      for (let i = 0; i < this.itemCount; i++) {
-        totalHeight += this.itemHeight(i);
-      }
-    }
-    this.container.updateContentSize(
-      this.container.xScrollContainerWidth$.value,
-      totalHeight
-    );
-  }
+  private updateTotalSize() {}
 }

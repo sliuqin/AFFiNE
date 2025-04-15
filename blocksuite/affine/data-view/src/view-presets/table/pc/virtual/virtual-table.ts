@@ -80,13 +80,8 @@ export class VirtualTable extends DataViewBase<
       rowHeight$: signal(undefined),
       yScrollContainer: this.yScrollContainer,
     });
-    this.virtualScroll.render();
+    this.virtualScroll?.init();
     this.requestUpdate();
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        this.virtualScroll?.container.init();
-      });
-    });
   }
 
   override render() {
