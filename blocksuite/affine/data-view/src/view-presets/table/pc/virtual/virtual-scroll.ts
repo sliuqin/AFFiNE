@@ -37,9 +37,17 @@ export class GridCell {
   );
   readonly top$ = computed(() => this.row.top$.value);
   readonly right$ = computed(() => this.left$.value + this.width$.value);
-  readonly bottom$ = computed(
-    () => this.top$.value + (this.height$.value ?? 0)
-  );
+  readonly bottom$ = computed(() => {
+    const top = this.top$.value;
+    if (top == null) {
+      return;
+    }
+    const height = this.height$.value;
+    if (height == null) {
+      return;
+    }
+    return top + height;
+  });
 
   get rowIndex() {
     return this.row.rowIndex;
@@ -58,16 +66,39 @@ export class GridCell {
   }
 
   isVisible$ = computed(() => {
-    const offsetLeft = this.left$.value;
     const offsetTop = this.top$.value;
-    const offsetRight = this.right$.value;
+    if (offsetTop == null) {
+      return false;
+    }
     const offsetBottom = this.bottom$.value;
+    if (offsetBottom == null) {
+      return true;
+    }
+    const offsetLeft = this.left$.value;
+    const offsetRight = this.right$.value;
     const viewport = this.grid.container.viewport$.value;
     const xInView =
       offsetRight >= viewport.left && offsetLeft <= viewport.right;
     const yInView =
       offsetBottom >= viewport.top && offsetTop <= viewport.bottom;
-    return xInView && yInView;
+    const isVisible = xInView && yInView;
+    // console.log('isVisible',
+    //   isVisible,
+    //   this.rowIndex,
+    //   this.columnIndex,
+    //   xInView,
+    //   yInView,
+    //   {
+    //     viewportLeft: viewport.left,
+    //     viewportRight: viewport.right,
+    //     viewportTop: viewport.top,
+    //     viewportBottom: viewport.bottom,
+    //     top: offsetTop,
+    //     bottom: offsetBottom,
+    //     left: offsetLeft,
+    //     right: offsetRight
+    //   });
+    return isVisible;
   });
 
   checkRender() {
@@ -85,6 +116,9 @@ export class GridCell {
   }
 
   updateHeight(height: number = this.element.clientHeight) {
+    if (this.realHeight$.value == null) {
+      // console.log('first render', height)
+    }
     this.realHeight$.value = height;
   }
 
@@ -108,7 +142,7 @@ export class GridRow {
   }
 
   top$ = computed(() => {
-    return this.group.rowTops$.value[this.rowIndex]?.value ?? 0;
+    return this.group.rowTops$.value[this.rowIndex]?.value;
   });
 
   height$ = computed(() => {
@@ -122,7 +156,7 @@ export class GridRow {
     if (cells.length > 0) {
       return Math.max(...cells);
     }
-    return 32;
+    return;
   });
 
   constructor(
@@ -143,9 +177,9 @@ export class GridRow {
     let preVisible = false;
     for (const cell of this.cells) {
       const isVisible = cell.checkRender();
-      if (preVisible && !isVisible) {
-        return true;
-      }
+      // if (preVisible && !isVisible) {
+      //   return true;
+      // }
       preVisible = isVisible;
     }
     return preVisible;
@@ -172,12 +206,22 @@ export class GridGroup {
   };
 
   rowTops$ = computed(() => {
-    const tops: ReadonlySignal<number>[] = [];
+    const tops: ReadonlySignal<number | undefined>[] = [];
     const length = this.rows$.value.length;
     for (let i = 0; i < length; i++) {
       const top = computed(() => {
-        const prevTop = tops[i - 1]?.value ?? 0;
-        const prevHeight = this.rows$.value[i - 1]?.height$.value ?? 0;
+        const isFirst = i === 0;
+        if (isFirst) {
+          return 0;
+        }
+        const prevTop = tops[i - 1]?.value;
+        if (prevTop == null) {
+          return;
+        }
+        const prevHeight = this.rows$.value[i - 1]?.height$.value;
+        if (prevHeight == null) {
+          return;
+        }
         return prevTop + prevHeight;
       });
       tops.push(top);
@@ -186,10 +230,10 @@ export class GridGroup {
   });
 
   rowsHeight$ = computed(() => {
-    const lastTop =
-      this.rowTops$.value[this.rowTops$.value.length - 1]?.value ?? 0;
-    const lastHeight =
-      this.rows$.value[this.rows$.value.length - 1]?.height$.value ?? 0;
+    const lastIndex = this.rowTops$.value.findLastIndex(v => v.value != null);
+    console.log('lastIndex', lastIndex);
+    const lastTop = this.rowTops$.value[lastIndex]?.value ?? 0;
+    const lastHeight = this.rows$.value[lastIndex]?.height$.value ?? 0;
     return lastTop + lastHeight;
   });
   height$ = computed(
@@ -230,9 +274,9 @@ export class GridGroup {
     let preVisible = false;
     for (const row of rows) {
       const isVisible = row.checkRender();
-      if (preVisible && !isVisible) {
-        return true;
-      }
+      // if (preVisible && !isVisible) {
+      //   return true;
+      // }
       preVisible = isVisible;
     }
     return preVisible;
@@ -321,9 +365,9 @@ export class GridVirtualScroll extends VirtualScroll {
     let preVisible = false;
     for (const group of groups) {
       const isVisible = group.checkRender();
-      if (preVisible && !isVisible) {
-        return true;
-      }
+      // if (preVisible && !isVisible) {
+      //   return true;
+      // }
       preVisible = isVisible;
     }
     return preVisible;
@@ -455,8 +499,8 @@ export class VirtualScrollContainer {
   }
 
   addElement(element: HTMLElement) {
-    console.log('addElement');
     this.content.append(element);
+    // console.log(this.content.children.length)
   }
 
   removeElement(element: HTMLElement) {

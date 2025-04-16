@@ -4,9 +4,9 @@ import {
   popupTargetFromElement,
 } from '@blocksuite/affine-components/context-menu';
 import { AddCursorIcon } from '@blocksuite/icons/lit';
+import { computed, signal } from '@preact/signals-core';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { css, unsafeCSS } from 'lit';
-import { repeat } from 'lit/directives/repeat.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { html } from 'lit/static-html.js';
 
@@ -21,6 +21,12 @@ import { TableClipboardController } from './controller/clipboard.js';
 import { TableDragController } from './controller/drag.js';
 import { TableHotkeysController } from './controller/hotkeys.js';
 import { TableSelectionController } from './controller/selection.js';
+import { VirtualCell } from './virtual/virtual-cell.js';
+import {
+  getScrollContainer,
+  type GridCell,
+  GridVirtualScroll,
+} from './virtual/virtual-scroll.js';
 
 const styles = css`
   affine-database-table {
@@ -208,6 +214,7 @@ export class DataViewTable extends DataViewBase<
   };
 
   selectionController = new TableSelectionController(this);
+  yScrollContainer: HTMLElement | undefined;
 
   get expose(): DataViewInstance {
     return {
@@ -257,33 +264,58 @@ export class DataViewTable extends DataViewBase<
     return this.props.view.readonly$.value;
   }
 
+  columns$ = computed(() => {
+    return this.props.view.properties$.value.map(property => ({
+      width: property.width$.value,
+    }));
+  });
+
+  groups$ = computed(() => {
+    const columns = this.props.view.properties$.value;
+    return [
+      {
+        rows: computed(() =>
+          this.props.view.rows$.value.map(row => {
+            return columns.map(column => {
+              return (cell: GridCell) => {
+                const vCell = new VirtualCell();
+                vCell.gridCell = cell;
+                vCell.view = this.props.view;
+                vCell.column = column;
+                vCell.rowId = row;
+                return vCell;
+              };
+            });
+          })
+        ),
+        top: () => document.createElement('div'),
+        bottom: () => document.createElement('div'),
+      },
+    ];
+  });
+  private virtualScroll?: GridVirtualScroll;
+  private initVirtualScroll(yScrollContainer: HTMLElement) {
+    console.log('initVirtualScroll');
+    this.virtualScroll = new GridVirtualScroll({
+      columns$: this.columns$,
+      groups$: this.groups$,
+      rowHeight$: signal(undefined),
+      yScrollContainer,
+    });
+    this.requestUpdate();
+    requestAnimationFrame(() => {
+      this.virtualScroll?.init();
+      this.disposables.add(() => this.virtualScroll?.dispose());
+    });
+  }
   private renderTable() {
-    const groups = this.props.view.groupTrait.groupsDataList$.value;
-    if (groups) {
-      return html`
-        <div style="display:flex;flex-direction: column;gap: 16px;">
-          ${repeat(
-            groups,
-            v => v.key,
-            group => {
-              return html` <affine-data-view-table-group
-                data-group-key="${group.key}"
-                .dataViewEle="${this.props.dataViewEle}"
-                .view="${this.props.view}"
-                .viewEle="${this}"
-                .group="${group}"
-              ></affine-data-view-table-group>`;
-            }
-          )}
-          ${this.renderAddGroup(this.props.view.groupTrait)}
-        </div>
-      `;
-    }
-    return html` <affine-data-view-table-group
-      .dataViewEle="${this.props.dataViewEle}"
-      .view="${this.props.view}"
-      .viewEle="${this}"
-    ></affine-data-view-table-group>`;
+    return this.virtualScroll?.content;
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    console.log('connectedCallback');
+    this.initVirtualScroll(getScrollContainer(this, 'y') ?? document.body);
   }
 
   override render() {
