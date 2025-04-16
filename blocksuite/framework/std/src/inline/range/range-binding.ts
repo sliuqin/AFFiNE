@@ -1,3 +1,4 @@
+import { nextTick } from '@blocksuite/global/utils';
 import type { BaseSelection, BlockModel } from '@blocksuite/store';
 import throttle from 'lodash-es/throttle';
 
@@ -173,6 +174,8 @@ export class RangeBinding {
       return;
     }
 
+    await nextTick();
+
     const selection = document.getSelection();
     if (!selection) {
       this.selectionManager.clear(['text']);
@@ -265,7 +268,9 @@ export class RangeBinding {
     this.rangeManager?.syncRangeToTextSelection(range, isRangeReversed);
   };
 
-  private readonly _onStdSelectionChanged = (selections: BaseSelection[]) => {
+  private readonly _onStdSelectionChanged = async (
+    selections: BaseSelection[]
+  ) => {
     // TODO(@mirone): this is a trade-off, we need to use separate awareness store for every store to make sure the selection is isolated.
     const closestHost = document.activeElement?.closest('editor-host');
     if (closestHost && closestHost !== this.host) return;
@@ -276,6 +281,8 @@ export class RangeBinding {
       selections.find((selection): selection is TextSelection =>
         selection.is(TextSelection)
       ) ?? null;
+
+    await nextTick();
 
     const id = text?.blockId;
     const path = id && this._computePath(id);
@@ -325,7 +332,9 @@ export class RangeBinding {
 
   constructor(public manager: RangeManager) {
     this.host.disposables.add(
-      this.selectionManager.slots.changed.subscribe(this._onStdSelectionChanged)
+      this.selectionManager.slots.changed.subscribe(selections => {
+        this._onStdSelectionChanged(selections).catch(console.error);
+      })
     );
 
     this.host.disposables.addFromEvent(
