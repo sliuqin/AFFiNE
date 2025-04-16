@@ -7,6 +7,38 @@ use crate::{error::CoreAudioError, utils::process_audio_frame};
 
 pub const AUDIO_MIX_OUTPUT_WEIGHT: f32 = 0.75;
 
+// Apply a simple automatic gain control to audio samples
+//
+// Parameters:
+// - samples: Audio samples to process
+// - target_rms: Target RMS power level (0.0 to 1.0)
+// - min_gain: Minimum gain to apply
+// - max_gain: Maximum gain to apply
+fn apply_agc(samples: &[f32], target_rms: f32, min_gain: f32, max_gain: f32) -> Vec<f32> {
+  if samples.is_empty() {
+    return Vec::new();
+  }
+
+  // Calculate RMS (root mean square) of the audio signal
+  let sum_squared: f32 = samples.iter().map(|&s| s * s).sum();
+  let rms = (sum_squared / samples.len() as f32).sqrt();
+
+  // If signal is too quiet, apply gain
+  if rms < 1e-6 {
+    // Avoid division by very small numbers
+    return samples.iter().map(|&s| s * min_gain).collect();
+  }
+
+  // Calculate gain needed to reach target RMS
+  let mut gain = target_rms / rms;
+
+  // Clamp gain to min/max range
+  gain = gain.max(min_gain).min(max_gain);
+
+  // Apply gain to all samples
+  samples.iter().map(|&s| s * gain).collect()
+}
+
 /// Mix audio samples using scalar operations (no SIMD)
 ///
 /// # Arguments
@@ -220,6 +252,11 @@ impl InputAndOutputAudioBufferList {
     ) else {
       return Err(CoreAudioError::ProcessAudioFrameFailed("input"));
     };
+
+    // Apply AGC to input samples with reasonable default values
+    // Target RMS of 0.2 (moderate level), min gain of 1.0 (no reduction), max gain
+    // of 10.0
+    let processed_samples_input = apply_agc(&processed_samples_input, 0.2, 1.0, 10.0);
 
     let Some(processed_samples_output) = process_audio_frame(
       m_data_output,
