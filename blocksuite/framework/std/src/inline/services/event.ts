@@ -13,11 +13,16 @@ import type { BeforeinputHookCtx, CompositionEndHookCtx } from './hook.js';
 
 export class EventService<TextAttributes extends BaseTextAttributes> {
   private _compositionInlineRange: InlineRange | null = null;
+  private _rangeCheckCache = new WeakMap<Range, boolean>();
 
   private _isComposing = false;
 
   private readonly _isRangeCompletelyInRoot = (range: Range) => {
     if (range.commonAncestorContainer.ownerDocument !== document) return false;
+
+    if (this._rangeCheckCache.has(range)) {
+      return this._rangeCheckCache.get(range) as boolean;
+    }
 
     const rootElement = this.editor.rootElement;
     if (!rootElement) return false;
@@ -25,23 +30,26 @@ export class EventService<TextAttributes extends BaseTextAttributes> {
     const rootRange = document.createRange();
     rootRange.selectNode(rootElement);
 
+    let result = false;
     if (
       range.startContainer.compareDocumentPosition(range.endContainer) &
       Node.DOCUMENT_POSITION_FOLLOWING
     ) {
-      return (
+      result =
         rootRange.comparePoint(range.startContainer, range.startOffset) >= 0 &&
-        rootRange.comparePoint(range.endContainer, range.endOffset) <= 0
-      );
+        rootRange.comparePoint(range.endContainer, range.endOffset) <= 0;
     } else {
-      return (
+      result =
         rootRange.comparePoint(range.endContainer, range.startOffset) >= 0 &&
-        rootRange.comparePoint(range.startContainer, range.endOffset) <= 0
-      );
+        rootRange.comparePoint(range.startContainer, range.endOffset) <= 0;
     }
+    this._rangeCheckCache.set(range, result);
+    return result;
   };
 
   private readonly _onBeforeInput = (event: InputEvent) => {
+    this._rangeCheckCache = new WeakMap();
+
     const range = this.editor.rangeService.getNativeRange();
     if (
       this.editor.isReadonly ||
@@ -142,6 +150,8 @@ export class EventService<TextAttributes extends BaseTextAttributes> {
   };
 
   private readonly _onCompositionEnd = async (event: CompositionEvent) => {
+    this._rangeCheckCache = new WeakMap();
+
     this._isComposing = false;
     if (!this.editor.rootElement || !this.editor.rootElement.isConnected) {
       return;
@@ -204,6 +214,8 @@ export class EventService<TextAttributes extends BaseTextAttributes> {
   };
 
   private readonly _onCompositionUpdate = () => {
+    this._rangeCheckCache = new WeakMap();
+
     if (!this.editor.rootElement || !this.editor.rootElement.isConnected) {
       return;
     }
