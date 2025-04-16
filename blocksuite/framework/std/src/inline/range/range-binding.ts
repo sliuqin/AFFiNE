@@ -173,8 +173,6 @@ export class RangeBinding {
       return;
     }
 
-    await this.host.updateComplete;
-
     const selection = document.getSelection();
     if (!selection) {
       this.selectionManager.clear(['text']);
@@ -279,39 +277,31 @@ export class RangeBinding {
         selection.is(TextSelection)
       ) ?? null;
 
-    if (text === this._prevTextSelection) {
-      return;
+    const id = text?.blockId;
+    const path = id && this._computePath(id);
+
+    if (active) {
+      const eq =
+        text && this._prevTextSelection && path
+          ? text.equals(this._prevTextSelection.selection) &&
+            path.join('') === this._prevTextSelection.path.join('')
+          : false;
+
+      if (eq) return;
     }
-    // wait for lit updated
-    this.host.updateComplete
-      .then(() => {
-        const id = text?.blockId;
-        const path = id && this._computePath(id);
 
-        if (active) {
-          const eq =
-            text && this._prevTextSelection && path
-              ? text.equals(this._prevTextSelection.selection) &&
-                path.join('') === this._prevTextSelection.path.join('')
-              : false;
-
-          if (eq) return;
-        }
-
-        this._prevTextSelection =
-          text && path
-            ? {
-                selection: text,
-                path,
-              }
-            : null;
-        if (text) {
-          this.rangeManager?.syncTextSelectionToRange(text);
-        } else {
-          this.rangeManager?.clear();
-        }
-      })
-      .catch(console.error);
+    this._prevTextSelection =
+      text && path
+        ? {
+            selection: text,
+            path,
+          }
+        : null;
+    if (text) {
+      this.rangeManager?.syncTextSelectionToRange(text);
+    } else {
+      this.rangeManager?.clear();
+    }
   };
 
   private _prevTextSelection: {
