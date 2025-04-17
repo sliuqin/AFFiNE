@@ -5,6 +5,7 @@ import {
   defineBlockSchema,
 } from '@blocksuite/store';
 
+import type { TextAlign } from '../../consts';
 import type { BlockMeta } from '../../utils/types';
 
 export type TableCell = {
@@ -29,6 +30,7 @@ export interface TableBlockProps extends BlockMeta {
   columns: Record<string, TableColumn>;
   // key = `${rowId}:${columnId}`
   cells: Record<string, TableCell>;
+  textAlign?: TextAlign;
 }
 
 export interface TableCellSerialized {
@@ -51,6 +53,7 @@ export const TableBlockSchema = defineBlockSchema({
     rows: {},
     columns: {},
     cells: {},
+    textAlign: undefined,
     'meta:createdAt': undefined,
     'meta:createdBy': undefined,
     'meta:updatedAt': undefined,

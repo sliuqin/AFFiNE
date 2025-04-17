@@ -235,6 +235,10 @@ export class ParagraphBlockComponent extends CaptionedBlockComponent<ParagraphBl
       `;
     }
 
+    const textAlignStyle = styleMap({
+      textAlign: this.model.props.textAlign$?.value,
+    });
+
     const children = html`<div
       class="affine-block-children-container"
       style=${styleMap({
@@ -256,6 +260,7 @@ export class ParagraphBlockComponent extends CaptionedBlockComponent<ParagraphBl
       </style>
       <div
         class="affine-paragraph-block-container"
+        style="${textAlignStyle}"
         data-has-collapsed-siblings="${collapsedSiblings.length > 0}"
       >
         <div

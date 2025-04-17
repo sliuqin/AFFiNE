@@ -112,6 +112,15 @@ export class ImageBlockComponent extends CaptionedBlockComponent<ImageBlockModel
       width: '100%',
     });
 
+    const alignItemsStyleMap = styleMap({
+      alignItems:
+        this.model.props.textAlign$.value === 'left'
+          ? 'flex-start'
+          : this.model.props.textAlign$.value === 'right'
+            ? 'flex-end'
+            : undefined,
+    });
+
     return html`
       <div class="affine-image-container" style=${containerStyleMap}>
         ${when(
@@ -122,7 +131,11 @@ export class ImageBlockComponent extends CaptionedBlockComponent<ImageBlockModel
               .loading=${this.loading}
               .mode=${'page'}
             ></affine-image-fallback-card>`,
-          () => html`<affine-page-image .block=${this}></affine-page-image>`
+          () =>
+            html`<affine-page-image
+              .block=${this}
+              style="${alignItemsStyleMap}"
+            ></affine-page-image>`
         )}
       </div>
 

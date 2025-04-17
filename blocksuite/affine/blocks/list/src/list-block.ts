@@ -144,6 +144,10 @@ export class ListBlockComponent extends CaptionedBlockComponent<ListBlockModel> 
 
     const listIcon = getListIcon(model, !collapsed, _onClickIcon);
 
+    const textAlignStyle = styleMap({
+      textAlign: this.model.props.textAlign$?.value,
+    });
+
     const children = html`<div
       class="affine-block-children-container"
       style=${styleMap({
@@ -155,7 +159,7 @@ export class ListBlockComponent extends CaptionedBlockComponent<ListBlockModel> 
     </div>`;
 
     return html`
-      <div class=${'affine-list-block-container'}>
+      <div class=${'affine-list-block-container'} style="${textAlignStyle}">
         <div
           class=${classMap({
             'affine-list-rich-text-wrapper': true,

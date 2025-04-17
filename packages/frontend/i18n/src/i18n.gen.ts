@@ -2402,6 +2402,18 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.just-now"](): string;
     /**
+      * `Align center`
+      */
+    ["com.affine.keyboardShortcuts.alignCenter"](): string;
+    /**
+      * `Align left`
+      */
+    ["com.affine.keyboardShortcuts.alignLeft"](): string;
+    /**
+      * `Align right`
+      */
+    ["com.affine.keyboardShortcuts.alignRight"](): string;
+    /**
       * `Append to daily note`
       */
     ["com.affine.keyboardShortcuts.appendDailyNote"](): string;
