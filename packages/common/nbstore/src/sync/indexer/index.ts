@@ -72,6 +72,9 @@ export class IndexerSyncImpl implements IndexerSync {
   private abort: AbortController | null = null;
   private readonly rootDocId = this.doc.spaceId;
   private readonly status = new IndexerSyncStatus(this.rootDocId);
+  private readonly delayBetweenJobs = () => {
+    return new Promise(resolve => setTimeout(resolve, 100));
+  };
 
   state$ = this.status.state$.pipe(
     // throttle the state to 1 second to avoid spamming the UI
@@ -287,6 +290,8 @@ export class IndexerSyncImpl implements IndexerSync {
 
       while (true) {
         throwIfAborted(signal);
+
+        await this.delayBetweenJobs();
 
         const docId = await this.status.acceptJob(signal);
 
