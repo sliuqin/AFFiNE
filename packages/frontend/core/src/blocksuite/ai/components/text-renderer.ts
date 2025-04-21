@@ -8,7 +8,11 @@ import { PageEditorBlockSpecs } from '@blocksuite/affine/extensions';
 import { Container, type ServiceProvider } from '@blocksuite/affine/global/di';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { codeBlockWrapMiddleware } from '@blocksuite/affine/shared/adapters';
-import { LinkPreviewerService } from '@blocksuite/affine/shared/services';
+import {
+  LinkPreviewerService,
+  ThemeProvider,
+} from '@blocksuite/affine/shared/services';
+import { unsafeCSSVarV2 } from '@blocksuite/affine/shared/theme';
 import {
   BlockStdScope,
   BlockViewIdentifier,
@@ -22,7 +26,11 @@ import type {
   Store,
   TransformerMiddleware,
 } from '@blocksuite/affine/store';
-import { css, html, nothing, type PropertyValues } from 'lit';
+import {
+  darkCssVariablesV2,
+  lightCssVariablesV2,
+} from '@toeverything/theme/v2';
+import { css, html, nothing, type PropertyValues, unsafeCSS } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { keyed } from 'lit/directives/keyed.js';
@@ -109,7 +117,7 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
       padding: 0;
       margin: 0;
       line-height: var(--affine-line-height);
-      color: var(--affine-text-primary-color);
+      color: ${unsafeCSSVarV2('text/primary')};
       font-weight: 400;
     }
 
@@ -165,6 +173,18 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
       }
       editor-host {
         isolation: isolate;
+      }
+    }
+
+    .text-renderer-container[data-app-theme='dark'] {
+      .ai-answer-text-editor .affine-page-root-block-container {
+        color: ${unsafeCSS(darkCssVariablesV2['--affine-v2-text-primary'])};
+      }
+    }
+
+    .text-renderer-container[data-app-theme='light'] {
+      .ai-answer-text-editor .affine-page-root-block-container {
+        color: ${unsafeCSS(lightCssVariablesV2['--affine-v2-text-primary'])};
       }
     }
 
@@ -288,8 +308,9 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
       'text-renderer-container': true,
       'custom-heading': !!customHeading,
     });
+    const theme = this.host?.std.get(ThemeProvider).app$.value;
     return html`
-      <div class=${classes} data-testid=${testId}>
+      <div class=${classes} data-testid=${testId} data-app-theme=${theme}>
         ${keyed(
           this._doc,
           html`<div class="ai-answer-text-editor affine-page-viewport">
