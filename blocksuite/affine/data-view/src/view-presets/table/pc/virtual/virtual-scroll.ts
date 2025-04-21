@@ -6,6 +6,55 @@ import {
   signal,
 } from '@preact/signals-core';
 
+import { VirtualElementWrapper } from './virtual-cell';
+
+export interface Disposable {
+  dispose(): void;
+}
+
+export class CacheManager<K, V extends Disposable> {
+  constructor(readonly keyToString: (key: K) => string) {}
+  protected readonly cache = new Map<string, V>();
+
+  getOrCreate(key: K, create: () => V): V {
+    const stringKey = this.keyToString(key);
+    let value = this.cache.get(stringKey);
+    if (!value) {
+      value = create();
+      this.cache.set(stringKey, value);
+    }
+    return value;
+  }
+
+  has(key: K): boolean {
+    return this.cache.has(this.keyToString(key));
+  }
+
+  delete(key: K): void {
+    const value = this.cache.get(this.keyToString(key));
+    if (value) {
+      value.dispose();
+      this.cache.delete(this.keyToString(key));
+    }
+  }
+
+  clear(): void {
+    for (const value of this.cache.values()) {
+      value.dispose();
+    }
+    this.cache.clear();
+  }
+
+  cleanup(activeKeys: Set<string>): void {
+    for (const [key, value] of this.cache) {
+      if (!activeKeys.has(key)) {
+        value.dispose();
+        this.cache.delete(key);
+      }
+    }
+  }
+}
+
 export abstract class VirtualScroll {
   protected readonly disposables: (() => void)[] = [];
   readonly container: VirtualScrollContainer;
@@ -20,8 +69,16 @@ export abstract class VirtualScroll {
   }
 }
 
-export class GridCell {
+export class GridCell implements Disposable {
+  protected readonly disposables: (() => void)[] = [];
   readonly element: HTMLElement;
+
+  readonly columnIndex$ = computed(() => {
+    return this.row.grid.columns$.value.findIndex(
+      column => column.id === this.columnId
+    );
+  });
+
   private readonly realHeight$ = signal<number>();
   readonly contentHeight$ = computed(() => {
     return this.realHeight$.value;
@@ -30,10 +87,10 @@ export class GridCell {
     () => this.grid.fixedRowHeight$.value ?? this.contentHeight$.value
   );
   readonly width$ = computed(
-    () => this.row.grid.columns$.value[this.columnIndex]?.width ?? 0
+    () => this.row.grid.columns$.value[this.columnIndex$.value]?.width ?? 0
   );
   readonly left$ = computed(
-    () => this.row.grid.columnLeft$.value[this.columnIndex] ?? 0
+    () => this.row.grid.columnLeft$.value[this.columnIndex$.value] ?? 0
   );
   readonly top$ = computed(() => this.row.top$.value);
   readonly right$ = computed(() => this.left$.value + this.width$.value);
@@ -49,8 +106,8 @@ export class GridCell {
     return top + height;
   });
 
-  get rowIndex() {
-    return this.row.rowIndex;
+  get rowIndex$() {
+    return this.row.rowIndex$;
   }
 
   get grid() {
@@ -59,20 +116,43 @@ export class GridCell {
 
   constructor(
     readonly row: GridRow,
-    readonly columnIndex: number,
-    getElement: (cell: GridCell) => HTMLElement
+    readonly columnId: string,
+    createElement: (cell: GridCell) => HTMLElement
   ) {
-    this.element = getElement(this);
+    const element = new VirtualElementWrapper();
+    element.rect = {
+      left$: this.left$,
+      top$: this.top$,
+      width$: this.width$,
+      height$: this.row.height$,
+    };
+    element.updateHeight = height => this.updateHeight(height);
+    element.element = createElement(this);
+    this.element = element;
+    this.disposables.push(
+      effect(() => {
+        this.checkRender();
+      })
+    );
+  }
+
+  dispose() {
+    this.grid.container.removeElement(this.element, 1, true);
+    this.disposables.forEach(disposable => disposable());
   }
 
   isVisible$ = computed(() => {
+    const height = this.realHeight$.value;
+    if (height == null) {
+      return true;
+    }
     const offsetTop = this.top$.value;
     if (offsetTop == null) {
       return false;
     }
     const offsetBottom = this.bottom$.value;
     if (offsetBottom == null) {
-      return true;
+      return false;
     }
     const offsetLeft = this.left$.value;
     const offsetRight = this.right$.value;
@@ -84,8 +164,8 @@ export class GridCell {
     const isVisible = xInView && yInView;
     // console.log('isVisible',
     //   isVisible,
-    //   this.rowIndex,
-    //   this.columnIndex,
+    //   this.rowIndex$.value,
+    //   this.columnIndex$.value,
     //   xInView,
     //   yInView,
     //   {
@@ -104,45 +184,43 @@ export class GridCell {
   checkRender() {
     const isVisible = this.isVisible$.value;
     if (isVisible) {
-      if (!this.element.isConnected) {
-        this.grid.container.addElement(this.element);
+      if (!this.row.group.init) {
+        this.grid.container.addElement(this.element, 0, true);
+      } else {
+        this.grid.container.addElement(this.element, 1);
       }
     } else {
-      if (this.element.isConnected) {
-        this.grid.container.removeElement(this.element);
-      }
+      this.grid.container.removeElement(this.element, 1, true);
     }
     return isVisible;
   }
 
   updateHeight(height: number = this.element.clientHeight) {
     if (this.realHeight$.value == null) {
-      // console.log('first render', height)
+      // console.log('init height', this.rowIndex$.value, this.columnIndex$.value, height)
     }
     this.realHeight$.value = height;
   }
-
-  // render() {
-  //     if (this.renderStatus$.value === 'noInit') {
-  //         this.renderStatus$.value = 'rendering';
-  //         this.grid.container.addElement(this.element);
-  //         requestAnimationFrame(() => {
-  //             this.renderStatus$.value = 'done';
-  //         });
-  //     }
-  // }
 }
 
-export class GridRow {
+export class GridRow implements Disposable {
   protected readonly disposables: (() => void)[] = [];
-  cells: GridCell[];
+  cells$ = computed(() => {
+    return this.grid.columns$.value.map(column => {
+      return this.grid.getOrCreateCell(this, column.id);
+    });
+  });
+
+  rowIndex$ = computed(() => {
+    return this.group.rows$.value.findIndex(row => row.rowId === this.rowId);
+  });
 
   get grid() {
     return this.group.grid;
   }
 
   top$ = computed(() => {
-    return this.group.rowTops$.value[this.rowIndex]?.value;
+    return this.group.rowTops$.value[this.rowIndex$.value]?.value;
   });
 
   height$ = computed(() => {
@@ -150,7 +228,7 @@ export class GridRow {
     if (fixedRowHeight != null) {
       return fixedRowHeight;
     }
-    const cells = this.cells
+    const cells = this.cells$.value
       .map(cell => cell.height$.value)
       .filter(v => v != null);
     if (cells.length > 0) {
@@ -161,64 +239,129 @@ export class GridRow {
 
   constructor(
     readonly group: GridGroup,
-    readonly rowIndex: number,
-    cells: Array<(cell: GridCell) => HTMLElement>
-  ) {
-    this.cells = cells.map((cell, index) => new GridCell(this, index, cell));
-  }
-
-  updateHeights() {
-    for (const cell of this.cells) {
-      cell.updateHeight();
-    }
-  }
-
-  checkRender() {
-    let preVisible = false;
-    for (const cell of this.cells) {
-      const isVisible = cell.checkRender();
-      // if (preVisible && !isVisible) {
-      //   return true;
-      // }
-      preVisible = isVisible;
-    }
-    return preVisible;
-  }
+    readonly rowId: string
+  ) {}
 
   dispose() {
     this.disposables.forEach(disposable => disposable());
   }
 }
 
-export class GridGroup {
-  rows$ = computed(() =>
-    this.rowElements$.value.map((row, index) => {
-      return new GridRow(this, index, row);
-    })
-  );
+export class GridGroup implements Disposable {
+  protected readonly disposables: (() => void)[] = [];
+  rows$ = computed(() => {
+    const group = this.grid.options.groups$.value.find(
+      g => g.id === this.groupId
+    );
+    if (!group) {
+      return [];
+    }
+    return group.rows.map(rowId => {
+      return this.grid.getOrCreateRow(this, rowId);
+    });
+  });
+
+  groupIndex$ = computed(() => {
+    return this.grid.groups$.value.findIndex(
+      group => group.groupId === this.groupId
+    );
+  });
+
+  top$ = computed(() => {
+    return this.grid.groupTops$.value[this.groupIndex$.value]?.value;
+  });
+
+  topNodeBottom$ = computed(() => {
+    const top = this.top$.value;
+    if (top == null) {
+      return;
+    }
+    const height = this.topNode.height$.value;
+    if (height == null) {
+      return;
+    }
+    return top + height;
+  });
+
   topNode: {
     element: HTMLElement;
-    height$: Signal<number>;
+    height$: Signal<number | undefined>;
   };
   bottomNode: {
     element: HTMLElement;
-    height$: Signal<number>;
+    height$: Signal<number | undefined>;
   };
+
+  checkRender() {
+    const isTopVisible = this.isTopVisible$.value;
+    if (isTopVisible) {
+      if (!this.init) {
+        this.grid.container.addElement(this.topNode.element, 0, true);
+      } else {
+        this.grid.container.addElement(this.topNode.element, 1);
+      }
+    } else {
+      this.grid.container.removeElement(this.topNode.element, 1, true);
+    }
+    const isBottomVisible = this.isBottomVisible$.value;
+    if (isBottomVisible) {
+      if (!this.init) {
+        this.grid.container.addElement(this.bottomNode.element, 0, true);
+      } else {
+        this.grid.container.addElement(this.bottomNode.element, 1);
+      }
+    } else {
+      this.grid.container.removeElement(this.bottomNode.element, 1, true);
+    }
+  }
+
+  isTopVisible$ = computed(() => {
+    const height = this.topNode.height$.value;
+    if (height == null) {
+      return true;
+    }
+    const top = this.top$.value;
+    if (top == null) {
+      return false;
+    }
+    const bottom = this.rowsBottom$.value ?? top + height;
+    const groupInView =
+      top < this.grid.container.viewport$.value.bottom &&
+      bottom > this.grid.container.viewport$.value.top;
+    return groupInView;
+  });
+
+  isBottomVisible$ = computed(() => {
+    const height = this.bottomNode.height$.value;
+    if (height == null) {
+      return true;
+    }
+    const top = this.bottomNodeTop$.value;
+    if (top == null) {
+      return false;
+    }
+    const bottom = top + height;
+    const groupInView =
+      top < this.grid.container.viewport$.value.bottom &&
+      bottom > this.grid.container.viewport$.value.top;
+    return groupInView;
+  });
 
   rowTops$ = computed(() => {
     const tops: ReadonlySignal<number | undefined>[] = [];
-    const length = this.rows$.value.length;
+    const rows = this.rows$.value;
+    const length = rows.length;
     for (let i = 0; i < length; i++) {
       const top = computed(() => {
         const isFirst = i === 0;
         if (isFirst) {
-          return 0;
+          return this.topNodeBottom$.value;
         }
         const prevTop = tops[i - 1]?.value;
         if (prevTop == null) {
           return;
         }
-        const prevHeight = this.rows$.value[i - 1]?.height$.value;
+        const prevHeight = rows[i - 1]?.height$.value;
         if (prevHeight == null) {
           return;
         }
@@ -229,95 +372,262 @@ export class GridGroup {
     return tops;
   });
 
-  rowsHeight$ = computed(() => {
-    const lastIndex = this.rowTops$.value.findLastIndex(v => v.value != null);
-    console.log('lastIndex', lastIndex);
-    const lastTop = this.rowTops$.value[lastIndex]?.value ?? 0;
-    const lastHeight = this.rows$.value[lastIndex]?.height$.value ?? 0;
+  rowsBottom$ = computed(() => {
+    const tops = this.rowTops$.value;
+    const lastIndex = tops.findLastIndex(v => v?.value != null);
+    if (lastIndex === -1) {
+      return 0;
+    }
+    const lastTop = tops[lastIndex]?.value ?? 0;
+    const lastHeight = this.rows$.value[lastIndex]?.height$?.value ?? 0;
     return lastTop + lastHeight;
   });
-  height$ = computed(
-    () =>
-      this.topNode.height$.value +
-      this.bottomNode.height$.value +
-      this.rowsHeight$.value
-  );
+
+  get bottomNodeTop$() {
+    return this.rowsBottom$;
+  }
+
+  height$ = computed(() => {
+    const rowsBottom = this.rowsBottom$.value;
+    if (rowsBottom == null) {
+      return;
+    }
+    const bottomNodeHeight = this.bottomNode.height$?.value ?? 0;
+    return rowsBottom + bottomNodeHeight;
+  });
+
+  bottom$ = computed(() => {
+    const rowsBottom = this.rowsBottom$.value;
+    if (rowsBottom == null) {
+      return;
+    }
+    const bottomNodeHeight = this.bottomNode.height$?.value;
+    if (bottomNodeHeight == null) {
+      return;
+    }
+    return rowsBottom + bottomNodeHeight;
+  });
+
+  init = false;
 
   constructor(
     readonly grid: GridVirtualScroll,
-    private readonly rowElements$: ReadonlySignal<
-      Array<Array<(cell: GridCell) => HTMLElement>>
-    >,
+    readonly groupId: string,
     top: (group: GridGroup) => HTMLElement,
     bottom: (group: GridGroup) => HTMLElement
   ) {
+    const topNodeHeight$ = signal<number | undefined>();
+    const topElement = new VirtualElementWrapper();
+    topElement.rect = {
+      left$: signal(0),
+      top$: this.top$,
+      width$: signal(),
+      height$: topNodeHeight$,
+    };
+    topElement.element = top(this);
+    topElement.updateHeight = height => {
+      topNodeHeight$.value = height;
+    };
     this.topNode = {
-      element: top(this),
-      height$: signal(0),
+      element: topElement,
+      height$: topNodeHeight$,
+    };
+    const bottomNodeHeight$ = signal<number | undefined>();
+    const bottomElement = new VirtualElementWrapper();
+    bottomElement.rect = {
+      left$: signal(0),
+      top$: this.bottomNodeTop$,
+      width$: signal(),
+      height$: bottomNodeHeight$,
+    };
+    bottomElement.element = bottom(this);
+    bottomElement.updateHeight = height => {
+      console.log('update bottom height', height);
+      bottomNodeHeight$.value = height;
     };
     this.bottomNode = {
-      element: bottom(this),
-      height$: signal(0),
+      element: bottomElement,
+      height$: bottomNodeHeight$,
     };
-  }
-
-  updateHeights() {
+    this.disposables.push(
+      effect(() => {
+        this.checkRender();
+      })
+    );
     this.rows$.value.forEach(row => {
-      row.updateHeights();
+      row.cells$.value;
     });
-    this.topNode.height$.value = this.topNode.element.clientHeight;
-    this.bottomNode.height$.value = this.bottomNode.element.clientHeight;
+    this.init = true;
   }
 
-  checkRender() {
-    const rows = this.rows$.value;
-    let preVisible = false;
-    for (const row of rows) {
-      const isVisible = row.checkRender();
-      // if (preVisible && !isVisible) {
-      //   return true;
-      // }
-      preVisible = isVisible;
-    }
-    return preVisible;
+  dispose() {
+    this.grid.container.removeElement(this.topNode.element, 1, true);
+    this.grid.container.removeElement(this.bottomNode.element, 1, true);
+    this.disposables.forEach(disposable => disposable());
   }
+}
+
+export interface GridGroupData {
+  id: string;
+  rows: string[];
 }
 
 export interface GridVirtualScrollOptions extends VirtualScrollOptions {
   columns$: ReadonlySignal<
     {
+      id: string;
       width: number;
     }[]
   >;
-  rowHeight$: ReadonlySignal<number | undefined>;
-  groups$: ReadonlySignal<
-    {
-      top: (group: GridGroup) => HTMLElement;
-      bottom: (group: GridGroup) => HTMLElement;
-      rows: ReadonlySignal<Array<Array<(cell: GridCell) => HTMLElement>>>;
-    }[]
-  >;
+  fixedRowHeight$: ReadonlySignal<number | undefined>;
+  createGroup: {
+    top: (group: GridGroup) => HTMLElement;
+    bottom: (group: GridGroup) => HTMLElement;
+  };
+  createCell: (cell: GridCell) => HTMLElement;
+  groups$: ReadonlySignal<GridGroupData[]>;
 }
 
 export class GridVirtualScroll extends VirtualScroll {
-  init() {
-    this.container.init();
-    this.listenScroll();
-    this.listenSizeChange();
+  readonly cellsCache = new CacheManager<
+    { groupId: string; columnId: string; rowId: string },
+    GridCell
+  >(cell => `${cell.groupId}-${cell.rowId}-${cell.columnId}`);
+  readonly rowsCache = new CacheManager<
+    { groupId: string; rowId: string },
+    GridRow
+  >(row => `${row.groupId}-${row.rowId}`);
+  readonly groupsCache = new CacheManager<string, GridGroup>(
+    groupId => groupId
+  );
+
+  readonly groups$ = computed(() => {
+    return this.options.groups$.value.map(group => {
+      return this.getOrCreateGroup(group.id);
+    });
+  });
+
+  constructor(readonly options: GridVirtualScrollOptions) {
+    super(options);
   }
 
-  groups$ = computed(() => {
-    return this.options.groups$.value.map(
-      group => new GridGroup(this, group.rows, group.top, group.bottom)
+  getOrCreateRow(group: GridGroup, rowId: string): GridRow {
+    return this.rowsCache.getOrCreate({ groupId: group.groupId, rowId }, () => {
+      return new GridRow(group, rowId);
+    });
+  }
+
+  getOrCreateCell(row: GridRow, columnId: string): GridCell {
+    return this.cellsCache.getOrCreate(
+      { groupId: row.group.groupId, rowId: row.rowId, columnId },
+      () => {
+        return new GridCell(row, columnId, this.options.createCell);
+      }
     );
+  }
+
+  getOrCreateGroup(groupId: string): GridGroup {
+    return this.groupsCache.getOrCreate(groupId, () => {
+      return new GridGroup(
+        this,
+        groupId,
+        this.options.createGroup.top,
+        this.options.createGroup.bottom
+      );
+    });
+  }
+
+  private listenDataChange() {
+    this.disposables.push(
+      effect(() => {
+        const activeGroupIds = new Set<string>();
+        const activeRowIds = new Set<string>();
+        const activeCellIds = new Set<string>();
+
+        for (const group of this.options.groups$.value) {
+          activeGroupIds.add(group.id);
+          for (const rowId of group.rows) {
+            const rowKey = this.rowsCache.keyToString({
+              groupId: group.id,
+              rowId,
+            });
+            activeRowIds.add(rowKey);
+            for (const column of this.options.columns$.value) {
+              const cellKey = this.cellsCache.keyToString({
+                groupId: group.id,
+                rowId,
+                columnId: column.id,
+              });
+              activeCellIds.add(cellKey);
+            }
+          }
+        }
+
+        this.cellsCache.cleanup(activeCellIds);
+        this.rowsCache.cleanup(activeRowIds);
+        this.groupsCache.cleanup(activeGroupIds);
+        // this.container.batchTaskManager.clean();
+      })
+    );
+  }
+
+  groupTops$ = computed(() => {
+    const tops: ReadonlySignal<number | undefined>[] = [];
+    const rows = this.groups$.value;
+    const length = rows.length;
+    for (let i = 0; i < length; i++) {
+      const top = computed(() => {
+        const isFirst = i === 0;
+        if (isFirst) {
+          return 0;
+        }
+        const prevTop = tops[i - 1]?.value;
+        if (prevTop == null) {
+          return;
+        }
+        const prevHeight = rows[i - 1]?.height$.value;
+        if (prevHeight == null) {
+          return;
+        }
+        return prevTop + prevHeight;
+      });
+      tops.push(top);
+    }
+    return tops;
   });
+
+  totalHeight$ = computed(() => {
+    const lastGroupIndex = this.groups$.value.findLastIndex(
+      group => group.top$.value != null
+    );
+    if (lastGroupIndex === -1) {
+      return 0;
+    }
+    const lastGroupTop = this.groupTops$.value[lastGroupIndex]?.value;
+    if (lastGroupTop == null) {
+      return;
+    }
+    const lastGroupHeight =
+      this.groups$.value[this.groups$.value.length - 1]?.height$.value;
+    if (lastGroupHeight == null) {
+      return;
+    }
+    return lastGroupTop + lastGroupHeight;
+  });
+
+  override dispose() {
+    super.dispose();
+    this.cellsCache.clear();
+    this.rowsCache.clear();
+    this.groupsCache.clear();
+  }
 
   get columns$() {
     return this.options.columns$;
   }
 
   get fixedRowHeight$() {
-    return this.options.rowHeight$;
+    return this.options.fixedRowHeight$;
   }
 
   columnLeft$ = computed(() => {
@@ -326,17 +636,25 @@ export class GridVirtualScroll extends VirtualScroll {
     let left = 0;
     for (const column of columns) {
       lefts.push(left);
-      left += column.width;
+      left += column.width ?? 0;
     }
     return lefts;
   });
+
   lastLeft$ = computed(() => {
-    return this.columnLeft$.value[this.columnLeft$.value.length - 1];
+    const lefts = this.columnLeft$.value;
+    if (lefts.length === 0) {
+      return 0;
+    }
+    return lefts[lefts.length - 1];
   });
 
   lastWidth$ = computed(() => {
-    return this.options.columns$.value[this.options.columns$.value.length - 1]
-      ?.width;
+    const columns = this.options.columns$.value;
+    if (columns.length === 0) {
+      return 0;
+    }
+    return columns[columns.length - 1]?.width ?? 0;
   });
 
   totalWidth$ = computed(() => {
@@ -345,49 +663,22 @@ export class GridVirtualScroll extends VirtualScroll {
     return lastLeft + lastWidth;
   });
 
-  totalHeight$ = computed(() => {
-    const groups = this.groups$.value;
-    return groups.reduce((acc, group) => {
-      return acc + group.height$.value;
-    }, 0);
-  });
-
   get content() {
     return this.container.content;
   }
 
-  constructor(private readonly options: GridVirtualScrollOptions) {
-    super(options);
-  }
-
-  checkRender() {
-    const groups = this.groups$.value;
-    let preVisible = false;
-    for (const group of groups) {
-      const isVisible = group.checkRender();
-      // if (preVisible && !isVisible) {
-      //   return true;
-      // }
-      preVisible = isVisible;
-    }
-    return preVisible;
+  init() {
+    this.container.init();
+    this.listenSizeChange();
+    this.listenDataChange();
   }
 
   private listenSizeChange() {
     this.disposables.push(
       effect(() => {
-        this.container.updateContentSize(
-          this.totalWidth$.value,
-          this.totalHeight$.value
-        );
-      })
-    );
-  }
-
-  private listenScroll() {
-    this.disposables.push(
-      effect(() => {
-        this.checkRender();
+        const width = this.totalWidth$.value ?? 0;
+        const height = this.totalHeight$.value ?? 0;
+        this.container.updateContentSize(width, height);
       })
     );
   }
@@ -430,10 +721,10 @@ export class VirtualScrollContainer {
     return {
       width: this.xScrollContainerWidth$.value + 200,
       height: this.yScrollContainerHeight$.value + 500,
-      left: this.scrollLeft$.value - 100,
       top: this.scrollTop$.value - 400,
-      right: this.scrollLeft$.value + this.xScrollContainerWidth$.value,
       bottom: this.scrollTop$.value + this.yScrollContainerHeight$.value,
+      left: this.scrollLeft$.value - 100 - 500,
+      right: this.scrollLeft$.value + this.xScrollContainerWidth$.value - 500,
     };
   });
 
@@ -497,17 +788,69 @@ export class VirtualScrollContainer {
       });
     }
   }
-
-  addElement(element: HTMLElement) {
-    this.content.append(element);
-    // console.log(this.content.children.length)
+  readonly batchTaskManager = new BatchTaskManager(
+    [
+      {
+        batchSize: 5,
+        tasks: [],
+      },
+      {
+        batchSize: 50,
+        tasks: [],
+      },
+    ],
+    50
+  );
+  addSet: Set<HTMLElement> = new Set();
+  removeSet: Set<HTMLElement> = new Set();
+  addElement(element: HTMLElement, priority: number, low = false) {
+    if (this.removeSet.has(element)) {
+      this.removeSet.delete(element);
+    }
+    if (element.isConnected) {
+      return;
+    }
+    this.addSet.add(element);
+    this.batchTaskManager.addTask(
+      priority,
+      () => {
+        if (this.addSet.has(element) && !element.isConnected) {
+          this.content.append(element);
+          this.addSet.delete(element);
+          return;
+        } else {
+          return false;
+        }
+      },
+      low
+    );
   }
 
-  removeElement(element: HTMLElement) {
-    element.remove();
+  removeElement(element: HTMLElement, priority: number, low = false) {
+    if (this.addSet.has(element)) {
+      this.addSet.delete(element);
+    }
+    if (!element.isConnected) {
+      return;
+    }
+    this.removeSet.add(element);
+    this.batchTaskManager.addTask(
+      priority,
+      () => {
+        if (this.removeSet.has(element) && element.isConnected) {
+          element.remove();
+          this.removeSet.delete(element);
+          return;
+        } else {
+          return false;
+        }
+      },
+      low
+    );
   }
 
   dispose() {
+    this.batchTaskManager.clean();
     this.disposables.forEach(disposable => disposable());
   }
 
@@ -549,4 +892,85 @@ export class ListVirtualScroll extends VirtualScroll {
   }
 
   private updateTotalSize() {}
+}
+
+interface Priority {
+  batchSize: number;
+  tasks: Array<() => void | false>;
+}
+class BatchTaskManager {
+  constructor(
+    private readonly priorityList: Priority[],
+    private readonly totalBatchSize: number
+  ) {}
+  isRunning = false;
+  addTask(priority: number, task: () => void, low = false) {
+    const priorityContainer = this.priorityList[priority];
+    if (priorityContainer == null) {
+      return;
+    }
+    if (low) {
+      priorityContainer.tasks.unshift(task);
+    } else {
+      priorityContainer.tasks.push(task);
+    }
+    if (this.isRunning) {
+      return;
+    }
+    this.isRunning = true;
+    Promise.resolve()
+      .then(() => {
+        this.run();
+      })
+      .catch(e => {
+        console.error(e);
+        this.isRunning = false;
+      });
+  }
+  run() {
+    let totalBatchCount = this.totalBatchSize;
+    let skipCount = 0;
+    for (let i = this.priorityList.length - 1; i >= 0; i--) {
+      const priority = this.priorityList[i];
+      if (priority == null) {
+        continue;
+      }
+      const tasks = priority.tasks;
+      let priorityBatchCount = priority.batchSize;
+      while (tasks.length) {
+        if (totalBatchCount === 0 || priorityBatchCount === 0) {
+          break;
+        }
+        const task = tasks.pop();
+        if (task == null) {
+          break;
+        }
+        if (task() !== false) {
+          totalBatchCount--;
+          priorityBatchCount--;
+        } else {
+          skipCount++;
+        }
+      }
+    }
+    if (totalBatchCount !== this.totalBatchSize) {
+      console.log(
+        'run task count',
+        this.totalBatchSize - totalBatchCount,
+        'skip count',
+        skipCount
+      );
+      requestAnimationFrame(() => {
+        this.run();
+      });
+    } else {
+      this.isRunning = false;
+    }
+  }
+
+  clean() {
+    this.priorityList.forEach(priority => {
+      priority.tasks = [];
+    });
+  }
 }

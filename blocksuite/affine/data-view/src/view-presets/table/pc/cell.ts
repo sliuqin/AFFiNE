@@ -25,9 +25,9 @@ export class DatabaseCellContainer extends SignalWatcher(
       display: flex;
       align-items: start;
       width: 100%;
-      height: 100%;
       border: none;
       outline: none;
+      box-sizing: content-box;
     }
 
     affine-database-cell-container * {
@@ -104,6 +104,11 @@ export class DatabaseCellContainer extends SignalWatcher(
         this.selectCurrentCell(!this.column.readonly$.value);
       }
     });
+    const style = this.parentElement?.style;
+    if (style) {
+      style.borderBottom = '1px solid var(--affine-border-color)';
+      style.borderRight = '1px solid var(--affine-border-color)';
+    }
   }
 
   isSelected(selection: TableViewSelectionWithType) {

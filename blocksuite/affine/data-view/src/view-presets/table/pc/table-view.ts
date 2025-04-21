@@ -11,20 +11,24 @@ import { styleMap } from 'lit/directives/style-map.js';
 import { html } from 'lit/static-html.js';
 
 import type { GroupTrait } from '../../../core/group-by/trait.js';
+import { groupTraitKey } from '../../../core/group-by/trait.js';
 import type { DataViewInstance } from '../../../core/index.js';
 import { renderUniLit } from '../../../core/utils/uni-component/uni-component.js';
 import { DataViewBase } from '../../../core/view/data-view-base.js';
 import { LEFT_TOOL_BAR_WIDTH } from '../consts.js';
 import type { TableViewSelectionWithType } from '../selection';
+import { DataBaseColumnStats } from '../stats/column-stats-bar.js';
 import type { TableSingleView } from '../table-view-manager.js';
+import { DatabaseCellContainer } from './cell.js';
 import { TableClipboardController } from './controller/clipboard.js';
 import { TableDragController } from './controller/drag.js';
 import { TableHotkeysController } from './controller/hotkeys.js';
 import { TableSelectionController } from './controller/selection.js';
-import { VirtualCell } from './virtual/virtual-cell.js';
+import { DatabaseColumnHeader } from './header/column-header.js';
 import {
   getScrollContainer,
   type GridCell,
+  type GridGroup,
   GridVirtualScroll,
 } from './virtual/virtual-scroll.js';
 
@@ -265,41 +269,69 @@ export class DataViewTable extends DataViewBase<
   }
 
   columns$ = computed(() => {
-    return this.props.view.properties$.value.map(property => ({
-      width: property.width$.value,
-    }));
+    return [
+      {
+        id: 'row-header',
+        width: LEFT_TOOL_BAR_WIDTH,
+      },
+      ...this.props.view.properties$.value.map(property => ({
+        id: property.id,
+        width: property.width$.value + 1,
+      })),
+    ];
   });
 
   groups$ = computed(() => {
-    const columns = this.props.view.properties$.value;
-    return [
-      {
-        rows: computed(() =>
-          this.props.view.rows$.value.map(row => {
-            return columns.map(column => {
-              return (cell: GridCell) => {
-                const vCell = new VirtualCell();
-                vCell.gridCell = cell;
-                vCell.view = this.props.view;
-                vCell.column = column;
-                vCell.rowId = row;
-                return vCell;
-              };
-            });
-          })
-        ),
-        top: () => document.createElement('div'),
-        bottom: () => document.createElement('div'),
-      },
-    ];
+    const groupTrait = this.props.view.traitGet(groupTraitKey);
+    if (!groupTrait?.groupsDataList$.value) {
+      return [
+        {
+          id: '',
+          rows: this.props.view.rows$.value,
+        },
+      ];
+    }
+    return groupTrait.groupsDataList$.value.map(group => ({
+      id: group.key,
+      rows: group.rows,
+    }));
   });
   private virtualScroll?: GridVirtualScroll;
   private initVirtualScroll(yScrollContainer: HTMLElement) {
-    console.log('initVirtualScroll');
     this.virtualScroll = new GridVirtualScroll({
       columns$: this.columns$,
       groups$: this.groups$,
-      rowHeight$: signal(undefined),
+      createCell: (cell: GridCell) => {
+        if (cell.columnId === 'row-header') {
+          const div = document.createElement('div');
+          div.style.height = '34px';
+          return div;
+        }
+        const cellContainer = new DatabaseCellContainer();
+        cellContainer.view = this.props.view;
+        cellContainer.column = this.props.view.properties$.value.find(
+          property => property.id === cell.columnId
+        )!;
+        cellContainer.rowId = cell.row.rowId;
+        return cellContainer;
+      },
+      createGroup: {
+        top: (_gridGroup: GridGroup) => {
+          const columnHeader = new DatabaseColumnHeader();
+          columnHeader.renderGroupHeader;
+          columnHeader.tableViewManager = this.props.view;
+          columnHeader.renderGroupHeader = () => {
+            return html`<div></div>`;
+          };
+          return columnHeader;
+        },
+        bottom: () => {
+          const columnStats = new DataBaseColumnStats();
+          columnStats.view = this.props.view;
+          return columnStats;
+        },
+      },
+      fixedRowHeight$: signal(undefined),
       yScrollContainer,
     });
     this.requestUpdate();
@@ -314,7 +346,6 @@ export class DataViewTable extends DataViewBase<
 
   override connectedCallback(): void {
     super.connectedCallback();
-    console.log('connectedCallback');
     this.initVirtualScroll(getScrollContainer(this, 'y') ?? document.body);
   }
 

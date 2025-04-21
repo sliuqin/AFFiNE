@@ -83,6 +83,7 @@ export class DatabaseColumnHeader extends SignalWatcher(
   }
 
   override render() {
+    console.log('render');
     return html`
       ${this.renderGroupHeader?.()}
       <div class="affine-database-column-header database-row">

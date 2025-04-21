@@ -47,7 +47,7 @@ import { DatabaseNumberFormatBar } from './view-presets/table/pc/header/number-f
 import { TableVerticalIndicator } from './view-presets/table/pc/header/vertical-indicator.js';
 import { TableRow } from './view-presets/table/pc/row/row.js';
 import { RowSelectCheckbox } from './view-presets/table/pc/row/row-select-checkbox.js';
-import { VirtualCell } from './view-presets/table/pc/virtual/virtual-cell';
+import { VirtualElementWrapper } from './view-presets/table/pc/virtual/virtual-cell';
 import { DataBaseColumnStats } from './view-presets/table/stats/column-stats-bar.js';
 import { DatabaseColumnStatsCell } from './view-presets/table/stats/column-stats-column.js';
 import { FilterConditionView } from './widget-presets/quick-setting-bar/filter/condition-view.js';
@@ -163,5 +163,5 @@ export function effects() {
     'affine-database-column-stats-cell',
     DatabaseColumnStatsCell
   );
-  customElements.define('virtual-table-cell', VirtualCell);
+  customElements.define('virtual-element-wrapper', VirtualElementWrapper);
 }
