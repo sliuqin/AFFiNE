@@ -9,6 +9,7 @@ import { shell } from 'electron';
 import { isMacOS } from '../../shared/utils';
 import type { NamespaceHandlers } from '../type';
 import {
+  askForMeetingPermission,
   checkMeetingPermissions,
   checkRecordingAvailable,
   disableRecordingFeature,
@@ -75,6 +76,9 @@ export const recordingHandlers = {
   },
   checkMeetingPermissions: async () => {
     return checkMeetingPermissions();
+  },
+  askForMeetingPermission: async (_, type: 'microphone') => {
+    return askForMeetingPermission(type);
   },
   showRecordingPermissionSetting: async (_, type: 'screen' | 'microphone') => {
     const urlMap = {

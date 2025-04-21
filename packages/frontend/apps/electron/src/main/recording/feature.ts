@@ -781,6 +781,13 @@ export const checkMeetingPermissions = () => {
   ) as Record<(typeof mediaTypes)[number], boolean>;
 };
 
+export const askForMeetingPermission = async (type: 'microphone') => {
+  if (!isMacOS()) {
+    return false;
+  }
+  return systemPreferences.askForMediaAccess(type);
+};
+
 export const checkCanRecordMeeting = () => {
   const features = checkMeetingPermissions();
   return (
