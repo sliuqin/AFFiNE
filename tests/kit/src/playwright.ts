@@ -62,6 +62,11 @@ export const test = baseTest.extend<{
     });
   },
   page: async ({ page, context }, use) => {
+    await page.route('**/*.woff2', async (route, _request) => {
+      return await route.fulfill({
+        status: 404,
+      });
+    });
     if (process.env.CPU_THROTTLE) {
       const cdpSession = await context.newCDPSession(page);
       await cdpSession.send('Emulation.setCPUThrottlingRate', {
