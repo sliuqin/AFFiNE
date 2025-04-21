@@ -83,17 +83,18 @@ export class GridCell implements Disposable {
   readonly contentHeight$ = computed(() => {
     return this.realHeight$.value;
   });
+  private readonly columnPosition$ = computed(() => {
+    return this.row.grid.columnPosition$.value[this.columnIndex$.value];
+  });
   readonly height$ = computed(
     () => this.grid.fixedRowHeight$.value ?? this.contentHeight$.value
   );
-  readonly width$ = computed(
-    () => this.row.grid.columns$.value[this.columnIndex$.value]?.width ?? 0
-  );
-  readonly left$ = computed(
-    () => this.row.grid.columnLeft$.value[this.columnIndex$.value] ?? 0
-  );
+  readonly width$ = computed(() => this.columnPosition$.value?.width);
+  readonly left$ = computed(() => this.columnPosition$.value?.left);
   readonly top$ = computed(() => this.row.top$.value);
-  readonly right$ = computed(() => this.left$.value + this.width$.value);
+  readonly right$ = computed(() => {
+    return this.columnPosition$.value?.right;
+  });
   readonly bottom$ = computed(() => {
     const top = this.top$.value;
     if (top == null) {
@@ -154,8 +155,8 @@ export class GridCell implements Disposable {
     if (offsetBottom == null) {
       return false;
     }
-    const offsetLeft = this.left$.value;
-    const offsetRight = this.right$.value;
+    const offsetLeft = this.left$.value ?? 0;
+    const offsetRight = this.right$.value ?? 0;
     const viewport = this.grid.container.viewport$.value;
     const xInView =
       offsetRight >= viewport.left && offsetLeft <= viewport.right;
@@ -219,8 +220,16 @@ export class GridRow implements Disposable {
     return this.group.grid;
   }
 
+  private readonly rowPosition$ = computed(() => {
+    return this.group.rowPositions$.value[this.rowIndex$.value]?.value;
+  });
+
   top$ = computed(() => {
-    return this.group.rowTops$.value[this.rowIndex$.value]?.value;
+    return this.rowPosition$.value?.top;
+  });
+
+  bottom$ = computed(() => {
+    return this.rowPosition$.value?.bottom;
   });
 
   height$ = computed(() => {
@@ -347,40 +356,60 @@ export class GridGroup implements Disposable {
     return groupInView;
   });
 
-  rowTops$ = computed(() => {
-    const tops: ReadonlySignal<number | undefined>[] = [];
+  rowPositions$ = computed(() => {
+    const positions: ReadonlySignal<
+      { top: number; height?: number; bottom?: number } | undefined
+    >[] = [];
     const rows = this.rows$.value;
     const length = rows.length;
     for (let i = 0; i < length; i++) {
-      const top = computed(() => {
+      const position = computed(() => {
+        const height = rows[i]?.height$.value;
         const isFirst = i === 0;
         if (isFirst) {
-          return this.topNodeBottom$.value;
+          const top = this.topNodeBottom$.value;
+          if (top == null) {
+            return;
+          }
+          if (height == null) {
+            return {
+              top,
+            };
+          }
+          return {
+            top,
+            height,
+            bottom: top + height,
+          };
         }
-        const prevTop = tops[i - 1]?.value;
-        if (prevTop == null) {
+        const prevBottom = positions[i - 1]?.value?.bottom;
+        if (prevBottom == null) {
           return;
         }
-        const prevHeight = rows[i - 1]?.height$.value;
-        if (prevHeight == null) {
-          return;
+        if (height == null) {
+          return {
+            top: prevBottom,
+          };
         }
-        return prevTop + prevHeight;
+        return {
+          top: prevBottom,
+          height,
+          bottom: prevBottom + height,
+        };
       });
-      tops.push(top);
+      positions.push(position);
     }
-    return tops;
+    return positions;
   });
 
+  get rowsTop$() {
+    return this.topNodeBottom$;
+  }
+
   rowsBottom$ = computed(() => {
-    const tops = this.rowTops$.value;
-    const lastIndex = tops.findLastIndex(v => v?.value != null);
-    if (lastIndex === -1) {
-      return 0;
-    }
-    const lastTop = tops[lastIndex]?.value ?? 0;
-    const lastHeight = this.rows$.value[lastIndex]?.height$?.value ?? 0;
-    return lastTop + lastHeight;
+    const positions = this.rowPositions$.value;
+    const last = positions.findLast(v => v?.value != null);
+    return last?.value?.bottom ?? this.rowsTop$.value;
   });
 
   get bottomNodeTop$() {
@@ -517,6 +546,20 @@ export class GridVirtualScroll extends VirtualScroll {
     });
   }
 
+  getGroup(groupId: string) {
+    return this.getOrCreateGroup(groupId);
+  }
+
+  getRow(groupId: string, rowId: string) {
+    const group = this.getOrCreateGroup(groupId);
+    return this.getOrCreateRow(group, rowId);
+  }
+
+  getCell(groupId: string, rowId: string, columnId: string) {
+    const row = this.getRow(groupId, rowId);
+    return this.getOrCreateCell(row, columnId);
+  }
+
   getOrCreateCell(row: GridRow, columnId: string): GridCell {
     return this.cellsCache.getOrCreate(
       { groupId: row.group.groupId, rowId: row.rowId, columnId },
@@ -630,37 +673,28 @@ export class GridVirtualScroll extends VirtualScroll {
     return this.options.fixedRowHeight$;
   }
 
-  columnLeft$ = computed(() => {
+  columnPosition$ = computed(() => {
     const columns = this.options.columns$.value;
-    const lefts: number[] = [];
+    const positions: { left: number; right: number; width: number }[] = [];
     let left = 0;
     for (const column of columns) {
-      lefts.push(left);
+      positions.push({
+        left,
+        right: left + column.width,
+        width: column.width,
+      });
       left += column.width ?? 0;
     }
-    return lefts;
-  });
-
-  lastLeft$ = computed(() => {
-    const lefts = this.columnLeft$.value;
-    if (lefts.length === 0) {
-      return 0;
-    }
-    return lefts[lefts.length - 1];
-  });
-
-  lastWidth$ = computed(() => {
-    const columns = this.options.columns$.value;
-    if (columns.length === 0) {
-      return 0;
-    }
-    return columns[columns.length - 1]?.width ?? 0;
+    return positions;
   });
 
   totalWidth$ = computed(() => {
-    const lastLeft = this.lastLeft$.value ?? 0;
-    const lastWidth = this.lastWidth$.value ?? 0;
-    return lastLeft + lastWidth;
+    const lastPosition =
+      this.columnPosition$.value[this.columnPosition$.value.length - 1];
+    if (lastPosition == null) {
+      return 0;
+    }
+    return lastPosition.right;
   });
 
   get content() {

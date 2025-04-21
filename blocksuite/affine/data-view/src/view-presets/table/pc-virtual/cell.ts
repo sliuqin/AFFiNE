@@ -15,7 +15,6 @@ import {
   type TableViewSelectionWithType,
 } from '../selection';
 import type { TableColumn } from '../table-view-manager.js';
-import type { TableGroup } from './group.js';
 
 export class DatabaseCellContainer extends SignalWatcher(
   WithDisposable(ShadowlessElement)
@@ -84,22 +83,18 @@ export class DatabaseCellContainer extends SignalWatcher(
     return this._cell.value;
   }
 
-  private get groupKey() {
-    return this.closest<TableGroup>('affine-data-view-table-group')?.group?.key;
-  }
-
   private get selectionView() {
-    return this.closest('affine-database-table')?.selectionController;
+    return this.closest('affine-virtual-table')?.selectionController;
   }
 
   get table() {
-    const table = this.closest('affine-database-table');
+    const table = this.closest('affine-virtual-table');
     return table;
   }
 
   override connectedCallback() {
     super.connectedCallback();
-    this._disposables.addFromEvent(this, 'click', () => {
+    this.disposables.addFromEvent(this.parentElement, 'click', () => {
       if (!this.isEditing$.value) {
         this.selectCurrentCell(!this.column.readonly$.value);
       }
@@ -159,6 +154,9 @@ export class DatabaseCellContainer extends SignalWatcher(
 
   @property({ attribute: false })
   accessor view!: SingleView;
+
+  @property({ attribute: false })
+  accessor groupKey!: string | undefined;
 }
 
 declare global {

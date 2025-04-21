@@ -1,4 +1,3 @@
-import { BlockSuiteError, ErrorCode } from '@blocksuite/global/exceptions';
 import { signal } from '@preact/signals-core';
 import { html } from 'lit';
 import { ref } from 'lit/directives/ref.js';
@@ -15,14 +14,11 @@ export class TableViewSelector extends DataViewBase<
 > {
   tableRef$ = signal<VirtualTableView | DataViewTable>();
 
+  // @ts-expect-error TODO: fix this
   get expose() {
     if (this.tableRef$.value) {
       return this.tableRef$.value.expose;
     }
-    throw new BlockSuiteError(
-      ErrorCode.DatabaseBlockError,
-      'expose should not return undefined'
-    );
   }
 
   override render() {

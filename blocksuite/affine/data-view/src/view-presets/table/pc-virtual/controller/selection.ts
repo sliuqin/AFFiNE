@@ -1,6 +1,7 @@
+import { getRangeByPositions } from '@blocksuite/affine-shared/utils';
 import { WithDisposable } from '@blocksuite/global/lit';
 import { ShadowlessElement } from '@blocksuite/std';
-import { computed, effect } from '@preact/signals-core';
+import { computed, effect, type ReadonlySignal } from '@preact/signals-core';
 import type { ReactiveController } from 'lit';
 import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';
@@ -21,7 +22,8 @@ import {
 import type { DatabaseCellContainer } from '../cell.js';
 import type { TableGroup } from '../group.js';
 import type { TableRow } from '../row/row.js';
-import type { DataViewTable } from '../table-view.js';
+import type { VirtualTableView } from '../table-view.js';
+import type { GridCell } from '../virtual/virtual-scroll.js';
 import {
   DragToFillElement,
   fillSelectionWithFocusCellData,
@@ -97,7 +99,7 @@ export class TableSelectionController implements ReactiveController {
   }
 
   get tableContainer() {
-    return this.host.querySelector('.affine-database-table-container');
+    return this.virtualScroll?.content.parentElement;
   }
 
   get view() {
@@ -108,7 +110,7 @@ export class TableSelectionController implements ReactiveController {
     return this.view;
   }
 
-  constructor(public host: DataViewTable) {
+  constructor(public host: VirtualTableView) {
     host.addController(this);
     this.__selectionElement = new SelectionElement();
     this.__selectionElement.controller = this;
@@ -135,8 +137,8 @@ export class TableSelectionController implements ReactiveController {
               selection &&
               selection.selectionType === 'area' &&
               selection.isEditing &&
-              selection.focus.rowIndex === cell.rowIndex &&
-              selection.focus.columnIndex === cell.columnIndex
+              selection.focus.rowIndex === cell.rowIndex$.value &&
+              selection.focus.columnIndex === cell.columnIndex$.value
             ) {
               return false;
             }
@@ -261,7 +263,7 @@ export class TableSelectionController implements ReactiveController {
       const focusCellContainer = this.getFocusCellContainer();
       cell = focusCellContainer ?? null;
     } else {
-      cell = target.closest('affine-database-cell-container');
+      cell = target.closest('affine-database-virtual-cell-container');
     }
     return [cell, fillValues];
   }
@@ -281,7 +283,7 @@ export class TableSelectionController implements ReactiveController {
   }
 
   areaToRows(selection: TableViewAreaSelection) {
-    const rows = this.rows(selection.groupKey) ?? [];
+    const rows = this.rows(selection.groupKey ?? '') ?? [];
     const ids = Array.from({
       length: selection.rowsSelection.end - selection.rowsSelection.start + 1,
     })
@@ -291,49 +293,62 @@ export class TableSelectionController implements ReactiveController {
     return ids.map(id => ({ id, groupKey: selection.groupKey }));
   }
 
-  cellPosition(groupKey: string | undefined) {
-    const rows = this.rows(groupKey);
-    const cells = rows
-      ?.item(0)
-      .querySelectorAll('affine-database-cell-container');
+  readonly columnOffsets$ = computed(() => {
+    const columnPositions = this.virtualScroll?.columnPosition$.value;
+    if (columnPositions == null) {
+      return [];
+    }
+    const rights = columnPositions.map(v => v?.right);
+    if (rights == null) {
+      return [];
+    }
+    const firstLeft = columnPositions[0]?.left;
+    if (firstLeft == null) {
+      return [];
+    }
+    return [firstLeft, ...rights];
+  });
 
+  readonly groupRowOffsets$ = computed<
+    Record<string, ReadonlySignal<number[]>>
+  >(() => {
+    return Object.fromEntries(
+      this.virtualScroll?.groups$.value.map(group => {
+        return [
+          group.groupId,
+          computed(() => {
+            const firstTop = group.rowPositions$.value[0]?.value?.top;
+            if (firstTop == null) {
+              return [];
+            }
+            const offsets: number[] = [firstTop];
+            for (const position of group.rowPositions$.value) {
+              if (position.value?.bottom == null) {
+                break;
+              }
+              offsets.push(position.value.bottom);
+            }
+            return offsets;
+          }),
+        ];
+      }) ?? []
+    );
+  });
+
+  cellPosition(groupKey: string | undefined) {
     return (x1: number, x2: number, y1: number, y2: number) => {
-      const rowOffsets: number[] = Array.from(rows ?? []).map(
-        v => v.getBoundingClientRect().top
-      );
-      const columnOffsets: number[] = Array.from(cells ?? []).map(
-        v => v.getBoundingClientRect().left
-      );
+      const rowOffsets = this.groupRowOffsets$.value[groupKey ?? ''];
+      if (rowOffsets == null) {
+        return;
+      }
       const [startX, endX] = x1 < x2 ? [x1, x2] : [x2, x1];
       const [startY, endY] = y1 < y2 ? [y1, y2] : [y2, y1];
-      const row: MultiSelection = {
-        start: 0,
-        end: 0,
-      };
-      const column: MultiSelection = {
-        start: 0,
-        end: 0,
-      };
-      for (let i = 0; i < rowOffsets.length; i++) {
-        const offset = rowOffsets[i];
-        if (offset == null) continue;
-        if (offset < startY) {
-          row.start = i;
-        }
-        if (offset < endY) {
-          row.end = i;
-        }
-      }
-      for (let i = 0; i < columnOffsets.length; i++) {
-        const offset = columnOffsets[i];
-        if (offset == null) continue;
-        if (offset < startX) {
-          column.start = i;
-        }
-        if (offset < endX) {
-          column.end = i;
-        }
-      }
+      const column = getRangeByPositions(
+        this.columnOffsets$.value,
+        startX,
+        endX
+      );
+      const row = getRangeByPositions(rowOffsets.value, startY, endY);
       return {
         row,
         column,
@@ -394,7 +409,7 @@ export class TableSelectionController implements ReactiveController {
         ?.querySelectorAll('data-view-table-row') ?? []
     );
     const cells = Array.from(
-      row?.querySelectorAll('affine-database-cell-container') ?? []
+      row?.querySelectorAll('affine-database-virtual-cell-container') ?? []
     );
     if (!row || !rows || !cells) {
       return;
@@ -432,9 +447,16 @@ export class TableSelectionController implements ReactiveController {
       }
     }
     rows[rowIndex]
-      ?.querySelectorAll('affine-database-cell-container')
+      ?.querySelectorAll('affine-database-virtual-cell-container')
       ?.item(columnIndex)
       ?.selectCurrentCell(false);
+  }
+
+  getCellElement(cell: GridCell): DatabaseCellContainer | undefined {
+    return (
+      cell.element.querySelector('affine-database-virtual-cell-container') ??
+      undefined
+    );
   }
 
   getCellContainer(
@@ -442,28 +464,20 @@ export class TableSelectionController implements ReactiveController {
     rowIndex: number,
     columnIndex: number
   ): DatabaseCellContainer | undefined {
-    const row = this.rows(groupKey)?.item(rowIndex);
-    return row
-      ?.querySelectorAll('affine-database-cell-container')
-      .item(columnIndex);
-  }
-
-  getGroup(groupKey: string | undefined) {
-    const container =
-      groupKey != null
-        ? this.tableContainer?.querySelector(
-            `affine-data-view-table-group[data-group-key="${groupKey}"]`
-          )
-        : this.tableContainer;
-    return container ?? null;
+    const row = this.rows(groupKey)?.[rowIndex];
+    const cell = row?.cells$.value[columnIndex];
+    if (!cell) {
+      return;
+    }
+    return this.getCellElement(cell);
   }
 
   getRect(
     groupKey: string | undefined,
-    top: number,
-    bottom: number,
-    left: number,
-    right: number
+    topIndex: number,
+    bottomIndex: number,
+    leftIndex: number,
+    rightIndex: number
   ):
     | undefined
     | {
@@ -474,32 +488,23 @@ export class TableSelectionController implements ReactiveController {
         scale: number;
       } {
     const rows = this.rows(groupKey);
-    const topRow = rows?.item(top);
-    const bottomRow = rows?.item(bottom);
-    if (!topRow || !bottomRow) {
+    const top = rows?.[topIndex]?.top$.value;
+    const bottom = rows?.[bottomIndex]?.bottom$.value;
+    if (top == null || bottom == null) {
       return;
     }
-    const topCells = topRow.querySelectorAll('affine-database-cell-container');
-    const leftCell = topCells.item(left);
-    const rightCell = topCells.item(right);
-    if (!leftCell || !rightCell) {
+    const left = this.virtualScroll?.columnPosition$.value[leftIndex]?.left;
+    const right = this.virtualScroll?.columnPosition$.value[rightIndex]?.right;
+    if (left == null || right == null) {
       return;
     }
-    const leftRect = leftCell.getBoundingClientRect();
-    const scale = leftRect.width / leftCell.column.width$.value;
     return {
-      top: leftRect.top / scale,
-      left: leftRect.left / scale,
-      width: (rightCell.getBoundingClientRect().right - leftRect.left) / scale,
-      height: (bottomRow.getBoundingClientRect().bottom - leftRect.top) / scale,
-      scale,
+      top,
+      left,
+      width: right - left,
+      height: bottom - top,
+      scale: 1,
     };
-  }
-
-  getRow(groupKey: string | undefined, rowId: string) {
-    return this.getGroup(groupKey)?.querySelector(
-      `data-view-table-row[data-row-id='${rowId}']`
-    );
   }
 
   getSelectionAreaBorder(position: 'left' | 'right' | 'top' | 'bottom') {
@@ -601,14 +606,24 @@ export class TableSelectionController implements ReactiveController {
     }
   }
 
+  get virtualScroll() {
+    return this.host.virtualScroll$.value;
+  }
+
+  getGroup(groupKey: string | undefined) {
+    return this.virtualScroll?.getGroup(groupKey ?? '');
+  }
+
+  getRow(groupKey: string | undefined, rowId: string) {
+    return this.virtualScroll?.getRow(groupKey ?? '', rowId);
+  }
+
+  getCell(groupKey: string | undefined, rowId: string, columnId: string) {
+    return this.virtualScroll?.getCell(groupKey ?? '', rowId, columnId);
+  }
+
   rows(groupKey: string | undefined) {
-    const container =
-      groupKey != null
-        ? this.tableContainer?.querySelector(
-            `affine-data-view-table-group[data-group-key="${groupKey}"]`
-          )
-        : this.tableContainer;
-    return container?.querySelectorAll('data-view-table-row');
+    return this.virtualScroll?.getGroup(groupKey ?? '').rows$.value;
   }
 
   rowSelectionChange({
@@ -833,8 +848,8 @@ export class TableSelectionController implements ReactiveController {
         rowsSelection: selection.row,
         columnsSelection: selection.column,
         focus: {
-          rowIndex: cell.rowIndex,
-          columnIndex: cell.columnIndex,
+          rowIndex: cell.rowIndex$.value,
+          columnIndex: cell.columnIndex$.value,
         },
         isEditing: false,
       });
@@ -867,8 +882,8 @@ export class TableSelectionController implements ReactiveController {
 
         if (fillValues)
           selection.column = {
-            start: cell.columnIndex,
-            end: cell.columnIndex,
+            start: cell.columnIndex$.value,
+            end: cell.columnIndex$.value,
           };
 
         select(selection);
@@ -888,8 +903,8 @@ export class TableSelectionController implements ReactiveController {
               rowsSelection: selection.row,
               columnsSelection: selection.column,
               focus: {
-                rowIndex: cell.rowIndex,
-                columnIndex: cell.columnIndex,
+                rowIndex: cell.rowIndex$.value,
+                columnIndex: cell.columnIndex$.value,
               },
               isEditing: false,
             })
@@ -1027,6 +1042,7 @@ export class SelectionElement extends WithDisposable(ShadowlessElement) {
   }
 
   override render() {
+    console.log('render');
     return html`
       <div ${ref(this.selectionRef)} class="database-selection">
         <div class="area-border area-left"></div>
