@@ -4,23 +4,36 @@ import {
   popupTargetFromElement,
 } from '@blocksuite/affine-components/context-menu';
 import { AddCursorIcon } from '@blocksuite/icons/lit';
+import { computed, signal } from '@preact/signals-core';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { css, unsafeCSS } from 'lit';
-import { repeat } from 'lit/directives/repeat.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { html } from 'lit/static-html.js';
 
-import type { GroupTrait } from '../../../core/group-by/trait.js';
-import type { DataViewInstance } from '../../../core/index.js';
-import { renderUniLit } from '../../../core/utils/uni-component/uni-component.js';
+import {
+  type GroupTrait,
+  groupTraitKey,
+} from '../../../core/group-by/trait.js';
+import { type DataViewInstance, renderUniLit } from '../../../core/index.js';
 import { DataViewBase } from '../../../core/view/data-view-base.js';
+import type {
+  TableSingleView,
+  TableViewSelectionWithType,
+} from '../../index.js';
 import { LEFT_TOOL_BAR_WIDTH } from '../consts.js';
-import type { TableViewSelectionWithType } from '../selection';
-import type { TableSingleView } from '../table-view-manager.js';
+import { DatabaseCellContainer } from './cell.js';
 import { TableClipboardController } from './controller/clipboard.js';
 import { TableDragController } from './controller/drag.js';
 import { TableHotkeysController } from './controller/hotkeys.js';
 import { TableSelectionController } from './controller/selection.js';
+import { DatabaseColumnHeader } from './header/column-header.js';
+import { VirtualDataBaseColumnStats } from './stats/column-stats-bar.js';
+import {
+  getScrollContainer,
+  type GridCell,
+  type GridGroup,
+  GridVirtualScroll,
+} from './virtual/virtual-scroll.js';
 
 const styles = css`
   affine-database-table {
@@ -141,7 +154,7 @@ const styles = css`
   }
 `;
 
-export class DataViewTable extends DataViewBase<
+export class VirtualTableView extends DataViewBase<
   TableSingleView,
   TableViewSelectionWithType
 > {
@@ -208,6 +221,7 @@ export class DataViewTable extends DataViewBase<
   };
 
   selectionController = new TableSelectionController(this);
+  yScrollContainer: HTMLElement | undefined;
 
   get expose(): DataViewInstance {
     return {
@@ -257,33 +271,95 @@ export class DataViewTable extends DataViewBase<
     return this.props.view.readonly$.value;
   }
 
-  private renderTable() {
-    const groups = this.props.view.groupTrait.groupsDataList$.value;
-    if (groups) {
-      return html`
-        <div style="display:flex;flex-direction: column;gap: 16px;">
-          ${repeat(
-            groups,
-            v => v.key,
-            group => {
-              return html` <affine-data-view-table-group
-                data-group-key="${group.key}"
-                .dataViewEle="${this.props.dataViewEle}"
-                .view="${this.props.view}"
-                .viewEle="${this}"
-                .group="${group}"
-              ></affine-data-view-table-group>`;
-            }
-          )}
-          ${this.renderAddGroup(this.props.view.groupTrait)}
-        </div>
-      `;
+  columns$ = computed(() => {
+    return [
+      {
+        id: 'row-header',
+        width: LEFT_TOOL_BAR_WIDTH,
+      },
+      ...this.props.view.properties$.value.map(property => ({
+        id: property.id,
+        width: property.width$.value + 1,
+      })),
+    ];
+  });
+
+  groupTrait$ = computed(() => {
+    return this.props.view.traitGet(groupTraitKey);
+  });
+
+  groups$ = computed(() => {
+    const groupTrait = this.groupTrait$.value;
+    if (!groupTrait?.groupsDataList$.value) {
+      return [
+        {
+          id: '',
+          rows: this.props.view.rows$.value,
+        },
+      ];
     }
-    return html` <affine-data-view-table-group
-      .dataViewEle="${this.props.dataViewEle}"
-      .view="${this.props.view}"
-      .viewEle="${this}"
-    ></affine-data-view-table-group>`;
+    return groupTrait.groupsDataList$.value.map(group => ({
+      id: group.key,
+      rows: group.rows,
+    }));
+  });
+  private virtualScroll?: GridVirtualScroll;
+  private initVirtualScroll(yScrollContainer: HTMLElement) {
+    this.virtualScroll = new GridVirtualScroll({
+      columns$: this.columns$,
+      groups$: this.groups$,
+      createCell: (cell: GridCell) => {
+        if (cell.columnId === 'row-header') {
+          const div = document.createElement('div');
+          div.style.height = '34px';
+          return div;
+        }
+        const cellContainer = new DatabaseCellContainer();
+        cellContainer.view = this.props.view;
+        cellContainer.column = this.props.view.properties$.value.find(
+          property => property.id === cell.columnId
+        )!;
+        cellContainer.rowId = cell.row.rowId;
+        cellContainer.columnIndex$ = cell.columnIndex$;
+        cellContainer.rowIndex$ = cell.row.rowIndex$;
+        return cellContainer;
+      },
+      createGroup: {
+        top: (_gridGroup: GridGroup) => {
+          const columnHeader = new DatabaseColumnHeader();
+          columnHeader.tableViewManager = this.props.view;
+          columnHeader.renderGroupHeader = () => {
+            return html`<div></div>`;
+          };
+          return columnHeader;
+        },
+        bottom: (group: GridGroup) => {
+          const columnStats = new VirtualDataBaseColumnStats();
+          columnStats.view = this.props.view;
+          columnStats.group =
+            this.groupTrait$.value?.groupsDataList$.value?.find(
+              g => g.key === group.groupId
+            );
+
+          return columnStats;
+        },
+      },
+      fixedRowHeight$: signal(undefined),
+      yScrollContainer,
+    });
+    this.requestUpdate();
+    requestAnimationFrame(() => {
+      this.virtualScroll?.init();
+      this.disposables.add(() => this.virtualScroll?.dispose());
+    });
+  }
+  private renderTable() {
+    return this.virtualScroll?.content;
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.initVirtualScroll(getScrollContainer(this, 'y') ?? document.body);
   }
 
   override render() {
@@ -316,6 +392,6 @@ export class DataViewTable extends DataViewBase<
 
 declare global {
   interface HTMLElementTagNameMap {
-    'affine-database-table': DataViewTable;
+    'affine-virtual-table': VirtualTableView;
   }
 }

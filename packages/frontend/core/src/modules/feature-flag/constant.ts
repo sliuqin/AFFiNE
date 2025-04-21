@@ -248,6 +248,16 @@ export const AFFINE_FLAGS = {
     configurable: isCanaryBuild,
     defaultState: false,
   },
+  enable_table_virtual_scroll: {
+    category: 'blocksuite',
+    bsFlag: 'enable_table_virtual_scroll',
+    displayName:
+      'com.affine.settings.workspace.experimental-features.enable-table-virtual-scroll.name',
+    description:
+      'com.affine.settings.workspace.experimental-features.enable-table-virtual-scroll.description',
+    configurable: isCanaryBuild,
+    defaultState: false,
+  },
   enable_meetings: {
     category: 'affine',
     displayName:

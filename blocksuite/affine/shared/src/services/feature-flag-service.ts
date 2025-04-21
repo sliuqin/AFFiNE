@@ -18,6 +18,7 @@ export interface BlockSuiteFlags {
   enable_block_meta: boolean;
   enable_callout: boolean;
   enable_edgeless_scribbled_style: boolean;
+  enable_table_virtual_scroll: boolean;
 }
 
 export class FeatureFlagService extends StoreExtension {
@@ -40,6 +41,7 @@ export class FeatureFlagService extends StoreExtension {
     enable_block_meta: true,
     enable_callout: false,
     enable_edgeless_scribbled_style: false,
+    enable_table_virtual_scroll: false,
   });
 
   setFlag(key: keyof BlockSuiteFlags, value: boolean) {

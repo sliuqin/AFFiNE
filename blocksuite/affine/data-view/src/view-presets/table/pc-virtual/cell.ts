@@ -1,6 +1,6 @@
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { ShadowlessElement } from '@blocksuite/std';
-import { computed, signal } from '@preact/signals-core';
+import { computed, type ReadonlySignal, signal } from '@preact/signals-core';
 import { css } from 'lit';
 import { property } from 'lit/decorators.js';
 
@@ -21,20 +21,20 @@ export class DatabaseCellContainer extends SignalWatcher(
   WithDisposable(ShadowlessElement)
 ) {
   static override styles = css`
-    affine-database-cell-container {
+    affine-database-virtual-cell-container {
       display: flex;
       align-items: start;
       width: 100%;
-      height: 100%;
       border: none;
       outline: none;
+      box-sizing: content-box;
     }
 
-    affine-database-cell-container * {
+    affine-database-virtual-cell-container * {
       box-sizing: border-box;
     }
 
-    affine-database-cell-container uni-lit > *:first-child {
+    affine-database-virtual-cell-container uni-lit > *:first-child {
       padding: 6px;
     }
   `;
@@ -62,8 +62,8 @@ export class DatabaseCellContainer extends SignalWatcher(
         selectionView.selection = TableViewAreaSelection.create({
           groupKey: this.groupKey,
           focus: {
-            rowIndex: this.rowIndex,
-            columnIndex: this.columnIndex,
+            rowIndex: this.rowIndex$.value,
+            columnIndex: this.columnIndex$.value,
           },
           isEditing: true,
         });
@@ -71,8 +71,8 @@ export class DatabaseCellContainer extends SignalWatcher(
         selectionView.selection = TableViewAreaSelection.create({
           groupKey: this.groupKey,
           focus: {
-            rowIndex: this.rowIndex,
-            columnIndex: this.columnIndex,
+            rowIndex: this.rowIndex$.value,
+            columnIndex: this.columnIndex$.value,
           },
           isEditing: false,
         });
@@ -104,6 +104,11 @@ export class DatabaseCellContainer extends SignalWatcher(
         this.selectCurrentCell(!this.column.readonly$.value);
       }
     });
+    const style = this.parentElement?.style;
+    if (style) {
+      style.borderBottom = '1px solid var(--affine-border-color)';
+      style.borderRight = '1px solid var(--affine-border-color)';
+    }
   }
 
   isSelected(selection: TableViewSelectionWithType) {
@@ -113,10 +118,10 @@ export class DatabaseCellContainer extends SignalWatcher(
     if (selection.groupKey !== this.groupKey) {
       return;
     }
-    if (selection.focus.columnIndex !== this.columnIndex) {
+    if (selection.focus.columnIndex !== this.columnIndex$.value) {
       return;
     }
-    return selection.focus.rowIndex === this.rowIndex;
+    return selection.focus.rowIndex === this.rowIndex$.value;
   }
 
   override render() {
@@ -145,12 +150,12 @@ export class DatabaseCellContainer extends SignalWatcher(
   accessor columnId!: string;
 
   @property({ attribute: false })
-  accessor columnIndex!: number;
+  accessor columnIndex$!: ReadonlySignal<number>;
 
   isEditing$ = signal(false);
 
   @property({ attribute: false })
-  accessor rowIndex!: number;
+  accessor rowIndex$!: ReadonlySignal<number>;
 
   @property({ attribute: false })
   accessor view!: SingleView;
@@ -158,6 +163,6 @@ export class DatabaseCellContainer extends SignalWatcher(
 
 declare global {
   interface HTMLElementTagNameMap {
-    'affine-database-cell-container': DatabaseCellContainer;
+    'affine-database-virtual-cell-container': DatabaseCellContainer;
   }
 }

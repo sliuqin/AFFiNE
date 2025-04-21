@@ -11,13 +11,11 @@ import { html } from 'lit/static-html.js';
 
 import type { TableSingleView } from '../../table-view-manager.js';
 import type { TableGroup } from '../group.js';
-import { styles } from './styles.js';
+import * as styles from './column-header.css.js';
 
 export class DatabaseColumnHeader extends SignalWatcher(
   WithDisposable(ShadowlessElement)
 ) {
-  static override styles = styles;
-
   private readonly _onAddColumn = (e: MouseEvent) => {
     if (this.readonly) return;
     this.tableViewManager.propertyAdd('end');
@@ -63,10 +61,11 @@ export class DatabaseColumnHeader extends SignalWatcher(
 
   override connectedCallback() {
     super.connectedCallback();
+    this.classList.add(styles.columnHeaderContainer);
     const scrollContainer = getScrollContainer(
       this.closest('affine-data-view-renderer')!
     );
-    const group = this.closest('affine-data-view-table-group');
+    const group = this.closest('affine-data-view-virtual-table-group');
     if (group) {
       const cancel = autoUpdate(group, this, () => {
         if (!scrollContainer) {
@@ -85,7 +84,7 @@ export class DatabaseColumnHeader extends SignalWatcher(
   override render() {
     return html`
       ${this.renderGroupHeader?.()}
-      <div class="affine-database-column-header database-row">
+      <div class="${styles.columnHeader} database-row">
         ${this.readonly
           ? nothing
           : html`<div class="data-view-table-left-bar"></div>`}
@@ -102,7 +101,7 @@ export class DatabaseColumnHeader extends SignalWatcher(
                 style="${style}"
                 data-column-id="${column.id}"
                 data-column-index="${index}"
-                class="affine-database-column database-cell"
+                class="${styles.column} ${styles.cell}"
                 .column="${column}"
                 .tableViewManager="${this.tableViewManager}"
               ></affine-database-header-column>
@@ -112,7 +111,7 @@ export class DatabaseColumnHeader extends SignalWatcher(
         )}
         <div
           @click="${this._onAddColumn}"
-          class="header-add-column-button dv-hover"
+          class="${styles.headerAddColumnButton}"
         >
           ${PlusIcon()}
         </div>
@@ -133,6 +132,6 @@ export class DatabaseColumnHeader extends SignalWatcher(
 
 declare global {
   interface HTMLElementTagNameMap {
-    'affine-database-column-header': DatabaseColumnHeader;
+    'affine-database-virtual-column-header': DatabaseColumnHeader;
   }
 }
