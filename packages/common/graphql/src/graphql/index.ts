@@ -624,6 +624,7 @@ export const claimAudioTranscriptionMutation = {
     status
     title
     summary
+    actions
     transcription {
       speaker
       start

@@ -408,6 +408,7 @@ export async function claimAudioTranscription(
   status: string;
   title: string | null;
   summary: string | null;
+  actions: string | null;
   transcription:
     | {
         speaker: string;
@@ -425,6 +426,7 @@ export async function claimAudioTranscription(
           status
           title
           summary
+          actions
           transcription {
             speaker
             start

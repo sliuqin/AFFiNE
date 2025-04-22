@@ -1935,6 +1935,7 @@ export interface TranscriptionItemType {
 
 export interface TranscriptionResultType {
   __typename?: 'TranscriptionResultType';
+  actions: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   status: AiJobStatus;
   summary: Maybe<Scalars['String']['output']>;
@@ -3029,6 +3030,7 @@ export type ClaimAudioTranscriptionMutation = {
     status: AiJobStatus;
     title: string | null;
     summary: string | null;
+    actions: string | null;
     transcription: Array<{
       __typename?: 'TranscriptionItemType';
       speaker: string;
