@@ -194,9 +194,8 @@ export class VirtualTableView extends DataViewBase<
           property => property.id === cell.columnId
         )!;
         cellContainer.rowId = cell.row.rowId;
-        cellContainer.columnIndex$ = cell.columnIndex$;
-        cellContainer.rowIndex$ = cell.row.rowIndex$;
         cellContainer.groupKey = cell.row.group.groupId;
+        cellContainer.gridCell = cell;
         return cellContainer;
       },
       createGroup: {

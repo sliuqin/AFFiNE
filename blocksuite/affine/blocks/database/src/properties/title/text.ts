@@ -217,17 +217,23 @@ export class HeaderAreaTextCell extends BaseCellRenderer<Text, string> {
     super.firstUpdated(props);
     this.richText.value?.updateComplete
       .then(() => {
-        this.disposables.addFromEvent(
-          this.richText.value,
-          'copy',
-          this._onCopy
-        );
-        this.disposables.addFromEvent(this.richText.value, 'cut', this._onCut);
-        this.disposables.addFromEvent(
-          this.richText.value,
-          'paste',
-          this._onPaste
-        );
+        if (this.richText.value) {
+          this.disposables.addFromEvent(
+            this.richText.value,
+            'copy',
+            this._onCopy
+          );
+          this.disposables.addFromEvent(
+            this.richText.value,
+            'cut',
+            this._onCut
+          );
+          this.disposables.addFromEvent(
+            this.richText.value,
+            'paste',
+            this._onPaste
+          );
+        }
       })
       .catch(console.error);
   }

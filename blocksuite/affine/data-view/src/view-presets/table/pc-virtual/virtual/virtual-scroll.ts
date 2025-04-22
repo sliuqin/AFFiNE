@@ -2,14 +2,27 @@ import {
   computed,
   effect,
   type ReadonlySignal,
-  type Signal,
   signal,
 } from '@preact/signals-core';
 
+import { BatchTaskManager } from './batch-task-manager';
 import { VirtualElementWrapper } from './virtual-cell';
 
 export interface Disposable {
   dispose(): void;
+}
+
+export class NodeLifeCycle implements Disposable {
+  disposables: (() => void)[] = [];
+  init() {}
+  isDisposed = false;
+  dispose() {
+    if (this.isDisposed) {
+      return;
+    }
+    this.isDisposed = true;
+    this.disposables.forEach(disposable => disposable());
+  }
 }
 
 export class CacheManager<K, V extends Disposable> {
@@ -55,24 +68,23 @@ export class CacheManager<K, V extends Disposable> {
   }
 }
 
-export abstract class VirtualScroll {
-  protected readonly disposables: (() => void)[] = [];
+export abstract class VirtualScroll extends NodeLifeCycle {
   readonly container: VirtualScrollContainer;
 
   constructor(containerOptions: VirtualScrollOptions) {
+    super();
     this.container = new VirtualScrollContainer(containerOptions);
   }
 
-  dispose() {
+  override dispose() {
+    super.dispose();
     this.container.dispose();
-    this.disposables.forEach(disposable => disposable());
   }
 }
 
-export class GridCell implements Disposable {
-  protected readonly disposables: (() => void)[] = [];
-  readonly element: HTMLElement;
-
+export class GridCell extends NodeLifeCycle {
+  readonly renderTask;
+  readonly element;
   readonly columnIndex$ = computed(() => {
     return this.row.grid.columns$.value.findIndex(
       column => column.id === this.columnId
@@ -120,16 +132,26 @@ export class GridCell implements Disposable {
     readonly columnId: string,
     createElement: (cell: GridCell) => HTMLElement
   ) {
-    const element = new VirtualElementWrapper();
-    element.rect = {
+    super();
+    this.element = new VirtualElementWrapper();
+    this.element.rect = {
       left$: this.left$,
       top$: this.top$,
       width$: this.width$,
       height$: this.row.height$,
     };
-    element.updateHeight = height => this.updateHeight(height);
-    element.element = createElement(this);
-    this.element = element;
+    this.element.updateHeight = height => this.updateHeight(height);
+    this.element.element = createElement(this);
+    const isInit = computed(() => {
+      return this.height$.value != null;
+    });
+    this.renderTask = this.grid.container.initElement(this.element, isInit);
+    const cancel = effect(() => {
+      if (isInit.value && !this.isVisible$.peek()) {
+        this.renderTask.hide();
+        cancel();
+      }
+    });
     this.disposables.push(
       effect(() => {
         this.checkRender();
@@ -137,15 +159,10 @@ export class GridCell implements Disposable {
     );
   }
 
-  dispose() {
-    this.grid.container.removeElement(this.element, 1, true);
-    this.disposables.forEach(disposable => disposable());
-  }
-
   isVisible$ = computed(() => {
     const height = this.realHeight$.value;
     if (height == null) {
-      return true;
+      return false;
     }
     const offsetTop = this.top$.value;
     if (offsetTop == null) {
@@ -163,49 +180,30 @@ export class GridCell implements Disposable {
     const yInView =
       offsetBottom >= viewport.top && offsetTop <= viewport.bottom;
     const isVisible = xInView && yInView;
-    // console.log('isVisible',
-    //   isVisible,
-    //   this.rowIndex$.value,
-    //   this.columnIndex$.value,
-    //   xInView,
-    //   yInView,
-    //   {
-    //     viewportLeft: viewport.left,
-    //     viewportRight: viewport.right,
-    //     viewportTop: viewport.top,
-    //     viewportBottom: viewport.bottom,
-    //     top: offsetTop,
-    //     bottom: offsetBottom,
-    //     left: offsetLeft,
-    //     right: offsetRight
-    //   });
     return isVisible;
   });
 
   checkRender() {
     const isVisible = this.isVisible$.value;
-    if (isVisible) {
-      if (!this.row.group.init) {
-        this.grid.container.addElement(this.element, 0, true);
-      } else {
-        this.grid.container.addElement(this.element, 1);
-      }
-    } else {
-      this.grid.container.removeElement(this.element, 1, true);
+    if (isVisible && !this.element.isConnected) {
+      this.renderTask.show();
+    } else if (!isVisible && this.element.isConnected) {
+      this.renderTask.hide();
     }
-    return isVisible;
   }
 
-  updateHeight(height: number = this.element.clientHeight) {
-    if (this.realHeight$.value == null) {
-      // console.log('init height', this.rowIndex$.value, this.columnIndex$.value, height)
-    }
+  updateHeight(height: number) {
     this.realHeight$.value = height;
+  }
+
+  override dispose() {
+    super.dispose();
+    this.renderTask.cancel();
+    this.element.remove();
   }
 }
 
-export class GridRow implements Disposable {
-  protected readonly disposables: (() => void)[] = [];
+export class GridRow extends NodeLifeCycle {
   cells$ = computed(() => {
     return this.grid.columns$.value.map(column => {
       return this.grid.getOrCreateCell(this, column.id);
@@ -216,20 +214,32 @@ export class GridRow implements Disposable {
     return this.group.rows$.value.findIndex(row => row.rowId === this.rowId);
   });
 
+  prevRow$ = computed(() => {
+    return this.group.rows$.value[this.rowIndex$.value - 1];
+  });
+
   get grid() {
     return this.group.grid;
   }
 
-  private readonly rowPosition$ = computed(() => {
-    return this.group.rowPositions$.value[this.rowIndex$.value]?.value;
-  });
-
-  top$ = computed(() => {
-    return this.rowPosition$.value?.top;
+  top$: ReadonlySignal<number | undefined> = computed(() => {
+    const prevRow = this.prevRow$.value;
+    if (!prevRow) {
+      return this.group.rowsTop$.value;
+    }
+    return prevRow.bottom$.value;
   });
 
   bottom$ = computed(() => {
-    return this.rowPosition$.value?.bottom;
+    const top = this.top$.value;
+    if (top == null) {
+      return;
+    }
+    const height = this.height$.value;
+    if (height == null) {
+      return;
+    }
+    return top + height;
   });
 
   height$ = computed(() => {
@@ -249,15 +259,133 @@ export class GridRow implements Disposable {
   constructor(
     readonly group: GridGroup,
     readonly rowId: string
-  ) {}
+  ) {
+    super();
+  }
 
-  dispose() {
-    this.disposables.forEach(disposable => disposable());
+  override dispose() {
+    super.dispose();
+  }
+}
+export class GroupNode extends NodeLifeCycle {
+  readonly renderTask;
+  readonly height$ = signal<number | undefined>();
+  readonly bottom$ = computed(() => {
+    const top = this.top$.value;
+    const height = this.height$.value;
+    if (top == null) {
+      return;
+    }
+    if (height == null) {
+      return;
+    }
+    return top + height;
+  });
+  constructor(
+    public readonly group: GridGroup,
+    public readonly top$: ReadonlySignal<number | undefined>,
+    content: HTMLElement,
+    readonly visibleCheck: (node: GroupNode) => boolean
+  ) {
+    super();
+    const element = new VirtualElementWrapper();
+    element.rect = {
+      left$: signal(0),
+      top$,
+      width$: signal(),
+      height$: this.height$,
+    };
+    element.element = content;
+    element.updateHeight = height => {
+      this.height$.value = height;
+    };
+    const isInit = computed(() => {
+      return this.height$.value != null;
+    });
+    this.renderTask = this.container.initElement(element, isInit);
+    const cancel = effect(() => {
+      if (isInit.value && !this.isVisible$.peek()) {
+        this.renderTask.hide();
+        cancel();
+      }
+    });
+    this.disposables.push(
+      effect(() => {
+        this.checkRender();
+      })
+    );
+  }
+  get container() {
+    return this.group.grid.container;
+  }
+
+  isVisible$ = computed(() => {
+    return this.visibleCheck(this);
+  });
+
+  checkRender() {
+    const isVisible = this.isVisible$.value;
+    if (isVisible) {
+      this.renderTask.show();
+    } else {
+      this.renderTask.hide();
+    }
   }
 }
 
-export class GridGroup implements Disposable {
-  protected readonly disposables: (() => void)[] = [];
+export class GridGroup extends NodeLifeCycle {
+  top$: ReadonlySignal<number | undefined> = computed(() => {
+    const prevGroup = this.prevGroup$.value;
+    if (!prevGroup) {
+      return 0;
+    }
+    return prevGroup.bottom$.value;
+  });
+  topNode = new GroupNode(this, this.top$, this.topElement(this), node => {
+    const height = node.height$.value;
+    if (height == null) {
+      return false;
+    }
+    const top = this.top$.value;
+    if (top == null) {
+      return false;
+    }
+    const bottom = this.lastRowBottom$.value ?? top + height;
+    const groupInView =
+      top < this.grid.container.viewport$.value.bottom &&
+      bottom > this.grid.container.viewport$.value.top;
+    return groupInView;
+  });
+  lastRowBottom$: ReadonlySignal<number | undefined> = computed(() => {
+    if (this.rows$.value.length === 0) {
+      return this.rowsTop$.value;
+    }
+    const lastRow = this.rows$.value.findLast(row => row.bottom$.value != null);
+    if (lastRow == null) {
+      return;
+    }
+    return lastRow.bottom$.value;
+  });
+  bottomNode = new GroupNode(
+    this,
+    this.lastRowBottom$,
+    this.bottomElement(this),
+    node => {
+      const height = node.height$.value;
+      if (height == null) {
+        return false;
+      }
+      const top = this.lastRowBottom$.value;
+      if (top == null) {
+        return false;
+      }
+      const bottom = top + height;
+      const groupInView =
+        top < this.grid.container.viewport$.value.bottom &&
+        bottom > this.grid.container.viewport$.value.top;
+      return groupInView;
+    }
+  );
   rows$ = computed(() => {
     const group = this.grid.options.groups$.value.find(
       g => g.id === this.groupId
@@ -276,223 +404,45 @@ export class GridGroup implements Disposable {
     );
   });
 
-  top$ = computed(() => {
-    return this.grid.groupTops$.value[this.groupIndex$.value]?.value;
-  });
-
-  topNodeBottom$ = computed(() => {
-    const top = this.top$.value;
-    if (top == null) {
-      return;
-    }
-    const height = this.topNode.height$.value;
-    if (height == null) {
-      return;
-    }
-    return top + height;
-  });
-
-  topNode: {
-    element: HTMLElement;
-    height$: Signal<number | undefined>;
-  };
-  bottomNode: {
-    element: HTMLElement;
-    height$: Signal<number | undefined>;
-  };
-
-  checkRender() {
-    const isTopVisible = this.isTopVisible$.value;
-    if (isTopVisible) {
-      if (!this.init) {
-        this.grid.container.addElement(this.topNode.element, 0, true);
-      } else {
-        this.grid.container.addElement(this.topNode.element, 1);
-      }
-    } else {
-      this.grid.container.removeElement(this.topNode.element, 1, true);
-    }
-    const isBottomVisible = this.isBottomVisible$.value;
-    if (isBottomVisible) {
-      if (!this.init) {
-        this.grid.container.addElement(this.bottomNode.element, 0, true);
-      } else {
-        this.grid.container.addElement(this.bottomNode.element, 1);
-      }
-    } else {
-      this.grid.container.removeElement(this.bottomNode.element, 1, true);
-    }
-  }
-
-  isTopVisible$ = computed(() => {
-    const height = this.topNode.height$.value;
-    if (height == null) {
-      return true;
-    }
-    const top = this.top$.value;
-    if (top == null) {
-      return false;
-    }
-    const bottom = this.rowsBottom$.value ?? top + height;
-    const groupInView =
-      top < this.grid.container.viewport$.value.bottom &&
-      bottom > this.grid.container.viewport$.value.top;
-    return groupInView;
-  });
-
-  isBottomVisible$ = computed(() => {
-    const height = this.bottomNode.height$.value;
-    if (height == null) {
-      return true;
-    }
-    const top = this.bottomNodeTop$.value;
-    if (top == null) {
-      return false;
-    }
-    const bottom = top + height;
-    const groupInView =
-      top < this.grid.container.viewport$.value.bottom &&
-      bottom > this.grid.container.viewport$.value.top;
-    return groupInView;
-  });
-
-  rowPositions$ = computed(() => {
-    const positions: ReadonlySignal<
-      { top: number; height?: number; bottom?: number } | undefined
-    >[] = [];
-    const rows = this.rows$.value;
-    const length = rows.length;
-    for (let i = 0; i < length; i++) {
-      const position = computed(() => {
-        const height = rows[i]?.height$.value;
-        const isFirst = i === 0;
-        if (isFirst) {
-          const top = this.topNodeBottom$.value;
-          if (top == null) {
-            return;
-          }
-          if (height == null) {
-            return {
-              top,
-            };
-          }
-          return {
-            top,
-            height,
-            bottom: top + height,
-          };
-        }
-        const prevBottom = positions[i - 1]?.value?.bottom;
-        if (prevBottom == null) {
-          return;
-        }
-        if (height == null) {
-          return {
-            top: prevBottom,
-          };
-        }
-        return {
-          top: prevBottom,
-          height,
-          bottom: prevBottom + height,
-        };
-      });
-      positions.push(position);
-    }
-    return positions;
+  prevGroup$ = computed(() => {
+    return this.grid.groups$.value[this.groupIndex$.value - 1];
   });
 
   get rowsTop$() {
-    return this.topNodeBottom$;
+    return this.topNode.bottom$;
   }
 
-  rowsBottom$ = computed(() => {
-    const positions = this.rowPositions$.value;
-    const last = positions.findLast(v => v?.value != null);
-    return last?.value?.bottom ?? this.rowsTop$.value;
-  });
-
   get bottomNodeTop$() {
-    return this.rowsBottom$;
+    return this.lastRowBottom$;
   }
 
   height$ = computed(() => {
-    const rowsBottom = this.rowsBottom$.value;
-    if (rowsBottom == null) {
+    const bottom = this.bottom$.value;
+    if (bottom == null) {
       return;
     }
-    const bottomNodeHeight = this.bottomNode.height$?.value ?? 0;
-    return rowsBottom + bottomNodeHeight;
+    const top = this.top$.value;
+    if (top == null) {
+      return;
+    }
+    return bottom - top;
   });
 
   bottom$ = computed(() => {
-    const rowsBottom = this.rowsBottom$.value;
-    if (rowsBottom == null) {
-      return;
-    }
-    const bottomNodeHeight = this.bottomNode.height$?.value;
-    if (bottomNodeHeight == null) {
-      return;
-    }
-    return rowsBottom + bottomNodeHeight;
+    return this.bottomNode.bottom$.value;
   });
-
-  init = false;
 
   constructor(
     readonly grid: GridVirtualScroll,
     readonly groupId: string,
-    top: (group: GridGroup) => HTMLElement,
-    bottom: (group: GridGroup) => HTMLElement
+    readonly topElement: (group: GridGroup) => HTMLElement,
+    readonly bottomElement: (group: GridGroup) => HTMLElement
   ) {
-    const topNodeHeight$ = signal<number | undefined>();
-    const topElement = new VirtualElementWrapper();
-    topElement.rect = {
-      left$: signal(0),
-      top$: this.top$,
-      width$: signal(),
-      height$: topNodeHeight$,
-    };
-    topElement.element = top(this);
-    topElement.updateHeight = height => {
-      topNodeHeight$.value = height;
-    };
-    this.topNode = {
-      element: topElement,
-      height$: topNodeHeight$,
-    };
-    const bottomNodeHeight$ = signal<number | undefined>();
-    const bottomElement = new VirtualElementWrapper();
-    bottomElement.rect = {
-      left$: signal(0),
-      top$: this.bottomNodeTop$,
-      width$: signal(),
-      height$: bottomNodeHeight$,
-    };
-    bottomElement.element = bottom(this);
-    bottomElement.updateHeight = height => {
-      console.log('update bottom height', height);
-      bottomNodeHeight$.value = height;
-    };
-    this.bottomNode = {
-      element: bottomElement,
-      height$: bottomNodeHeight$,
-    };
-    this.disposables.push(
-      effect(() => {
-        this.checkRender();
-      })
-    );
-    this.rows$.value.forEach(row => {
-      row.cells$.value;
-    });
-    this.init = true;
+    super();
   }
 
-  dispose() {
-    this.grid.container.removeElement(this.topNode.element, 1, true);
-    this.grid.container.removeElement(this.bottomNode.element, 1, true);
-    this.disposables.forEach(disposable => disposable());
+  override dispose() {
+    super.dispose();
   }
 }
 
@@ -587,19 +537,19 @@ export class GridVirtualScroll extends VirtualScroll {
         const activeRowIds = new Set<string>();
         const activeCellIds = new Set<string>();
 
-        for (const group of this.options.groups$.value) {
-          activeGroupIds.add(group.id);
-          for (const rowId of group.rows) {
+        for (const group of this.groups$.value) {
+          activeGroupIds.add(group.groupId);
+          for (const row of group.rows$.value) {
             const rowKey = this.rowsCache.keyToString({
-              groupId: group.id,
-              rowId,
+              groupId: group.groupId,
+              rowId: row.rowId,
             });
             activeRowIds.add(rowKey);
-            for (const column of this.options.columns$.value) {
+            for (const cell of row.cells$.value) {
               const cellKey = this.cellsCache.keyToString({
-                groupId: group.id,
-                rowId,
-                columnId: column.id,
+                groupId: group.groupId,
+                rowId: row.rowId,
+                columnId: cell.columnId,
               });
               activeCellIds.add(cellKey);
             }
@@ -609,53 +559,18 @@ export class GridVirtualScroll extends VirtualScroll {
         this.cellsCache.cleanup(activeCellIds);
         this.rowsCache.cleanup(activeRowIds);
         this.groupsCache.cleanup(activeGroupIds);
-        // this.container.batchTaskManager.clean();
       })
     );
   }
 
-  groupTops$ = computed(() => {
-    const tops: ReadonlySignal<number | undefined>[] = [];
-    const rows = this.groups$.value;
-    const length = rows.length;
-    for (let i = 0; i < length; i++) {
-      const top = computed(() => {
-        const isFirst = i === 0;
-        if (isFirst) {
-          return 0;
-        }
-        const prevTop = tops[i - 1]?.value;
-        if (prevTop == null) {
-          return;
-        }
-        const prevHeight = rows[i - 1]?.height$.value;
-        if (prevHeight == null) {
-          return;
-        }
-        return prevTop + prevHeight;
-      });
-      tops.push(top);
-    }
-    return tops;
-  });
-
-  totalHeight$ = computed(() => {
-    const lastGroupIndex = this.groups$.value.findLastIndex(
-      group => group.top$.value != null
+  lastGroupBottom$ = computed(() => {
+    const lastGroup = this.groups$.value.findLast(
+      group => group.bottom$.value != null
     );
-    if (lastGroupIndex === -1) {
-      return 0;
-    }
-    const lastGroupTop = this.groupTops$.value[lastGroupIndex]?.value;
-    if (lastGroupTop == null) {
+    if (lastGroup == null) {
       return;
     }
-    const lastGroupHeight =
-      this.groups$.value[this.groups$.value.length - 1]?.height$.value;
-    if (lastGroupHeight == null) {
-      return;
-    }
-    return lastGroupTop + lastGroupHeight;
+    return lastGroup.bottom$.value;
   });
 
   override dispose() {
@@ -701,7 +616,8 @@ export class GridVirtualScroll extends VirtualScroll {
     return this.container.content;
   }
 
-  init() {
+  override init() {
+    super.init();
     this.container.init();
     this.listenSizeChange();
     this.listenDataChange();
@@ -711,7 +627,7 @@ export class GridVirtualScroll extends VirtualScroll {
     this.disposables.push(
       effect(() => {
         const width = this.totalWidth$.value ?? 0;
-        const height = this.totalHeight$.value ?? 0;
+        const height = this.lastGroupBottom$.value ?? 0;
         this.container.updateContentSize(width, height);
       })
     );
@@ -751,14 +667,36 @@ export class VirtualScrollContainer {
   readonly scrollTop$ = signal(0);
   readonly scrollLeft$ = signal(0);
   private readonly disposables: (() => void)[] = [];
+  private readonly preloadSize = signal({
+    left: 100,
+    right: 100,
+    top: 100,
+    bottom: 100,
+  });
+  private readonly offsetTop$ = signal(0);
+  private readonly offsetLeft$ = signal(0);
   readonly viewport$ = computed(() => {
+    const preloadSize = this.preloadSize.value;
+    const offsetTop = this.offsetTop$.value;
+    const offsetLeft = this.offsetLeft$.value;
+    const scrollTop = this.scrollTop$.value;
+    const scrollLeft = this.scrollLeft$.value;
+    const xScrollContainerWidth = this.xScrollContainerWidth$.value;
+    const yScrollContainerHeight = this.yScrollContainerHeight$.value;
+    const top = scrollTop - offsetTop - preloadSize.top;
+    const height =
+      yScrollContainerHeight + preloadSize.top + preloadSize.bottom;
+    const bottom = top + height;
+    const left = scrollLeft - offsetLeft - preloadSize.left;
+    const width = xScrollContainerWidth + preloadSize.left + preloadSize.right;
+    const right = left + width;
     return {
-      width: this.xScrollContainerWidth$.value + 200,
-      height: this.yScrollContainerHeight$.value + 500,
-      top: this.scrollTop$.value - 400,
-      bottom: this.scrollTop$.value + this.yScrollContainerHeight$.value,
-      left: this.scrollLeft$.value - 100 - 500,
-      right: this.scrollLeft$.value + this.xScrollContainerWidth$.value - 500,
+      width,
+      height,
+      top,
+      bottom,
+      left,
+      right,
     };
   });
 
@@ -781,6 +719,46 @@ export class VirtualScrollContainer {
       document.body;
     this.listenScroll();
     this.listenResize();
+    this.updateOffset();
+  }
+
+  private getOffset(
+    container: HTMLElement,
+    content: HTMLElement,
+    direction: 'Top' | 'Left'
+  ) {
+    let current: HTMLElement | null = content;
+    let offset = 0;
+    while (current) {
+      offset += current[`offset${direction}`];
+      current =
+        current.offsetParent instanceof HTMLElement
+          ? current.offsetParent
+          : null;
+      if (current === container) {
+        return offset;
+      }
+    }
+    return;
+  }
+  private updateOffsetTask?: ReturnType<typeof setTimeout>;
+  private updateOffset() {
+    if (this.updateOffsetTask) {
+      clearTimeout(this.updateOffsetTask);
+      this.updateOffsetTask = undefined;
+    }
+    if (this.yScrollContainer) {
+      this.offsetTop$.value =
+        this.getOffset(this.yScrollContainer, this.content, 'Top') ?? 0;
+    }
+    if (this.xScrollContainer) {
+      this.offsetLeft$.value =
+        this.getOffset(this.xScrollContainer, this.content, 'Left') ?? 0;
+    }
+    this.updateOffsetTask = setTimeout(() => {
+      this.updateOffsetTask = undefined;
+      this.updateOffset();
+    }, 1000);
   }
 
   private listenScroll() {
@@ -822,65 +800,46 @@ export class VirtualScrollContainer {
       });
     }
   }
-  readonly batchTaskManager = new BatchTaskManager(
-    [
-      {
-        batchSize: 5,
-        tasks: [],
-      },
-      {
-        batchSize: 50,
-        tasks: [],
-      },
-    ],
-    50
-  );
-  addSet: Set<HTMLElement> = new Set();
-  removeSet: Set<HTMLElement> = new Set();
-  addElement(element: HTMLElement, priority: number, low = false) {
-    if (this.removeSet.has(element)) {
-      this.removeSet.delete(element);
-    }
-    if (element.isConnected) {
-      return;
-    }
-    this.addSet.add(element);
-    this.batchTaskManager.addTask(
-      priority,
-      () => {
-        if (this.addSet.has(element) && !element.isConnected) {
-          this.content.append(element);
-          this.addSet.delete(element);
-          return;
-        } else {
-          return false;
-        }
-      },
-      low
-    );
-  }
+  readonly batchTaskManager = new BatchTaskManager([5, 50], 50);
 
-  removeElement(element: HTMLElement, priority: number, low = false) {
-    if (this.addSet.has(element)) {
-      this.addSet.delete(element);
-    }
-    if (!element.isConnected) {
-      return;
-    }
-    this.removeSet.add(element);
-    this.batchTaskManager.addTask(
-      priority,
+  initElement(element: HTMLElement, isInit: ReadonlySignal<boolean>) {
+    const initTask = this.batchTaskManager.newTask();
+    initTask.updateTask(
+      0,
       () => {
-        if (this.removeSet.has(element) && element.isConnected) {
-          element.remove();
-          this.removeSet.delete(element);
-          return;
-        } else {
+        if (element.isConnected || isInit.value) {
           return false;
         }
+        this.content.append(element);
+        return;
       },
-      low
+      true
     );
+    const task = this.batchTaskManager.newTask();
+    return {
+      cancel: () => {
+        initTask.cancel();
+        task.cancel();
+      },
+      show: () => {
+        task.updateTask(1, () => {
+          if (element.isConnected) {
+            return false;
+          }
+          this.content.append(element);
+          return;
+        });
+      },
+      hide: () => {
+        task.updateTask(1, () => {
+          if (!element.isConnected) {
+            return false;
+          }
+          element.remove();
+          return;
+        });
+      },
+    };
   }
 
   dispose() {
@@ -928,83 +887,83 @@ export class ListVirtualScroll extends VirtualScroll {
   private updateTotalSize() {}
 }
 
-interface Priority {
-  batchSize: number;
-  tasks: Array<() => void | false>;
-}
-class BatchTaskManager {
-  constructor(
-    private readonly priorityList: Priority[],
-    private readonly totalBatchSize: number
-  ) {}
-  isRunning = false;
-  addTask(priority: number, task: () => void, low = false) {
-    const priorityContainer = this.priorityList[priority];
-    if (priorityContainer == null) {
-      return;
-    }
-    if (low) {
-      priorityContainer.tasks.unshift(task);
-    } else {
-      priorityContainer.tasks.push(task);
-    }
-    if (this.isRunning) {
-      return;
-    }
-    this.isRunning = true;
-    Promise.resolve()
-      .then(() => {
-        this.run();
-      })
-      .catch(e => {
-        console.error(e);
-        this.isRunning = false;
-      });
-  }
-  run() {
-    let totalBatchCount = this.totalBatchSize;
-    let skipCount = 0;
-    for (let i = this.priorityList.length - 1; i >= 0; i--) {
-      const priority = this.priorityList[i];
-      if (priority == null) {
-        continue;
-      }
-      const tasks = priority.tasks;
-      let priorityBatchCount = priority.batchSize;
-      while (tasks.length) {
-        if (totalBatchCount === 0 || priorityBatchCount === 0) {
-          break;
-        }
-        const task = tasks.pop();
-        if (task == null) {
-          break;
-        }
-        if (task() !== false) {
-          totalBatchCount--;
-          priorityBatchCount--;
-        } else {
-          skipCount++;
-        }
-      }
-    }
-    if (totalBatchCount !== this.totalBatchSize) {
-      console.log(
-        'run task count',
-        this.totalBatchSize - totalBatchCount,
-        'skip count',
-        skipCount
-      );
-      requestAnimationFrame(() => {
-        this.run();
-      });
-    } else {
-      this.isRunning = false;
-    }
-  }
+// interface Priority {
+//   batchSize: number;
+//   tasks: Array<() => void | false>;
+// }
+// class BatchTaskManager {
+//   constructor(
+//     private readonly priorityList: Priority[],
+//     private readonly totalBatchSize: number
+//   ) { }
+//   isRunning = false;
+//   addTask(priority: number, task: () => void, low = false) {
+//     const priorityContainer = this.priorityList[priority];
+//     if (priorityContainer == null) {
+//       return;
+//     }
+//     if (low) {
+//       priorityContainer.tasks.unshift(task);
+//     } else {
+//       priorityContainer.tasks.push(task);
+//     }
+//     if (this.isRunning) {
+//       return;
+//     }
+//     this.isRunning = true;
+//     Promise.resolve()
+//       .then(() => {
+//         this.run();
+//       })
+//       .catch(e => {
+//         console.error(e);
+//         this.isRunning = false;
+//       });
+//   }
+//   run() {
+//     let totalBatchCount = this.totalBatchSize;
+//     let skipCount = 0;
+//     for (let i = this.priorityList.length - 1; i >= 0; i--) {
+//       const priority = this.priorityList[i];
+//       if (priority == null) {
+//         continue;
+//       }
+//       const tasks = priority.tasks;
+//       let priorityBatchCount = priority.batchSize;
+//       while (tasks.length) {
+//         if (totalBatchCount === 0 || priorityBatchCount === 0) {
+//           break;
+//         }
+//         const task = tasks.pop();
+//         if (task == null) {
+//           break;
+//         }
+//         if (task() !== false) {
+//           totalBatchCount--;
+//           priorityBatchCount--;
+//         } else {
+//           skipCount++;
+//         }
+//       }
+//     }
+//     if (totalBatchCount !== this.totalBatchSize) {
+//       console.log(
+//         'run task count',
+//         this.totalBatchSize - totalBatchCount,
+//         'skip count',
+//         skipCount
+//       );
+//       requestAnimationFrame(() => {
+//         this.run();
+//       });
+//     } else {
+//       this.isRunning = false;
+//     }
+//   }
 
-  clean() {
-    this.priorityList.forEach(priority => {
-      priority.tasks = [];
-    });
-  }
-}
+//   clean() {
+//     this.priorityList.forEach(priority => {
+//       priority.tasks = [];
+//     });
+//   }
+// }

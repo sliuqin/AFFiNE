@@ -1,6 +1,6 @@
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { ShadowlessElement } from '@blocksuite/std';
-import { computed, type ReadonlySignal, signal } from '@preact/signals-core';
+import { computed, signal } from '@preact/signals-core';
 import { css } from 'lit';
 import { property } from 'lit/decorators.js';
 
@@ -15,6 +15,7 @@ import {
   type TableViewSelectionWithType,
 } from '../selection';
 import type { TableColumn } from '../table-view-manager.js';
+import type { GridCell } from './virtual/virtual-scroll.js';
 
 export class DatabaseCellContainer extends SignalWatcher(
   WithDisposable(ShadowlessElement)
@@ -39,12 +40,6 @@ export class DatabaseCellContainer extends SignalWatcher(
   `;
 
   private readonly _cell = signal<DataViewCellLifeCycle>();
-
-  @property({ attribute: false })
-  accessor column!: TableColumn;
-
-  @property({ attribute: false })
-  accessor rowId!: string;
 
   cell$ = computed(() => {
     return this.column.cellGet(this.rowId);
@@ -106,6 +101,14 @@ export class DatabaseCellContainer extends SignalWatcher(
     }
   }
 
+  isRowSelected$ = computed(() => {
+    const selection = this.selectionView?.selection;
+    if (selection?.selectionType !== 'row') {
+      return false;
+    }
+    return selection.rows.some(row => row.id === this.rowId);
+  });
+
   isSelected(selection: TableViewSelectionWithType) {
     if (selection.selectionType !== 'area') {
       return false;
@@ -140,17 +143,27 @@ export class DatabaseCellContainer extends SignalWatcher(
       },
     });
   }
+  isEditing$ = signal(false);
+
+  rowIndex$ = computed(() => {
+    return this.gridCell.rowIndex$.value;
+  });
+
+  columnIndex$ = computed(() => {
+    return this.gridCell.columnIndex$.value - 1;
+  });
+
+  @property({ attribute: false })
+  accessor column!: TableColumn;
+
+  @property({ attribute: false })
+  accessor rowId!: string;
 
   @property({ attribute: false })
   accessor columnId!: string;
 
   @property({ attribute: false })
-  accessor columnIndex$!: ReadonlySignal<number>;
-
-  isEditing$ = signal(false);
-
-  @property({ attribute: false })
-  accessor rowIndex$!: ReadonlySignal<number>;
+  accessor gridCell!: GridCell;
 
   @property({ attribute: false })
   accessor view!: SingleView;

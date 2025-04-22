@@ -3,14 +3,14 @@ import type { ReactiveController } from 'lit';
 
 import { TableViewAreaSelection, TableViewRowSelection } from '../../selection';
 import { popRowMenu } from '../menu.js';
-import type { DataViewTable } from '../table-view.js';
+import type { VirtualTableView } from '../table-view.js';
 
 export class TableHotkeysController implements ReactiveController {
   get selectionController() {
     return this.host.selectionController;
   }
 
-  constructor(private readonly host: DataViewTable) {
+  constructor(private readonly host: VirtualTableView) {
     this.host.addController(this);
   }
 

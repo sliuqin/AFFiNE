@@ -1,17 +1,15 @@
 import { getRangeByPositions } from '@blocksuite/affine-shared/utils';
-import { WithDisposable } from '@blocksuite/global/lit';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { ShadowlessElement } from '@blocksuite/std';
-import { computed, effect, type ReadonlySignal } from '@preact/signals-core';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
 import type { ReactiveController } from 'lit';
 import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';
-import type { Ref } from 'lit/directives/ref.js';
-import { createRef, ref } from 'lit/directives/ref.js';
+import { styleMap } from 'lit/directives/style-map.js';
 
 import { autoScrollOnBoundary } from '../../../../core/utils/auto-scroll.js';
 import { startDrag } from '../../../../core/utils/drag.js';
 import {
-  type CellFocus,
   type MultiSelection,
   RowWithGroup,
   TableViewAreaSelection,
@@ -20,8 +18,6 @@ import {
   type TableViewSelectionWithType,
 } from '../../selection';
 import type { DatabaseCellContainer } from '../cell.js';
-import type { TableGroup } from '../group.js';
-import type { TableRow } from '../row/row.js';
 import type { VirtualTableView } from '../table-view.js';
 import type { GridCell } from '../virtual/virtual-scroll.js';
 import {
@@ -55,7 +51,7 @@ export class TableSelectionController implements ReactiveController {
   selectionStyleUpdateTask = 0;
 
   private get areaSelectionElement() {
-    return this.__selectionElement.selectionRef.value;
+    return this.__selectionElement;
   }
 
   get dragToFillDraggable() {
@@ -63,7 +59,7 @@ export class TableSelectionController implements ReactiveController {
   }
 
   private get focusSelectionElement() {
-    return this.__selectionElement.focusRef.value;
+    return this.__selectionElement;
   }
 
   get selection(): TableViewSelectionWithType | undefined {
@@ -293,17 +289,25 @@ export class TableSelectionController implements ReactiveController {
     return ids.map(id => ({ id, groupKey: selection.groupKey }));
   }
 
-  readonly columnOffsets$ = computed(() => {
-    const columnPositions = this.virtualScroll?.columnPosition$.value;
+  readonly columnPositions$ = computed(() => {
+    const columnPositions = this.virtualScroll?.columnPosition$.value?.slice(1);
     if (columnPositions == null) {
       return [];
     }
-    const rights = columnPositions.map(v => v?.right);
-    if (rights == null) {
+    return columnPositions;
+  });
+
+  readonly columnOffsets$ = computed(() => {
+    const columnPositions = this.columnPositions$.value;
+    if (columnPositions == null) {
       return [];
     }
     const firstLeft = columnPositions[0]?.left;
     if (firstLeft == null) {
+      return [];
+    }
+    const rights = columnPositions.map(v => v.right);
+    if (rights == null) {
       return [];
     }
     return [firstLeft, ...rights];
@@ -317,16 +321,16 @@ export class TableSelectionController implements ReactiveController {
         return [
           group.groupId,
           computed(() => {
-            const firstTop = group.rowPositions$.value[0]?.value?.top;
+            const firstTop = group.rowsTop$.value;
             if (firstTop == null) {
               return [];
             }
             const offsets: number[] = [firstTop];
-            for (const position of group.rowPositions$.value) {
-              if (position.value?.bottom == null) {
+            for (const row of group.rows$.value) {
+              if (row.bottom$.value == null) {
                 break;
               }
-              offsets.push(position.value.bottom);
+              offsets.push(row.bottom$.value);
             }
             return offsets;
           }),
@@ -336,7 +340,15 @@ export class TableSelectionController implements ReactiveController {
   });
 
   cellPosition(groupKey: string | undefined) {
+    const containerRect = this.virtualScroll?.content.getBoundingClientRect();
+    if (containerRect == null) {
+      return;
+    }
     return (x1: number, x2: number, y1: number, y2: number) => {
+      x1 = x1 - containerRect.left;
+      x2 = x2 - containerRect.left;
+      y1 = y1 - containerRect.top;
+      y2 = y2 - containerRect.top;
       const rowOffsets = this.groupRowOffsets$.value[groupKey ?? ''];
       if (rowOffsets == null) {
         return;
@@ -402,30 +414,21 @@ export class TableSelectionController implements ReactiveController {
     if (!cell) {
       return;
     }
-    const row = cell.closest('data-view-table-row');
-    const rows = Array.from(
-      row
-        ?.closest('.affine-database-table-container')
-        ?.querySelectorAll('data-view-table-row') ?? []
-    );
-    const cells = Array.from(
-      row?.querySelectorAll('affine-database-virtual-cell-container') ?? []
-    );
-    if (!row || !rows || !cells) {
-      return;
-    }
-    let rowIndex = rows.indexOf(row);
-    let columnIndex = cells.indexOf(cell);
+    const row = cell.gridCell.row;
+    const rows = row.group.rows$.value;
+    let rowIndex = row.rowIndex$.value;
+    let columnIndex = cell.columnIndex$.value;
+    const columns = this.columnPositions$.value;
     if (position === 'left') {
       if (columnIndex === 0) {
-        columnIndex = cells.length - 1;
+        columnIndex = columns.length - 1;
         rowIndex--;
       } else {
         columnIndex--;
       }
     }
     if (position === 'right') {
-      if (columnIndex === cells.length - 1) {
+      if (columnIndex === columns.length - 1) {
         columnIndex = 0;
         rowIndex++;
       } else {
@@ -446,10 +449,15 @@ export class TableSelectionController implements ReactiveController {
         rowIndex++;
       }
     }
-    rows[rowIndex]
-      ?.querySelectorAll('affine-database-virtual-cell-container')
-      ?.item(columnIndex)
-      ?.selectCurrentCell(false);
+    const cellContainer = this.getCellContainer(
+      this.selection.groupKey,
+      rowIndex,
+      columnIndex
+    );
+    if (!cellContainer) {
+      return;
+    }
+    cellContainer.selectCurrentCell(false);
   }
 
   getCellElement(cell: GridCell): DatabaseCellContainer | undefined {
@@ -459,13 +467,25 @@ export class TableSelectionController implements ReactiveController {
     );
   }
 
+  getCellByIndex(
+    groupKey: string | undefined,
+    rowIndex: number,
+    columnIndex: number
+  ): GridCell | undefined {
+    const row = this.rows(groupKey)?.[rowIndex];
+    if (!row) {
+      return;
+    }
+    const cell = row.cells$.value[columnIndex + 1];
+    return cell;
+  }
+
   getCellContainer(
     groupKey: string | undefined,
     rowIndex: number,
     columnIndex: number
   ): DatabaseCellContainer | undefined {
-    const row = this.rows(groupKey)?.[rowIndex];
-    const cell = row?.cells$.value[columnIndex];
+    const cell = this.getCellByIndex(groupKey, rowIndex, columnIndex);
     if (!cell) {
       return;
     }
@@ -493,8 +513,8 @@ export class TableSelectionController implements ReactiveController {
     if (top == null || bottom == null) {
       return;
     }
-    const left = this.virtualScroll?.columnPosition$.value[leftIndex]?.left;
-    const right = this.virtualScroll?.columnPosition$.value[rightIndex]?.right;
+    const left = this.columnPositions$.value[leftIndex]?.left;
+    const right = this.columnPositions$.value[rightIndex]?.right;
     if (left == null || right == null) {
       return;
     }
@@ -508,7 +528,7 @@ export class TableSelectionController implements ReactiveController {
   }
 
   getSelectionAreaBorder(position: 'left' | 'right' | 'top' | 'bottom') {
-    return this.__selectionElement.selectionRef.value?.querySelector(
+    return this.__selectionElement?.querySelector(
       `.area-border.area-${position}`
     );
   }
@@ -555,13 +575,11 @@ export class TableSelectionController implements ReactiveController {
     const lastRow = rows[rows.length - 1];
     if (!lastRow) return;
     const lastRowIndex =
-      (
-        this.getGroup(lastRow?.groupKey)?.querySelector(
-          `data-view-table-row[data-row-id='${lastRow?.id}']`
-        ) as TableRow | null
-      )?.rowIndex ?? 0;
+      this.getGroup(lastRow?.groupKey)?.rows$.value.find(
+        r => r.rowId === lastRow?.id
+      )?.rowIndex$.value ?? 0;
     const getRowByIndex = (index: number) => {
-      const tableRow = this.rows(lastRow?.groupKey)?.item(index);
+      const tableRow = this.rows(lastRow?.groupKey)?.[index];
       if (!tableRow) {
         return;
       }
@@ -704,22 +722,22 @@ export class TableSelectionController implements ReactiveController {
         (this.rows(newSelection.groupKey)?.length ?? 0) - 1,
         newSelection.rowsSelection.end + 1
       );
-      requestAnimationFrame(() => {
-        this.getSelectionAreaBorder('bottom')?.scrollIntoView({
-          block: 'nearest',
-          inline: 'nearest',
-          behavior: 'smooth',
-        });
-      });
+      // requestAnimationFrame(() => {
+      //   this.getSelectionAreaBorder('bottom')?.scrollIntoView({
+      //     block: 'nearest',
+      //     inline: 'nearest',
+      //     behavior: 'smooth',
+      //   });
+      // });
     } else {
       newSelection.rowsSelection.start += 1;
-      requestAnimationFrame(() => {
-        this.getSelectionAreaBorder('top')?.scrollIntoView({
-          block: 'nearest',
-          inline: 'nearest',
-          behavior: 'smooth',
-        });
-      });
+      // requestAnimationFrame(() => {
+      //   this.getSelectionAreaBorder('top')?.scrollIntoView({
+      //     block: 'nearest',
+      //     inline: 'nearest',
+      //     behavior: 'smooth',
+      //   });
+      // });
     }
     this.selection = newSelection;
   }
@@ -735,22 +753,22 @@ export class TableSelectionController implements ReactiveController {
         0,
         newSelection.columnsSelection.start - 1
       );
-      requestAnimationFrame(() => {
-        this.getSelectionAreaBorder('left')?.scrollIntoView({
-          block: 'nearest',
-          inline: 'nearest',
-          behavior: 'smooth',
-        });
-      });
+      // requestAnimationFrame(() => {
+      //   this.getSelectionAreaBorder('left')?.scrollIntoView({
+      //     block: 'nearest',
+      //     inline: 'nearest',
+      //     behavior: 'smooth',
+      //   });
+      // });
     } else {
       newSelection.columnsSelection.end -= 1;
-      requestAnimationFrame(() => {
-        this.getSelectionAreaBorder('right')?.scrollIntoView({
-          block: 'nearest',
-          inline: 'nearest',
-          behavior: 'smooth',
-        });
-      });
+      // requestAnimationFrame(() => {
+      //   this.getSelectionAreaBorder('right')?.scrollIntoView({
+      //     block: 'nearest',
+      //     inline: 'nearest',
+      //     behavior: 'smooth',
+      //   });
+      // });
     }
     this.selection = newSelection;
   }
@@ -764,30 +782,27 @@ export class TableSelectionController implements ReactiveController {
     if (
       newSelection.columnsSelection.start === newSelection.focus.columnIndex
     ) {
-      const max =
-        (this.rows(newSelection.groupKey)
-          ?.item(0)
-          .querySelectorAll('affine-database-cell-container').length ?? 0) - 1;
+      const max = (this.virtualScroll?.columns$.value.length ?? 0) - 1;
       newSelection.columnsSelection.end = Math.min(
         max,
         newSelection.columnsSelection.end + 1
       );
-      requestAnimationFrame(() => {
-        this.getSelectionAreaBorder('right')?.scrollIntoView({
-          block: 'nearest',
-          inline: 'nearest',
-          behavior: 'smooth',
-        });
-      });
+      // requestAnimationFrame(() => {
+      //   this.getSelectionAreaBorder('right')?.scrollIntoView({
+      //     block: 'nearest',
+      //     inline: 'nearest',
+      //     behavior: 'smooth',
+      //   });
+      // });
     } else {
       newSelection.columnsSelection.start += 1;
-      requestAnimationFrame(() => {
-        this.getSelectionAreaBorder('left')?.scrollIntoView({
-          block: 'nearest',
-          inline: 'nearest',
-          behavior: 'smooth',
-        });
-      });
+      // requestAnimationFrame(() => {
+      //   this.getSelectionAreaBorder('left')?.scrollIntoView({
+      //     block: 'nearest',
+      //     inline: 'nearest',
+      //     behavior: 'smooth',
+      //   });
+      // });
     }
     this.selection = newSelection;
   }
@@ -803,22 +818,22 @@ export class TableSelectionController implements ReactiveController {
         0,
         newSelection.rowsSelection.start - 1
       );
-      requestAnimationFrame(() => {
-        this.getSelectionAreaBorder('top')?.scrollIntoView({
-          block: 'nearest',
-          inline: 'nearest',
-          behavior: 'smooth',
-        });
-      });
+      // requestAnimationFrame(() => {
+      //   this.getSelectionAreaBorder('top')?.scrollIntoView({
+      //     block: 'nearest',
+      //     inline: 'nearest',
+      //     behavior: 'smooth',
+      //   });
+      // });
     } else {
       newSelection.rowsSelection.end -= 1;
-      requestAnimationFrame(() => {
-        this.getSelectionAreaBorder('bottom')?.scrollIntoView({
-          block: 'nearest',
-          inline: 'nearest',
-          behavior: 'smooth',
-        });
-      });
+      // requestAnimationFrame(() => {
+      //   this.getSelectionAreaBorder('bottom')?.scrollIntoView({
+      //     block: 'nearest',
+      //     inline: 'nearest',
+      //     behavior: 'smooth',
+      //   });
+      // });
     }
     this.selection = newSelection;
   }
@@ -828,8 +843,7 @@ export class TableSelectionController implements ReactiveController {
     cell: DatabaseCellContainer,
     fillValues?: boolean
   ) {
-    const groupKey = cell.closest<TableGroup>('affine-data-view-table-group')
-      ?.group?.key;
+    const groupKey = cell.groupKey;
     const table = this.tableContainer;
     const scrollContainer = table?.parentElement;
     if (!table || !scrollContainer) {
@@ -878,8 +892,10 @@ export class TableSelectionController implements ReactiveController {
         const tableRect = table.getBoundingClientRect();
         const startX = tableRect.left + startOffsetX;
         const startY = tableRect.top + startOffsetY;
-        const selection = offsetToSelection(startX, x, startY, y);
-
+        const selection = offsetToSelection?.(startX, x, startY, y);
+        if (!selection) {
+          return;
+        }
         if (fillValues)
           selection.column = {
             start: cell.columnIndex$.value,
@@ -946,245 +962,146 @@ export class TableSelectionController implements ReactiveController {
   }
 }
 
-export class SelectionElement extends WithDisposable(ShadowlessElement) {
+export class SelectionElement extends SignalWatcher(
+  WithDisposable(ShadowlessElement)
+) {
   static override styles = css`
+    data-view-virtual-table-selection {
+      display: block;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
     .database-selection {
       position: absolute;
       z-index: 2;
       box-sizing: border-box;
-      background: var(--affine-primary-color-04);
+      background-color: var(--affine-primary-color-04);
       pointer-events: none;
       display: none;
     }
 
     .database-focus {
       position: absolute;
-      width: 100%;
       z-index: 2;
       box-sizing: border-box;
       border: 1px solid var(--affine-primary-color);
       border-radius: 2px;
       pointer-events: none;
-      display: none;
       outline: none;
-    }
-
-    .area-border {
-      position: absolute;
-      pointer-events: none;
-    }
-
-    .area-left {
-      left: 0;
-      height: 100%;
-      width: 1px;
-    }
-
-    .area-right {
-      right: 0;
-      height: 100%;
-      width: 1px;
-    }
-
-    .area-top {
-      top: 0;
-      width: 100%;
-      height: 1px;
-    }
-
-    .area-bottom {
-      bottom: 0;
-      width: 100%;
-      height: 1px;
-    }
-
-    @media print {
-      data-view-virtual-table-selection {
-        display: none;
-      }
+      display: none;
     }
   `;
 
-  focusRef: Ref<HTMLDivElement> = createRef<HTMLDivElement>();
+  get virtualScroll() {
+    return this.controller.virtualScroll;
+  }
 
-  preTask = 0;
+  focusPosition$ = computed(() => {
+    const selection = this.selection$.value;
+    if (selection?.selectionType !== 'area') {
+      return;
+    }
+    const focus = selection.focus;
+    const groupKey = selection.groupKey;
+    const group = this.controller.getGroup(groupKey);
+    if (!group) {
+      return;
+    }
+    const row = group.rows$.value[focus.rowIndex];
+    if (!row) {
+      return;
+    }
+    const columnPosition =
+      this.controller.columnPositions$.value[focus.columnIndex];
+    if (!columnPosition) {
+      return;
+    }
+    const left = columnPosition.left;
+    const top = row.top$.value;
+    const width = columnPosition.width;
+    const height = row.height$.value;
+    if (left == null || top == null || width == null || height == null) {
+      return;
+    }
+    const paddingLeft = this.controller.host.props.virtualPadding$.value;
+    return {
+      left: left + paddingLeft,
+      top,
+      width,
+      height,
+      editing: selection.isEditing,
+    };
+  });
 
-  selectionRef: Ref<HTMLDivElement> = createRef<HTMLDivElement>();
+  areaPosition$ = computed(() => {
+    const selection = this.selection$.value;
+    if (selection?.selectionType !== 'area') {
+      return;
+    }
+    const groupKey = selection.groupKey;
+    const group = this.controller.getGroup(groupKey);
+    if (!group) {
+      return;
+    }
+    const rect = this.controller.getRect(
+      groupKey,
+      selection.rowsSelection.start,
+      selection.rowsSelection.end,
+      selection.columnsSelection.start,
+      selection.columnsSelection.end
+    );
+    if (!rect) {
+      return;
+    }
+    const paddingLeft = this.controller.host.props.virtualPadding$.value;
+    return {
+      left: rect.left + paddingLeft,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
+    };
+  });
+
+  rowsPosition$ = computed(() => {
+    const selection = this.selection$.value;
+    if (selection?.selectionType !== 'area') {
+      return;
+    }
+  });
 
   get selection$() {
     return this.controller.host.props.selection$;
   }
 
-  clearAreaStyle() {
-    const div = this.selectionRef.value;
-    if (!div) return;
-    div.style.display = 'none';
-  }
-
-  clearFocusStyle() {
-    const div = this.focusRef.value;
-    const dragToFill = this.controller.dragToFillDraggable;
-    if (!div || !dragToFill) return;
-    div.style.display = 'none';
-    dragToFill.style.display = 'none';
-  }
-
-  override connectedCallback() {
-    super.connectedCallback();
-    this.disposables.add(
-      effect(() => {
-        this.startUpdate(this.selection$.value);
-        return () => {
-          this.cancelSelectionUpdate();
-        };
-      })
-    );
-  }
-
   override render() {
-    console.log('render');
+    const focus = this.focusPosition$.value;
+    const focusStyle = focus
+      ? styleMap({
+          left: `${focus.left}px`,
+          top: `${focus.top}px`,
+          width: `${focus.width}px`,
+          height: `${focus.height}px`,
+          display: 'block',
+          boxShadow: focus.editing
+            ? '0px 0px 0px 2px rgba(30, 150, 235, 0.30)'
+            : 'unset',
+        })
+      : undefined;
+    const area = this.areaPosition$.value;
+    const areaStyle = area
+      ? styleMap({
+          left: `${area.left}px`,
+          top: `${area.top}px`,
+          width: `${area.width}px`,
+          height: `${area.height}px`,
+          display: 'block',
+        })
+      : undefined;
     return html`
-      <div ${ref(this.selectionRef)} class="database-selection">
-        <div class="area-border area-left"></div>
-        <div class="area-border area-right"></div>
-        <div class="area-border area-top"></div>
-        <div class="area-border area-bottom"></div>
-      </div>
-      <div tabindex="0" ${ref(this.focusRef)} class="database-focus"></div>
+      <div class="database-selection" style=${areaStyle}></div>
+      <div tabindex="0" class="database-focus" style=${focusStyle}></div>
     `;
-  }
-
-  cancelSelectionUpdate() {
-    if (this.preTask) {
-      cancelAnimationFrame(this.preTask);
-      this.preTask = 0;
-    }
-  }
-
-  startUpdate(selection?: TableViewSelection) {
-    this.cancelSelectionUpdate();
-    if (
-      selection?.selectionType === 'area' &&
-      !this.controller.host.props.view.readonly$.value
-    ) {
-      this.updateAreaSelectionStyle(
-        selection.groupKey,
-        selection.rowsSelection,
-        selection.columnsSelection
-      );
-
-      const columnSelection = selection.columnsSelection;
-      const rowSelection = selection.rowsSelection;
-
-      const isSingleRowSelection = rowSelection.end - rowSelection.start === 0;
-      const isSingleColumnSelection =
-        columnSelection.end - columnSelection.start === 0;
-
-      const isDragElemDragging = this.controller.__dragToFillElement.dragging;
-      const isEditing = selection.isEditing;
-
-      const showDragToFillHandle =
-        !isEditing &&
-        (isDragElemDragging || isSingleRowSelection) &&
-        isSingleColumnSelection;
-
-      this.updateFocusSelectionStyle(
-        selection.groupKey,
-        selection.focus,
-        isEditing,
-        showDragToFillHandle
-      );
-      this.preTask = requestAnimationFrame(() =>
-        this.startUpdate(this.selection$.value)
-      );
-    } else {
-      this.clearFocusStyle();
-      this.clearAreaStyle();
-    }
-  }
-
-  updateAreaSelectionStyle(
-    groupKey: string | undefined,
-    rowSelection: MultiSelection,
-    columnSelection: MultiSelection
-  ) {
-    const div = this.selectionRef.value;
-    if (!div) return;
-    const tableContainer = this.controller.tableContainer;
-    if (!tableContainer) return;
-    const tableRect = tableContainer.getBoundingClientRect();
-    const rect = this.controller.getRect(
-      groupKey,
-      rowSelection?.start ?? 0,
-      rowSelection?.end ?? this.controller.view.rows$.value.length - 1,
-      columnSelection?.start ?? 0,
-      columnSelection?.end ?? this.controller.view.properties$.value.length - 1
-    );
-    if (!rect) {
-      this.clearAreaStyle();
-      return;
-    }
-    const { left, top, width, height, scale } = rect;
-    div.style.left = `${left - tableRect.left / scale}px`;
-    div.style.top = `${top - tableRect.top / scale}px`;
-    div.style.width = `${width}px`;
-    div.style.height = `${height}px`;
-    div.style.display = 'block';
-  }
-
-  updateFocusSelectionStyle(
-    groupKey: string | undefined,
-    focus: CellFocus,
-    isEditing: boolean,
-    showDragToFillHandle = false
-  ) {
-    const div = this.focusRef.value;
-    const dragToFill = this.controller.dragToFillDraggable;
-    if (!div || !dragToFill) return;
-    // Check if row is removed.
-    const rows = this.controller.rows(groupKey) ?? [];
-    if (rows.length <= focus.rowIndex) return;
-
-    const rect = this.controller.getRect(
-      groupKey,
-      focus.rowIndex,
-      focus.rowIndex,
-      focus.columnIndex,
-      focus.columnIndex
-    );
-    if (!rect) {
-      this.clearFocusStyle();
-      return;
-    }
-    const { left, top, width, height, scale } = rect;
-    const tableContainer = this.controller.tableContainer;
-    if (!tableContainer) return;
-    const tableRect = tableContainer?.getBoundingClientRect();
-    if (!tableRect) {
-      this.clearFocusStyle();
-      return;
-    }
-
-    const x = left - tableRect.left / scale;
-    const y = top - 1 - tableRect.top / scale;
-    const w = width + 1;
-    const h = height + 1;
-    div.style.left = `${x}px`;
-    div.style.top = `${y}px`;
-    div.style.width = `${w}px`;
-    div.style.height = `${h}px`;
-    div.style.borderColor = 'var(--affine-primary-color)';
-    div.style.borderStyle = this.controller.__dragToFillElement.dragging
-      ? 'dashed'
-      : 'solid';
-    div.style.boxShadow = isEditing
-      ? '0px 0px 0px 2px rgba(30, 150, 235, 0.30)'
-      : 'unset';
-    div.style.display = 'block';
-
-    dragToFill.style.left = `${x + w}px`;
-    dragToFill.style.top = `${y + h}px`;
-    dragToFill.style.display = showDragToFillHandle ? 'block' : 'none';
   }
 
   @property({ attribute: false })
