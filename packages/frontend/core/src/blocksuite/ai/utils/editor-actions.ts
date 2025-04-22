@@ -110,7 +110,11 @@ export const replace = async (
 
   if (textSelection) {
     host.std.command.exec(deleteTextCommand, { textSelection });
-    const { snapshot, transformer } = await markdownToSnapshot(content, host);
+    const { snapshot, transformer } = await markdownToSnapshot(
+      content,
+      host.doc,
+      host
+    );
     if (snapshot) {
       await transformer.snapshotToSlice(
         snapshot,
@@ -150,7 +154,7 @@ export const copyTextAnswer = async (panel: AffineAIPanelWidget) => {
 
 export const copyText = async (host: EditorHost, text: string) => {
   const previewDoc = await markDownToDoc(
-    host.std.provider,
+    host.std.store.provider,
     host.std.store.schema,
     text,
     [defaultImageProxyMiddleware]

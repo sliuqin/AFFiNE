@@ -13,7 +13,6 @@ import {
   AFFiNELogger,
   CacheInterceptor,
   CloudThrottlerGuard,
-  EventBus,
   GlobalExceptionFilter,
   JobQueue,
   OneMB,
@@ -24,7 +23,6 @@ import { Mailer } from '../../core/mail';
 import {
   createFactory,
   MockedUser,
-  MockEventBus,
   MockJobQueue,
   MockMailer,
   MockUser,
@@ -195,7 +193,6 @@ export async function createApp(
 
   builder.overrideProvider(Mailer).useValue(new MockMailer());
   builder.overrideProvider(JobQueue).useValue(new MockJobQueue());
-  builder.overrideProvider(EventBus).useValue(new MockEventBus());
 
   // when custom override happens
   if (tapModule) {

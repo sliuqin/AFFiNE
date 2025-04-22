@@ -93,46 +93,22 @@ export const SignInStep = ({
     setIsMutating(true);
 
     try {
-      const { hasPassword, registered, magicLink } =
-        await authService.checkUserByEmail(email);
+      const { hasPassword } = await authService.checkUserByEmail(email);
 
-      if (registered) {
-        // provider password sign-in if user has by default
-        //  If with payment, onl support email sign in to avoid redirect to affine app
-        if (hasPassword) {
-          changeState(prev => ({
-            ...prev,
-            email,
-            step: 'signInWithPassword',
-            hasPassword: true,
-          }));
-        } else {
-          if (magicLink) {
-            changeState(prev => ({
-              ...prev,
-              email,
-              step: 'signInWithEmail',
-              hasPassword: false,
-            }));
-          } else {
-            notify.error({
-              title: 'Failed to send email. Please contact the administrator.',
-            });
-          }
-        }
+      if (hasPassword) {
+        changeState(prev => ({
+          ...prev,
+          email,
+          step: 'signInWithPassword',
+          hasPassword: true,
+        }));
       } else {
-        if (magicLink) {
-          changeState(prev => ({
-            ...prev,
-            email,
-            step: 'signInWithEmail',
-            hasPassword: false,
-          }));
-        } else {
-          notify.error({
-            title: 'Failed to send email. Please contact the administrator.',
-          });
-        }
+        changeState(prev => ({
+          ...prev,
+          email,
+          step: 'signInWithEmail',
+          hasPassword: false,
+        }));
       }
     } catch (err: any) {
       console.error(err);

@@ -624,6 +624,7 @@ export const claimAudioTranscriptionMutation = {
     status
     title
     summary
+    actions
     transcription {
       speaker
       start
@@ -1595,6 +1596,7 @@ export const getWorkspaceConfigQuery = {
   workspace(id: $id) {
     enableAi
     enableUrlPreview
+    enableDocEmbedding
     inviteLink {
       link
       expireTime
@@ -1608,6 +1610,16 @@ export const setEnableAiMutation = {
   op: 'setEnableAi',
   query: `mutation setEnableAi($id: ID!, $enableAi: Boolean!) {
   updateWorkspace(input: {id: $id, enableAi: $enableAi}) {
+    id
+  }
+}`,
+};
+
+export const setEnableDocEmbeddingMutation = {
+  id: 'setEnableDocEmbeddingMutation' as const,
+  op: 'setEnableDocEmbedding',
+  query: `mutation setEnableDocEmbedding($id: ID!, $enableDocEmbedding: Boolean!) {
+  updateWorkspace(input: {id: $id, enableDocEmbedding: $enableDocEmbedding}) {
     id
   }
 }`,

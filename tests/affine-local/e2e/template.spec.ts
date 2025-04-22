@@ -237,9 +237,9 @@ test('open template doc from sidebar template entrance', async ({ page }) => {
 
 test('create template doc from sidebar template entrance', async ({ page }) => {
   await openHomePage(page);
+  await waitForEditorLoad(page);
   await page.getByTestId('sidebar-template-doc-entrance').click();
   await page.getByTestId('template-doc-item-create').click();
-  await waitForEditorLoad(page);
 
   await page.locator('affine-note').first().click();
   await page.keyboard.press('Backspace');

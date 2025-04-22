@@ -17,16 +17,9 @@ import '@shoelace-style/shoelace/dist/themes/dark.css';
 import './left-side-panel.js';
 
 import { defaultImageProxyMiddleware } from '@blocksuite/affine/blocks/image';
-import {
-  createAssetsArchive,
-  download,
-  HtmlTransformer,
-  MarkdownTransformer,
-  NotionHtmlTransformer,
-  ZipTransformer,
-} from '@blocksuite/affine/blocks/root';
 import { ExportManager } from '@blocksuite/affine/blocks/surface';
 import { toast } from '@blocksuite/affine/components/toast';
+import { StoreExtensionManagerIdentifier } from '@blocksuite/affine/ext-loader';
 import {
   BlockSuiteError,
   ErrorCode,
@@ -55,6 +48,14 @@ import {
   Text,
   type Workspace,
 } from '@blocksuite/affine/store';
+import {
+  createAssetsArchive,
+  download,
+  HtmlTransformer,
+  MarkdownTransformer,
+  NotionHtmlTransformer,
+  ZipTransformer,
+} from '@blocksuite/affine/widgets/linked-doc';
 import { NotionHtmlAdapter } from '@blocksuite/affine-shared/adapters';
 import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import { TestAffineEditorContainer } from '@blocksuite/integration-test';
@@ -331,6 +332,10 @@ export class StarterDebugMenu extends ShadowlessElement {
     );
   }
 
+  private _getStoreManager() {
+    return this.editor.std.get(StoreExtensionManagerIdentifier);
+  }
+
   private async _importHTML() {
     try {
       const files = await openFileOrFiles({
@@ -349,6 +354,7 @@ export class StarterDebugMenu extends ShadowlessElement {
           schema: this.editor.doc.schema,
           html: text,
           fileName,
+          extensions: this._getStoreManager().get('store'),
         });
         if (pageId) {
           pageIds.push(pageId);
@@ -372,6 +378,7 @@ export class StarterDebugMenu extends ShadowlessElement {
         collection: this.collection,
         schema: this.editor.doc.schema,
         imported: file,
+        extensions: this._getStoreManager().get('store'),
       });
       if (!this.editor.host) return;
       toast(
@@ -401,6 +408,7 @@ export class StarterDebugMenu extends ShadowlessElement {
           schema: this.editor.doc.schema,
           markdown: text,
           fileName,
+          extensions: this._getStoreManager().get('store'),
         });
         if (pageId) {
           pageIds.push(pageId);
@@ -424,6 +432,7 @@ export class StarterDebugMenu extends ShadowlessElement {
         collection: this.collection,
         schema: this.editor.doc.schema,
         imported: file,
+        extensions: this._getStoreManager().get('store'),
       });
       if (!this.editor.host) return;
       toast(
@@ -463,6 +472,7 @@ export class StarterDebugMenu extends ShadowlessElement {
         collection: this.collection,
         schema: this.editor.doc.schema,
         imported: file,
+        extensions: this._getStoreManager().get('store'),
       });
       if (!this.editor.host) return;
       toast(

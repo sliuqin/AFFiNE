@@ -195,6 +195,9 @@ enum CopilotModels {
   Gpt4Omni0806
   Gpt4OmniMini
   Gpt4OmniMini0718
+  Gpt41
+  Gpt41Mini
+  Gpt410414
   TextEmbedding3Large
   TextEmbedding3Small
   TextEmbeddingAda002
@@ -422,6 +425,7 @@ enum ErrorNames {
   COPILOT_CONTEXT_FILE_NOT_SUPPORTED
   COPILOT_DOCS_NOT_FOUND
   COPILOT_DOC_NOT_FOUND
+  COPILOT_EMBEDDING_DISABLED
   COPILOT_EMBEDDING_UNAVAILABLE
   COPILOT_FAILED_TO_CREATE_MESSAGE
   COPILOT_FAILED_TO_GENERATE_TEXT
@@ -447,6 +451,7 @@ enum ErrorNames {
   DOC_UPDATE_BLOCKED
   EARLY_ACCESS_REQUIRED
   EMAIL_ALREADY_USED
+  EMAIL_SERVICE_NOT_CONFIGURED
   EMAIL_TOKEN_NOT_FOUND
   EMAIL_VERIFICATION_REQUIRED
   EXPECT_TO_GRANT_DOC_USER_ROLES
@@ -1425,6 +1430,7 @@ type TranscriptionItemType {
 }
 
 type TranscriptionResultType {
+  actions: String
   id: ID!
   status: AiJobStatus!
   summary: String
@@ -1488,6 +1494,9 @@ input UpdateUserSettingsInput {
 input UpdateWorkspaceInput {
   """Enable AI"""
   enableAi: Boolean
+
+  """Enable doc embedding"""
+  enableDocEmbedding: Boolean
 
   """Enable url previous when sharing"""
   enableUrlPreview: Boolean
@@ -1697,6 +1706,9 @@ type WorkspaceType {
 
   """Enable AI"""
   enableAi: Boolean!
+
+  """Enable doc embedding"""
+  enableDocEmbedding: Boolean!
 
   """Enable url previous when sharing"""
   enableUrlPreview: Boolean!

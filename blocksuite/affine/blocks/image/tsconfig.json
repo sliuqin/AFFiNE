@@ -10,6 +10,8 @@
     { "path": "../note" },
     { "path": "../surface" },
     { "path": "../../components" },
+    { "path": "../../ext-loader" },
+    { "path": "../../gfx/turbo-renderer" },
     { "path": "../../model" },
     { "path": "../../shared" },
     { "path": "../../widgets/slash-menu" },

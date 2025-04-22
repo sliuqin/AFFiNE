@@ -17,10 +17,11 @@ export declare class ApplicationStateChangedSubscriber {
   unsubscribe(): void
 }
 
-export declare class AudioTapStream {
+export declare class AudioCaptureSession {
   stop(): void
   get sampleRate(): number
   get channels(): number
+  get actualSampleRate(): number
 }
 
 export declare class DocStorage {
@@ -75,8 +76,7 @@ export declare class ShareableContent {
   applications(): Array<TappableApplication>
   applicationWithProcessId(processId: number): Application | null
   tappableApplicationWithProcessId(processId: number): TappableApplication | null
-  checkRecordingPermissions(): RecordingPermissions
-  static tapGlobalAudio(excludedProcesses: Array<TappableApplication> | undefined | null, audioStreamCallback: ((err: Error | null, arg: Float32Array) => void)): AudioTapStream
+  static tapGlobalAudio(excludedProcesses: Array<TappableApplication> | undefined | null, audioStreamCallback: ((err: Error | null, arg: Float32Array) => void)): AudioCaptureSession
 }
 
 export declare class SqliteConnection {
@@ -127,7 +127,7 @@ export declare class TappableApplication {
   get objectId(): number
   get icon(): Buffer
   get isRunning(): boolean
-  tapAudio(audioStreamCallback: ((err: Error | null, arg: Float32Array) => void)): AudioTapStream
+  tapAudio(audioStreamCallback: ((err: Error | null, arg: Float32Array) => void)): AudioCaptureSession
 }
 
 export interface Blob {

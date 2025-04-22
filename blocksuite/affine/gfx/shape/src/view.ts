@@ -1,4 +1,4 @@
-import type { ShapeElementModel } from '@blocksuite/affine-model';
+import { ShapeElementModel } from '@blocksuite/affine-model';
 import { GfxElementModelView } from '@blocksuite/std/gfx';
 
 import { mountShapeTextEditor } from './text/edgeless-shape-text-editor';
@@ -13,10 +13,14 @@ export class ShapeElementView extends GfxElementModelView<ShapeElementModel> {
   }
 
   private _initDblClickToEdit(): void {
-    const edgeless = this.std.view.getBlock(this.std.store.root!.id);
-
     this.on('dblclick', () => {
-      if (edgeless && !this.model.isLocked()) {
+      const edgeless = this.std.view.getBlock(this.std.store.root!.id);
+
+      if (
+        edgeless &&
+        !this.model.isLocked() &&
+        this.model instanceof ShapeElementModel
+      ) {
         mountShapeTextEditor(this.model, edgeless);
       }
     });

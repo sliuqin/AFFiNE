@@ -1,40 +1,45 @@
-import { DataViewBlockSchemaExtension } from '@blocksuite/affine-block-data-view';
+import { CodeMarkdownPreprocessorExtension } from '@blocksuite/affine-block-code';
 import { DatabaseSelectionExtension } from '@blocksuite/affine-block-database';
 import { EmbedIframeConfigExtensions } from '@blocksuite/affine-block-embed';
 import { ImageStoreSpec } from '@blocksuite/affine-block-image';
-import { SurfaceBlockSchemaExtension } from '@blocksuite/affine-block-surface';
-import { TableSelectionExtension } from '@blocksuite/affine-block-table';
+import { LatexMarkdownPreprocessorExtension } from '@blocksuite/affine-block-latex';
 import {
-  AttachmentBlockSchemaExtension,
-  BookmarkBlockSchemaExtension,
-  CalloutBlockSchemaExtension,
-  CodeBlockSchemaExtension,
-  DatabaseBlockSchemaExtension,
-  DividerBlockSchemaExtension,
-  EdgelessTextBlockSchemaExtension,
-  EmbedFigmaBlockSchemaExtension,
-  EmbedGithubBlockSchemaExtension,
-  EmbedHtmlBlockSchemaExtension,
-  EmbedIframeBlockSchemaExtension,
-  EmbedLinkedDocBlockSchemaExtension,
-  EmbedLoomBlockSchemaExtension,
-  EmbedSyncedDocBlockSchemaExtension,
-  EmbedYoutubeBlockSchemaExtension,
-  FrameBlockSchemaExtension,
-  ImageBlockSchemaExtension,
-  LatexBlockSchemaExtension,
-  ListBlockSchemaExtension,
-  NoteBlockSchemaExtension,
-  ParagraphBlockSchemaExtension,
+  RootBlockHtmlAdapterExtension,
+  RootBlockMarkdownAdapterExtension,
+  RootBlockNotionHtmlAdapterExtension,
+} from '@blocksuite/affine-block-root';
+import { SurfaceBlockSchemaExtension } from '@blocksuite/affine-block-surface';
+import {
+  TableBlockAdapterExtensions,
+  TableSelectionExtension,
+} from '@blocksuite/affine-block-table';
+import {
+  type StoreExtensionContext,
+  StoreExtensionProvider,
+} from '@blocksuite/affine-ext-loader';
+import {
+  HtmlInlineToDeltaAdapterExtensions,
+  InlineDeltaToHtmlAdapterExtensions,
+  InlineDeltaToMarkdownAdapterExtensions,
+  InlineDeltaToPlainTextAdapterExtensions,
+  MarkdownInlineToDeltaAdapterExtensions,
+  NotionHtmlInlineToDeltaAdapterExtensions,
+} from '@blocksuite/affine-inline-preset';
+import {
   RootBlockSchemaExtension,
   SurfaceRefBlockSchemaExtension,
   TableBlockSchemaExtension,
   TranscriptionBlockSchemaExtension,
 } from '@blocksuite/affine-model';
 import {
-  HighlightSelectionExtension,
-  ImageSelectionExtension,
-} from '@blocksuite/affine-shared/selection';
+  HtmlAdapterFactoryExtension,
+  MarkdownAdapterFactoryExtension,
+  MixTextAdapterFactoryExtension,
+  NotionHtmlAdapterFactoryExtension,
+  NotionTextAdapterFactoryExtension,
+  PlainTextAdapterFactoryExtension,
+} from '@blocksuite/affine-shared/adapters';
+import { HighlightSelectionExtension } from '@blocksuite/affine-shared/selection';
 import {
   BlockMetaService,
   EmbedIframeService,
@@ -50,41 +55,68 @@ import {
 } from '@blocksuite/std';
 import type { ExtensionType } from '@blocksuite/store';
 
-import {
-  getAdapterFactoryExtensions,
-  getHtmlAdapterExtensions,
-  getMarkdownAdapterExtensions,
-  getNotionHtmlAdapterExtensions,
-  getPlainTextAdapterExtensions,
-} from '../adapters/extension.js';
+function getAdapterFactoryExtensions(): ExtensionType[] {
+  return [
+    MarkdownAdapterFactoryExtension,
+    PlainTextAdapterFactoryExtension,
+    HtmlAdapterFactoryExtension,
+    NotionTextAdapterFactoryExtension,
+    NotionHtmlAdapterFactoryExtension,
+    MixTextAdapterFactoryExtension,
+  ];
+}
 
-export const StoreExtensions: ExtensionType[] = [
-  CodeBlockSchemaExtension,
-  ParagraphBlockSchemaExtension,
+const defaultBlockHtmlAdapterMatchers = [RootBlockHtmlAdapterExtension];
+
+const defaultBlockMarkdownAdapterMatchers = [RootBlockMarkdownAdapterExtension];
+
+const defaultMarkdownPreprocessors = [
+  LatexMarkdownPreprocessorExtension,
+  CodeMarkdownPreprocessorExtension,
+];
+
+const defaultBlockNotionHtmlAdapterMatchers: ExtensionType[] = [
+  RootBlockNotionHtmlAdapterExtension,
+];
+
+const defaultBlockPlainTextAdapterMatchers: ExtensionType[] = [];
+
+function getHtmlAdapterExtensions(): ExtensionType[] {
+  return [
+    ...HtmlInlineToDeltaAdapterExtensions,
+    ...defaultBlockHtmlAdapterMatchers,
+    ...InlineDeltaToHtmlAdapterExtensions,
+  ];
+}
+
+function getMarkdownAdapterExtensions(): ExtensionType[] {
+  return [
+    ...MarkdownInlineToDeltaAdapterExtensions,
+    ...defaultBlockMarkdownAdapterMatchers,
+    ...InlineDeltaToMarkdownAdapterExtensions,
+    ...defaultMarkdownPreprocessors,
+  ];
+}
+
+function getNotionHtmlAdapterExtensions(): ExtensionType[] {
+  return [
+    ...NotionHtmlInlineToDeltaAdapterExtensions,
+    ...defaultBlockNotionHtmlAdapterMatchers,
+  ];
+}
+
+function getPlainTextAdapterExtensions(): ExtensionType[] {
+  return [
+    ...defaultBlockPlainTextAdapterMatchers,
+    ...InlineDeltaToPlainTextAdapterExtensions,
+  ];
+}
+
+const MigratingStoreExtensions: ExtensionType[] = [
   RootBlockSchemaExtension,
-  ListBlockSchemaExtension,
-  NoteBlockSchemaExtension,
-  DividerBlockSchemaExtension,
-  ImageBlockSchemaExtension,
   SurfaceBlockSchemaExtension,
-  BookmarkBlockSchemaExtension,
-  FrameBlockSchemaExtension,
-  DatabaseBlockSchemaExtension,
   SurfaceRefBlockSchemaExtension,
-  DataViewBlockSchemaExtension,
-  AttachmentBlockSchemaExtension,
-  EmbedSyncedDocBlockSchemaExtension,
-  EmbedLinkedDocBlockSchemaExtension,
-  EmbedHtmlBlockSchemaExtension,
-  EmbedIframeBlockSchemaExtension,
-  EmbedGithubBlockSchemaExtension,
-  EmbedFigmaBlockSchemaExtension,
-  EmbedLoomBlockSchemaExtension,
-  EmbedYoutubeBlockSchemaExtension,
-  EdgelessTextBlockSchemaExtension,
-  LatexBlockSchemaExtension,
   TableBlockSchemaExtension,
-  CalloutBlockSchemaExtension,
   TranscriptionBlockSchemaExtension,
 
   BlockSelectionExtension,
@@ -92,10 +124,10 @@ export const StoreExtensions: ExtensionType[] = [
   SurfaceSelectionExtension,
   CursorSelectionExtension,
   HighlightSelectionExtension,
-  ImageSelectionExtension,
   DatabaseSelectionExtension,
   TableSelectionExtension,
 
+  TableBlockAdapterExtensions,
   getHtmlAdapterExtensions(),
   getMarkdownAdapterExtensions(),
   getNotionHtmlAdapterExtensions(),
@@ -110,3 +142,12 @@ export const StoreExtensions: ExtensionType[] = [
   EmbedIframeConfigExtensions,
   EmbedIframeService,
 ].flat();
+
+export class MigratingStoreExtension extends StoreExtensionProvider {
+  override name = 'migrating';
+
+  override setup(context: StoreExtensionContext) {
+    super.setup(context);
+    context.register(MigratingStoreExtensions);
+  }
+}

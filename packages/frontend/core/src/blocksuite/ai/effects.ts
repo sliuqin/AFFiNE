@@ -1,5 +1,3 @@
-import { SpecProvider } from '@blocksuite/affine/shared/utils';
-
 import { AIChatBlockComponent } from './blocks/ai-chat-block/ai-chat-block';
 import { EdgelessAIChatBlockComponent } from './blocks/ai-chat-block/ai-chat-edgeless-block';
 import { LitTranscriptionBlock } from './blocks/ai-chat-block/ai-transcription-block';
@@ -13,7 +11,6 @@ import {
 } from './blocks/ai-chat-block/components/chat-images';
 import { ImagePlaceholder } from './blocks/ai-chat-block/components/image-placeholder';
 import { UserInfo } from './blocks/ai-chat-block/components/user-info';
-import { AIChatBlockSchemaExtension } from './blocks/ai-chat-block/model';
 import { ChatPanel } from './chat-panel';
 import { ActionWrapper } from './chat-panel/actions/action-wrapper';
 import { ActionImage } from './chat-panel/actions/image';
@@ -158,6 +155,4 @@ export function registerAIEffects() {
   );
 
   customElements.define('transcription-block', LitTranscriptionBlock);
-
-  SpecProvider._.extendSpec('store', [AIChatBlockSchemaExtension]);
 }

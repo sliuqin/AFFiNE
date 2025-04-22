@@ -111,7 +111,10 @@ export class ChatPanelDocChip extends SignalWatcher(
       if (!doc.ready) {
         doc.load();
       }
-      const value = await extractMarkdownFromDoc(doc, this.host.std.provider);
+      const value = await extractMarkdownFromDoc(
+        doc,
+        this.host.std.store.provider
+      );
       const tokenCount = estimateTokenCount(value);
       if (this.checkTokenLimit(this.chip, tokenCount)) {
         const markdown = this.chip.markdown ?? new Signal<string>('');

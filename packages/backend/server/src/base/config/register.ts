@@ -57,6 +57,10 @@ function typeFromShape(shape: z.ZodType<any>): ConfigType {
       return 'array';
     case z.ZodObject:
       return 'object';
+    case z.ZodOptional:
+    case z.ZodNullable:
+      // @ts-expect-error checked
+      return typeFromShape(shape.unwrap());
     default:
       return 'any';
   }
@@ -249,6 +253,14 @@ export function override(config: AppConfig, update: DeepPartial<AppConfig>) {
       // we should use the override object instead of merge it with left
       if (configKeys.has(path)) {
         return right;
+      }
+
+      // EDGE CASE:
+      //   the right value is primitive and we're still not finding the key in descriptors,
+      //   which means the overrides has keys not defined
+      //   that's where we should return
+      if (typeof right !== 'object') {
+        return left;
       }
 
       // go deeper

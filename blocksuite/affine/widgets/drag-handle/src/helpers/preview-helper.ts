@@ -1,10 +1,10 @@
+import { ViewExtensionManagerIdentifier } from '@blocksuite/affine-ext-loader';
 import {
   DocModeExtension,
   DocModeProvider,
   EditorSettingExtension,
   EditorSettingProvider,
 } from '@blocksuite/affine-shared/services';
-import { SpecProvider } from '@blocksuite/affine-shared/utils';
 import { BlockStdScope, BlockViewIdentifier } from '@blocksuite/std';
 import type {
   BlockModel,
@@ -66,14 +66,16 @@ export class PreviewHelper {
     blockIds = blockIds.slice();
 
     const docModeService = std.get(DocModeProvider);
-    const editorSetting = std.get(EditorSettingProvider).peek();
+    const editorSetting = std.get(EditorSettingProvider);
     const query = this._calculateQuery(blockIds as string[]);
     const store = widget.doc.doc.getStore({ query });
-    const previewSpec = SpecProvider._.getSpec('preview:page');
-    const settingSignal = signal({ ...editorSetting });
+    let previewSpec = widget.std
+      .get(ViewExtensionManagerIdentifier)
+      .get('preview-page');
+    const settingSignal = signal({ ...editorSetting.setting$.peek() });
     const extensions = [
       DocModeExtension(docModeService),
-      EditorSettingExtension(settingSignal),
+      EditorSettingExtension({ setting$: settingSignal }),
       {
         setup(di) {
           di.override(
@@ -99,7 +101,7 @@ export class PreviewHelper {
       } as ExtensionType,
     ];
 
-    previewSpec.extend(extensions);
+    previewSpec = previewSpec.concat(extensions);
 
     settingSignal.value = {
       ...settingSignal.value,
@@ -108,7 +110,7 @@ export class PreviewHelper {
 
     const previewStd = new BlockStdScope({
       store,
-      extensions: previewSpec.value,
+      extensions: previewSpec,
     });
 
     let width: number = 500;

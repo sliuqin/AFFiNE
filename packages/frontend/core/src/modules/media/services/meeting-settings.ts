@@ -114,6 +114,12 @@ export class MeetingSettingsService extends Service {
     );
   }
 
+  async askForMeetingPermission(type: 'microphone') {
+    return this.desktopApiService?.handler.recording.askForMeetingPermission(
+      type
+    );
+  }
+
   setRecordingMode = (mode: MeetingSettingsSchema['recordingMode']) => {
     const currentMode = this.settings.recordingMode;
 

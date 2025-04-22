@@ -33,6 +33,7 @@ import {
   ToolbarRegistryExtension,
 } from '@blocksuite/affine-shared/services';
 import { dragHandleWidget } from '@blocksuite/affine-widget-drag-handle';
+import { linkedDocWidget } from '@blocksuite/affine-widget-linked-doc';
 import { docRemoteSelectionWidget } from '@blocksuite/affine-widget-remote-selection';
 import { scrollAnchoringWidget } from '@blocksuite/affine-widget-scroll-anchoring';
 import { SlashMenuExtension } from '@blocksuite/affine-widget-slash-menu';
@@ -44,7 +45,7 @@ import { RootBlockAdapterExtensions } from '../adapters/extension';
 import { clipboardConfigs } from '../clipboard';
 import { builtinToolbarConfig } from '../configs/toolbar';
 import { fallbackKeymap } from '../keyboard/keymap';
-import { linkedDocWidget, modalWidget, viewportOverlayWidget } from './widgets';
+import { viewportOverlayWidget } from './widgets';
 
 /**
  * Why do we add these extensions into CommonSpecs?
@@ -83,7 +84,6 @@ export const CommonSpecs: ExtensionType[] = [
   ...clipboardConfigs,
   ...EdgelessElementViews,
   ...EdgelessElementRendererExtension,
-  modalWidget,
   SlashMenuExtension,
   linkedDocWidget,
   dragHandleWidget,

@@ -1,4 +1,5 @@
 import { Button, IconButton, Modal } from '@affine/component';
+import { getStoreManager } from '@affine/core/blocksuite/manager/migrating-store';
 import { useAsyncCallback } from '@affine/core/components/hooks/affine-async-hooks';
 import type {
   DialogComponentProps,
@@ -12,14 +13,14 @@ import {
 import { DebugLogger } from '@affine/debug';
 import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
+import { openFileOrFiles } from '@blocksuite/affine/shared/utils';
+import type { Workspace } from '@blocksuite/affine/store';
 import {
   HtmlTransformer,
   MarkdownTransformer,
   NotionHtmlTransformer,
   ZipTransformer,
-} from '@blocksuite/affine/blocks/root';
-import { openFileOrFiles } from '@blocksuite/affine/shared/utils';
-import type { Workspace } from '@blocksuite/affine/store';
+} from '@blocksuite/affine/widgets/linked-doc';
 import {
   ExportToHtmlIcon,
   ExportToMarkdownIcon,
@@ -145,6 +146,7 @@ const importConfigs: Record<ImportType, ImportConfig> = {
           schema: getAFFiNEWorkspaceSchema(),
           markdown: text,
           fileName,
+          extensions: getStoreManager().get('store'),
         });
         if (docId) docIds.push(docId);
       }
@@ -163,6 +165,7 @@ const importConfigs: Record<ImportType, ImportConfig> = {
         collection: docCollection,
         schema: getAFFiNEWorkspaceSchema(),
         imported: file,
+        extensions: getStoreManager().get('store'),
       });
       return {
         docIds,
@@ -182,6 +185,7 @@ const importConfigs: Record<ImportType, ImportConfig> = {
         const docId = await HtmlTransformer.importHTMLToDoc({
           collection: docCollection,
           schema: getAFFiNEWorkspaceSchema(),
+          extensions: getStoreManager().get('store'),
           html: text,
           fileName,
         });
@@ -203,6 +207,7 @@ const importConfigs: Record<ImportType, ImportConfig> = {
           collection: docCollection,
           schema: getAFFiNEWorkspaceSchema(),
           imported: file,
+          extensions: getStoreManager().get('store'),
         });
       return {
         docIds: pageIds,
@@ -241,6 +246,7 @@ const ImportOptionItem = ({
   suffixTooltip,
   type,
   onImport,
+  ...props
 }: {
   label: string;
   prefixIcon: ReactElement<SVGAttributes<SVGElement>>;
@@ -251,7 +257,7 @@ const ImportOptionItem = ({
 }) => {
   const t = useI18n();
   return (
-    <div className={style.importItem} onClick={() => onImport(type)}>
+    <div className={style.importItem} onClick={() => onImport(type)} {...props}>
       {prefixIcon}
       <div className={style.importItemLabel}>{t[label]()}</div>
       {suffixIcon && (
@@ -292,9 +298,9 @@ const ImportOptions = ({
               suffixIcon={suffixIcon}
               suffixTooltip={suffixTooltip}
               label={label}
-              data-testid={testId}
               type={type}
               onImport={onImport}
+              data-testid={testId}
             />
           )
         )}

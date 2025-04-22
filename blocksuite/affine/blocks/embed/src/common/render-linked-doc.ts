@@ -1,4 +1,5 @@
 import { getSurfaceBlock } from '@blocksuite/affine-block-surface';
+import { ViewExtensionManagerIdentifier } from '@blocksuite/affine-ext-loader';
 import {
   type DocMode,
   ImageBlockModel,
@@ -9,7 +10,7 @@ import {
 } from '@blocksuite/affine-model';
 import { EMBED_CARD_HEIGHT } from '@blocksuite/affine-shared/consts';
 import { NotificationProvider } from '@blocksuite/affine-shared/services';
-import { matchModels, SpecProvider } from '@blocksuite/affine-shared/utils';
+import { matchModels } from '@blocksuite/affine-shared/utils';
 import { BlockStdScope, EditorLifeCycleExtension } from '@blocksuite/std';
 import {
   type BlockModel,
@@ -202,10 +203,13 @@ async function renderNoteContent(
     match: ids.map(id => ({ id, viewType: 'display' })),
   };
   const previewDoc = doc.doc.getStore({ query });
-  const previewSpec = SpecProvider._.getSpec('preview:page');
+  const std = card.host.std;
+  const previewSpec = std
+    .get(ViewExtensionManagerIdentifier)
+    .get('preview-page');
   const previewStd = new BlockStdScope({
     store: previewDoc,
-    extensions: previewSpec.value,
+    extensions: previewSpec,
   });
   const previewTemplate = previewStd.render();
   const fragment = document.createDocumentFragment();

@@ -1,5 +1,6 @@
 import {
   createOpenAI,
+  openai,
   type OpenAIProvider as VercelOpenAIProvider,
 } from '@ai-sdk/openai';
 import {
@@ -31,7 +32,7 @@ import {
   CopilotTextToTextProvider,
   PromptMessage,
 } from './types';
-import { chatToGPTMessage } from './utils';
+import { chatToGPTMessage, CitationParser } from './utils';
 
 export const DEFAULT_DIMENSIONS = 256;
 
@@ -62,6 +63,9 @@ export class OpenAIProvider
     'gpt-4o-2024-08-06',
     'gpt-4o-mini',
     'gpt-4o-mini-2024-07-18',
+    'gpt-4.1',
+    'gpt-4.1-2025-04-14',
+    'gpt-4.1-mini',
     'o1',
     'o3-mini',
     // embeddings
@@ -173,14 +177,22 @@ export class OpenAIProvider
     }
   }
 
+  private getToolUse(options: CopilotChatOptions = {}) {
+    if (options.webSearch) {
+      return {
+        web_search_preview: openai.tools.webSearchPreview(),
+      };
+    }
+    return undefined;
+  }
+
   // ====== text to text ======
   async generateText(
     messages: PromptMessage[],
-    model: string = 'gpt-4o-mini',
+    model: string = 'gpt-4.1-mini',
     options: CopilotChatOptions = {}
   ): Promise<string> {
     await this.checkParams({ messages, model, options });
-    console.log('messages', messages);
 
     try {
       metrics.ai.counter('chat_text_calls').add(1, { model });
@@ -215,7 +227,6 @@ export class OpenAIProvider
 
       return text.trim();
     } catch (e: any) {
-      console.log('error', e);
       metrics.ai.counter('chat_text_errors').add(1, { model });
       throw this.handleError(e, model, options);
     }
@@ -223,7 +234,7 @@ export class OpenAIProvider
 
   async *generateTextStream(
     messages: PromptMessage[],
-    model: string = 'gpt-4o-mini',
+    model: string = 'gpt-4.1-mini',
     options: CopilotChatOptions = {}
   ): AsyncIterable<string> {
     await this.checkParams({ messages, model, options });
@@ -233,15 +244,18 @@ export class OpenAIProvider
 
       const [system, msgs] = await chatToGPTMessage(messages);
 
-      const modelInstance = this.#instance(model, {
-        structuredOutputs: Boolean(options.jsonMode),
-        user: options.user,
-      });
+      const modelInstance = options.webSearch
+        ? this.#instance.responses(model)
+        : this.#instance(model, {
+            structuredOutputs: Boolean(options.jsonMode),
+            user: options.user,
+          });
 
-      const { textStream } = streamText({
+      const { fullStream } = streamText({
         model: modelInstance,
         system,
         messages: msgs,
+        tools: this.getToolUse(options),
         frequencyPenalty: options.frequencyPenalty || 0,
         presencePenalty: options.presencePenalty || 0,
         temperature: options.temperature || 0,
@@ -249,11 +263,24 @@ export class OpenAIProvider
         abortSignal: options.signal,
       });
 
-      for await (const message of textStream) {
-        if (message) {
-          yield message;
+      const parser = new CitationParser();
+      for await (const chunk of fullStream) {
+        if (chunk) {
+          switch (chunk.type) {
+            case 'text-delta': {
+              const result = parser.parse(chunk.textDelta);
+              yield result;
+              break;
+            }
+            case 'step-finish': {
+              const result = parser.end();
+              yield result;
+              break;
+            }
+          }
+
           if (options.signal?.aborted) {
-            await textStream.cancel();
+            await fullStream.cancel();
             break;
           }
         }
@@ -313,9 +340,9 @@ export class OpenAIProvider
         prompt,
       });
 
-      return result.images
-        .map(image => image.base64)
-        .filter((v): v is string => !!v);
+      return result.images.map(
+        image => `data:image/png;base64,${image.base64}`
+      );
     } catch (e: any) {
       metrics.ai.counter('generate_images_errors').add(1, { model });
       throw this.handleError(e, model, options);

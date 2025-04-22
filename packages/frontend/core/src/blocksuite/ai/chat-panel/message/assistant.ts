@@ -5,6 +5,7 @@ import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { isInsidePageEditor } from '@blocksuite/affine/shared/utils';
 import type { EditorHost } from '@blocksuite/affine/std';
 import { ShadowlessElement } from '@blocksuite/affine/std';
+import type { ExtensionType } from '@blocksuite/affine/store';
 import { css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 
@@ -44,7 +45,7 @@ export class ChatMessageAssistant extends WithDisposable(ShadowlessElement) {
   accessor error: AIError | null = null;
 
   @property({ attribute: false })
-  accessor previewSpecBuilder: any;
+  accessor extensions!: ExtensionType[];
 
   @property({ attribute: false })
   accessor getSessionId!: () => Promise<string | undefined>;
@@ -90,7 +91,7 @@ export class ChatMessageAssistant extends WithDisposable(ShadowlessElement) {
         .host=${host}
         .text=${item.content}
         .state=${state}
-        .previewSpecBuilder=${this.previewSpecBuilder}
+        .extensions=${this.extensions}
       ></chat-content-rich-text>
       ${shouldRenderError ? AIChatErrorRenderer(host, error) : nothing}
       ${this.renderEditorActions()}

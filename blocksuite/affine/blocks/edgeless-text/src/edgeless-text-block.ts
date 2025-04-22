@@ -1,6 +1,7 @@
 import { TextUtils } from '@blocksuite/affine-block-surface';
 import { formatBlockCommand } from '@blocksuite/affine-inline-preset';
 import {
+  DefaultTheme,
   EDGELESS_TEXT_BLOCK_MIN_HEIGHT,
   EDGELESS_TEXT_BLOCK_MIN_WIDTH,
   type EdgelessTextBlockModel,
@@ -259,7 +260,7 @@ export class EdgelessTextBlockComponent extends GfxBlockComponent<EdgelessTextBl
     };
   }
 
-  override onSelected(context: SelectedContext) {
+  override onSelected(context: SelectedContext): void | boolean {
     const { selected, multiSelect, event: e } = context;
     const { editing } = this.gfx.selection;
     const alreadySelected = this.gfx.selection.has(this.model.id);
@@ -318,7 +319,7 @@ export class EdgelessTextBlockComponent extends GfxBlockComponent<EdgelessTextBl
         })
         .catch(console.error);
     } else {
-      super.onSelected(context);
+      return super.onSelected(context);
     }
   }
 
@@ -359,13 +360,17 @@ export class EdgelessTextBlockComponent extends GfxBlockComponent<EdgelessTextBl
   }
 
   override renderPageContent() {
-    const { fontFamily, fontStyle, fontWeight, textAlign } = this.model.props;
-    const color = this.std
-      .get(ThemeProvider)
-      .generateColorProperty(this.model.props.color, '#000000');
+    const { color, fontFamily, fontStyle, fontWeight, textAlign } =
+      this.model.props;
+    const themeProvider = this.std.get(ThemeProvider);
+    const textColor = themeProvider.generateColorProperty(
+      color,
+      DefaultTheme.textColor,
+      themeProvider.theme$.value
+    );
 
     const style = styleMap({
-      '--edgeless-text-color': color,
+      '--edgeless-text-color': textColor,
       '--edgeless-text-font-family': TextUtils.wrapFontFamily(fontFamily),
       '--edgeless-text-font-style': fontStyle,
       '--edgeless-text-font-weight': fontWeight,

@@ -4,12 +4,13 @@ import {
   EdgelessCRUDIdentifier,
   getSurfaceBlock,
 } from '@blocksuite/affine/blocks/surface';
+import { ViewExtensionManagerIdentifier } from '@blocksuite/affine/ext-loader';
 import { ConnectorMode } from '@blocksuite/affine/model';
 import {
   DocModeProvider,
   TelemetryProvider,
 } from '@blocksuite/affine/shared/services';
-import type { Signal, SpecBuilder } from '@blocksuite/affine/shared/utils';
+import type { Signal } from '@blocksuite/affine/shared/utils';
 import type { EditorHost } from '@blocksuite/affine/std';
 import { signal } from '@preact/signals-core';
 import { html, LitElement, nothing } from 'lit';
@@ -437,9 +438,11 @@ export class AIChatBlockPeekView extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._textRendererOptions = {
-      extensions: this.previewSpecBuilder.value,
-    };
+    const extensions = this.host.std
+      .get(ViewExtensionManagerIdentifier)
+      .get('preview-page');
+
+    this._textRendererOptions = { extensions };
     this._historyMessages = this._deserializeHistoryChatMessages(
       this.historyMessagesString
     );
@@ -530,9 +533,6 @@ export class AIChatBlockPeekView extends LitElement {
   accessor host!: EditorHost;
 
   @property({ attribute: false })
-  accessor previewSpecBuilder!: SpecBuilder;
-
-  @property({ attribute: false })
   accessor networkSearchConfig!: AINetworkSearchConfig;
 
   @property({ attribute: false })
@@ -566,7 +566,6 @@ declare global {
 export const AIChatBlockPeekViewTemplate = (
   blockModel: AIChatBlockModel,
   host: EditorHost,
-  previewSpecBuilder: SpecBuilder,
   docDisplayConfig: DocDisplayConfig,
   searchMenuConfig: SearchMenuConfig,
   networkSearchConfig: AINetworkSearchConfig
@@ -574,7 +573,6 @@ export const AIChatBlockPeekViewTemplate = (
   return html`<ai-chat-block-peek-view
     .blockModel=${blockModel}
     .host=${host}
-    .previewSpecBuilder=${previewSpecBuilder}
     .networkSearchConfig=${networkSearchConfig}
     .docDisplayConfig=${docDisplayConfig}
     .searchMenuConfig=${searchMenuConfig}

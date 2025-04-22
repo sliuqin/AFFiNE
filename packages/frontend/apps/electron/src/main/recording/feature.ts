@@ -287,7 +287,7 @@ export function createRecording(status: RecordingStatus) {
     app: status.app,
     appGroup: status.appGroup,
     file,
-    stream,
+    session: stream,
   };
 
   recordings.set(status.id, recording);
@@ -308,8 +308,8 @@ export async function getRecording(id: number) {
     app: recording.app,
     startTime: recording.startTime,
     filepath: rawFilePath,
-    sampleRate: recording.stream.sampleRate,
-    numberOfChannels: recording.stream.channels,
+    sampleRate: recording.session.sampleRate,
+    numberOfChannels: recording.session.channels,
   };
 }
 
@@ -342,7 +342,7 @@ function setupRecordingListeners() {
         } else if (status?.status === 'stopped') {
           const recording = recordings.get(status.id);
           if (recording) {
-            recording.stream.stop();
+            recording.session.stop();
           }
         } else if (
           status?.status === 'create-block-success' ||
@@ -564,7 +564,7 @@ export async function stopRecording(id: number) {
     return;
   }
 
-  const { file, stream } = recording;
+  const { file, session: stream } = recording;
 
   // First stop the audio stream to prevent more data coming in
   try {
@@ -742,8 +742,8 @@ export function serializeRecordingStatus(
     startTime: status.startTime,
     filepath:
       status.filepath ?? (recording ? String(recording.file.path) : undefined),
-    sampleRate: recording?.stream.sampleRate,
-    numberOfChannels: recording?.stream.channels,
+    sampleRate: recording?.session.sampleRate,
+    numberOfChannels: recording?.session.channels,
   };
 }
 
@@ -778,6 +778,13 @@ export const checkMeetingPermissions = () => {
       systemPreferences.getMediaAccessStatus(mediaType) === 'granted',
     ])
   ) as Record<(typeof mediaTypes)[number], boolean>;
+};
+
+export const askForMeetingPermission = async (type: 'microphone') => {
+  if (!isMacOS()) {
+    return false;
+  }
+  return systemPreferences.askForMediaAccess(type);
 };
 
 export const checkCanRecordMeeting = () => {

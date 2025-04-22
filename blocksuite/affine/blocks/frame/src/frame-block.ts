@@ -2,7 +2,7 @@ import { DefaultTheme, type FrameBlockModel } from '@blocksuite/affine-model';
 import { ThemeProvider } from '@blocksuite/affine-shared/services';
 import { Bound } from '@blocksuite/global/gfx';
 import { GfxBlockComponent } from '@blocksuite/std';
-import type { SelectedContext } from '@blocksuite/std/gfx';
+import type { BoxSelectionContext, SelectedContext } from '@blocksuite/std/gfx';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { html } from 'lit';
 import { state } from 'lit/decorators.js';
@@ -53,7 +53,7 @@ export class FrameBlockComponent extends GfxBlockComponent<FrameBlockModel> {
     };
   }
 
-  override onSelected(context: SelectedContext): void {
+  override onSelected(context: SelectedContext): boolean | void {
     const { x, y } = context.position;
 
     if (
@@ -63,10 +63,20 @@ export class FrameBlockComponent extends GfxBlockComponent<FrameBlockModel> {
         // otherwise if the frame has title, then ignore it because in this case the frame cannot be selected by frame body
         this.model.props.title.length)
     ) {
-      return;
+      return false;
     }
 
-    super.onSelected(context);
+    return super.onSelected(context);
+  }
+
+  override onBoxSelected(context: BoxSelectionContext) {
+    const { box } = context;
+    const bound = new Bound(box.x, box.y, box.w, box.h);
+    const elementBound = this.model.elementBound;
+
+    return (
+      this.model.childElements.length === 0 || bound.contains(elementBound)
+    );
   }
 
   override renderGfxBlock() {

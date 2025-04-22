@@ -21,6 +21,7 @@ export enum CopilotCapability {
 export const PromptConfigStrictSchema = z.object({
   // openai
   jsonMode: z.boolean().nullable().optional(),
+  webSearch: z.boolean().nullable().optional(),
   frequencyPenalty: z.number().nullable().optional(),
   presencePenalty: z.number().nullable().optional(),
   temperature: z.number().nullable().optional(),
@@ -51,7 +52,15 @@ export const ChatMessageRole = Object.values(AiPromptRole) as [
 
 export const PureMessageSchema = z.object({
   content: z.string(),
-  attachments: z.array(z.string()).optional().nullable(),
+  attachments: z
+    .array(
+      z.union([
+        z.string(),
+        z.object({ attachment: z.string(), mimeType: z.string() }),
+      ])
+    )
+    .optional()
+    .nullable(),
   params: z.record(z.any()).optional().nullable(),
 });
 

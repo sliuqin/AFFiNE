@@ -8,10 +8,11 @@ import { expect, type Locator, type Page } from '@playwright/test';
 declare type _GLOBAL_ = typeof BlocksuiteEffects;
 
 const EDGELESS_TOOLBAR_WIDGET = 'edgeless-toolbar-widget';
-export const ZERO_WIDTH_SPACE = '\u200C';
+export const ZERO_WIDTH_FOR_EMPTY_LINE =
+  process.env.BROWSER === 'webkit' ? '\u200C' : '\u200B';
 
 export function inlineEditorInnerTextToString(innerText: string): string {
-  return innerText.replace(ZERO_WIDTH_SPACE, '').trim();
+  return innerText.replace(ZERO_WIDTH_FOR_EMPTY_LINE, '').trim();
 }
 
 const PARAGRAPH_BLOCK_LOCATOR = 'affine-paragraph';
@@ -288,7 +289,7 @@ export async function locateEdgelessToolButton(
   switch (type) {
     case 'brush':
     case 'highlighter':
-      buttonType = 'div';
+      buttonType = 'edgeless-tool-icon-button';
       break;
     case 'pen':
     case 'text':

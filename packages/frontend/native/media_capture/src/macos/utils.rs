@@ -5,7 +5,7 @@ use coreaudio::sys::{
   kAudioObjectPropertyElementMain, kAudioObjectPropertyScopeGlobal, AudioObjectGetPropertyData,
   AudioObjectID, AudioObjectPropertyAddress,
 };
-use rubato::{Resampler, SincFixedIn, SincInterpolationParameters, SincInterpolationType};
+use rubato::{FastFixedIn, PolynomialDegree, Resampler};
 
 use crate::error::CoreAudioError;
 
@@ -81,22 +81,32 @@ pub fn process_audio_frame(
   };
 
   if current_sample_rate != target_sample_rate {
-    let params = SincInterpolationParameters {
-      sinc_len: 256,
-      f_cutoff: 0.95,
-      interpolation: SincInterpolationType::Linear,
-      oversampling_factor: 256,
-      window: rubato::WindowFunction::BlackmanHarris2,
-    };
-    let mut resampler = SincFixedIn::<f32>::new(
+    // TODO: may use SincFixedOut to improve the sample quality
+    // however, it's not working as expected if we only process samples in chunks
+    // e.g., even with ratio 1.0, resampling 512 samples will result in 382 samples,
+    // which will produce very bad quality. The reason is that the resampler is
+    // meant to be used for dealing with larger input size. The reduced number
+    // of samples is a "delay" of the resampler for better quality.
+    let mut resampler = match FastFixedIn::<f32>::new(
       target_sample_rate / current_sample_rate,
       2.0,
-      params,
+      PolynomialDegree::Cubic,
       processed_samples.len(),
       1,
-    )
-    .ok()?;
-    let mut waves_out = resampler.process(&[processed_samples], None).ok()?;
+    ) {
+      Ok(r) => r,
+      Err(e) => {
+        eprintln!("Error creating resampler: {:?}", e);
+        return None;
+      }
+    };
+    let mut waves_out = match resampler.process(&[processed_samples], None) {
+      Ok(w) => w,
+      Err(e) => {
+        eprintln!("Error processing audio with resampler: {:?}", e);
+        return None;
+      }
+    };
     waves_out.pop()
   } else {
     Some(processed_samples)

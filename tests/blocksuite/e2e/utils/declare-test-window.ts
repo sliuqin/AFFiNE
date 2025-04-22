@@ -27,6 +27,7 @@ declare global {
       services: typeof import('@blocksuite/affine/shared/services');
       editor: typeof import('@blocksuite/integration-test');
       blockStd: typeof import('@blocksuite/affine/std');
+      affineModel: typeof import('@blocksuite/affine-model');
     };
     collection: Workspace;
     doc: Store;

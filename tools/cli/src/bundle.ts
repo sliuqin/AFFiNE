@@ -85,11 +85,12 @@ function getBundleConfigs(pkg: Package) {
 const IN_CI = !!process.env.CI;
 const httpProxyMiddlewareLogLevel = IN_CI ? 'silent' : 'error';
 
-const defaultDevServerConfig = {
+const defaultDevServerConfig: DevServerConfiguration = {
   host: '0.0.0.0',
   allowedHosts: 'all',
   hot: false,
   liveReload: true,
+  compress: !process.env.CI,
   client: {
     overlay: process.env.DISABLE_DEV_OVERLAY === 'true' ? false : undefined,
     logging: process.env.CI ? 'none' : 'error',
@@ -124,7 +125,7 @@ const defaultDevServerConfig = {
       logLevel: httpProxyMiddlewareLogLevel,
     },
   ],
-} as DevServerConfiguration;
+};
 
 export class BundleCommand extends PackageCommand {
   static override paths = [['bundle'], ['webpack'], ['pack'], ['bun']];

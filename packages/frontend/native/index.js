@@ -377,7 +377,7 @@ if (!nativeBinding) {
 module.exports.Application = nativeBinding.Application
 module.exports.ApplicationListChangedSubscriber = nativeBinding.ApplicationListChangedSubscriber
 module.exports.ApplicationStateChangedSubscriber = nativeBinding.ApplicationStateChangedSubscriber
-module.exports.AudioTapStream = nativeBinding.AudioTapStream
+module.exports.AudioCaptureSession = nativeBinding.AudioCaptureSession
 module.exports.DocStorage = nativeBinding.DocStorage
 module.exports.DocStoragePool = nativeBinding.DocStoragePool
 module.exports.RecordingPermissions = nativeBinding.RecordingPermissions

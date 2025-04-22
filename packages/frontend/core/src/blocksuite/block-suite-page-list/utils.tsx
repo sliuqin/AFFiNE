@@ -14,6 +14,8 @@ import type { Workspace } from '@blocksuite/affine/store';
 import { useServices } from '@toeverything/infra';
 import { useCallback, useMemo } from 'react';
 
+import { getStoreManager } from '../manager/migrating-store';
+
 export const usePageHelper = (docCollection: Workspace) => {
   const {
     docsService,
@@ -89,7 +91,7 @@ export const usePageHelper = (docCollection: Workspace) => {
   const importFileAndOpen = useMemo(
     () => async () => {
       const { showImportModal } = await import(
-        '@blocksuite/affine/blocks/root'
+        '@blocksuite/affine/widgets/linked-doc'
       );
       const { promise, resolve, reject } =
         Promise.withResolvers<
@@ -121,6 +123,7 @@ export const usePageHelper = (docCollection: Workspace) => {
       showImportModal({
         collection: docCollection,
         schema: getAFFiNEWorkspaceSchema(),
+        extensions: getStoreManager().get('store'),
         onSuccess,
         onFail: message => {
           reject(new Error(message));

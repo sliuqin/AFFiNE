@@ -8,7 +8,11 @@ import { PageEditorBlockSpecs } from '@blocksuite/affine/extensions';
 import { Container, type ServiceProvider } from '@blocksuite/affine/global/di';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { codeBlockWrapMiddleware } from '@blocksuite/affine/shared/adapters';
-import { LinkPreviewerService } from '@blocksuite/affine/shared/services';
+import {
+  LinkPreviewerService,
+  ThemeProvider,
+} from '@blocksuite/affine/shared/services';
+import { unsafeCSSVarV2 } from '@blocksuite/affine/shared/theme';
 import {
   BlockStdScope,
   BlockViewIdentifier,
@@ -22,7 +26,11 @@ import type {
   Store,
   TransformerMiddleware,
 } from '@blocksuite/affine/store';
-import { css, html, nothing, type PropertyValues } from 'lit';
+import {
+  darkCssVariablesV2,
+  lightCssVariablesV2,
+} from '@toeverything/theme/v2';
+import { css, html, nothing, type PropertyValues, unsafeCSS } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { keyed } from 'lit/directives/keyed.js';
@@ -34,6 +42,18 @@ import type {
   AffineAIPanelState,
   AffineAIPanelWidgetConfig,
 } from '../widgets/ai-panel/type';
+
+export const CustomPageEditorBlockSpecs: ExtensionType[] = [
+  ...PageEditorBlockSpecs,
+  {
+    setup: di => {
+      di.override(
+        BlockViewIdentifier('affine:page'),
+        () => literal`affine-page-root`
+      );
+    },
+  },
+];
 
 const customHeadingStyles = css`
   .custom-heading {
@@ -83,18 +103,6 @@ export type TextRendererOptions = {
   testId?: string;
 };
 
-export const CustomPageEditorBlockSpecs: ExtensionType[] = [
-  ...PageEditorBlockSpecs,
-  {
-    setup: di => {
-      di.override(
-        BlockViewIdentifier('affine:page'),
-        () => literal`affine-page-root`
-      );
-    },
-  },
-];
-
 // todo: refactor it for more general purpose usage instead of AI only?
 export class TextRenderer extends WithDisposable(ShadowlessElement) {
   static override styles = css`
@@ -109,7 +117,7 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
       padding: 0;
       margin: 0;
       line-height: var(--affine-line-height);
-      color: var(--affine-text-primary-color);
+      color: ${unsafeCSSVarV2('text/primary')};
       font-weight: 400;
     }
 
@@ -168,6 +176,18 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
       }
     }
 
+    .text-renderer-container[data-app-theme='dark'] {
+      .ai-answer-text-editor .affine-page-root-block-container {
+        color: ${unsafeCSS(darkCssVariablesV2['--affine-v2-text-primary'])};
+      }
+    }
+
+    .text-renderer-container[data-app-theme='light'] {
+      .ai-answer-text-editor .affine-page-root-block-container {
+        color: ${unsafeCSS(lightCssVariablesV2['--affine-v2-text-primary'])};
+      }
+    }
+
     ${customHeadingStyles}
   `;
 
@@ -208,7 +228,7 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
       const schema = this.schema ?? this.host?.std.store.schema;
       let provider: ServiceProvider;
       if (this.host) {
-        provider = this.host.std.provider;
+        provider = this.host.std.store.provider;
       } else {
         const container = new Container();
         getMarkdownAdapterExtensions().forEach(ext => {
@@ -288,8 +308,9 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
       'text-renderer-container': true,
       'custom-heading': !!customHeading,
     });
+    const theme = this.host?.std.get(ThemeProvider).app$.value;
     return html`
-      <div class=${classes} data-testid=${testId}>
+      <div class=${classes} data-testid=${testId} data-app-theme=${theme}>
         ${keyed(
           this._doc,
           html`<div class="ai-answer-text-editor affine-page-viewport">
@@ -358,6 +379,7 @@ export const createTextRenderer: (
 ) => AffineAIPanelWidgetConfig['answerRenderer'] = (host, options) => {
   return (answer, state) => {
     return html`<text-renderer
+      contenteditable="false"
       .host=${host}
       .answer=${answer}
       .state=${state}

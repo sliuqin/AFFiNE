@@ -1,3 +1,4 @@
+import { getStoreManager } from '@affine/core/blocksuite/manager/migrating-store';
 import { AffineContext } from '@affine/core/components/context';
 import { AppFallback } from '@affine/core/mobile/components/app-fallback';
 import { configureMobileModules } from '@affine/core/mobile/modules';
@@ -39,13 +40,13 @@ import { getWorkerUrl } from '@affine/env/worker';
 import { I18n } from '@affine/i18n';
 import { StoreManagerClient } from '@affine/nbstore/worker/client';
 import { getMarkdownAdapterExtensions } from '@blocksuite/affine/adapters';
-import { MarkdownTransformer } from '@blocksuite/affine/blocks/root';
 import { Container } from '@blocksuite/affine/global/di';
 import {
   docLinkBaseURLMiddleware,
   MarkdownAdapter,
   titleMiddleware,
 } from '@blocksuite/affine/shared/adapters';
+import { MarkdownTransformer } from '@blocksuite/affine/widgets/linked-doc';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
 import { Haptics } from '@capacitor/haptics';
@@ -306,6 +307,7 @@ const frameworkProvider = framework.provider();
       collection: workspace.docCollection,
       schema: getAFFiNEWorkspaceSchema(),
       markdown,
+      extensions: getStoreManager().get('store'),
     });
     const docsService = workspace.scope.get(DocsService);
     if (docId) {
@@ -337,6 +339,7 @@ CapacitorApp.addListener('appUrlOpen', ({ url }) => {
   if (urlObj.hostname === 'authentication') {
     const method = urlObj.searchParams.get('method');
     const payload = JSON.parse(urlObj.searchParams.get('payload') ?? 'false');
+    const serverBaseUrl = urlObj.searchParams.get('server');
 
     if (
       !method ||
@@ -347,9 +350,18 @@ CapacitorApp.addListener('appUrlOpen', ({ url }) => {
       return;
     }
 
-    const authService = frameworkProvider
+    let authService = frameworkProvider
       .get(DefaultServerService)
       .server.scope.get(AuthService);
+
+    if (serverBaseUrl) {
+      const serversService = frameworkProvider.get(ServersService);
+      const server = serversService.getServerByBaseUrl(serverBaseUrl);
+      if (server) {
+        authService = server.scope.get(AuthService);
+      }
+    }
+
     if (method === 'oauth') {
       authService
         .signInOauth(payload.code, payload.state, payload.provider)
@@ -407,7 +419,7 @@ export function App() {
 }
 
 function createStoreManagerClient() {
-  const worker = new Worker(getWorkerUrl('nbstore.worker.js'));
+  const worker = new Worker(getWorkerUrl('nbstore'));
   const { port1: nativeDBApiChannelServer, port2: nativeDBApiChannelClient } =
     new MessageChannel();
   AsyncCall<typeof NbStoreNativeDBApis>(NbStoreNativeDBApis, {

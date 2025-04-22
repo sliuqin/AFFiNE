@@ -28,7 +28,7 @@ export class EditorUtils {
       const lines = await page.$$('page-editor .inline-editor');
       const contents = await Promise.all(lines.map(el => el.innerText()));
       content = contents
-        .map(c => c.replace(/\u200B/g, '').trim())
+        .map(c => c.replace(/[\u200B-\u200D\uFEFF]/g, '').trim())
         .filter(c => !!c)
         .join('\n');
       if (!content) {
@@ -43,7 +43,9 @@ export class EditorUtils {
     const edgelessNode = await page.waitForSelector(
       'affine-edgeless-note .edgeless-note-page-content'
     );
-    return (await edgelessNode.innerText()).replace(/\u200B/g, '').trim();
+    return (await edgelessNode.innerText())
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .trim();
   }
 
   public static async switchToEdgelessMode(page: Page) {
@@ -51,6 +53,20 @@ export class EditorUtils {
     await page.getByTestId('switch-edgeless-mode-button').click();
     editor.waitForElementState('hidden');
     await page.waitForSelector('edgeless-editor');
+    try {
+      const edgelessNotificationClose = page.getByTestId(
+        'notification-close-button'
+      );
+      await edgelessNotificationClose.waitFor({
+        state: 'visible',
+        timeout: 2000,
+      });
+      await edgelessNotificationClose.click();
+      // Focus to the edgeless editor
+      await page.mouse.click(400, 400);
+    } catch {
+      // do nothing if the notification close button is not found
+    }
   }
 
   public static async switchToPageMode(page: Page) {
@@ -180,7 +196,7 @@ export class EditorUtils {
     });
 
     // Insert text inside shape
-    await page.mouse.dblclick(400, 400);
+    await page.mouse.dblclick(450, 450);
     await page.keyboard.insertText(text);
     // Prevent the shape from being dragged
     await page.mouse.click(500, 500);
@@ -236,13 +252,59 @@ export class EditorUtils {
     );
   }
 
+  public static async clearAllCollections(page: Page) {
+    while (true) {
+      const collection = await page
+        .getByTestId('navigation-panel-collections')
+        .locator('[data-testid^="navigation-panel-collection-"]')
+        .first();
+
+      if (!(await collection.isVisible())) {
+        break;
+      }
+
+      const collectionContent = await collection.locator('div').first();
+      await collectionContent.hover();
+      const more = await collectionContent.getByTestId(
+        'navigation-panel-tree-node-operation-button'
+      );
+      await more.click();
+      await page.getByTestId('collection-delete-button').click();
+    }
+    await page.waitForTimeout(100);
+  }
+
+  public static async clearAllTags(page: Page) {
+    while (true) {
+      const tag = await page
+        .getByTestId('navigation-panel-tags')
+        .locator('[data-testid^="navigation-panel-tag-"]')
+        .first();
+
+      if (!(await tag.isVisible())) {
+        break;
+      }
+
+      const tagContent = await tag.locator('div').first();
+      await tagContent.hover();
+      const more = await tagContent.getByTestId(
+        'navigation-panel-tree-node-operation-button'
+      );
+      await more.click();
+      await page.getByTestId('tag-delete-button').click();
+    }
+    await page.waitForTimeout(100);
+  }
+
   public static async createCollectionAndDoc(
     page: Page,
     collectionName: string,
     docContent: string
   ) {
     // Create collection
-    await page.getByTestId('explorer-bar-add-collection-button').click();
+    await page
+      .getByTestId('navigation-panel-bar-add-collection-button')
+      .click();
     const input = await page.getByTestId('prompt-modal-input');
     await input.focus();
     await input.pressSequentially(collectionName);
@@ -272,8 +334,9 @@ export class EditorUtils {
     docContent: string
   ) {
     // Create tag
-    const tags = await page.getByTestId('explorer-tags');
-    await tags.getByTestId('explorer-bar-add-favorite-button').click();
+    const tags = await page.getByTestId('navigation-panel-tags');
+    await tags.hover();
+    await tags.getByTestId('navigation-panel-bar-add-tag-button').click();
     const input = await page.getByTestId('rename-modal-input');
     await input.focus();
     await input.pressSequentially(tagName);

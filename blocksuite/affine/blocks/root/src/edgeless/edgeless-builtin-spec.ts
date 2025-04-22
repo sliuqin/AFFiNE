@@ -21,16 +21,17 @@ import { NoteTool } from '@blocksuite/affine-gfx-note';
 import { ShapeTool } from '@blocksuite/affine-gfx-shape';
 import { TemplateTool } from '@blocksuite/affine-gfx-template';
 import { TextTool } from '@blocksuite/affine-gfx-text';
-import { ElementTransformManager } from '@blocksuite/std/gfx';
+import { InteractivityManager } from '@blocksuite/std/gfx';
 import type { ExtensionType } from '@blocksuite/store';
 
 import { EdgelessElementToolbarExtension } from './configs/toolbar';
 import { EdgelessRootBlockSpec } from './edgeless-root-spec.js';
-import { DblClickAddEdgelessText } from './element-transform/dblclick-add-edgeless-text.js';
-import { SnapExtension } from './element-transform/snap-manager.js';
 import { DefaultTool } from './gfx-tool/default-tool.js';
 import { EmptyTool } from './gfx-tool/empty-tool.js';
 import { PanTool } from './gfx-tool/pan-tool.js';
+import { AltCloneExtension } from './interact-extensions/clone-ext.js';
+import { DblClickAddEdgelessText } from './interact-extensions/dblclick-add-edgeless-text.js';
+import { SnapExtension } from './interact-extensions/snap-manager.js';
 import { EditPropsMiddlewareBuilder } from './middlewares/base.js';
 import { SnapOverlay } from './utils/snap-manager.js';
 
@@ -51,7 +52,7 @@ export const EdgelessToolExtension: ExtensionType[] = [
 ];
 
 export const EdgelessEditExtensions: ExtensionType[] = [
-  ElementTransformManager,
+  InteractivityManager,
   ConnectorFilter,
   SnapExtension,
   MindMapDragExtension,
@@ -63,6 +64,7 @@ export const EdgelessBuiltInManager: ExtensionType[] = [
   ConnectionOverlay,
   MindMapIndicatorOverlay,
   SnapOverlay,
+  AltCloneExtension,
   EditPropsMiddlewareBuilder,
   EdgelessElementToolbarExtension,
 ].flat();

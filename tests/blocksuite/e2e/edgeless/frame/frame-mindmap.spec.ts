@@ -22,7 +22,7 @@ const dragBetweenViewCoords = async (
   end: number[]
 ) => {
   // dragging slowly may drop frame if mindmap is existed, so for test we drag quickly
-  await _dragBetweenViewCoords(page, start, end, { steps: 2 });
+  await _dragBetweenViewCoords(page, start, end, { steps: 10 });
   await waitNextFrame(page);
 };
 

@@ -39,7 +39,7 @@ export async function waitForAllPagesLoad(page: Page) {
 export async function clickNewPageButton(page: Page, title?: string) {
   await page.getByTestId('sidebar-new-page-button').click({
     // default timeout is 5000ms, but it's not enough for the CI first page load
-    timeout: 8000,
+    timeout: 20000,
   });
   await waitForEmptyEditor(page);
   if (title) {
@@ -60,8 +60,7 @@ export async function type(page: Page, content: string, delay = 50) {
 }
 
 export const createLinkedPage = async (page: Page, pageName?: string) => {
-  // fixme: workaround for @ popover not showing up when editor is not ready
-  await page.waitForTimeout(500);
+  await waitForEditorLoad(page);
   await page.keyboard.type('@', { delay: 50 });
   const linkedPagePopover = page.locator('.linked-doc-popover');
   await expect(linkedPagePopover).toBeVisible();

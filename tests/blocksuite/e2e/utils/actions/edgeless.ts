@@ -211,7 +211,7 @@ export async function locatorEdgelessToolButton(
   switch (type) {
     case 'brush':
     case 'highlighter':
-      buttonType = 'div';
+      buttonType = 'edgeless-tool-icon-button';
       break;
     case 'pen':
     case 'text':
@@ -1941,4 +1941,13 @@ export async function waitFontsLoaded(page: Page) {
 
     return edgelessBlock.fontLoader?.ready;
   });
+}
+
+export function isIntersected(
+  bound1: [number, number, number, number],
+  bound2: [number, number, number, number]
+) {
+  const [x1, y1, w1, h1] = bound1;
+  const [x2, y2, w2, h2] = bound2;
+  return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
 }

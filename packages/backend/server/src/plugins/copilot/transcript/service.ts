@@ -66,9 +66,14 @@ export class CopilotTranscriptionService {
     });
 
     const infos: AudioBlobInfos = [];
-    for (const blob of blobs) {
+    for (const [idx, blob] of blobs.entries()) {
       const buffer = await readStream(blob.createReadStream());
-      const url = await this.storage.put(userId, workspaceId, blobId, buffer);
+      const url = await this.storage.put(
+        userId,
+        workspaceId,
+        `${blobId}-${idx}`,
+        buffer
+      );
       infos.push({ url, mimeType: blob.mimetype });
     }
 
@@ -207,6 +212,28 @@ export class CopilotTranscriptionService {
     return `${hoursStr}:${minutesStr}:${secondsStr}`;
   }
 
+  private async callTranscript(url: string, mimeType: string, offset: number) {
+    const result = await this.chatWithPrompt(
+      'Transcript audio',
+      {
+        attachments: [url],
+        params: { mimetype: mimeType },
+      },
+      TranscriptionResponseSchema
+    );
+
+    const transcription = TranscriptionResponseSchema.parse(
+      JSON.parse(result)
+    ).map(t => ({
+      speaker: t.a,
+      start: this.convertTime(t.s, offset),
+      end: this.convertTime(t.e, offset),
+      transcription: t.t,
+    }));
+
+    return transcription;
+  }
+
   @OnJob('copilot.transcript.submit')
   async transcriptAudio({
     jobId,
@@ -217,28 +244,11 @@ export class CopilotTranscriptionService {
   }: Jobs['copilot.transcript.submit']) {
     try {
       const blobInfos = this.mergeInfos(infos, url, mimeType);
-      const transcriptions = [];
-      for (const [idx, { url, mimeType }] of blobInfos.entries()) {
-        const result = await this.chatWithPrompt(
-          'Transcript audio',
-          {
-            attachments: [url],
-            params: { mimetype: mimeType },
-          },
-          TranscriptionResponseSchema
-        );
-
-        const offset = idx * 10 * 60;
-        const transcription = TranscriptionResponseSchema.parse(
-          JSON.parse(result)
-        ).map(t => ({
-          speaker: t.a,
-          start: this.convertTime(t.s, offset),
-          end: this.convertTime(t.e, offset),
-          transcription: t.t,
-        }));
-        transcriptions.push(transcription);
-      }
+      const transcriptions = await Promise.all(
+        Array.from(blobInfos.entries()).map(([idx, { url, mimeType }]) =>
+          this.callTranscript(url, mimeType, idx * 10 * 60)
+        )
+      );
 
       await this.models.copilotJob.update(jobId, {
         payload: { transcription: transcriptions.flat() },
@@ -273,7 +283,7 @@ export class CopilotTranscriptionService {
           .trim();
 
         if (content.length) {
-          payload.summary = await this.chatWithPrompt('Summary', {
+          payload.summary = await this.chatWithPrompt('Summarize the meeting', {
             content,
           });
           await this.models.copilotJob.update(jobId, {
@@ -318,7 +328,7 @@ export class CopilotTranscriptionService {
           await this.models.copilotJob.update(jobId, {
             payload,
           });
-          this.event.emit('workspace.file.transcript.finished', {
+          await this.job.add('copilot.transcript.findAction.submit', {
             jobId,
           });
           return;
@@ -334,6 +344,32 @@ export class CopilotTranscriptionService {
       });
       throw error;
     }
+  }
+
+  @OnJob('copilot.transcript.findAction.submit')
+  async transcriptFindAction({
+    jobId,
+  }: Jobs['copilot.transcript.findAction.submit']) {
+    try {
+      const payload = await this.models.copilotJob.getPayload(
+        jobId,
+        TranscriptPayloadSchema
+      );
+      if (payload.summary) {
+        const actions = await this.chatWithPrompt('Find action for summary', {
+          content: payload.summary,
+        }).then(a => a.trim());
+        if (actions) {
+          payload.actions = actions;
+          await this.models.copilotJob.update(jobId, {
+            payload,
+          });
+        }
+      }
+    } catch {} // finish even if failed
+    this.event.emit('workspace.file.transcript.finished', {
+      jobId,
+    });
   }
 
   @OnEvent('workspace.file.transcript.finished')

@@ -1,5 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
+  output          = "./node_modules/.prisma/client"
   binaryTargets   = ["native", "debian-openssl-3.0.x", "linux-arm64-openssl-3.0.x"]
   previewFeatures = ["metrics", "relationJoins", "nativeDistinct", "postgresqlExtensions"]
 }
@@ -103,20 +104,23 @@ model VerificationToken {
 }
 
 model Workspace {
-  id               String   @id @default(uuid()) @db.VarChar
-  public           Boolean
-  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  id                 String   @id @default(uuid()) @db.VarChar
+  public             Boolean
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   // workspace level feature flags
-  enableAi         Boolean  @default(true) @map("enable_ai")
-  enableUrlPreview Boolean  @default(false) @map("enable_url_preview")
-  name             String?  @db.VarChar
-  avatarKey        String?  @map("avatar_key") @db.VarChar
+  enableAi           Boolean  @default(true) @map("enable_ai")
+  enableUrlPreview   Boolean  @default(false) @map("enable_url_preview")
+  enableDocEmbedding Boolean  @default(true) @map("enable_doc_embedding")
+  name               String?  @db.VarChar
+  avatarKey          String?  @map("avatar_key") @db.VarChar
 
-  features       WorkspaceFeature[]
-  docs           WorkspaceDoc[]
-  permissions    WorkspaceUserRole[]
-  docPermissions WorkspaceDocUserRole[]
-  blobs          Blob[]
+  features               WorkspaceFeature[]
+  docs                   WorkspaceDoc[]
+  permissions            WorkspaceUserRole[]
+  docPermissions         WorkspaceDocUserRole[]
+  blobs                  Blob[]
+  AiWorkspaceIgnoredDocs AiWorkspaceIgnoredDocs[]
+  AiWorkspaceFiles       AiWorkspaceFiles[]
 
   @@map("workspaces")
 }
@@ -477,6 +481,53 @@ model AiWorkspaceEmbedding {
   @@unique([workspaceId, docId, chunk])
   @@index([embedding], map: "ai_workspace_embeddings_idx")
   @@map("ai_workspace_embeddings")
+}
+
+model AiWorkspaceIgnoredDocs {
+  workspaceId String @map("workspace_id") @db.VarChar
+  docId       String @map("doc_id") @db.VarChar
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@id([workspaceId, docId])
+  @@map("ai_workspace_ignored_docs")
+}
+
+model AiWorkspaceFiles {
+  workspaceId String @map("workspace_id") @db.VarChar
+  fileId      String @map("file_id") @db.VarChar
+  fileName    String @map("file_name") @db.VarChar
+  mimeType    String @map("mime_type") @db.VarChar
+  size        Int    @db.Integer
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  embeddings AiWorkspaceFileEmbedding[]
+
+  @@id([workspaceId, fileId])
+  @@map("ai_workspace_files")
+}
+
+model AiWorkspaceFileEmbedding {
+  workspaceId String                      @map("workspace_id") @db.VarChar
+  fileId      String                      @map("file_id") @db.VarChar
+  // a file can be divided into multiple chunks and embedded separately.
+  chunk       Int                         @db.Integer
+  content     String                      @db.VarChar
+  embedding   Unsupported("vector(1024)")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  file AiWorkspaceFiles @relation(fields: [workspaceId, fileId], references: [workspaceId, fileId], onDelete: Cascade)
+
+  @@id([workspaceId, fileId])
+  @@unique([workspaceId, fileId, chunk])
+  @@index([embedding], map: "ai_workspace_file_embeddings_idx")
+  @@map("ai_workspace_file_embeddings")
 }
 
 enum AiJobStatus {

@@ -210,7 +210,13 @@ export const MeetingsSettings = () => {
 
   const handleOpenMicrophoneRecordingPermissionSetting =
     useAsyncCallback(async () => {
-      await meetingSettingsService.showRecordingPermissionSetting('microphone');
+      const result =
+        await meetingSettingsService.askForMeetingPermission('microphone');
+      if (!result) {
+        await meetingSettingsService.showRecordingPermissionSetting(
+          'microphone'
+        );
+      }
     }, [meetingSettingsService]);
 
   const handleOpenSavedRecordings = useAsyncCallback(async () => {

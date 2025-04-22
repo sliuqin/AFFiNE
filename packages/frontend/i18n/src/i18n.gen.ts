@@ -586,6 +586,10 @@ export function useAFFiNEI18N(): {
       */
     all(): string;
     /**
+      * `current`
+      */
+    current(): string;
+    /**
       * `Automatically check for new updates periodically.`
       */
     ["com.affine.aboutAFFiNE.autoCheckUpdate.description"](): string;
@@ -1986,6 +1990,10 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.error.no-page-root.title"](): string;
     /**
+      * `It takes longer to load the doc content.`
+      */
+    ["com.affine.error.loading-timeout-error"](): string;
+    /**
       * `Refetch`
       */
     ["com.affine.error.refetch"](): string;
@@ -2592,9 +2600,13 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.lastYear"](): string;
     /**
-      * `Loading...`
+      * `Loading`
       */
     ["com.affine.loading"](): string;
+    /**
+      * `Loading document content, please wait a moment.`
+      */
+    ["com.affine.loading.description"](): string;
     /**
       * `Rename`
       */
@@ -3949,6 +3961,12 @@ export function useAFFiNEI18N(): {
         readonly number: string;
     }): string;
     /**
+      * `To expire at: {{expireTime}}`
+      */
+    ["com.affine.payment.member.team.invite.expire-at"](options: {
+        readonly expireTime: string;
+    }): string;
+    /**
       * `Invitation link`
       */
     ["com.affine.payment.member.team.invite.invitation-link"](): string;
@@ -4584,9 +4602,9 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.rootAppSidebar.organize.folder.add-collections"](): string;
     /**
-      * `Add docs`
+      * `New doc`
       */
-    ["com.affine.rootAppSidebar.organize.folder.add-docs"](): string;
+    ["com.affine.rootAppSidebar.organize.folder.new-doc"](): string;
     /**
       * `Add others`
       */
@@ -5176,7 +5194,7 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.settings.editorSettings.general.middle-click-paste.title"](): string;
     /**
-      * `Disable default middle click paste behavior on Linux.`
+      * `Enable default middle click paste behavior on Linux.`
       */
     ["com.affine.settings.editorSettings.general.middle-click-paste.description"](): string;
     /**
@@ -7687,6 +7705,10 @@ export function useAFFiNEI18N(): {
         readonly message: string;
     }): string;
     /**
+      * `Email service is not configured.`
+      */
+    ["error.EMAIL_SERVICE_NOT_CONFIGURED"](): string;
+    /**
       * `Query is too long, max length is {{max}}.`
       */
     ["error.QUERY_TOO_LONG"](options: {
@@ -8124,6 +8146,10 @@ export function useAFFiNEI18N(): {
         message: string;
     }>): string;
     /**
+      * `Embedding feature is disabled, please contact the administrator to enable it in the workspace settings.`
+      */
+    ["error.COPILOT_EMBEDDING_DISABLED"](): string;
+    /**
       * `Embedding feature not available, you may need to install pgvector extension to your database`
       */
     ["error.COPILOT_EMBEDDING_UNAVAILABLE"](): string;
@@ -8398,6 +8424,12 @@ export const TypedTrans: {
         readonly highlight: string;
     }, {
         ["2"]: JSX.Element;
+    }>>;
+    /**
+      * `If you are still experiencing this issue, please <1>contact us through the community</1>.`
+      */
+    ["com.affine.error.contact-us"]: ComponentType<TypedTransProps<Readonly<{}>, {
+        ["1"]: JSX.Element;
     }>>;
     /**
       * `With the workspace creator's free account, every member can access up to <1>7 days<1> of version history.`

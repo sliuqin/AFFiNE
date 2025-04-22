@@ -275,6 +275,10 @@ export const USER_FRIENDLY_ERRORS = {
     args: { message: 'string' },
     message: ({ message }) => `HTTP request error, message: ${message}`,
   },
+  email_service_not_configured: {
+    type: 'internal_server_error',
+    message: 'Email service is not configured.',
+  },
 
   // Input errors
   query_too_long: {
@@ -696,6 +700,10 @@ export const USER_FRIENDLY_ERRORS = {
     args: { contextId: 'string', content: 'string', message: 'string' },
     message: ({ contextId, content, message }) =>
       `Failed to match context ${contextId} with "${escape(content)}": ${message}`,
+  },
+  copilot_embedding_disabled: {
+    type: 'action_forbidden',
+    message: `Embedding feature is disabled, please contact the administrator to enable it in the workspace settings.`,
   },
   copilot_embedding_unavailable: {
     type: 'action_forbidden',

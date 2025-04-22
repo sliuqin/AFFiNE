@@ -7,7 +7,6 @@ import {
 } from '@affine-test/kit/utils/editor';
 import { importImage } from '@affine-test/kit/utils/image';
 import {
-  pasteByKeyboard,
   selectAllByKeyboard,
   writeTextToClipboard,
 } from '@affine-test/kit/utils/keyboard';
@@ -253,7 +252,6 @@ test('should show toolbar when inline link is preceded by image or surface-ref',
   const url = new URL(page.url());
 
   await writeTextToClipboard(page, url.toString());
-  await pasteByKeyboard(page);
 
   const toolbar = locateToolbar(page);
 
@@ -369,4 +367,36 @@ test('should clear selection when switching doc mode', async ({ page }) => {
   await clickEdgelessModeButton(page);
 
   await expect(toolbar).toBeHidden();
+});
+
+test.describe('Toolbar More Actions', () => {
+  test('should duplicate block', async ({ page }) => {
+    await page.keyboard.press('Enter');
+
+    await importImage(page, 'large-image.png');
+    const images = page.locator('affine-page-image');
+
+    const firstImage = images.first();
+    const firstImageUrl = await firstImage.locator('img').getAttribute('src');
+
+    await firstImage.hover();
+
+    const toolbar = locateToolbar(page);
+    const moreMenu = toolbar.getByLabel('More menu');
+    await moreMenu.click();
+
+    const duplicateButton = toolbar.getByTestId('duplicate');
+    await duplicateButton.click();
+
+    await expect(images).toHaveCount(2);
+
+    const secondImage = images.nth(1);
+    const secondImageUrl = await secondImage.locator('img').getAttribute('src');
+
+    expect(firstImageUrl).not.toBeNull();
+    expect(firstImageUrl!.startsWith('blob:')).toBe(true);
+
+    expect(secondImageUrl).not.toBeNull();
+    expect(secondImageUrl!.startsWith('blob:')).toBe(true);
+  });
 });

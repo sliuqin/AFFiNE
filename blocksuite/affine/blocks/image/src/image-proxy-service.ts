@@ -3,6 +3,7 @@ import { StoreExtension } from '@blocksuite/store';
 
 import { setImageProxyMiddlewareURL } from './adapters/middleware';
 
+// TODO(@mirone): this should be configured when setup instead of runtime
 export class ImageProxyService extends StoreExtension {
   static override key = 'image-proxy';
 

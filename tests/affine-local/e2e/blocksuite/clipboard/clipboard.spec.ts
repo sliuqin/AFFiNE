@@ -9,6 +9,7 @@ import {
 } from '@affine-test/kit/utils/editor';
 import {
   copyByKeyboard,
+  cutByKeyboard,
   pasteByKeyboard,
   pressEnter,
 } from '@affine-test/kit/utils/keyboard';
@@ -16,7 +17,6 @@ import { openHomePage } from '@affine-test/kit/utils/load-page';
 import {
   addCodeBlock,
   clickNewPageButton,
-  getBlockSuiteEditorTitle,
   type,
   waitForEditorLoad,
 } from '@affine-test/kit/utils/page-logic';
@@ -175,62 +175,84 @@ test.describe('paste in multiple blocks text selection', () => {
   });
 });
 
-test('paste surface-ref block to another doc as embed-linked-doc block', async ({
-  page,
-}) => {
-  await openHomePage(page);
-  await clickNewPageButton(page, 'Clipboard Test');
-  await waitForEditorLoad(page);
-  await clickEdgelessModeButton(page);
-  const container = locateEditorContainer(page);
-  await container.click();
+test.describe('surface-ref block', () => {
+  async function setupSurfaceRefBlock(page: Page) {
+    await clickEdgelessModeButton(page);
+    const container = locateEditorContainer(page);
+    await container.click();
 
-  // add a shape
-  await page.keyboard.press('s');
-  // click to add a shape
-  await container.click({ position: { x: 100, y: 500 } });
-  await page.waitForTimeout(50);
-  // add a frame
-  await page.keyboard.press('f');
-  await page.waitForTimeout(50);
+    // add a shape
+    await page.keyboard.press('s');
+    await container.click({ position: { x: 100, y: 300 } });
+    await page.waitForTimeout(50);
 
-  // click on the frame title to trigger the change frame button toolbar
-  const frameTitle = page.locator('affine-frame-title');
-  await frameTitle.click();
-  await page.waitForTimeout(50);
+    // add a frame
+    await page.keyboard.press('f');
+    await page.waitForTimeout(50);
 
-  const toolbar = page.locator('affine-toolbar-widget editor-toolbar');
+    // click on the frame title to trigger the change frame button toolbar
+    const frameTitle = page.locator('affine-frame-title');
+    await frameTitle.click();
+    await page.waitForTimeout(50);
 
-  const insertIntoPageButton = toolbar.getByLabel('Insert into Page');
-  await insertIntoPageButton.click();
+    const toolbar = page.locator('affine-toolbar-widget editor-toolbar');
+    const insertIntoPageButton = toolbar.getByLabel('Insert into Page');
+    await insertIntoPageButton.click();
 
-  await clickPageModeButton(page);
-  await page.waitForTimeout(50);
+    await clickPageModeButton(page);
+    await waitForEditorLoad(page);
+    await container.click();
 
-  // copy surface-ref block
-  const surfaceRefBlock = page.locator('.affine-surface-ref');
-  await surfaceRefBlock.click();
-  await page.waitForTimeout(50);
-  await copyByKeyboard(page);
+    return { container };
+  }
 
-  // paste to another doc
-  await clickNewPageButton(page);
-  await waitForEditorLoad(page);
-  const title2 = getBlockSuiteEditorTitle(page);
-  await title2.pressSequentially('page2');
-  await page.keyboard.press('Enter');
-  await page.waitForTimeout(50);
+  test('paste surface-ref block to another doc as embed-linked-doc block', async ({
+    page,
+  }) => {
+    await setupSurfaceRefBlock(page);
 
-  // paste the surface-ref block
-  await pasteByKeyboard(page);
-  await page.waitForTimeout(50);
+    // copy surface-ref block
+    const surfaceRefBlock = page.locator('affine-surface-ref');
+    await surfaceRefBlock.click();
+    await page.waitForSelector('affine-surface-ref .focused');
+    await copyByKeyboard(page);
 
-  const embedLinkedDocBlock = page.locator('affine-embed-linked-doc-block');
-  await expect(embedLinkedDocBlock).toBeVisible();
-  const embedLinkedDocBlockTitle = embedLinkedDocBlock.locator(
-    '.affine-embed-linked-doc-content-title-text'
-  );
-  await expect(embedLinkedDocBlockTitle).toHaveText('Clipboard Test');
+    // paste to another doc
+    await clickNewPageButton(page, 'page2');
+    await pressEnter(page);
+
+    // paste the surface-ref block
+    await pasteByKeyboard(page);
+    await page.waitForTimeout(50);
+
+    const embedLinkedDocBlock = page.locator('affine-embed-linked-doc-block');
+    await expect(embedLinkedDocBlock).toBeVisible();
+    const embedLinkedDocBlockTitle = embedLinkedDocBlock.locator(
+      '.affine-embed-linked-doc-content-title-text'
+    );
+    await expect(embedLinkedDocBlockTitle).toHaveText('Clipboard Test');
+  });
+
+  test('cut and paste surface-ref block to same doc should remain surface-ref block', async ({
+    page,
+  }) => {
+    const { container } = await setupSurfaceRefBlock(page);
+
+    // cut surface-ref block
+    const surfaceRefBlock = page.locator('affine-surface-ref');
+    await surfaceRefBlock.click();
+    await page.waitForSelector('affine-surface-ref .focused');
+    await cutByKeyboard(page);
+
+    // focus on the editor
+    await container.click();
+
+    // paste the surface-ref block
+    await pasteByKeyboard(page);
+    await page.waitForTimeout(50);
+    await expect(surfaceRefBlock).toHaveCount(1);
+    await expect(surfaceRefBlock).toBeVisible();
+  });
 });
 
 test.describe('paste to code block', () => {
@@ -352,5 +374,63 @@ test.describe('paste to code block', () => {
 
     // Verify the pasted code maintains indentation
     await verifyCodeBlockContent(page, 0, textWithHtmlTags);
+  });
+
+  test('should not wrap line in brackets when pasting code', async ({
+    page,
+  }) => {
+    await pressEnter(page);
+    await addCodeBlock(page);
+    const plainTextCode = [
+      '  model: anthropic("claude-3-7-sonnet-20250219"),',
+      '  prompt: How many people will live in the world in 2040?',
+      '  providerOptions: {',
+      '    anthropic: {',
+      '      thinking: { type: enabled, budgetTokens: 12000 },',
+      '    } satisfies AnthropicProviderOptions,',
+      '  },',
+    ].join('\n');
+
+    await pasteContent(page, { 'text/plain': plainTextCode });
+    await page.waitForTimeout(100);
+
+    // Verify the pasted code maintains indentation
+    await verifyCodeBlockContent(page, 0, plainTextCode);
+  });
+
+  test('should paste markdown text as plain text', async ({ page }) => {
+    await pressEnter(page);
+    await addCodeBlock(page);
+
+    const markdownText = [
+      '# Heading 1',
+      '',
+      '## Heading 2 with **bold** and *italic*',
+      '',
+      '### Lists:',
+      '- Item 1',
+      '  - Nested item with `inline code`',
+      '  - Another nested item',
+      '- Item 2 with [link](https://example.com)',
+      '',
+      '```typescript',
+      'const code = "block";',
+      'console.log(code);',
+      '```',
+      '',
+      '> This is a blockquote with **bold** text',
+      '> Multiple lines in blockquote',
+      '',
+      '| Table | Header |',
+      '|-------|--------|',
+      '| Cell 1 | Cell 2 |',
+      '$This is a inline latex$',
+    ].join('\n');
+
+    await pasteContent(page, { 'text/plain': markdownText });
+    await page.waitForTimeout(100);
+
+    // Verify the pasted code maintains indentation
+    await verifyCodeBlockContent(page, 0, markdownText);
   });
 });

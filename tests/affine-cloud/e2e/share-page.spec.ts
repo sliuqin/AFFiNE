@@ -1,4 +1,5 @@
 import { skipOnboarding, test } from '@affine-test/kit/playwright';
+import { importAttachment } from '@affine-test/kit/utils/attachment';
 import {
   createRandomUser,
   enableCloudWorkspaceFromShareButton,
@@ -8,6 +9,7 @@ import {
 import {
   clickEdgelessModeButton,
   getParagraphIds,
+  locateToolbar,
 } from '@affine-test/kit/utils/editor';
 import { importImage } from '@affine-test/kit/utils/image';
 import { copyByKeyboard } from '@affine-test/kit/utils/keyboard';
@@ -453,5 +455,62 @@ test('share page should support copying content', async ({ page, browser }) => {
       navigator.clipboard.readText()
     );
     expect(copiedText).toContain('Hello World');
+  }
+});
+
+test('should disable opening peek view with pdf viewer in readonly and sharing modes', async ({
+  page,
+  browser,
+}) => {
+  await page.reload();
+  await waitForEditorLoad(page);
+  await createLocalWorkspace(
+    {
+      name: 'test',
+    },
+    page
+  );
+  await enableCloudWorkspaceFromShareButton(page);
+  const title = getBlockSuiteEditorTitle(page);
+  await title.click();
+  await page.keyboard.press('Enter');
+  await importAttachment(page, 'lorem-ipsum.pdf');
+
+  const toolbar = locateToolbar(page);
+  const switchViewButton = toolbar.getByLabel('Switch view');
+  const embedViewButton = toolbar.getByLabel('Embed view');
+
+  const attachment = page.locator('affine-attachment');
+  await attachment.click();
+
+  await switchViewButton.click();
+  await embedViewButton.click();
+
+  await expect(attachment.locator('iframe')).toBeVisible();
+
+  // enable share page and copy page link
+  await enableShare(page);
+  await page.getByTestId('share-menu-copy-link-button').click();
+  await page.getByTestId('share-link-menu-copy-page').click();
+
+  // check share page is accessible
+  {
+    const context = await browser.newContext();
+    await skipOnboarding(context);
+    const url: string = await page.evaluate(() =>
+      navigator.clipboard.readText()
+    );
+    const page2 = await context.newPage();
+    await page2.goto(url);
+    await waitForEditorLoad(page2);
+
+    const attachment = page2.locator('affine-attachment');
+
+    await expect(attachment.locator('iframe')).toBeVisible();
+
+    await attachment.dblclick();
+
+    const pdfViewer = page2.getByTestId('pdf-viewer');
+    await expect(pdfViewer).not.toBeVisible();
   }
 });

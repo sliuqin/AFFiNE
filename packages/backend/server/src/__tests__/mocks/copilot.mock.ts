@@ -17,6 +17,9 @@ export class MockCopilotProvider extends OpenAIProvider {
     'test',
     'gpt-4o',
     'gpt-4o-2024-08-06',
+    'gpt-4.1',
+    'gpt-4.1-2025-04-14',
+    'gpt-4.1-mini',
     'fast-sdxl/image-to-image',
     'lcm-sd15-i2i',
     'clarity-upscaler',
@@ -47,7 +50,7 @@ export class MockCopilotProvider extends OpenAIProvider {
 
   override async *generateTextStream(
     messages: PromptMessage[],
-    model: string = 'gpt-4o-mini',
+    model: string = 'gpt-4.1-mini',
     options: CopilotChatOptions = {}
   ): AsyncIterable<string> {
     this.checkParams({ messages, model, options });

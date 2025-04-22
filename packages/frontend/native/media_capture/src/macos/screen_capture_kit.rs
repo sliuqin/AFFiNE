@@ -38,40 +38,37 @@ use uuid::Uuid;
 use crate::{
   error::CoreAudioError,
   pid::{audio_process_list, get_process_property},
-  tap_audio::{AggregateDevice, AudioTapStream},
+  tap_audio::{AggregateDeviceManager, AudioCaptureSession},
 };
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
-struct NSSize {
+struct CGSize {
   width: f64,
   height: f64,
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
-struct NSPoint {
+struct CGPoint {
   x: f64,
   y: f64,
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
-struct NSRect {
-  origin: NSPoint,
-  size: NSSize,
+struct CGRect {
+  origin: CGPoint,
+  size: CGSize,
 }
 
-unsafe impl Encode for NSSize {
-  const ENCODING: Encoding = Encoding::Struct("NSSize", &[f64::ENCODING, f64::ENCODING]);
+unsafe impl Encode for CGSize {
+  const ENCODING: Encoding = Encoding::Struct("CGSize", &[f64::ENCODING, f64::ENCODING]);
 }
 
-unsafe impl Encode for NSPoint {
-  const ENCODING: Encoding = Encoding::Struct("NSPoint", &[f64::ENCODING, f64::ENCODING]);
+unsafe impl Encode for CGPoint {
+  const ENCODING: Encoding = Encoding::Struct("CGPoint", &[f64::ENCODING, f64::ENCODING]);
 }
 
-unsafe impl Encode for NSRect {
-  const ENCODING: Encoding = Encoding::Struct("NSRect", &[<NSPoint>::ENCODING, <NSSize>::ENCODING]);
+unsafe impl Encode for CGRect {
+  const ENCODING: Encoding = Encoding::Struct("CGRect", &[<CGPoint>::ENCODING, <CGSize>::ENCODING]);
 }
 
 static RUNNING_APPLICATIONS: LazyLock<
@@ -91,12 +88,6 @@ static APPLICATION_STATE_CHANGED_LISTENER_BLOCKS: LazyLock<
 
 static NSRUNNING_APPLICATION_CLASS: LazyLock<Option<&'static AnyClass>> =
   LazyLock::new(|| AnyClass::get(c"NSRunningApplication"));
-
-static AVCAPTUREDEVICE_CLASS: LazyLock<Option<&'static AnyClass>> =
-  LazyLock::new(|| AnyClass::get(c"AVCaptureDevice"));
-
-static SCSTREAM_CLASS: LazyLock<Option<&'static AnyClass>> =
-  LazyLock::new(|| AnyClass::get(c"SCStream"));
 
 #[napi]
 pub struct Application {
@@ -250,7 +241,7 @@ impl Application {
         }
 
         let resized_image: *mut AnyObject =
-          msg_send![resized_image, initWithSize: NSSize { width: 64.0, height: 64.0 }];
+          msg_send![resized_image, initWithSize: CGSize { width: 64.0, height: 64.0 }];
         if resized_image.is_null() {
           return Ok(Buffer::from(Vec::<u8>::new()));
         }
@@ -258,16 +249,24 @@ impl Application {
         let _: () = msg_send![resized_image, lockFocus];
 
         // Define drawing rectangle for 64x64 image
-        let draw_rect = NSRect {
-          origin: NSPoint { x: 0.0, y: 0.0 },
-          size: NSSize {
+        let draw_rect = CGRect {
+          origin: CGPoint { x: 0.0, y: 0.0 },
+          size: CGSize {
             width: 64.0,
             height: 64.0,
           },
         };
 
+        let from_rect = CGRect {
+          origin: CGPoint { x: 0.0, y: 0.0 },
+          size: CGSize {
+            width: 0.0,
+            height: 0.0,
+          },
+        };
+
         // Draw the original icon into draw_rect (using NSCompositingOperationCopy = 2)
-        let _: () = msg_send![icon, drawInRect: draw_rect, fromRect: NSRect { origin: NSPoint { x: 0.0, y: 0.0 }, size: NSSize { width: 0.0, height: 0.0 } }, operation: 2, fraction: 1.0];
+        let _: () = msg_send![icon, drawInRect: draw_rect, fromRect: from_rect, operation: 2u64, fraction: 1.0];
         let _: () = msg_send![resized_image, unlockFocus];
 
         // Get TIFF representation from the downsized image
@@ -314,14 +313,14 @@ impl Application {
 
         // Get PNG data with properties
         let png_data: *mut AnyObject =
-          msg_send![bitmap, representationUsingType: 4, properties: properties]; // 4 = PNG
+          msg_send![bitmap, representationUsingType: 4u64, properties: properties]; // 4 = PNG
 
         if png_data.is_null() {
           return Ok(Buffer::from(Vec::<u8>::new()));
         }
 
         // Get bytes from NSData
-        let bytes: *const u8 = msg_send![png_data, bytes];
+        let bytes: *const libc::c_void = msg_send![png_data, bytes];
         let length: usize = msg_send![png_data, length];
 
         if bytes.is_null() {
@@ -329,7 +328,7 @@ impl Application {
         }
 
         // Copy bytes into a Vec<u8> instead of using the original memory
-        let data = std::slice::from_raw_parts(bytes, length).to_vec();
+        let data = std::slice::from_raw_parts(bytes as *const u8, length).to_vec();
         Ok(Buffer::from(data))
       }
     });
@@ -440,10 +439,13 @@ impl TappableApplication {
   pub fn tap_audio(
     &self,
     audio_stream_callback: Arc<ThreadsafeFunction<Float32Array, (), Float32Array, true>>,
-  ) -> Result<AudioTapStream> {
-    // Use the new method that takes a TappableApplication directly
-    let mut device = AggregateDevice::new(self)?;
-    device.start(audio_stream_callback)
+  ) -> Result<AudioCaptureSession> {
+    // Use AggregateDeviceManager instead of AggregateDevice directly
+    // This provides automatic default device change detection
+    let mut device_manager = AggregateDeviceManager::new(self)?;
+    device_manager.start_capture(audio_stream_callback)?;
+    let boxed_manager = Box::new(device_manager);
+    Ok(AudioCaptureSession::new(boxed_manager))
   }
 }
 
@@ -738,45 +740,20 @@ impl ShareableContent {
   }
 
   #[napi]
-  pub fn check_recording_permissions(&self) -> Result<RecordingPermissions> {
-    let av_capture_class = AVCAPTUREDEVICE_CLASS
-      .as_ref()
-      .ok_or_else(|| Error::new(Status::GenericFailure, "AVCaptureDevice class not found"))?;
-
-    let sc_stream_class = SCSTREAM_CLASS
-      .as_ref()
-      .ok_or_else(|| Error::new(Status::GenericFailure, "SCStream class not found"))?;
-
-    let media_type = NSString::from_str("com.apple.avfoundation.avcapturedevice.built-in_audio");
-
-    let audio_status: i32 = unsafe {
-      msg_send![
-        *av_capture_class,
-        authorizationStatusForMediaType: &*media_type
-      ]
-    };
-
-    let screen_status: bool = unsafe { msg_send![*sc_stream_class, isScreenCaptureAuthorized] };
-
-    Ok(RecordingPermissions {
-      // AVAuthorizationStatusAuthorized = 3
-      audio: audio_status == 3,
-      screen: screen_status,
-    })
-  }
-
-  #[napi]
   pub fn tap_global_audio(
     excluded_processes: Option<Vec<&TappableApplication>>,
     audio_stream_callback: Arc<ThreadsafeFunction<Float32Array, (), Float32Array, true>>,
-  ) -> Result<AudioTapStream> {
-    let mut device = AggregateDevice::create_global_tap_but_exclude_processes(
-      &excluded_processes
-        .unwrap_or_default()
-        .iter()
-        .map(|app| app.object_id)
-        .collect::<Vec<_>>(),
-    )?;
-    device.start(audio_stream_callback)
+  ) -> Result<AudioCaptureSession> {
+    let excluded_object_ids = excluded_processes
+      .unwrap_or_default()
+      .iter()
+      .map(|app| app.object_id)
+      .collect::<Vec<_>>();
+
+    // Use the new AggregateDeviceManager for automatic device adaptation
+    let mut device_manager = AggregateDeviceManager::new_global(&excluded_object_ids)?;
+    device_manager.start_capture(audio_stream_callback)?;
+    let boxed_manager = Box::new(device_manager);
+    Ok(AudioCaptureSession::new(boxed_manager))
   }
 }
