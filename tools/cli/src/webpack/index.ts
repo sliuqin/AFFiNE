@@ -267,6 +267,7 @@ export function createHTMLTargetConfig(
       !IN_CI && new webpack.ProgressPlugin({ percentBy: 'entries' }),
       ...createHTMLPlugins(buildConfig, htmlConfig),
       new webpack.DefinePlugin({
+        'process.env.CI': JSON.stringify(IN_CI),
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         ...Object.entries(buildConfig).reduce(
           (def, [k, v]) => {
@@ -331,7 +332,7 @@ export function createHTMLTargetConfig(
 
     //#region optimization
     optimization: {
-      minimize: !buildConfig.debug,
+      minimize: !buildConfig.debug || IN_CI,
       minimizer: [
         new TerserPlugin({
           minify: TerserPlugin.swcMinify,
@@ -499,15 +500,17 @@ export function createWorkerTargetConfig(
       ],
     },
     plugins: compact([
-      new webpack.DefinePlugin(
-        Object.entries(buildConfig).reduce(
+      new webpack.DefinePlugin({
+        'process.env.CI': JSON.stringify(IN_CI),
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+        ...Object.entries(buildConfig).reduce(
           (def, [k, v]) => {
             def[`BUILD_CONFIG.${k}`] = JSON.stringify(v);
             return def;
           },
           {} as Record<string, string>
-        )
-      ),
+        ),
+      }),
       new webpack.optimize.LimitChunkCountPlugin({
         maxChunks: 1,
       }),
