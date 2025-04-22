@@ -9,7 +9,7 @@ import {
   type TableViewSelection,
   type TableViewSelectionWithType,
 } from '../../selection';
-import type { DataViewTable } from '../table-view.js';
+import type { VirtualTableView } from '../table-view.js';
 
 const BLOCKSUITE_DATABASE_TABLE = 'blocksuite/database/table';
 type JsonAreaData = string[][];
@@ -139,7 +139,7 @@ export class TableClipboardController implements ReactiveController {
     return this.props.view.readonly$.value;
   }
 
-  constructor(public host: DataViewTable) {
+  constructor(public host: VirtualTableView) {
     host.addController(this);
   }
 
@@ -193,16 +193,15 @@ export class TableClipboardController implements ReactiveController {
 
 function getSelectedArea(
   selection: TableViewSelection,
-  table: DataViewTable
+  table: VirtualTableView
 ): SelectedArea | undefined {
   const view = table.props.view;
   if (TableViewRowSelection.is(selection)) {
     const rows = TableViewRowSelection.rows(selection)
       .map(row => {
         const y =
-          table.selectionController
-            .getRow(row.groupKey, row.id)
-            ?.getBoundingClientRect().y ?? 0;
+          table.selectionController.getRow(row.groupKey, row.id)?.top$?.value ??
+          0;
         return {
           y,
           row,
@@ -283,7 +282,7 @@ function getTargetRangeFromSelection(
 }
 
 function pasteToCells(
-  table: DataViewTable,
+  table: VirtualTableView,
   rows: JsonAreaData,
   selection: TableViewAreaSelection
 ) {
