@@ -202,7 +202,7 @@ export function createHTMLTargetConfig(
             },
             {
               test: /\.(ttf|eot|woff|woff2)$/,
-              type: IN_CI ? 'asset/inline' : 'asset/resource',
+              type: 'asset/resource',
             },
             {
               test: /\.txt$/,
