@@ -35,15 +35,26 @@ const FORMAT_INFER_MAP: Record<string, string> = {
   flv: 'video/flv',
 };
 
-function inferMimeType(url: string) {
+async function inferMimeType(url: string) {
   if (url.startsWith('data:')) {
     return url.split(';')[0].split(':')[1];
   }
-  const extension = url.split('.').pop();
+  const pathname = new URL(url).pathname;
+  const extension = pathname.split('.').pop();
   if (extension) {
-    return FORMAT_INFER_MAP[extension];
+    const ext = FORMAT_INFER_MAP[extension];
+    if (ext) {
+      return ext;
+    }
+    const mimeType = await fetch(url, {
+      method: 'HEAD',
+      redirect: 'follow',
+    }).then(res => res.headers.get('Content-Type'));
+    if (mimeType) {
+      return mimeType;
+    }
   }
-  return undefined;
+  return 'application/octet-stream';
 }
 
 export async function chatToGPTMessage(
@@ -66,19 +77,24 @@ export async function chatToGPTMessage(
         contents.push({ type: 'text', text: content });
       }
 
-      for (const url of attachments) {
-        if (SIMPLE_IMAGE_URL_REGEX.test(url)) {
-          const mimeType =
-            typeof mimetype === 'string' ? mimetype : inferMimeType(url);
-          if (mimeType) {
-            if (mimeType.startsWith('image/')) {
-              contents.push({ type: 'image', image: url, mimeType });
-            } else {
-              const data = url.startsWith('data:')
-                ? await fetch(url).then(r => r.arrayBuffer())
-                : new URL(url);
-              contents.push({ type: 'file' as const, data, mimeType });
-            }
+      for (let attachment of attachments) {
+        let mimeType: string;
+        if (typeof attachment === 'string') {
+          mimeType =
+            typeof mimetype === 'string'
+              ? mimetype
+              : await inferMimeType(attachment);
+        } else {
+          ({ attachment, mimeType } = attachment);
+        }
+        if (SIMPLE_IMAGE_URL_REGEX.test(attachment)) {
+          if (mimeType.startsWith('image/')) {
+            contents.push({ type: 'image', image: attachment, mimeType });
+          } else {
+            const data = attachment.startsWith('data:')
+              ? await fetch(attachment).then(r => r.arrayBuffer())
+              : new URL(attachment);
+            contents.push({ type: 'file' as const, data, mimeType });
           }
         }
       }
