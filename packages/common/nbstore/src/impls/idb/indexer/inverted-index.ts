@@ -242,7 +242,7 @@ export class FullTextInvertedIndex implements InvertedIndex {
               true,
               true
             ),
-            1000 // get maximum 1000 items for prefix match
+            5000 // get maximum 5000 items for prefix match
           )),
       ];
       const submatched: {
