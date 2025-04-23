@@ -260,6 +260,8 @@ export class ChatPanelAddPopover extends SignalWatcher(
   @query('.search-input')
   accessor searchInput!: HTMLInputElement;
 
+  private _menuGroupAbortController = new AbortController();
+
   override connectedCallback() {
     super.connectedCallback();
     this._updateSearchGroup();
@@ -273,6 +275,7 @@ export class ChatPanelAddPopover extends SignalWatcher(
   override disconnectedCallback() {
     super.disconnectedCallback();
     document.removeEventListener('keydown', this._handleKeyDown);
+    this._menuGroupAbortController.abort();
   }
 
   override render() {
@@ -385,13 +388,15 @@ export class ChatPanelAddPopover extends SignalWatcher(
   }
 
   private _updateSearchGroup() {
+    this._menuGroupAbortController.abort();
+    this._menuGroupAbortController = new AbortController();
     switch (this._mode) {
       case AddPopoverMode.Tags: {
         this._searchGroups = [
           this.searchMenuConfig.getTagMenuGroup(
             this._query,
             this._addTagChip,
-            this.abortController.signal
+            this._menuGroupAbortController.signal
           ),
         ];
         break;
@@ -401,7 +406,7 @@ export class ChatPanelAddPopover extends SignalWatcher(
           this.searchMenuConfig.getCollectionMenuGroup(
             this._query,
             this._addCollectionChip,
-            this.abortController.signal
+            this._menuGroupAbortController.signal
           ),
         ];
         break;
@@ -410,7 +415,7 @@ export class ChatPanelAddPopover extends SignalWatcher(
         const docGroup = this.searchMenuConfig.getDocMenuGroup(
           this._query,
           this._addDocChip,
-          this.abortController.signal
+          this._menuGroupAbortController.signal
         );
         if (!this._query) {
           this._searchGroups = [docGroup];
@@ -418,12 +423,12 @@ export class ChatPanelAddPopover extends SignalWatcher(
           const tagGroup = this.searchMenuConfig.getTagMenuGroup(
             this._query,
             this._addTagChip,
-            this.abortController.signal
+            this._menuGroupAbortController.signal
           );
           const collectionGroup = this.searchMenuConfig.getCollectionMenuGroup(
             this._query,
             this._addCollectionChip,
-            this.abortController.signal
+            this._menuGroupAbortController.signal
           );
           const nothing = html``;
           this._searchGroups = [

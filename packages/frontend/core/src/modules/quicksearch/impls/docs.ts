@@ -116,4 +116,8 @@ export class DocsQuickSearchSession
   setQuery(query: string) {
     this.query$.next(query);
   }
+
+  override dispose(): void {
+    this.query.unsubscribe();
+  }
 }
