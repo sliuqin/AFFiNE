@@ -1,19 +1,16 @@
-import { getScrollContainer } from '@blocksuite/affine-shared/utils';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { PlusIcon } from '@blocksuite/icons/lit';
 import { ShadowlessElement } from '@blocksuite/std';
-import { autoUpdate } from '@floating-ui/dom';
-import { nothing, type TemplateResult } from 'lit';
+import { nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { html } from 'lit/static-html.js';
 
-import type { TableSingleView } from '../../table-view-manager.js';
-import type { TableGroup } from '../group.js';
-import * as styles from './column-header.css.js';
+import type { TableSingleView } from '../../../../table-view-manager';
+import * as styles from './column-header.css';
 
-export class DatabaseColumnHeader extends SignalWatcher(
+export class VirtualTableHeader extends SignalWatcher(
   WithDisposable(ShadowlessElement)
 ) {
   private readonly _onAddColumn = (e: MouseEvent) => {
@@ -39,42 +36,9 @@ export class DatabaseColumnHeader extends SignalWatcher(
     return this.tableViewManager.readonly$.value;
   }
 
-  private autoSetHeaderPosition(
-    group: TableGroup,
-    scrollContainer: HTMLElement
-  ) {
-    const referenceRect = group.getBoundingClientRect();
-    const floatingRect = this.getBoundingClientRect();
-    const rootRect = scrollContainer.getBoundingClientRect();
-    let moveX = 0;
-    if (rootRect.top > referenceRect.top) {
-      moveX =
-        Math.min(referenceRect.bottom - floatingRect.height, rootRect.top) -
-        referenceRect.top;
-    }
-    if (moveX === 0 && this.preMove === 0) {
-      return;
-    }
-    this.preMove = moveX;
-    this.style.transform = `translate3d(0,${moveX / this.getScale()}px,0)`;
-  }
-
   override connectedCallback() {
     super.connectedCallback();
     this.classList.add(styles.columnHeaderContainer);
-    const scrollContainer = getScrollContainer(
-      this.closest('affine-data-view-renderer')!
-    );
-    const group = this.closest('affine-data-view-virtual-table-group');
-    if (group) {
-      const cancel = autoUpdate(group, this, () => {
-        if (!scrollContainer) {
-          return;
-        }
-        this.autoSetHeaderPosition(group, scrollContainer);
-      });
-      this.disposables.add(cancel);
-    }
   }
 
   getScale() {
@@ -83,7 +47,6 @@ export class DatabaseColumnHeader extends SignalWatcher(
 
   override render() {
     return html`
-      ${this.renderGroupHeader?.()}
       <div class="${styles.columnHeader} database-row">
         ${this.readonly
           ? nothing
@@ -120,9 +83,6 @@ export class DatabaseColumnHeader extends SignalWatcher(
     `;
   }
 
-  @property({ attribute: false })
-  accessor renderGroupHeader: (() => TemplateResult) | undefined;
-
   @query('.scale-div')
   accessor scaleDiv!: HTMLDivElement;
 
@@ -132,6 +92,6 @@ export class DatabaseColumnHeader extends SignalWatcher(
 
 declare global {
   interface HTMLElementTagNameMap {
-    'affine-database-virtual-column-header': DatabaseColumnHeader;
+    'virtual-table-header': VirtualTableHeader;
   }
 }

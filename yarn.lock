@@ -3925,6 +3925,7 @@ __metadata:
     "@toeverything/theme": "npm:^1.1.12"
     "@types/lodash-es": "npm:^4.17.12"
     "@vanilla-extract/css": "npm:^1.17.0"
+    clsx: "npm:^2.1.1"
     date-fns: "npm:^4.0.0"
     lit: "npm:^3.2.0"
     lodash-es: "npm:^4.17.21"

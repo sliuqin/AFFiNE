@@ -5,7 +5,7 @@ import { globalStyle, style } from '@vanilla-extract/css';
 import {
   DEFAULT_ADD_BUTTON_WIDTH,
   DEFAULT_COLUMN_TITLE_HEIGHT,
-} from '../../consts.js';
+} from '../../../../consts';
 
 export const columnHeaderContainer = style({
   display: 'block',

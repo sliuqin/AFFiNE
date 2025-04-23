@@ -25,6 +25,19 @@ export class NodeLifeCycle implements Disposable {
   }
 }
 
+export class GridNode<Data> extends NodeLifeCycle {
+  private _data?: Data;
+  get data(): Data {
+    if (!this._data) {
+      this._data = this.initData();
+    }
+    return this._data;
+  }
+  constructor(private readonly initData: () => Data) {
+    super();
+  }
+}
+
 export class CacheManager<K, V extends Disposable> {
   constructor(readonly keyToString: (key: K) => string) {}
   protected readonly cache = new Map<string, V>();
@@ -82,7 +95,7 @@ export abstract class VirtualScroll extends NodeLifeCycle {
   }
 }
 
-export class GridCell extends NodeLifeCycle {
+export class GridCell<GroupData, RowData, CellData> extends GridNode<CellData> {
   readonly renderTask;
   readonly element;
   readonly columnIndex$ = computed(() => {
@@ -128,11 +141,15 @@ export class GridCell extends NodeLifeCycle {
   }
 
   constructor(
-    readonly row: GridRow,
+    readonly row: GridRow<GroupData, RowData, CellData>,
     readonly columnId: string,
-    createElement: (cell: GridCell) => HTMLElement
+    createElement: (
+      cell: GridCell<GroupData, RowData, CellData>,
+      wrapper: VirtualElementWrapper
+    ) => HTMLElement,
+    initCellData: (cell: GridCell<GroupData, RowData, CellData>) => CellData
   ) {
-    super();
+    super(() => initCellData(this));
     this.element = new VirtualElementWrapper();
     this.element.rect = {
       left$: this.left$,
@@ -141,7 +158,7 @@ export class GridCell extends NodeLifeCycle {
       height$: this.row.height$,
     };
     this.element.updateHeight = height => this.updateHeight(height);
-    this.element.element = createElement(this);
+    this.element.element = createElement(this, this.element);
     const isInit = computed(() => {
       return this.height$.value != null;
     });
@@ -203,7 +220,7 @@ export class GridCell extends NodeLifeCycle {
   }
 }
 
-export class GridRow extends NodeLifeCycle {
+export class GridRow<GroupData, RowData, CellData> extends GridNode<RowData> {
   cells$ = computed(() => {
     return this.grid.columns$.value.map(column => {
       return this.grid.getOrCreateCell(this, column.id);
@@ -257,17 +274,18 @@ export class GridRow extends NodeLifeCycle {
   });
 
   constructor(
-    readonly group: GridGroup,
-    readonly rowId: string
+    readonly group: GridGroup<GroupData, RowData, CellData>,
+    readonly rowId: string,
+    initRowData: (row: GridRow<GroupData, RowData, CellData>) => RowData
   ) {
-    super();
+    super(() => initRowData(this));
   }
 
   override dispose() {
     super.dispose();
   }
 }
-export class GroupNode extends NodeLifeCycle {
+export class GroupNode<GroupData, RowData, CellData> extends NodeLifeCycle {
   readonly renderTask;
   readonly height$ = signal<number | undefined>();
   readonly bottom$ = computed(() => {
@@ -282,10 +300,15 @@ export class GroupNode extends NodeLifeCycle {
     return top + height;
   });
   constructor(
-    public readonly group: GridGroup,
+    public readonly group: GridGroup<GroupData, RowData, CellData>,
     public readonly top$: ReadonlySignal<number | undefined>,
-    content: HTMLElement,
-    readonly visibleCheck: (node: GroupNode) => boolean
+    content: (
+      group: GridGroup<GroupData, RowData, CellData>,
+      wrapper: VirtualElementWrapper
+    ) => HTMLElement,
+    readonly visibleCheck: (
+      node: GroupNode<GroupData, RowData, CellData>
+    ) => boolean
   ) {
     super();
     const element = new VirtualElementWrapper();
@@ -295,7 +318,7 @@ export class GroupNode extends NodeLifeCycle {
       width$: signal(),
       height$: this.height$,
     };
-    element.element = content;
+    element.element = content(this.group, element);
     element.updateHeight = height => {
       this.height$.value = height;
     };
@@ -333,7 +356,11 @@ export class GroupNode extends NodeLifeCycle {
   }
 }
 
-export class GridGroup extends NodeLifeCycle {
+export class GridGroup<
+  GroupData,
+  RowData,
+  CellData,
+> extends GridNode<GroupData> {
   top$: ReadonlySignal<number | undefined> = computed(() => {
     const prevGroup = this.prevGroup$.value;
     if (!prevGroup) {
@@ -341,7 +368,7 @@ export class GridGroup extends NodeLifeCycle {
     }
     return prevGroup.bottom$.value;
   });
-  topNode = new GroupNode(this, this.top$, this.topElement(this), node => {
+  topNode = new GroupNode(this, this.top$, this.topElement, node => {
     const height = node.height$.value;
     if (height == null) {
       return false;
@@ -369,7 +396,7 @@ export class GridGroup extends NodeLifeCycle {
   bottomNode = new GroupNode(
     this,
     this.lastRowBottom$,
-    this.bottomElement(this),
+    this.bottomElement,
     node => {
       const height = node.height$.value;
       if (height == null) {
@@ -433,12 +460,19 @@ export class GridGroup extends NodeLifeCycle {
   });
 
   constructor(
-    readonly grid: GridVirtualScroll,
+    readonly grid: GridVirtualScroll<GroupData, RowData, CellData>,
     readonly groupId: string,
-    readonly topElement: (group: GridGroup) => HTMLElement,
-    readonly bottomElement: (group: GridGroup) => HTMLElement
+    readonly topElement: (
+      group: GridGroup<GroupData, RowData, CellData>,
+      wrapper: VirtualElementWrapper
+    ) => HTMLElement,
+    readonly bottomElement: (
+      group: GridGroup<GroupData, RowData, CellData>,
+      wrapper: VirtualElementWrapper
+    ) => HTMLElement,
+    initGroupData: (group: GridGroup<GroupData, RowData, CellData>) => GroupData
   ) {
-    super();
+    super(() => initGroupData(this));
   }
 
   override dispose() {
@@ -451,7 +485,11 @@ export interface GridGroupData {
   rows: string[];
 }
 
-export interface GridVirtualScrollOptions extends VirtualScrollOptions {
+export interface GridVirtualScrollOptions<GroupData, RowData, CellData>
+  extends VirtualScrollOptions {
+  initGroupData: (group: GridGroup<GroupData, RowData, CellData>) => GroupData;
+  initRowData: (row: GridRow<GroupData, RowData, CellData>) => RowData;
+  initCellData: (cell: GridCell<GroupData, RowData, CellData>) => CellData;
   columns$: ReadonlySignal<
     {
       id: string;
@@ -460,25 +498,39 @@ export interface GridVirtualScrollOptions extends VirtualScrollOptions {
   >;
   fixedRowHeight$: ReadonlySignal<number | undefined>;
   createGroup: {
-    top: (group: GridGroup) => HTMLElement;
-    bottom: (group: GridGroup) => HTMLElement;
+    top: (
+      group: GridGroup<GroupData, RowData, CellData>,
+      wrapper: VirtualElementWrapper
+    ) => HTMLElement;
+    bottom: (
+      group: GridGroup<GroupData, RowData, CellData>,
+      wrapper: VirtualElementWrapper
+    ) => HTMLElement;
   };
-  createCell: (cell: GridCell) => HTMLElement;
+  createCell: (
+    cell: GridCell<GroupData, RowData, CellData>,
+    wrapper: VirtualElementWrapper
+  ) => HTMLElement;
   groups$: ReadonlySignal<GridGroupData[]>;
 }
 
-export class GridVirtualScroll extends VirtualScroll {
+export class GridVirtualScroll<
+  GroupData,
+  RowData,
+  CellData,
+> extends VirtualScroll {
   readonly cellsCache = new CacheManager<
     { groupId: string; columnId: string; rowId: string },
-    GridCell
+    GridCell<GroupData, RowData, CellData>
   >(cell => `${cell.groupId}-${cell.rowId}-${cell.columnId}`);
   readonly rowsCache = new CacheManager<
     { groupId: string; rowId: string },
-    GridRow
+    GridRow<GroupData, RowData, CellData>
   >(row => `${row.groupId}-${row.rowId}`);
-  readonly groupsCache = new CacheManager<string, GridGroup>(
-    groupId => groupId
-  );
+  readonly groupsCache = new CacheManager<
+    string,
+    GridGroup<GroupData, RowData, CellData>
+  >(groupId => groupId);
 
   readonly groups$ = computed(() => {
     return this.options.groups$.value.map(group => {
@@ -486,13 +538,18 @@ export class GridVirtualScroll extends VirtualScroll {
     });
   });
 
-  constructor(readonly options: GridVirtualScrollOptions) {
+  constructor(
+    readonly options: GridVirtualScrollOptions<GroupData, RowData, CellData>
+  ) {
     super(options);
   }
 
-  getOrCreateRow(group: GridGroup, rowId: string): GridRow {
+  getOrCreateRow(
+    group: GridGroup<GroupData, RowData, CellData>,
+    rowId: string
+  ): GridRow<GroupData, RowData, CellData> {
     return this.rowsCache.getOrCreate({ groupId: group.groupId, rowId }, () => {
-      return new GridRow(group, rowId);
+      return new GridRow(group, rowId, this.options.initRowData);
     });
   }
 
@@ -510,22 +567,31 @@ export class GridVirtualScroll extends VirtualScroll {
     return this.getOrCreateCell(row, columnId);
   }
 
-  getOrCreateCell(row: GridRow, columnId: string): GridCell {
+  getOrCreateCell(
+    row: GridRow<GroupData, RowData, CellData>,
+    columnId: string
+  ): GridCell<GroupData, RowData, CellData> {
     return this.cellsCache.getOrCreate(
       { groupId: row.group.groupId, rowId: row.rowId, columnId },
       () => {
-        return new GridCell(row, columnId, this.options.createCell);
+        return new GridCell(
+          row,
+          columnId,
+          this.options.createCell,
+          this.options.initCellData
+        );
       }
     );
   }
 
-  getOrCreateGroup(groupId: string): GridGroup {
+  getOrCreateGroup(groupId: string): GridGroup<GroupData, RowData, CellData> {
     return this.groupsCache.getOrCreate(groupId, () => {
       return new GridGroup(
         this,
         groupId,
         this.options.createGroup.top,
-        this.options.createGroup.bottom
+        this.options.createGroup.bottom,
+        this.options.initGroupData
       );
     });
   }

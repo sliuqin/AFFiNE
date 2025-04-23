@@ -12,9 +12,9 @@ import {
 } from '@blocksuite/icons/lit';
 import { html } from 'lit';
 
-import type { DataViewRenderer } from '../../../core/data-view.js';
-import { TableViewRowSelection } from '../selection';
-import type { TableSelectionController } from './controller/selection.js';
+import type { DataViewRenderer } from '../../../../core/data-view';
+import { TableViewRowSelection } from '../../selection';
+import type { TableSelectionController } from '../controller/selection';
 
 export const openDetail = (
   dataViewEle: DataViewRenderer,

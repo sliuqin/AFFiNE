@@ -1,30 +1,26 @@
-import { DatabaseCellContainer } from './cell.js';
-import { DragToFillElement } from './controller/drag-to-fill.js';
-import { SelectionElement } from './controller/selection.js';
-import { TableGroup } from './group.js';
-import { DatabaseColumnHeader } from './header/column-header.js';
-import { DataViewColumnPreview } from './header/column-move-preview.js';
-import { DatabaseNumberFormatBar } from './header/number-format-bar.js';
-import { DatabaseHeaderColumn } from './header/single-column-header.js';
-import { TableVerticalIndicator } from './header/vertical-indicator.js';
-import { TableRow } from './row/row.js';
-import { RowSelectCheckbox } from './row/row-select-checkbox.js';
-import { VirtualDataBaseColumnStats } from './stats/column-stats-bar.js';
-import { VirtualDatabaseColumnStatsCell } from './stats/column-stats-column.js';
-import { VirtualTableView } from './table-view.js';
-import { VirtualElementWrapper } from './virtual/virtual-cell.js';
+import { DragToFillElement } from './controller/drag-to-fill';
+import { SelectionElement } from './controller/selection';
+import { TableGroupFooter } from './group/bottom/group-footer';
+import { VirtualDataBaseColumnStats } from './group/bottom/stats/column-stats-bar';
+import { VirtualDatabaseColumnStatsCell } from './group/bottom/stats/column-stats-column';
+import { TableGroupHeader } from './group/top/group-header';
+import { VirtualTableHeader } from './group/top/header/column-header';
+import { DataViewColumnPreview } from './group/top/header/column-move-preview';
+import { DatabaseNumberFormatBar } from './group/top/header/number-format-bar';
+import { DatabaseHeaderColumn } from './group/top/header/single-column-header';
+import { TableVerticalIndicator } from './group/top/header/vertical-indicator';
+import { DatabaseCellContainer } from './row/cell';
+import { TableRowHeader } from './row/row-header';
+import { VirtualTableView } from './table-view';
+import { VirtualElementWrapper } from './virtual/virtual-cell';
 
 export function pcVirtualEffects() {
   customElements.define('affine-virtual-table', VirtualTableView);
-  customElements.define('affine-data-view-virtual-table-group', TableGroup);
   customElements.define(
     'affine-database-virtual-cell-container',
     DatabaseCellContainer
   );
-  customElements.define(
-    'affine-database-virtual-column-header',
-    DatabaseColumnHeader
-  );
+  customElements.define('virtual-table-header', VirtualTableHeader);
   customElements.define(
     'affine-data-view-virtual-column-preview',
     DataViewColumnPreview
@@ -37,8 +33,7 @@ export function pcVirtualEffects() {
     'affine-database-virtual-number-format-bar',
     DatabaseNumberFormatBar
   );
-  customElements.define('data-view-virtual-table-row', TableRow);
-  customElements.define('virtual-row-select-checkbox', RowSelectCheckbox);
+  customElements.define('data-view-table-row-header', TableRowHeader);
   customElements.define('data-view-virtual-table-selection', SelectionElement);
   customElements.define('data-view-virtual-drag-to-fill', DragToFillElement);
   customElements.define(
@@ -54,4 +49,6 @@ export function pcVirtualEffects() {
     'affine-database-virtual-column-stats-cell',
     VirtualDatabaseColumnStatsCell
   );
+  customElements.define('virtual-table-group-header', TableGroupHeader);
+  customElements.define('virtual-table-group-footer', TableGroupFooter);
 }

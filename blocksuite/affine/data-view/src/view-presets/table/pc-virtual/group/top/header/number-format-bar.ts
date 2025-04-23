@@ -3,8 +3,8 @@ import { cssVarV2 } from '@toeverything/theme/v2';
 import { css, html, LitElement, unsafeCSS } from 'lit';
 import { property } from 'lit/decorators.js';
 
-import type { Property } from '../../../../core/view-manager/property.js';
-import { formatNumber } from '../../../../property-presets/number/utils/formatter.js';
+import type { Property } from '../../../../../../core/view-manager/property';
+import { formatNumber } from '../../../../../../property-presets/number/utils/formatter';
 
 const IncreaseDecimalPlacesIcon = html`
   <svg

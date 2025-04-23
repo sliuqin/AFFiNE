@@ -14,11 +14,11 @@ import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
 
-import type { GroupData } from '../../../../core/group-by/trait.js';
-import { typeSystem } from '../../../../core/index.js';
-import { statsFunctions } from '../../../../core/statistics/index.js';
-import type { StatisticsConfig } from '../../../../core/statistics/types.js';
-import type { TableColumn } from '../../table-view-manager.js';
+import { typeSystem } from '../../../../../../core';
+import type { GroupData } from '../../../../../../core/group-by/trait';
+import { statsFunctions } from '../../../../../../core/statistics';
+import type { StatisticsConfig } from '../../../../../../core/statistics/types';
+import type { TableColumn } from '../../../../table-view-manager';
 
 const styles = css`
   .stats-cell {

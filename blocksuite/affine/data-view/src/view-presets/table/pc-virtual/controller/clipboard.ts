@@ -303,11 +303,13 @@ function pasteToCells(
         rowIndex,
         columnIndex
       );
-      const rowId = targetContainer?.dataset.rowId;
-      const columnId = targetContainer?.dataset.columnId;
-
+      const rowId = targetContainer?.rowId;
+      const columnId = targetContainer?.columnId;
       if (rowId && columnId) {
-        targetContainer?.column.valueSetFromString(rowId, dataString ?? '');
+        targetContainer?.column$.value?.valueSetFromString(
+          rowId,
+          dataString ?? ''
+        );
       }
     }
   }

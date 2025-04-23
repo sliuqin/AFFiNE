@@ -4,9 +4,9 @@ import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 
-import type { GroupData } from '../../../../core/group-by/trait.js';
-import { LEFT_TOOL_BAR_WIDTH, STATS_BAR_HEIGHT } from '../../consts.js';
-import type { TableSingleView } from '../../table-view-manager.js';
+import type { GroupData } from '../../../../../../core/group-by/trait';
+import { LEFT_TOOL_BAR_WIDTH, STATS_BAR_HEIGHT } from '../../../../consts';
+import type { TableSingleView } from '../../../../table-view-manager';
 
 const styles = css`
   affine-database-virtual-column-stats {

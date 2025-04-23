@@ -17,7 +17,7 @@ import {
   type TableViewSelection,
   type TableViewSelectionWithType,
 } from '../../selection';
-import type { DatabaseCellContainer } from '../cell.js';
+import type { DatabaseCellContainer } from '../row/cell';
 import type { VirtualTableView } from '../table-view.js';
 import type { GridCell } from '../virtual/virtual-scroll.js';
 import {

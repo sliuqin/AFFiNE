@@ -5,6 +5,7 @@ import {
 } from '@blocksuite/affine-components/context-menu';
 import { AddCursorIcon } from '@blocksuite/icons/lit';
 import { computed, signal } from '@preact/signals-core';
+import { cssVarV2 } from '@toeverything/theme/v2';
 import { styleMap } from 'lit/directives/style-map.js';
 import { html } from 'lit/static-html.js';
 
@@ -15,25 +16,32 @@ import {
 } from '../../../core/group-by/trait.js';
 import { type DataViewInstance, renderUniLit } from '../../../core/index.js';
 import { DataViewBase } from '../../../core/view/data-view-base.js';
-import type {
-  TableSingleView,
-  TableViewSelectionWithType,
+import {
+  type TableSingleView,
+  TableViewRowSelection,
+  type TableViewSelectionWithType,
 } from '../../index.js';
 import { LEFT_TOOL_BAR_WIDTH } from '../consts.js';
-import { DatabaseCellContainer } from './cell.js';
 import { TableClipboardController } from './controller/clipboard.js';
 import { TableDragController } from './controller/drag.js';
 import { TableHotkeysController } from './controller/hotkeys.js';
 import { TableSelectionController } from './controller/selection.js';
-import { DatabaseColumnHeader } from './header/column-header.js';
-import { VirtualDataBaseColumnStats } from './stats/column-stats-bar.js';
+import { TableGroupFooter } from './group/bottom/group-footer';
+import { TableGroupHeader } from './group/top/group-header';
+import { DatabaseCellContainer } from './row/cell';
+import { TableRowHeader } from './row/row-header.js';
 import * as styles from './table-view.css.js';
+import type {
+  TableCellData,
+  TableGrid,
+  TableGroupData,
+  TableRowData,
+} from './types.js';
 import {
   getScrollContainer,
-  type GridCell,
-  type GridGroup,
   GridVirtualScroll,
 } from './virtual/virtual-scroll.js';
+
 export class VirtualTableView extends DataViewBase<
   TableSingleView,
   TableViewSelectionWithType
@@ -177,45 +185,76 @@ export class VirtualTableView extends DataViewBase<
       rows: group.rows,
     }));
   });
-  virtualScroll$ = signal<GridVirtualScroll>();
+  virtualScroll$ = signal<TableGrid>();
   private initVirtualScroll(yScrollContainer: HTMLElement) {
-    this.virtualScroll$.value = new GridVirtualScroll({
+    this.virtualScroll$.value = new GridVirtualScroll<
+      TableGroupData,
+      TableRowData,
+      TableCellData
+    >({
+      initGroupData: group => ({
+        hover$: computed(() => {
+          const headerHover = group.data.headerHover$.value;
+          if (headerHover) {
+            return true;
+          }
+          const footerHover = group.data.footerHover$.value;
+          if (footerHover) {
+            return true;
+          }
+          return group.rows$.value.some(row => row.data.hover$.value);
+        }),
+        headerHover$: signal(false),
+        footerHover$: signal(false),
+      }),
+      initRowData: row => ({
+        hover$: computed(() => {
+          return row.cells$.value.some(cell => cell.data.hover$.value);
+        }),
+        selected$: computed(() => {
+          const selection = this.props.selection$.value;
+          if (!selection || selection.selectionType !== 'row') {
+            return false;
+          }
+          return TableViewRowSelection.includes(selection, {
+            id: row.rowId,
+            groupKey: row.group.groupId,
+          });
+        }),
+      }),
+      initCellData: () => ({
+        hover$: signal(false),
+        selected$: signal(false),
+      }),
       columns$: this.columns$,
       groups$: this.groups$,
-      createCell: (cell: GridCell) => {
+      createCell: (cell, wrapper) => {
         if (cell.columnId === 'row-header') {
-          const div = document.createElement('div');
-          div.style.height = '34px';
-          return div;
+          wrapper.style.borderBottom = `1px solid ${cssVarV2.database.border}`;
+          const rowHeader = new TableRowHeader();
+          rowHeader.view = this.props.view;
+          rowHeader.gridCell = cell;
+          rowHeader.tableView = this;
+          return rowHeader;
         }
         const cellContainer = new DatabaseCellContainer();
         cellContainer.view = this.props.view;
-        cellContainer.column = this.props.view.properties$.value.find(
-          property => property.id === cell.columnId
-        )!;
-        cellContainer.rowId = cell.row.rowId;
-        cellContainer.groupKey = cell.row.group.groupId;
         cellContainer.gridCell = cell;
+        cellContainer.tableView = this;
         return cellContainer;
       },
       createGroup: {
-        top: (_gridGroup: GridGroup) => {
-          const columnHeader = new DatabaseColumnHeader();
-          columnHeader.tableViewManager = this.props.view;
-          columnHeader.renderGroupHeader = () => {
-            return html`<div></div>`;
-          };
-          return columnHeader;
+        top: gridGroup => {
+          const groupHeader = new TableGroupHeader();
+          groupHeader.tableView = this;
+          groupHeader.gridGroup = gridGroup;
+          return groupHeader;
         },
-        bottom: (group: GridGroup) => {
-          const columnStats = new VirtualDataBaseColumnStats();
-          columnStats.view = this.props.view;
-          columnStats.group =
-            this.groupTrait$.value?.groupsDataList$.value?.find(
-              g => g.key === group.groupId
-            );
-
-          return columnStats;
+        bottom: gridGroup => {
+          const groupFooter = new TableGroupFooter();
+          groupFooter.tableView = this;
+          groupFooter.gridGroup = gridGroup;
+          return groupFooter;
         },
       },
       fixedRowHeight$: signal(undefined),

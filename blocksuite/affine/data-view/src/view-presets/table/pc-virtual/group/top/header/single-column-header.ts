@@ -24,30 +24,33 @@ import { createRef, ref } from 'lit/directives/ref.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { html } from 'lit/static-html.js';
 
+import { renderUniLit } from '../../../../../../core';
 import {
   inputConfig,
   typeConfig,
-} from '../../../../core/common/property-menu.js';
-import { filterTraitKey } from '../../../../core/filter/trait.js';
-import { firstFilterByRef } from '../../../../core/filter/utils.js';
-import { renderUniLit } from '../../../../core/index.js';
-import { sortTraitKey } from '../../../../core/sort/manager.js';
-import { createSortUtils } from '../../../../core/sort/utils.js';
+} from '../../../../../../core/common/property-menu';
+import { filterTraitKey } from '../../../../../../core/filter/trait';
+import { firstFilterByRef } from '../../../../../../core/filter/utils';
+import { sortTraitKey } from '../../../../../../core/sort/manager';
+import { createSortUtils } from '../../../../../../core/sort/utils';
 import {
   draggable,
   dragHandler,
   droppable,
-} from '../../../../core/utils/wc-dnd/dnd-context.js';
-import type { Property } from '../../../../core/view-manager/property.js';
-import { numberFormats } from '../../../../property-presets/number/utils/formats.js';
-import { ShowQuickSettingBarContextKey } from '../../../../widget-presets/quick-setting-bar/context.js';
-import { DEFAULT_COLUMN_TITLE_HEIGHT } from '../../consts.js';
-import type { TableColumn, TableSingleView } from '../../table-view-manager.js';
+} from '../../../../../../core/utils/wc-dnd/dnd-context';
+import type { Property } from '../../../../../../core/view-manager/property';
+import { numberFormats } from '../../../../../../property-presets/number/utils/formats';
+import { ShowQuickSettingBarContextKey } from '../../../../../../widget-presets/quick-setting-bar/context';
+import { DEFAULT_COLUMN_TITLE_HEIGHT } from '../../../../consts';
+import type {
+  TableColumn,
+  TableSingleView,
+} from '../../../../table-view-manager';
 import {
   getTableGroupRect,
   getVerticalIndicator,
   startDragWidthAdjustmentBar,
-} from './vertical-indicator.js';
+} from './vertical-indicator';
 
 export class DatabaseHeaderColumn extends SignalWatcher(
   WithDisposable(ShadowlessElement)

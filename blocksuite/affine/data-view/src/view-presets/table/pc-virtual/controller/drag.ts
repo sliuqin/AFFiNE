@@ -4,8 +4,7 @@ import type { InsertToPosition } from '@blocksuite/affine-shared/utils';
 import type { ReactiveController } from 'lit';
 
 import { startDrag } from '../../../../core/utils/drag.js';
-import { TableRow } from '../row/row.js';
-import type { DataViewTable } from '../table-view.js';
+import type { VirtualTableView } from '../table-view';
 
 export class TableDragController implements ReactiveController {
   dragStart = (row: TableRow, evt: PointerEvent) => {
@@ -128,7 +127,7 @@ export class TableDragController implements ReactiveController {
     return position;
   };
 
-  constructor(private readonly host: DataViewTable) {
+  constructor(private readonly host: VirtualTableView) {
     this.host.addController(this);
   }
 

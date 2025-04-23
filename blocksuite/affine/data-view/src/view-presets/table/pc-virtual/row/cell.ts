@@ -1,22 +1,22 @@
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { ShadowlessElement } from '@blocksuite/std';
-import { computed, signal } from '@preact/signals-core';
+import { computed, effect, signal } from '@preact/signals-core';
 import { css } from 'lit';
 import { property } from 'lit/decorators.js';
 
-import { renderUniLit } from '../../../core/index.js';
+import { renderUniLit } from '../../../../core';
 import type {
   CellRenderProps,
   DataViewCellLifeCycle,
-} from '../../../core/property/index.js';
-import type { SingleView } from '../../../core/view-manager/single-view.js';
+} from '../../../../core/property';
+import type { SingleView } from '../../../../core/view-manager/single-view';
 import {
   TableViewAreaSelection,
   type TableViewSelectionWithType,
-} from '../selection';
-import type { TableColumn } from '../table-view-manager.js';
-import type { GridCell } from './virtual/virtual-scroll.js';
-
+} from '../../selection';
+import type { VirtualTableView } from '../table-view';
+import type { TableGridCell } from '../types';
+import { rowSelectedBg } from './row-header.css';
 export class DatabaseCellContainer extends SignalWatcher(
   WithDisposable(ShadowlessElement)
 ) {
@@ -42,7 +42,7 @@ export class DatabaseCellContainer extends SignalWatcher(
   private readonly _cell = signal<DataViewCellLifeCycle>();
 
   cell$ = computed(() => {
-    return this.column.cellGet(this.rowId);
+    return this.view.cellGet(this.rowId, this.columnId);
   });
 
   selectCurrentCell = (editing: boolean) => {
@@ -79,21 +79,36 @@ export class DatabaseCellContainer extends SignalWatcher(
   }
 
   private get selectionView() {
-    return this.closest('affine-virtual-table')?.selectionController;
+    return this.tableView?.selectionController;
   }
 
-  get table() {
-    const table = this.closest('affine-virtual-table');
-    return table;
+  get rowSelected$() {
+    return this.gridCell.row.data.selected$;
   }
 
   override connectedCallback() {
     super.connectedCallback();
     this.disposables.addFromEvent(this.parentElement, 'click', () => {
       if (!this.isEditing$.value) {
-        this.selectCurrentCell(!this.column.readonly$.value);
+        this.selectCurrentCell(!this.column$.value?.readonly$.value);
       }
     });
+    this.disposables.addFromEvent(this.parentElement, 'mouseenter', () => {
+      this.gridCell.data.hover$.value = true;
+    });
+    this.disposables.addFromEvent(this.parentElement, 'mouseleave', () => {
+      this.gridCell.data.hover$.value = false;
+    });
+    this.disposables.add(
+      effect(() => {
+        const rowSelected = this.rowSelected$.value;
+        if (rowSelected) {
+          this.parentElement?.classList.add(rowSelectedBg);
+        } else {
+          this.parentElement?.classList.remove(rowSelectedBg);
+        }
+      })
+    );
     const style = this.parentElement?.style;
     if (style) {
       style.borderBottom = '1px solid var(--affine-border-color)';
@@ -123,7 +138,7 @@ export class DatabaseCellContainer extends SignalWatcher(
   }
 
   override render() {
-    const renderer = this.column.renderer$.value;
+    const renderer = this.column$.value?.renderer$.value;
     if (!renderer) {
       return;
     }
@@ -153,23 +168,32 @@ export class DatabaseCellContainer extends SignalWatcher(
     return this.gridCell.columnIndex$.value - 1;
   });
 
-  @property({ attribute: false })
-  accessor column!: TableColumn;
+  column$ = computed(() => {
+    return this.view.properties$.value.find(
+      property => property.id === this.columnId
+    );
+  });
+
+  get rowId() {
+    return this.gridCell.row.rowId;
+  }
+
+  get columnId() {
+    return this.gridCell.columnId;
+  }
+
+  get groupKey() {
+    return this.gridCell.row.group.groupId;
+  }
 
   @property({ attribute: false })
-  accessor rowId!: string;
-
-  @property({ attribute: false })
-  accessor columnId!: string;
-
-  @property({ attribute: false })
-  accessor gridCell!: GridCell;
+  accessor gridCell!: TableGridCell;
 
   @property({ attribute: false })
   accessor view!: SingleView;
 
   @property({ attribute: false })
-  accessor groupKey!: string | undefined;
+  accessor tableView!: VirtualTableView;
 }
 
 declare global {
