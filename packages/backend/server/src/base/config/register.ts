@@ -243,6 +243,11 @@ function readConfigJSONOverrides(path: string) {
 export function override(config: AppConfig, update: DeepPartial<AppConfig>) {
   Object.keys(update).forEach(module => {
     const moduleDescriptors = APP_CONFIG_DESCRIPTORS[module];
+    // ignore unknown config module
+    if (!moduleDescriptors) {
+      return;
+    }
+
     const configKeys = new Set(Object.keys(moduleDescriptors));
 
     const moduleConfig = config[module as keyof AppConfig];
