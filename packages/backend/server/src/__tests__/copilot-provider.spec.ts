@@ -514,7 +514,7 @@ const actions = [
     type: 'image' as const,
   },
   {
-    promptName: ['debug:action:dalle3'],
+    promptName: ['debug:action:dalle3', 'debug:action:gpt-image-1'],
     messages: [
       {
         role: 'user' as const,

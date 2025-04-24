@@ -289,6 +289,12 @@ const actions: Prompt[] = [
     messages: [],
   },
   {
+    name: 'debug:action:gpt-image-1',
+    action: 'image',
+    model: 'gpt-image-1',
+    messages: [],
+  },
+  {
     name: 'debug:action:fal-sd15',
     action: 'image',
     model: 'lcm-sd15-i2i',

@@ -492,7 +492,7 @@ Could you make a new website based on these notes and send back just the html fi
 
   AIProvider.provide('createImage', async options => {
     // test to image
-    let promptName: PromptKey = 'debug:action:dalle3';
+    let promptName: PromptKey = 'debug:action:gpt-image-1';
     // image to image
     if (options.attachments?.length) {
       promptName = 'debug:action:fal-sd15';
@@ -507,6 +507,8 @@ Could you make a new website based on these notes and send back just the html fi
       client,
       sessionId,
       content: options.input,
+      // 5 minutes
+      timeout: 300000,
     });
   });
 
