@@ -3,26 +3,24 @@ import { gqlFetcherFactory } from '@affine/graphql';
 
 import { DummyConnection } from '../../connection';
 
+const TIMEOUT = 15000;
+
 export class HttpConnection extends DummyConnection {
   readonly fetch = async (input: string, init?: RequestInit) => {
     const externalSignal = init?.signal;
     if (externalSignal?.aborted) {
       throw externalSignal.reason;
     }
-    const abortController = new AbortController();
-    externalSignal?.addEventListener('abort', reason => {
-      abortController.abort(reason);
-    });
 
-    const timeout = 15000;
-    const timeoutId = setTimeout(() => {
-      abortController.abort('timeout');
-    }, timeout);
+    const signals = [AbortSignal.timeout(TIMEOUT)];
+    if (externalSignal) signals.push(externalSignal);
+
+    const combinedSignal = AbortSignal.any(signals);
 
     const res = await globalThis
       .fetch(new URL(input, this.serverBaseUrl), {
         ...init,
-        signal: abortController.signal,
+        signal: combinedSignal,
         headers: {
           ...this.requestHeaders,
           ...init?.headers,
@@ -39,7 +37,6 @@ export class HttpConnection extends DummyConnection {
           stacktrace: err.stack,
         });
       });
-    clearTimeout(timeoutId);
     if (!res.ok && res.status !== 404) {
       if (res.status === 413) {
         throw new UserFriendlyError({
