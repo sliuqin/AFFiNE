@@ -23,15 +23,12 @@ export function pcVirtualEffects() {
   );
   customElements.define('virtual-table-header', VirtualTableHeader);
   customElements.define(
-    'affine-data-view-virtual-column-preview',
+    'virtual-data-view-column-preview',
     DataViewColumnPreview
   );
+  customElements.define('virtual-database-header-column', DatabaseHeaderColumn);
   customElements.define(
-    'affine-database-virtual-header-column',
-    DatabaseHeaderColumn
-  );
-  customElements.define(
-    'affine-database-virtual-number-format-bar',
+    'virtual-database-number-format-bar',
     DatabaseNumberFormatBar
   );
   customElements.define('data-view-table-row-header', TableRowHeader);

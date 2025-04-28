@@ -486,13 +486,13 @@ export class DatabaseHeaderColumn extends SignalWatcher(
 
 function numberFormatConfig(column: Property): MenuConfig {
   return () =>
-    html` <affine-database-number-format-bar
+    html` <virtual-database-number-format-bar
       .column="${column}"
-    ></affine-database-number-format-bar>`;
+    ></virtual-database-number-format-bar>`;
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'affine-database-header-column': DatabaseHeaderColumn;
+    'virtual-database-header-column': DatabaseHeaderColumn;
   }
 }

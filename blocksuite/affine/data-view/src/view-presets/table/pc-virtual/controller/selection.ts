@@ -50,17 +50,17 @@ export class TableSelectionController implements ReactiveController {
 
   selectionStyleUpdateTask = 0;
 
-  private get areaSelectionElement() {
-    return this.__selectionElement;
-  }
+  // private get areaSelectionElement() {
+  //   return this.__selectionElement;
+  // }
 
   get dragToFillDraggable() {
     return this.__dragToFillElement.dragToFillRef.value;
   }
 
-  private get focusSelectionElement() {
-    return this.__selectionElement;
-  }
+  // private get focusSelectionElement() {
+  //   return this.__selectionElement;
+  // }
 
   get selection(): TableViewSelectionWithType | undefined {
     return this._tableViewSelection;

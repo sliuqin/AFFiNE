@@ -88,6 +88,6 @@ export class DataViewColumnPreview extends SignalWatcher(
 
 declare global {
   interface HTMLElementTagNameMap {
-    'affine-data-view-column-preview': DataViewColumnPreview;
+    'virtual-data-view-column-preview': DataViewColumnPreview;
   }
 }

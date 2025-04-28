@@ -8,7 +8,7 @@ import * as Y from 'yjs';
 
 import { t } from '../../../../core/index.js';
 import type { TableViewAreaSelection } from '../../selection';
-import type { DataViewTable } from '../table-view.js';
+import type { VirtualTableView } from '../table-view';
 
 export class DragToFillElement extends ShadowlessElement {
   static override styles = css`
@@ -55,7 +55,7 @@ declare global {
 }
 
 export function fillSelectionWithFocusCellData(
-  host: DataViewTable,
+  host: VirtualTableView,
   selection: TableViewAreaSelection
 ) {
   const { groupKey, rowsSelection, columnsSelection, focus } = selection;
@@ -74,7 +74,8 @@ export function fillSelectionWithFocusCellData(
       return;
     }
 
-    const curCol = focusCell.column; // we are sure that we are always in the same column while iterating through rows
+    const curCol = focusCell.column$.value; // we are sure that we are always in the same column while iterating through rows
+    if (!curCol) return;
     const cell = focusCell.cell$.value;
     const focusData = cell.value$.value;
 

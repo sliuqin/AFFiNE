@@ -140,6 +140,6 @@ export class DatabaseNumberFormatBar extends WithDisposable(LitElement) {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'affine-database-number-format-bar': DatabaseNumberFormatBar;
+    'virtual-database-number-format-bar': DatabaseNumberFormatBar;
   }
 }
