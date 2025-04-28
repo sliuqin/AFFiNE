@@ -14,6 +14,9 @@ import type {
 } from '@blocksuite/affine-model';
 import type { GfxModel } from '@blocksuite/std/gfx';
 import { type Page } from '@playwright/test';
+
+import { ChatPanelUtils } from './chat-panel-utils';
+
 export class EditorUtils {
   public static async focusToEditor(page: Page) {
     const title = getBlockSuiteEditorTitle(page);
@@ -53,20 +56,9 @@ export class EditorUtils {
     await page.getByTestId('switch-edgeless-mode-button').click();
     await editor.waitForElementState('hidden');
     await page.waitForSelector('edgeless-editor');
-    try {
-      const edgelessNotificationClose = page.getByTestId(
-        'notification-close-button'
-      );
-      await edgelessNotificationClose.waitFor({
-        state: 'visible',
-        timeout: 2000,
-      });
-      await edgelessNotificationClose.click();
-      // Focus to the edgeless editor
-      await page.mouse.click(400, 400);
-    } catch {
-      // do nothing if the notification close button is not found
-    }
+    await ChatPanelUtils.closeNotification(page);
+    // Focus to the edgeless editor after closing notification
+    await page.mouse.click(400, 400);
   }
 
   public static async switchToPageMode(page: Page) {

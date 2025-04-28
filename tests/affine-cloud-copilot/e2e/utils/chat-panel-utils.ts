@@ -32,11 +32,48 @@ export class ChatPanelUtils {
       });
       await page.waitForTimeout(500); // wait the sidebar stable
     }
-    if (await page.getByTestId('notification-close-button').isVisible()) {
-      await page.getByTestId('notification-close-button').click();
-    }
+    await this.closeNotification(page);
     await page.getByTestId('sidebar-tab-chat').click();
     await expect(page.getByTestId('sidebar-tab-content-chat')).toBeVisible();
+  }
+
+  public static async closeNotification(page: Page) {
+    await page.evaluate(() => {
+      return new Promise<void>(resolve => {
+        const observer = new MutationObserver((_mutations, observer) => {
+          const notificationButton = document.querySelector(
+            '[data-testid="notification-close-button"]'
+          );
+          if (notificationButton) {
+            (notificationButton as HTMLElement).click();
+            observer.disconnect();
+            // Slight delay to ensure click is processed
+            setTimeout(() => resolve(), 100);
+          }
+        });
+
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+        });
+
+        // Check if notification already exists
+        const notificationButton = document.querySelector(
+          '[data-testid="notification-close-button"]'
+        );
+        if (notificationButton) {
+          (notificationButton as HTMLElement).click();
+          observer.disconnect();
+          resolve();
+        }
+
+        // Set a timeout to resolve if no notification appears
+        setTimeout(() => {
+          observer.disconnect();
+          resolve();
+        }, 2000);
+      });
+    });
   }
 
   public static async closeChatPanel(page: Page) {
