@@ -19,7 +19,7 @@ import {
 } from '../../selection';
 import type { DatabaseCellContainer } from '../row/cell';
 import type { VirtualTableView } from '../table-view.js';
-import type { GridCell } from '../virtual/virtual-scroll.js';
+import type { TableGridCell } from '../types.js';
 import {
   DragToFillElement,
   fillSelectionWithFocusCellData,
@@ -265,17 +265,17 @@ export class TableSelectionController implements ReactiveController {
   }
 
   private scrollToAreaSelection() {
-    this.areaSelectionElement?.scrollIntoView({
-      block: 'nearest',
-      inline: 'nearest',
-    });
+    // this.areaSelectionElement?.scrollIntoView({
+    //   block: 'nearest',
+    //   inline: 'nearest',
+    // });
   }
 
   private scrollToFocus() {
-    this.focusSelectionElement?.scrollIntoView({
-      block: 'nearest',
-      inline: 'nearest',
-    });
+    // this.focusSelectionElement?.scrollIntoView({
+    //   block: 'nearest',
+    //   inline: 'nearest',
+    // });
   }
 
   areaToRows(selection: TableViewAreaSelection) {
@@ -460,7 +460,7 @@ export class TableSelectionController implements ReactiveController {
     cellContainer.selectCurrentCell(false);
   }
 
-  getCellElement(cell: GridCell): DatabaseCellContainer | undefined {
+  getCellElement(cell: TableGridCell): DatabaseCellContainer | undefined {
     return (
       cell.element.querySelector('affine-database-virtual-cell-container') ??
       undefined
@@ -471,7 +471,7 @@ export class TableSelectionController implements ReactiveController {
     groupKey: string | undefined,
     rowIndex: number,
     columnIndex: number
-  ): GridCell | undefined {
+  ): TableGridCell | undefined {
     const row = this.rows(groupKey)?.[rowIndex];
     if (!row) {
       return;

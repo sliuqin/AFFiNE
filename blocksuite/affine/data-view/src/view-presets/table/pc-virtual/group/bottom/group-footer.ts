@@ -7,7 +7,7 @@ import { property } from 'lit/decorators.js';
 
 import { TableViewAreaSelection } from '../../../selection';
 import type { VirtualTableView } from '../../table-view';
-import type { GridGroup } from '../../virtual/virtual-scroll';
+import type { TableGridGroup } from '../../types';
 import * as styles from './group-footer.css';
 
 export class TableGroupFooter extends WithDisposable(ShadowlessElement) {
@@ -15,7 +15,7 @@ export class TableGroupFooter extends WithDisposable(ShadowlessElement) {
   accessor tableView!: VirtualTableView;
 
   @property({ attribute: false })
-  accessor gridGroup!: GridGroup;
+  accessor gridGroup!: TableGridGroup;
 
   group$ = computed(() => {
     return this.tableView.groupTrait$.value?.groupsDataList$.value?.find(
@@ -34,6 +34,12 @@ export class TableGroupFooter extends WithDisposable(ShadowlessElement) {
   override connectedCallback() {
     super.connectedCallback();
     this.classList.add(styles.groupFooter);
+    this.disposables.addFromEvent(this, 'mouseenter', () => {
+      this.gridGroup.data.footerHover$.value = true;
+    });
+    this.disposables.addFromEvent(this, 'mouseleave', () => {
+      this.gridGroup.data.footerHover$.value = false;
+    });
   }
 
   private readonly clickAddRow = () => {

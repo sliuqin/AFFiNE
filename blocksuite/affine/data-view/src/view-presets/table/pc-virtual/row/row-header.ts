@@ -7,7 +7,6 @@ import { nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { html } from 'lit/static-html.js';
 
-import { type TableViewSelection } from '../../selection.js';
 import type { TableSingleView } from '../../table-view-manager.js';
 import type { VirtualTableView } from '../table-view.js';
 import type { TableGridCell } from '../types.js';
@@ -46,12 +45,6 @@ export class TableRowHeader extends SignalWatcher(
     return this.tableView.selectionController;
   }
 
-  setSelection = (selection?: TableViewSelection) => {
-    if (this.selectionController) {
-      this.selectionController.selection = selection;
-    }
-  };
-
   get rowSelected$() {
     return this.gridCell.row.data.selected$;
   }
@@ -59,7 +52,8 @@ export class TableRowHeader extends SignalWatcher(
   renderDragHandle = () => {
     const dragHandlerClass = clsx(
       styles.dragHandler,
-      this.rowSelected$.value && styles.rowSelectedBg
+      this.rowSelected$.value && styles.rowSelectedBg,
+      this.rowHover$.value && styles.show
     );
     return html`
       <div class="${styles.dragHandlerWrapper}">
@@ -82,7 +76,7 @@ export class TableRowHeader extends SignalWatcher(
     const classString = clsx(
       this.rowSelected$.value && styles.rowSelectedBg,
       styles.rowSelectCheckbox,
-      this.showCheckbox$.value && styles.rowSelectCheckboxSelected
+      this.showCheckbox$.value && styles.show
     );
     return html`
       <div @click=${this.selectRow} class="${styles.checkboxWrapper}">

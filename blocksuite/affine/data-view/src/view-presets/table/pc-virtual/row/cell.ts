@@ -1,3 +1,4 @@
+import { popupTargetFromElement } from '@blocksuite/affine-components/context-menu';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { ShadowlessElement } from '@blocksuite/std';
 import { computed, effect, signal } from '@preact/signals-core';
@@ -12,10 +13,12 @@ import type {
 import type { SingleView } from '../../../../core/view-manager/single-view';
 import {
   TableViewAreaSelection,
+  TableViewRowSelection,
   type TableViewSelectionWithType,
 } from '../../selection';
 import type { VirtualTableView } from '../table-view';
 import type { TableGridCell } from '../types';
+import { popRowMenu } from './menu';
 import { rowSelectedBg } from './row-header.css';
 export class DatabaseCellContainer extends SignalWatcher(
   WithDisposable(ShadowlessElement)
@@ -86,8 +89,31 @@ export class DatabaseCellContainer extends SignalWatcher(
     return this.gridCell.row.data.selected$;
   }
 
+  contextMenu = (e: MouseEvent) => {
+    if (this.view.readonly$.value) {
+      return;
+    }
+    const selection = this.selectionView;
+    if (!selection) {
+      return;
+    }
+    e.preventDefault();
+    const row = { id: this.rowId, groupKey: this.groupKey };
+    if (!TableViewRowSelection.includes(selection.selection, row)) {
+      selection.selection = TableViewRowSelection.create({
+        rows: [row],
+      });
+    }
+    popRowMenu(
+      this.tableView.props.dataViewEle,
+      popupTargetFromElement(this),
+      selection
+    );
+  };
+
   override connectedCallback() {
     super.connectedCallback();
+    this.disposables.addFromEvent(this, 'contextmenu', this.contextMenu);
     this.disposables.addFromEvent(this.parentElement, 'click', () => {
       if (!this.isEditing$.value) {
         this.selectCurrentCell(!this.column$.value?.readonly$.value);

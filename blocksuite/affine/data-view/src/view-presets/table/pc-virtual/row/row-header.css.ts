@@ -19,6 +19,7 @@ export const dragHandler = style({
   justifyContent: 'center',
   cursor: 'grab',
   backgroundColor: 'var(--affine-background-primary-color)',
+  opacity: 0,
 });
 
 export const checkboxWrapper = style({
@@ -47,13 +48,6 @@ export const rowSelectCheckbox = style({
   color: cssVarV2.icon.primary,
 });
 
-export const rowSelectCheckboxHover = style({
+export const show = style({
   opacity: 1,
 });
-
-export const rowSelectCheckboxSelected = style([
-  rowSelectCheckboxHover,
-  {
-    opacity: 1,
-  },
-]);

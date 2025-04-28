@@ -30,6 +30,7 @@ import { TableGroupFooter } from './group/bottom/group-footer';
 import { TableGroupHeader } from './group/top/group-header';
 import { DatabaseCellContainer } from './row/cell';
 import { TableRowHeader } from './row/row-header.js';
+import { TableRowLast } from './row/row-last.js';
 import * as styles from './table-view.css.js';
 import type {
   TableCellData,
@@ -163,6 +164,10 @@ export class VirtualTableView extends DataViewBase<
         id: property.id,
         width: property.width$.value + 1,
       })),
+      {
+        id: 'row-last',
+        width: 40,
+      },
     ];
   });
 
@@ -236,6 +241,13 @@ export class VirtualTableView extends DataViewBase<
           rowHeader.gridCell = cell;
           rowHeader.tableView = this;
           return rowHeader;
+        }
+        if (cell.columnId === 'row-last') {
+          const rowLast = new TableRowLast();
+          rowLast.view = this.props.view;
+          rowLast.gridCell = cell;
+          rowLast.tableView = this;
+          return rowLast;
         }
         const cellContainer = new DatabaseCellContainer();
         cellContainer.view = this.props.view;

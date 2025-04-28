@@ -11,6 +11,7 @@ import { DatabaseHeaderColumn } from './group/top/header/single-column-header';
 import { TableVerticalIndicator } from './group/top/header/vertical-indicator';
 import { DatabaseCellContainer } from './row/cell';
 import { TableRowHeader } from './row/row-header';
+import { TableRowLast } from './row/row-last';
 import { VirtualTableView } from './table-view';
 import { VirtualElementWrapper } from './virtual/virtual-cell';
 
@@ -34,6 +35,7 @@ export function pcVirtualEffects() {
     DatabaseNumberFormatBar
   );
   customElements.define('data-view-table-row-header', TableRowHeader);
+  customElements.define('data-view-table-row-last', TableRowLast);
   customElements.define('data-view-virtual-table-selection', SelectionElement);
   customElements.define('data-view-virtual-drag-to-fill', DragToFillElement);
   customElements.define(

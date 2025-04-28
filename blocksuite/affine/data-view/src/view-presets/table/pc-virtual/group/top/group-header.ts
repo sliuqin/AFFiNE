@@ -3,27 +3,35 @@ import {
   popFilterableSimpleMenu,
   popupTargetFromElement,
 } from '@blocksuite/affine-components/context-menu';
-import { WithDisposable } from '@blocksuite/global/lit';
+import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { ShadowlessElement } from '@blocksuite/std';
 import { computed } from '@preact/signals-core';
 import { html } from 'lit';
 import { property } from 'lit/decorators.js';
 
-import { GroupTitle } from '../../../../../core/group-by/group-title';
 import { TableViewAreaSelection } from '../../../selection';
 import type { VirtualTableView } from '../../table-view';
-import type { GridGroup } from '../../virtual/virtual-scroll';
+import type { TableGridGroup } from '../../types';
 import * as styles from './group-header.css';
-export class TableGroupHeader extends WithDisposable(ShadowlessElement) {
+import { GroupTitle } from './group-title';
+export class TableGroupHeader extends SignalWatcher(
+  WithDisposable(ShadowlessElement)
+) {
   @property({ attribute: false })
   accessor tableView!: VirtualTableView;
 
   @property({ attribute: false })
-  accessor gridGroup!: GridGroup;
+  accessor gridGroup!: TableGridGroup;
 
   override connectedCallback(): void {
     super.connectedCallback();
     this.classList.add(styles.groupHeader);
+    this.disposables.addFromEvent(this, 'mouseenter', () => {
+      this.gridGroup.data.headerHover$.value = true;
+    });
+    this.disposables.addFromEvent(this, 'mouseleave', () => {
+      this.gridGroup.data.headerHover$.value = false;
+    });
   }
 
   group$ = computed(() => {
@@ -102,6 +110,7 @@ export class TableGroupHeader extends WithDisposable(ShadowlessElement) {
         style="position: sticky;left: 0;width: max-content;padding: 6px 0;margin-bottom: 4px;display:flex;align-items:center;gap: 12px;max-width: 400px"
       >
         ${GroupTitle(group, {
+          groupHover: this.gridGroup.data.headerHover$.value,
           readonly: this.tableViewManager.readonly$.value,
           clickAdd: this.clickAddRowInStart,
           clickOps: this.clickGroupOptions,

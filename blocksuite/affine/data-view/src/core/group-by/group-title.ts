@@ -150,6 +150,7 @@ export const GroupTitle = (
         >${groupData.property.name$.value}</span
       >`
     : nothing;
+
   return html`
     <style>
       .group-header-count {
