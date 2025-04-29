@@ -122,11 +122,13 @@ export class DatabaseNumberFormatBar extends WithDisposable(LitElement) {
             ${IncreaseDecimalPlacesIcon}
           </button>
           <span class="number-formatting-sample">
-            &lpar;&nbsp;${formatNumber(
-              1,
-              'number',
-              (this.column.data$.value.decimal as number) ?? 0
-            )}&nbsp;&rpar;
+  <span class="number-formatting-sample">
+    &lpar;&nbsp;${formatNumber(
+      1,
+      'number',
+      (this.column.data$.value?.decimal as number) ?? 0
+    )}&nbsp;&rpar;
+  </span>
           </span>
         </div>
         <div class="divider"></div>
