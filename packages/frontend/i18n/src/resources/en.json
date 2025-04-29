@@ -1436,6 +1436,8 @@
   "com.affine.settings.workspace.experimental-features.enable-editor-rtl.description": "Once enabled, the editor will be displayed in RTL mode.",
   "com.affine.settings.workspace.experimental-features.enable-edgeless-scribbled-style.name": "Edgeless scribbled style",
   "com.affine.settings.workspace.experimental-features.enable-edgeless-scribbled-style.description": "Once enabled, you can use scribbled style in edgeless mode.",
+  "com.affine.settings.workspace.experimental-features.enable-table-virtual-scroll.name": "Database block table view virtual scroll",
+  "com.affine.settings.workspace.experimental-features.enable-table-virtual-scroll.description": "Once enabled, switch table view to virtual scroll mode in Database Block.",
   "com.affine.settings.workspace.not-owner": "Only an owner can edit the workspace avatar and name. Changes will be shown for everyone.",
   "com.affine.settings.workspace.preferences": "Preference",
   "com.affine.settings.workspace.billing": "Team's Billing",

@@ -79,7 +79,7 @@ export class DatabaseBlockDataSource extends DataSourceBase {
     );
     return {
       enable_number_formatting: enableNumberFormat ?? false,
-      enable_table_virtual_scroll: enableTableVirtualScroll ?? true,
+      enable_table_virtual_scroll: enableTableVirtualScroll ?? false,
     };
   });
 

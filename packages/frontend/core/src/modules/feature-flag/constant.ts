@@ -26,15 +26,6 @@ export const AFFINE_FLAGS = {
     configurable: false,
     defaultState: true,
   },
-  enable_block_query: {
-    category: 'blocksuite',
-    bsFlag: 'enable_block_query',
-    displayName:
-      'com.affine.settings.workspace.experimental-features.enable-block-query.name',
-    description:
-      'com.affine.settings.workspace.experimental-features.enable-block-query.description',
-    configurable: isCanaryBuild,
-  },
   enable_edgeless_text: {
     category: 'blocksuite',
     bsFlag: 'enable_edgeless_text',

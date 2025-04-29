@@ -1739,9 +1739,9 @@ export function useAFFiNEI18N(): {
     ["com.affine.delete-tags.confirm.title"](): string;
     /**
       * `{{count}} tag deleted`
-    
+
       * - com.affine.delete-tags.count_one: `{{count}} tag deleted`
-    
+
       * - com.affine.delete-tags.count_other: `{{count}} tags deleted`
       */
     ["com.affine.delete-tags.count"](options: {
@@ -6425,11 +6425,11 @@ export function useAFFiNEI18N(): {
     ["com.affine.syncing"](): string;
     /**
       * `{{count}} doc`
-    
+
       * - com.affine.tags.count_one: `{{count}} doc`
-    
+
       * - com.affine.tags.count_other: `{{count}} docs`
-    
+
       * - com.affine.tags.count_zero: `{{count}} doc`
       */
     ["com.affine.tags.count"](options: {
@@ -8334,9 +8334,9 @@ export const TypedTrans: {
     }>>;
     /**
       * `<0>{{count}}</0> selected`
-    
+
       * - com.affine.collection.toolbar.selected_one: `<0>{{count}}</0> collection selected`
-    
+
       * - com.affine.collection.toolbar.selected_other: `<0>{{count}}</0> collection(s) selected`
       */
     ["com.affine.collection.toolbar.selected"]: ComponentType<TypedTransProps<{
@@ -8445,9 +8445,9 @@ export const TypedTrans: {
     }>>;
     /**
       * `<0>{{count}}</0> selected`
-    
+
       * - com.affine.page.toolbar.selected_one: `<0>{{count}}</0> doc selected`
-    
+
       * - com.affine.page.toolbar.selected_other: `<0>{{count}}</0> doc(s) selected`
       */
     ["com.affine.page.toolbar.selected"]: ComponentType<TypedTransProps<{
@@ -8641,9 +8641,9 @@ export const TypedTrans: {
     }>>;
     /**
       * `<0>{{count}}</0> selected`
-    
+
       * - com.affine.tag.toolbar.selected_one: `<0>{{count}}</0> tag selected`
-    
+
       * - com.affine.tag.toolbar.selected_other: `<0>{{count}}</0> tag(s) selected`
       */
     ["com.affine.tag.toolbar.selected"]: ComponentType<TypedTransProps<{
