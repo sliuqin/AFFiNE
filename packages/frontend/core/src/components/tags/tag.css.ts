@@ -84,6 +84,7 @@ export const tagInnerWrapper = style({
   padding: '0 8px',
   color: cssVar('textPrimaryColor'),
   borderColor: cssVar('borderColor'),
+  position: 'relative',
   selectors: {
     '&[data-focused=true]': {
       borderColor: cssVar('primaryColor'),
@@ -151,6 +152,7 @@ export const tagLabel = style({
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   userSelect: 'none',
+  transform: 'translateY(-0.75px)',
 });
 
 export const tagRemove = style({
