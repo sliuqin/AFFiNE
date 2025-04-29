@@ -11,6 +11,11 @@ import { TableRow } from './row/row.js';
 import { RowSelectCheckbox } from './row/row-select-checkbox.js';
 import { DataViewTable } from './table-view.js';
 
+/**
+ * Registers custom table-related web components for use in the DOM.
+ *
+ * This function defines a set of custom elements, enabling various database table UI components—such as tables, groups, cells, headers, rows, selection controls, and drag-to-fill indicators—to be used as HTML tags.
+ */
 export function pcEffects() {
   customElements.define('affine-database-table', DataViewTable);
   customElements.define('affine-data-view-table-group', TableGroup);

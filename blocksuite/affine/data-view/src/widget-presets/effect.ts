@@ -12,6 +12,11 @@ import { DataViewHeaderToolsViewOptions } from './tools/presets/view-options/vie
 import { DataViewHeaderTools } from './tools/tools-view.js';
 import { DataViewHeaderViews } from './views-bar/views-view.js';
 
+/**
+ * Registers custom elements for data view widget components.
+ *
+ * Enables the use of various filtering, sorting, searching, and view option UI components as web components by associating their tag names with their respective classes.
+ */
 export function widgetPresetsEffects() {
   customElements.define('data-view-header-tools', DataViewHeaderTools);
   customElements.define('filter-bar', FilterBar);

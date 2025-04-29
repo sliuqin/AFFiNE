@@ -484,6 +484,12 @@ export class DatabaseHeaderColumn extends SignalWatcher(
   accessor tableViewManager!: TableSingleView;
 }
 
+/**
+ * Returns a menu configuration that renders a number format options bar for the specified column.
+ *
+ * @param column - The column property for which to display number formatting options.
+ * @returns A menu configuration function that renders a {@link virtual-database-number-format-bar} for the given column.
+ */
 function numberFormatConfig(column: Property): MenuConfig {
   return () =>
     html` <virtual-database-number-format-bar

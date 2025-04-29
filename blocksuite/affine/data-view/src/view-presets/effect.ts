@@ -18,6 +18,11 @@ import { pcVirtualEffects } from './table/pc-virtual/effect.js';
 import { DataBaseColumnStats } from './table/stats/column-stats-bar.js';
 import { DatabaseColumnStatsCell } from './table/stats/column-stats-column.js';
 
+/**
+ * Registers custom elements for Kanban and table data views on both PC and mobile platforms, and initializes related PC-specific effects.
+ *
+ * This function defines all necessary web components for Kanban boards, table views, database column statistics, and a table view selector, ensuring they are available for use in the application. It also applies additional effects for PC table views.
+ */
 export function viewPresetsEffects() {
   customElements.define('affine-data-view-kanban-card', KanbanCard);
   customElements.define('mobile-kanban-card', MobileKanbanCard);

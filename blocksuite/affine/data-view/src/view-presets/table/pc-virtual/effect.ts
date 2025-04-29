@@ -15,6 +15,11 @@ import { TableRowLast } from './row/row-last';
 import { VirtualTableView } from './table-view';
 import { VirtualElementWrapper } from './virtual/virtual-cell';
 
+/**
+ * Registers custom elements for virtual table and related UI components.
+ *
+ * Enables the use of specialized web components for a virtualized table interface, including table views, headers, cell containers, selection controls, formatting bars, and statistical displays.
+ */
 export function pcVirtualEffects() {
   customElements.define('affine-virtual-table', VirtualTableView);
   customElements.define(

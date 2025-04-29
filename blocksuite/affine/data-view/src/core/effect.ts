@@ -14,6 +14,11 @@ import { GroupSetting } from './group-by/setting.js';
 import { AffineLitIcon, UniAnyRender, UniLit } from './index.js';
 import { AnyRender } from './utils/uni-component/render-template.js';
 
+/**
+ * Registers core custom web components for data view rendering and UI functionality.
+ *
+ * This function defines a set of custom elements, enabling their use as HTML tags throughout the application. The registered components include data view renderers, property settings, record fields, grouping views for various data types, buttons, overflow containers, multi-tag selectors and views, icons, and variable reference views.
+ */
 export function coreEffects() {
   customElements.define('affine-data-view-renderer', DataViewRenderer);
   customElements.define('any-render', AnyRender);

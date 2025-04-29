@@ -54,6 +54,15 @@ declare global {
   }
 }
 
+/**
+ * Fills all cells in the selected column range with the data from the focused cell.
+ *
+ * If the cells contain rich text, their content is replaced using a Yjs delta to preserve collaborative editing state. For other data types, the value is directly copied. Only single-column selections are supported; if multiple columns are selected, the function logs an error and does nothing.
+ *
+ * @param selection - The selection area specifying the group, rows, columns, and focus cell.
+ *
+ * @remark Cells that cannot be found are skipped without error.
+ */
 export function fillSelectionWithFocusCellData(
   host: VirtualTableView,
   selection: TableViewAreaSelection

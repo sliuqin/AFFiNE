@@ -18,6 +18,12 @@ import {
   show,
 } from './group-title.css';
 
+/**
+ * Renders the count of rows in a group if the group contains any rows.
+ *
+ * @param group - The group data containing rows to be counted.
+ * @returns An HTML element displaying the number of rows, or nothing if the group is empty.
+ */
 function GroupHeaderCount(group: GroupData) {
   const cards = group.rows;
   if (!cards.length) {

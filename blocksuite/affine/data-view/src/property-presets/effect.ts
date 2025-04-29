@@ -7,6 +7,11 @@ import { ProgressCell } from './progress/cell-renderer.js';
 import { SelectCell } from './select/cell-renderer.js';
 import { TextCell } from './text/cell-renderer.js';
 
+/**
+ * Registers custom cell renderer elements for various data types used in the database view.
+ *
+ * When invoked, this function defines custom elements for checkbox, date, image, multi-select, number, progress, select, and text cells, enabling their use as HTML elements with the "affine-database-" prefix.
+ */
 export function propertyPresetsEffects() {
   customElements.define('affine-database-checkbox-cell', CheckboxCell);
   customElements.define('affine-database-date-cell', DateCell);

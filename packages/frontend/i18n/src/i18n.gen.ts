@@ -34,6 +34,13 @@ function createProxy(initValue: (key: string) => any) {
         },
     });
 }
+/**
+ * Provides a strongly typed, memoized proxy for accessing translation strings and functions.
+ *
+ * Returns an object where each property corresponds to a translation key, allowing type-safe retrieval of localized strings or parameterized translation functions. The returned proxy ensures autocomplete and inline documentation for all supported translation keys.
+ *
+ * @returns An object with methods for each translation key, returning the corresponding localized string or accepting parameters for interpolation.
+ */
 export function useAFFiNEI18N(): {
     /**
       * `Back to my Content`

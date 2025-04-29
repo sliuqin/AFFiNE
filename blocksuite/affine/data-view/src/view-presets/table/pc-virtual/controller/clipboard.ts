@@ -191,6 +191,16 @@ export class TableClipboardController implements ReactiveController {
   }
 }
 
+/**
+ * Extracts the selected area of cells or rows from the table based on the current selection.
+ *
+ * For row selections, returns an array of selected rows (sorted by vertical position) with their cells.
+ * For area selections, returns a 2D array of selected cells within the specified row and column ranges.
+ *
+ * @param selection - The current table selection, which may be a row or area selection.
+ * @param table - The virtual table view instance containing the data and selection state.
+ * @returns An array representing the selected area, or `undefined` if no rows are found.
+ */
 function getSelectedArea(
   selection: TableViewSelection,
   table: VirtualTableView
@@ -253,6 +263,15 @@ type SelectedArea = {
   cells: Cell[];
 }[];
 
+/**
+ * Determines the target row and column range for pasting data based on the current table selection and the size of the incoming data.
+ *
+ * If the selection is a single focused cell, the target range starts at the focus position and matches the dimensions of the data. Otherwise, the range matches the selected area.
+ *
+ * @param selection - The current table area selection.
+ * @param data - The 2D array of strings representing the data to paste.
+ * @returns An object specifying the start index and length for both rows and columns to receive the pasted data.
+ */
 function getTargetRangeFromSelection(
   selection: TableViewAreaSelection,
   data: JsonAreaData
@@ -281,6 +300,14 @@ function getTargetRangeFromSelection(
       };
 }
 
+/**
+ * Pastes a 2D array of string data into the table cells based on the current selection.
+ *
+ * The source data is wrapped if it is smaller than the target area, repeating rows and columns as needed.
+ *
+ * @param rows - The 2D array of string values to paste into the table.
+ * @param selection - The current area selection specifying the target paste region.
+ */
 function pasteToCells(
   table: VirtualTableView,
   rows: JsonAreaData,
