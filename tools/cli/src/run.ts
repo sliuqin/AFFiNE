@@ -164,8 +164,6 @@ export class RunCommand extends PackageCommand {
 
     // very simple test for auto ts/mjs scripts
     const isLoaderRequired =
-      !ignoreLoaderScripts.some(ignore => new RegExp(ignore).test(bin)) ||
-const isLoaderRequired =
       !ignoreLoaderScripts.some(ignore => new RegExp(ignore).test(bin)) &&
       !process.env.NODE_OPTIONS?.includes('@oxc-node/core/register');
 
