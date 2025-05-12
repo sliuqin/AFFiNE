@@ -1,6 +1,9 @@
 import { Popover, uniReactRoot } from '@affine/component';
 import { Button } from '@affine/component/ui/button';
 import { Menu, MenuItem } from '@affine/component/ui/menu';
+import { SubscriptionService } from '@affine/core/modules/cloud';
+import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
+import { useSignalValue } from '@affine/core/modules/doc-info/utils';
 import { PeekViewService } from '@affine/core/modules/peek-view';
 import {
   type Cell,
@@ -26,6 +29,7 @@ import {
 } from '@preact/signals-core';
 import {
   generateFractionalIndexingKeyBetween,
+  useLiveData,
   useService,
 } from '@toeverything/infra';
 import { fileTypeFromBuffer, type FileTypeResult } from 'file-type';
@@ -39,8 +43,6 @@ import {
   useMemo,
 } from 'react';
 
-import { WorkspaceDialogService } from '../../../../modules/dialogs';
-import { useSignalValue } from '../../../../modules/doc-info/utils';
 import type { ImageData } from '../../../../modules/peek-view/view/image-preview';
 import { CircularProgress } from '../../components/loading';
 import { progressIconContainer } from '../../components/loading.css';
@@ -387,6 +389,10 @@ const FileCellComponent: ForwardRefRenderFunction<
   const fileList = useSignalValue(manager.fileList);
   const isEditing = useSignalValue(manager.isEditing);
   const workspaceDialogService = useService(WorkspaceDialogService);
+  const subscriptionService = useService(SubscriptionService);
+  const isPro = useLiveData(subscriptionService?.subscription.pro$);
+  const isBeliever = useLiveData(subscriptionService?.subscription.isBeliever$);
+  const isProOrBeliever = isPro || isBeliever;
   const jumpToPricePlan = useCallback(() => {
     workspaceDialogService.open('setting', {
       activeTab: 'plans',
@@ -422,9 +428,11 @@ const FileCellComponent: ForwardRefRenderFunction<
             <div className={styles.fileSizeInfo}>
               The maximum size per file is 100MB
             </div>
-            <a className={styles.upgradeLink} onClick={jumpToPricePlan}>
-              Upgrade to Pro
-            </a>
+            {!isProOrBeliever && (
+              <a className={styles.upgradeLink} onClick={jumpToPricePlan}>
+                Upgrade to Pro
+              </a>
+            )}
           </div>
         </div>
       );
