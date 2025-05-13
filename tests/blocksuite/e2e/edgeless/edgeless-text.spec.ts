@@ -441,9 +441,11 @@ test.describe('edgeless text block', () => {
     );
     await page.mouse.up();
 
-    expect(await getPageSnapshot(page, true)).toMatchSnapshot(
-      `${testInfo.title}_drag.json`
-    );
+    const selectedRect2 = await getEdgelessSelectedRect(page);
+    expect(selectedRect2.width).toBeCloseTo(selectedRect1.width + 45);
+    expect(selectedRect2.height).toBeCloseTo(selectedRect1.height);
+    expect(selectedRect2.x).toBeCloseTo(selectedRect1.x);
+    expect(selectedRect2.y).toBeCloseTo(selectedRect1.y);
   });
 
   test('cut edgeless text', async ({ page }) => {

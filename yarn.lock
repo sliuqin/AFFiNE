@@ -405,6 +405,7 @@ __metadata:
     "@affine/track": "workspace:*"
     "@blocksuite/affine": "workspace:*"
     "@blocksuite/icons": "npm:^2.2.13"
+    "@blocksuite/std": "workspace:*"
     "@dotlottie/player-component": "npm:^2.7.12"
     "@emotion/cache": "npm:^11.14.0"
     "@emotion/css": "npm:^11.13.5"
@@ -459,6 +460,7 @@ __metadata:
     lit: "npm:^3.2.1"
     lodash-es: "npm:^4.17.21"
     lottie-react: "npm:^2.4.0"
+    mp4-muxer: "npm:^5.2.1"
     nanoid: "npm:^5.0.9"
     next-themes: "npm:^0.4.4"
     query-string: "npm:^9.1.1"
@@ -474,7 +476,6 @@ __metadata:
     swr: "npm:2.3.3"
     tinykeys: "patch:tinykeys@npm%3A2.1.0#~/.yarn/patches/tinykeys-npm-2.1.0-819feeaed0.patch"
     vitest: "npm:3.1.3"
-    webm-muxer: "npm:^5.1.0"
     y-protocols: "npm:^1.0.6"
     yjs: "npm:^13.6.21"
     zod: "npm:^3.24.1"
@@ -3707,6 +3708,7 @@ __metadata:
     micromark-extension-gfm-task-list-item: "npm:^2.1.0"
     micromark-util-combine-extensions: "npm:^2.0.0"
     minimatch: "npm:^10.0.1"
+    quick-lru: "npm:^7.0.1"
     rehype-parse: "npm:^9.0.0"
     rehype-stringify: "npm:^10.0.0"
     remark-math: "npm:^6.0.0"
@@ -14915,7 +14917,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dom-webcodecs@npm:^0.1.4":
+"@types/dom-webcodecs@npm:^0.1.4, @types/dom-webcodecs@npm:^0.1.6":
   version: 0.1.15
   resolution: "@types/dom-webcodecs@npm:0.1.15"
   checksum: 10/0d1ce12007803b92594968c657e3bcdb24c5f4b7b89a3b094670bcc39f5c3b395adba1ab64a930007bd947ae6be1689ddd64ccc48127d1acf3ef7be63f3cdc98
@@ -26931,6 +26933,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mp4-muxer@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "mp4-muxer@npm:5.2.1"
+  dependencies:
+    "@types/dom-webcodecs": "npm:^0.1.6"
+    "@types/wicg-file-system-access": "npm:^2020.9.5"
+  checksum: 10/7169fd43e4a3a604c4590970276ff58bee479444530af8455ba66b70207e3317e74ae662b488df58f4619dd29973950228347585ec579539aa4356ead9d203be
+  languageName: node
+  linkType: hard
+
 "mri@npm:^1.2.0":
   version: 1.2.0
   resolution: "mri@npm:1.2.0"
@@ -29521,6 +29533,13 @@ __metadata:
   version: 5.1.1
   resolution: "quick-lru@npm:5.1.1"
   checksum: 10/a516faa25574be7947969883e6068dbe4aa19e8ef8e8e0fd96cddd6d36485e9106d85c0041a27153286b0770b381328f4072aa40d3b18a19f5f7d2b78b94b5ed
+  languageName: node
+  linkType: hard
+
+"quick-lru@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "quick-lru@npm:7.0.1"
+  checksum: 10/00bed5bcc4683221bf3da5c767f9dd8197c18fb6b0b7f9b79ddada62b52ff2a7ce17bb49dd4fce783c89b29974cf47a93422d7094766c8593c127ffe6c70054a
   languageName: node
   linkType: hard
 
@@ -34128,7 +34147,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webm-muxer@npm:^5.0.3, webm-muxer@npm:^5.1.0":
+"webm-muxer@npm:^5.0.3":
   version: 5.1.2
   resolution: "webm-muxer@npm:5.1.2"
   dependencies:

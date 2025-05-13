@@ -13,7 +13,13 @@ type DateFilters =
 
 export type WorkspacePropertyTypes = {
   tags: {
-    filter: 'include' | 'is-not-empty' | 'is-empty';
+    filter:
+      | 'include-all'
+      | 'include-any-of'
+      | 'not-include-all'
+      | 'not-include-any-of'
+      | 'is-not-empty'
+      | 'is-empty';
   };
   text: {
     filter: 'is' | 'is-not' | 'is-not-empty' | 'is-empty';

@@ -1,7 +1,7 @@
 import type { InsertToPosition } from '@blocksuite/affine-shared/utils';
+import type { GeneralServiceIdentifier } from '@blocksuite/global/di';
 import { computed, type ReadonlySignal, signal } from '@preact/signals-core';
 
-import type { DataViewContextKey } from '../data-source/context.js';
 import type { Variable } from '../expression/types.js';
 import type { PropertyMetaConfig } from '../property/property-config.js';
 import type { TraitKey } from '../traits/key.js';
@@ -61,7 +61,8 @@ export interface SingleView {
     type?: string
   ): string | undefined;
 
-  contextGet<T>(key: DataViewContextKey<T>): T;
+  serviceGet<T>(key: GeneralServiceIdentifier<T>): T | null;
+  serviceGetOrCreate<T>(key: GeneralServiceIdentifier<T>, create: () => T): T;
 
   traitGet<T>(key: TraitKey<T>): T | undefined;
 
@@ -201,8 +202,12 @@ export abstract class SingleViewBase<
     return new CellBase(this, propertyId, rowId);
   }
 
-  contextGet<T>(key: DataViewContextKey<T>): T {
-    return this.dataSource.contextGet(key);
+  serviceGet<T>(key: GeneralServiceIdentifier<T>): T | null {
+    return this.dataSource.serviceGet(key);
+  }
+
+  serviceGetOrCreate<T>(key: GeneralServiceIdentifier<T>, create: () => T): T {
+    return this.dataSource.serviceGetOrCreate(key, create);
   }
 
   dataUpdate(updater: (viewData: ViewData) => Partial<ViewData>): void {

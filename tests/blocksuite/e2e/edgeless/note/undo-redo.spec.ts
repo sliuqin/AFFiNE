@@ -56,18 +56,17 @@ test('undo/redo should work correctly after resizing', async ({ page }) => {
   await switchEditorMode(page);
   await zoomResetByKeyboard(page);
   await activeNoteInEdgeless(page, noteId);
-  await waitNextFrame(page, 400);
+  await waitNextFrame(page, 600);
   // current implementation may be a little inefficient
   await fillLine(page, true);
   await page.mouse.click(0, 0);
-  await waitNextFrame(page, 400);
+  await waitNextFrame(page, 600);
   await selectNoteInEdgeless(page, noteId);
 
   const initRect = await getNoteRect(page, noteId);
   const rightHandle = page.locator('.handle[aria-label="right"] .resize');
   const box = await rightHandle.boundingBox();
   if (box === null) throw new Error();
-
   await dragBetweenCoords(
     page,
     { x: box.x + 5, y: box.y + 5 },

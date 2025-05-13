@@ -22,7 +22,9 @@ class MigratingAffineStoreExtension extends StoreExtensionProvider {
 
 interface Configure {
   init: () => Configure;
+
   featureFlag: (featureFlagService?: FeatureFlagService) => Configure;
+
   value: StoreExtensionManager;
 }
 

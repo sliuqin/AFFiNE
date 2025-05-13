@@ -1,17 +1,6 @@
 /* oxlint-disable unicorn/prefer-dom-node-dataset */
 import { test } from '@affine-test/kit/playwright';
-import {
-  changeFilter,
-  checkDatePicker,
-  checkDatePickerMonth,
-  checkFilterName,
-  clickDatePicker,
-  createFirstFilter,
-  createPageWithTag,
-  getPagesCount,
-  selectMonthFromMonthPicker,
-  selectTag,
-} from '@affine-test/kit/utils/filter';
+import { getPagesCount } from '@affine-test/kit/utils/filter';
 import { openHomePage } from '@affine-test/kit/utils/load-page';
 import {
   clickNewPageButton,
@@ -52,75 +41,6 @@ test('all page can create new edgeless page', async ({ page }) => {
   await expect(page.locator('affine-edgeless-root')).toBeVisible();
 });
 
-test('allow creation of filters by favorite', async ({ page }) => {
-  await openHomePage(page);
-  await waitForEditorLoad(page);
-  await clickSideBarAllPageButton(page);
-  await createFirstFilter(page, 'Favourited');
-  await page
-    .locator('[data-testid="filter-arg"]', { hasText: 'true' })
-    .locator('div')
-    .click();
-  expect(await page.locator('[data-testid="filter-arg"]').textContent()).toBe(
-    'false'
-  );
-});
-
-test('use monthpicker to modify the month of datepicker', async ({ page }) => {
-  await openHomePage(page);
-  await waitForEditorLoad(page);
-  await clickSideBarAllPageButton(page);
-  await createFirstFilter(page, 'Created');
-  await checkFilterName(page, 'after');
-  // init date
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  await checkDatePicker(page, yesterday);
-  // change month
-  await clickDatePicker(page);
-  const lastMonth = new Date();
-  lastMonth.setMonth(lastMonth.getMonth() - 1);
-  const datePicker = page.locator(
-    '[role="dialog"] [data-testid="date-picker-calendar"]'
-  );
-  await selectMonthFromMonthPicker(datePicker, lastMonth);
-  await checkDatePickerMonth(datePicker, lastMonth);
-  // change month
-  const nextMonth = new Date();
-  nextMonth.setMonth(nextMonth.getMonth() + 1);
-  await selectMonthFromMonthPicker(datePicker, nextMonth);
-  await checkDatePickerMonth(datePicker, nextMonth);
-});
-
-test('allow creation of filters by tags', async ({ page }) => {
-  await openHomePage(page);
-  await waitForEditorLoad(page);
-  await clickSideBarAllPageButton(page);
-  await waitForAllPagesLoad(page);
-  const pageCount = await getPagesCount(page);
-  expect(pageCount).not.toBe(0);
-  await createFirstFilter(page, 'Tags');
-  await checkFilterName(page, 'is not empty');
-  const pagesWithTags = await page
-    .locator('[data-testid="page-list-item"]')
-    .all();
-  const pagesWithTagsCount = pagesWithTags.length;
-  expect(pagesWithTagsCount).toBe(0);
-  await createPageWithTag(page, { title: 'Page A', tags: ['Page A'] });
-  await createPageWithTag(page, { title: 'Page B', tags: ['Page B'] });
-  await clickSideBarAllPageButton(page);
-  await createFirstFilter(page, 'Tags');
-  await checkFilterName(page, 'is not empty');
-  expect(await getPagesCount(page)).toBe(pagesWithTagsCount + 2);
-  await changeFilter(page, 'contains all');
-  expect(await getPagesCount(page)).toBe(pageCount + 2);
-  await selectTag(page, 'Page A');
-  expect(await getPagesCount(page)).toBe(1);
-  await changeFilter(page, 'does not contains all');
-  await selectTag(page, 'Page B');
-  expect(await getPagesCount(page)).toBe(pageCount + 1);
-});
-
 test('enable selection and use ESC to disable selection', async ({ page }) => {
   await openHomePage(page);
   await waitForEditorLoad(page);
@@ -155,8 +75,8 @@ test('enable selection and use ESC to disable selection', async ({ page }) => {
       .count()
   ).toBeGreaterThan(0);
 
-  // wait for 300ms
-  await page.waitForTimeout(300);
+  // wait for 500ms
+  await page.waitForTimeout(500);
 
   // esc again, checkboxes should disappear
   await page.keyboard.press('Escape');

@@ -20,7 +20,7 @@ async function saveRecordingBlob(blobEngine: BlobEngine, filepath: string) {
     res.arrayBuffer()
   );
   const blob = new Blob([opusBuffer], {
-    type: 'audio/webm',
+    type: 'audio/mp4',
   });
   const blobId = await blobEngine.set(blob);
   logger.debug('Recording saved', blobId);
@@ -51,33 +51,35 @@ export function setupRecordingEvents(frameworkProvider: FrameworkProvider) {
         const docProps: DocProps = {
           onStoreLoad: (doc, { noteId }) => {
             (async () => {
-              // name + timestamp(readable) + extension
-              const attachmentName =
-                (status.appName ?? 'System Audio') + ' ' + timestamp + '.opus';
-
-              // add size and sourceId to the attachment later
-              const attachmentId = doc.addBlock(
-                'affine:attachment',
-                {
-                  name: attachmentName,
-                  type: 'audio/opus',
-                },
-                noteId
-              );
-
-              const model = doc.getBlock(attachmentId)
-                ?.model as AttachmentBlockModel;
-
-              if (model && status.filepath) {
+              if (status.filepath) {
                 // it takes a while to save the blob, so we show the attachment first
                 const { blobId, blob } = await saveRecordingBlob(
                   doc.workspace.blobSync,
                   status.filepath
                 );
 
-                model.props.size = blob.size;
-                model.props.sourceId = blobId;
-                model.props.embed = true;
+                // name + timestamp(readable) + extension
+                const attachmentName =
+                  (status.appName ?? 'System Audio') +
+                  ' ' +
+                  timestamp +
+                  '.opus';
+
+                // add size and sourceId to the attachment later
+                const attachmentId = doc.addBlock(
+                  'affine:attachment',
+                  {
+                    name: attachmentName,
+                    type: 'audio/opus',
+                    size: blob.size,
+                    sourceId: blobId,
+                    embed: true,
+                  },
+                  noteId
+                );
+
+                const model = doc.getBlock(attachmentId)
+                  ?.model as AttachmentBlockModel;
 
                 if (!aiEnabled) {
                   return;

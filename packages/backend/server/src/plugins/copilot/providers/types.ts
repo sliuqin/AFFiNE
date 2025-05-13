@@ -110,12 +110,12 @@ export type CopilotImageOptions = z.infer<typeof CopilotImageOptionsSchema>;
 export interface CopilotTextToTextProvider extends CopilotProvider {
   generateText(
     messages: PromptMessage[],
-    model?: string,
+    model: string,
     options?: CopilotChatOptions
   ): Promise<string>;
   generateTextStream(
     messages: PromptMessage[],
-    model?: string,
+    model: string,
     options?: CopilotChatOptions
   ): AsyncIterable<string>;
 }
@@ -136,7 +136,7 @@ export interface CopilotTextToImageProvider extends CopilotProvider {
   ): Promise<Array<string>>;
   generateImagesStream(
     messages: PromptMessage[],
-    model?: string,
+    model: string,
     options?: CopilotImageOptions
   ): AsyncIterable<string>;
 }
@@ -145,12 +145,12 @@ export interface CopilotImageToTextProvider extends CopilotProvider {
   generateText(
     messages: PromptMessage[],
     model: string,
-    options?: CopilotChatOptions
+    options: CopilotChatOptions
   ): Promise<string>;
   generateTextStream(
     messages: PromptMessage[],
     model: string,
-    options?: CopilotChatOptions
+    options: CopilotChatOptions
   ): AsyncIterable<string>;
 }
 
@@ -162,7 +162,7 @@ export interface CopilotImageToImageProvider extends CopilotProvider {
   ): Promise<Array<string>>;
   generateImagesStream(
     messages: PromptMessage[],
-    model?: string,
+    model: string,
     options?: CopilotImageOptions
   ): AsyncIterable<string>;
 }

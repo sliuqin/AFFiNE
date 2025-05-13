@@ -1,16 +1,15 @@
 import { Button, IconButton, Tooltip } from '@affine/component';
+import { Filters } from '@affine/core/components/filter';
 import type { AllPageListConfig } from '@affine/core/components/hooks/affine/use-all-page-list-config';
 import {
   AffineShapeIcon,
-  FilterList,
-  filterPageByRules,
   List,
   type ListItem,
   ListScrollContainer,
 } from '@affine/core/components/page-list';
+import type { CollectionInfo } from '@affine/core/modules/collection';
+import { CollectionRulesService } from '@affine/core/modules/collection-rules';
 import { DocsService } from '@affine/core/modules/doc';
-import { CompatibleFavoriteItemsAdapter } from '@affine/core/modules/favorite';
-import type { Collection } from '@affine/env/filter';
 import { Trans, useI18n } from '@affine/i18n';
 import type { DocMeta } from '@blocksuite/affine/store';
 import {
@@ -19,11 +18,11 @@ import {
   PageIcon,
   ToggleRightIcon,
 } from '@blocksuite/icons/rc';
-import { useLiveData, useService } from '@toeverything/infra';
+import { useService } from '@toeverything/infra';
 import { cssVar } from '@toeverything/theme';
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import * as styles from './edit-collection.css';
 
@@ -35,8 +34,8 @@ export const RulesMode = ({
   switchMode,
   allPageListConfig,
 }: {
-  collection: Collection;
-  updateCollection: (collection: Collection) => void;
+  collection: CollectionInfo;
+  updateCollection: (collection: CollectionInfo) => void;
   reset: () => void;
   buttons: ReactNode;
   switchMode: ReactNode;
@@ -44,30 +43,50 @@ export const RulesMode = ({
 }) => {
   const t = useI18n();
   const [showPreview, setShowPreview] = useState(true);
-  const allowListPages: DocMeta[] = [];
-  const rulesPages: DocMeta[] = [];
   const docsService = useService(DocsService);
-  const favAdapter = useService(CompatibleFavoriteItemsAdapter);
-  const favorites = useLiveData(favAdapter.favorites$);
-  allPageListConfig.allPages.forEach(meta => {
-    if (meta.trash) {
-      return;
-    }
-    const pageData = {
-      meta,
-      publicMode: allPageListConfig.getPublicMode(meta.id),
-      favorite: favorites.some(f => f.id === meta.id),
+  const collectionRulesService = useService(CollectionRulesService);
+  const [rulesPageIds, setRulesPageIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const subscription = collectionRulesService
+      .watch(
+        collection.rules.filters.length > 0
+          ? [
+              ...collection.rules.filters,
+              {
+                type: 'system',
+                key: 'trash',
+                method: 'is',
+                value: 'false',
+              },
+            ]
+          : [],
+        undefined,
+        undefined
+      )
+      .subscribe(rules => {
+        setRulesPageIds(rules.groups.flatMap(group => group.items));
+      });
+    return () => {
+      subscription.unsubscribe();
     };
-    if (
-      collection.filterList.length &&
-      filterPageByRules(collection.filterList, [], pageData)
-    ) {
-      rulesPages.push(meta);
-    }
-    if (collection.allowList.includes(meta.id)) {
-      allowListPages.push(meta);
-    }
-  });
+  }, [collection, collectionRulesService]);
+
+  const rulesPages = useMemo(() => {
+    return allPageListConfig.allPages.filter(meta => {
+      return rulesPageIds.includes(meta.id);
+    });
+  }, [allPageListConfig.allPages, rulesPageIds]);
+
+  const allowListPages = useMemo(() => {
+    return allPageListConfig.allPages.filter(meta => {
+      return (
+        collection.allowList.includes(meta.id) &&
+        !rulesPageIds.includes(meta.id)
+      );
+    });
+  }, [allPageListConfig.allPages, collection.allowList, rulesPageIds]);
+
   const [expandInclude, setExpandInclude] = useState(
     collection.allowList.length > 0
   );
@@ -113,13 +132,17 @@ export const RulesMode = ({
                 overflowY: 'auto',
               }}
             >
-              <FilterList
-                propertiesMeta={allPageListConfig.docCollection.meta.properties}
-                value={collection.filterList}
-                onChange={useCallback(
-                  filterList => updateCollection({ ...collection, filterList }),
-                  [collection, updateCollection]
-                )}
+              <Filters
+                filters={collection.rules.filters}
+                onChange={filters => {
+                  updateCollection({
+                    ...collection,
+                    rules: {
+                      ...collection.rules,
+                      filters,
+                    },
+                  });
+                }}
               />
               <div className={styles.rulesContainerLeftContentInclude}>
                 {collection.allowList.length > 0 ? (
@@ -215,7 +238,7 @@ export const RulesMode = ({
             ></List>
           ) : (
             <RulesEmpty
-              noRules={collection.filterList.length === 0}
+              noRules={collection.rules.filters.length === 0}
               fullHeight={allowListPages.length === 0}
             />
           )}

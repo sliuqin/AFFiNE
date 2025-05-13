@@ -47,12 +47,13 @@ export const useCreateUser = () => {
   const revalidate = useMutateQueryResource();
 
   const create = useAsyncCallback(
-    async ({ name, email, features }: UserInput) => {
+    async ({ name, email, password, features }: UserInput) => {
       try {
         const account = await createAccount({
           input: {
             name,
             email,
+            password: password === '' ? undefined : password,
           },
         });
 

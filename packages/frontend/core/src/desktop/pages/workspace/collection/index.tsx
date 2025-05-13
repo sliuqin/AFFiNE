@@ -1,12 +1,13 @@
-import { notify } from '@affine/component';
 import { EmptyCollectionDetail } from '@affine/core/components/affine/empty/collection-detail';
 import { VirtualizedPageList } from '@affine/core/components/page-list';
-import { CollectionService } from '@affine/core/modules/collection';
+import {
+  type Collection,
+  CollectionService,
+} from '@affine/core/modules/collection';
 import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { GlobalContextService } from '@affine/core/modules/global-context';
 import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import { WorkspaceService } from '@affine/core/modules/workspace';
-import type { Collection } from '@affine/env/filter';
 import { useI18n } from '@affine/i18n';
 import { ViewLayersIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService, useServices } from '@toeverything/infra';
@@ -21,6 +22,7 @@ import {
   ViewIcon,
   ViewTitle,
 } from '../../../../modules/workbench';
+import { PageNotFound } from '../../404';
 import { AllDocSidebarTabs } from '../layouts/all-doc-sidebar-tabs';
 import { CollectionDetailHeader } from './header';
 
@@ -68,29 +70,15 @@ export const Component = function CollectionPage() {
     GlobalContextService,
   });
   const globalContext = globalContextService.globalContext;
-
-  const collections = useLiveData(collectionService.collections$);
-  const navigate = useNavigateHelper();
+  const t = useI18n();
   const params = useParams();
-  const workspace = useService(WorkspaceService).workspace;
-  const collection = collections.find(v => v.id === params.collectionId);
+  const collection = useLiveData(
+    params.collectionId
+      ? collectionService.collection$(params.collectionId)
+      : null
+  );
+  const name = useLiveData(collection?.name$);
   const isActiveView = useIsActiveView();
-
-  const notifyCollectionDeleted = useCallback(() => {
-    navigate.jumpToPage(workspace.id, 'all');
-    const collection = collectionService.collectionsTrash$.value.find(
-      v => v.collection.id === params.collectionId
-    );
-    let text = 'Collection does not exist';
-    if (collection) {
-      if (collection.userId) {
-        text = `${collection.collection.name} has been deleted by ${collection.userName}`;
-      } else {
-        text = `${collection.collection.name} has been deleted`;
-      }
-    }
-    return notify.error({ title: text });
-  }, [collectionService, navigate, params.collectionId, workspace.id]);
 
   useEffect(() => {
     if (isActiveView && collection) {
@@ -105,25 +93,22 @@ export const Component = function CollectionPage() {
     return;
   }, [collection, globalContext, isActiveView]);
 
-  useEffect(() => {
-    if (!collection) {
-      notifyCollectionDeleted();
-    }
-  }, [collection, notifyCollectionDeleted]);
+  const info = useLiveData(collection?.info$);
 
   if (!collection) {
-    return null;
+    return <PageNotFound />;
   }
-  const inner = isEmptyCollection(collection) ? (
-    <Placeholder collection={collection} />
-  ) : (
-    <CollectionDetail collection={collection} />
-  );
+  const inner =
+    info?.allowList.length === 0 && info?.rules.filters.length === 0 ? (
+      <Placeholder collection={collection} />
+    ) : (
+      <CollectionDetail collection={collection} />
+    );
 
   return (
     <>
       <ViewIcon icon="collection" />
-      <ViewTitle title={collection.name} />
+      <ViewTitle title={name ?? t['Untitled']()} />
       <AllDocSidebarTabs />
       {inner}
     </>
@@ -134,6 +119,7 @@ const Placeholder = ({ collection }: { collection: Collection }) => {
   const workspace = useService(WorkspaceService).workspace;
   const { jumpToCollections } = useNavigateHelper();
   const t = useI18n();
+  const name = useLiveData(collection?.name$);
 
   const handleJumpToCollections = useCallback(() => {
     jumpToCollections(workspace.id);
@@ -176,7 +162,7 @@ const Placeholder = ({ collection }: { collection: Collection }) => {
               ['WebkitAppRegion' as string]: 'no-drag',
             }}
           >
-            {collection.name}
+            {name ?? t['Untitled']()}
           </div>
           <div style={{ flex: 1 }} />
         </div>
@@ -188,11 +174,5 @@ const Placeholder = ({ collection }: { collection: Collection }) => {
         />
       </ViewBody>
     </>
-  );
-};
-
-export const isEmptyCollection = (collection: Collection) => {
-  return (
-    collection.allowList.length === 0 && collection.filterList.length === 0
   );
 };

@@ -201,16 +201,16 @@ const MeetingsSettingsMain = () => {
         beta
         title={t['com.affine.settings.meetings']()}
         subtitle={
-          t['com.affine.settings.meetings.setting.prompt']() +
-          '\n' +
-          (
+          <>
+            {t['com.affine.settings.meetings.setting.prompt']()}
+            <br />
             <Trans
               i18nKey="com.affine.settings.meetings.setting.prompt.2"
               components={{
                 strong: <strong />,
               }}
             />
-          )
+          </>
         }
       />
 

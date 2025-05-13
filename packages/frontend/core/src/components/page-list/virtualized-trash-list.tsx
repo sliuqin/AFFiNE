@@ -1,11 +1,12 @@
 import { toast, useConfirmModal } from '@affine/component';
 import { useBlockSuiteMetaHelper } from '@affine/core/components/hooks/affine/use-block-suite-meta-helper';
 import { useBlockSuiteDocMeta } from '@affine/core/components/hooks/use-block-suite-page-meta';
+import { DocsService } from '@affine/core/modules/doc';
 import { GuardService } from '@affine/core/modules/permissions';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { Trans, useI18n } from '@affine/i18n';
 import type { DocMeta } from '@blocksuite/affine/store';
-import { useService } from '@toeverything/infra';
+import { LiveData, useLiveData, useService } from '@toeverything/infra';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { ListFloatingToolbar } from './components/list-floating-toolbar';
@@ -14,7 +15,6 @@ import { TrashOperationCell } from './operation-cell';
 import { PageListItemRenderer } from './page-group';
 import { ListTableHeader } from './page-header';
 import type { ItemListHandle, ListItem } from './types';
-import { useFilteredPageMetas } from './use-filtered-page-metas';
 import { VirtualizedList } from './virtualized-list';
 
 export const VirtualizedTrashList = ({
@@ -25,13 +25,17 @@ export const VirtualizedTrashList = ({
   disableMultiRestore?: boolean;
 }) => {
   const currentWorkspace = useService(WorkspaceService).workspace;
+  const docsService = useService(DocsService);
   const guardService = useService(GuardService);
   const docCollection = currentWorkspace.docCollection;
   const { restoreFromTrash, permanentlyDeletePage } = useBlockSuiteMetaHelper();
+  const allTrashPageIds = useLiveData(
+    LiveData.from(docsService.allTrashDocIds$(), [])
+  );
   const pageMetas = useBlockSuiteDocMeta(docCollection);
-  const filteredPageMetas = useFilteredPageMetas(pageMetas, {
-    trash: true,
-  });
+  const filteredPageMetas = useMemo(() => {
+    return pageMetas.filter(page => allTrashPageIds.includes(page.id));
+  }, [pageMetas, allTrashPageIds]);
 
   const listRef = useRef<ItemListHandle>(null);
   const [showFloatingToolbar, setShowFloatingToolbar] = useState(false);

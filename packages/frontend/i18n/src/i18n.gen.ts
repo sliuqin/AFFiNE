@@ -5723,6 +5723,14 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.settings.workspace.experimental-features.enable-citation.description"](): string;
     /**
+      * `Link Preview Cache`
+      */
+    ["com.affine.settings.workspace.experimental-features.enable-link-preview-cache.name"](): string;
+    /**
+      * `Once enabled, the link preview will be cached and cached data will be used when the same link is fetched again. Otherwise, the link preview will be fetched every time.`
+      */
+    ["com.affine.settings.workspace.experimental-features.enable-link-preview-cache.description"](): string;
+    /**
       * `Embed Iframe Block`
       */
     ["com.affine.settings.workspace.experimental-features.enable-embed-iframe-block.name"](): string;

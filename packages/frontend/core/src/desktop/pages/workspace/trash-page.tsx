@@ -1,16 +1,14 @@
 import { useBlockSuiteDocMeta } from '@affine/core/components/hooks/use-block-suite-page-meta';
-import {
-  useFilteredPageMetas,
-  VirtualizedTrashList,
-} from '@affine/core/components/page-list';
+import { VirtualizedTrashList } from '@affine/core/components/page-list';
 import { Header } from '@affine/core/components/pure/header';
+import { DocsService } from '@affine/core/modules/doc';
 import { GlobalContextService } from '@affine/core/modules/global-context';
 import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { useI18n } from '@affine/i18n';
 import { DeleteIcon } from '@blocksuite/icons/rc';
-import { useLiveData, useService } from '@toeverything/infra';
-import { useEffect } from 'react';
+import { LiveData, useLiveData, useService } from '@toeverything/infra';
+import { useEffect, useMemo } from 'react';
 
 import {
   useIsActiveView,
@@ -43,11 +41,15 @@ export const TrashPage = () => {
   const isAdmin = useLiveData(permissionService.permission.isAdmin$);
   const isOwner = useLiveData(permissionService.permission.isOwner$);
   const docCollection = currentWorkspace.docCollection;
+  const docsService = useService(DocsService);
+  const allTrashPageIds = useLiveData(
+    LiveData.from(docsService.allTrashDocIds$(), [])
+  );
 
   const pageMetas = useBlockSuiteDocMeta(docCollection);
-  const filteredPageMetas = useFilteredPageMetas(pageMetas, {
-    trash: true,
-  });
+  const filteredPageMetas = useMemo(() => {
+    return pageMetas.filter(page => allTrashPageIds.includes(page.id));
+  }, [pageMetas, allTrashPageIds]);
 
   const isActiveView = useIsActiveView();
 

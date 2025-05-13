@@ -135,6 +135,7 @@ declare global {
       isRootSession?: boolean;
       webSearch?: boolean;
       reasoning?: boolean;
+      modelId?: string;
       contexts?: {
         docs: AIDocContextOption[];
         files: AIFileContextOption[];

@@ -1,4 +1,5 @@
 import type { ReactToLit } from '@affine/component';
+import { AIViewExtension } from '@affine/core/blocksuite/extensions/ai';
 import { CloudViewExtension } from '@affine/core/blocksuite/extensions/cloud';
 import {
   EdgelessBlockHeaderConfigViewExtension,
@@ -7,22 +8,58 @@ import {
 import { AffineEditorConfigViewExtension } from '@affine/core/blocksuite/extensions/editor-config';
 import { createDatabaseOptionsConfig } from '@affine/core/blocksuite/extensions/editor-config/database';
 import { createLinkedWidgetConfig } from '@affine/core/blocksuite/extensions/editor-config/linked';
+import { ElectronViewExtension } from '@affine/core/blocksuite/extensions/electron';
+import { AffineLinkPreviewExtension } from '@affine/core/blocksuite/extensions/link-preview-service';
+import { MobileViewExtension } from '@affine/core/blocksuite/extensions/mobile';
 import { PdfViewExtension } from '@affine/core/blocksuite/extensions/pdf';
 import { AffineThemeViewExtension } from '@affine/core/blocksuite/extensions/theme';
 import { TurboRendererViewExtension } from '@affine/core/blocksuite/extensions/turbo-renderer';
-import { AffineCommonViewExtension } from '@affine/core/blocksuite/manager/common-view';
 import {
   AffineEditorViewExtension,
   type AffineEditorViewOptions,
 } from '@affine/core/blocksuite/manager/editor-view';
+import { PeekViewService } from '@affine/core/modules/peek-view';
+import { DebugLogger } from '@affine/debug';
+import { mixpanel } from '@affine/track';
 import { DatabaseViewExtension } from '@blocksuite/affine/blocks/database/view';
 import { ParagraphViewExtension } from '@blocksuite/affine/blocks/paragraph/view';
+import type {
+  PeekOptions,
+  PeekViewService as BSPeekViewService,
+} from '@blocksuite/affine/components/peek';
 import { ViewExtensionManager } from '@blocksuite/affine/ext-loader';
 import { getInternalViewExtensions } from '@blocksuite/affine/extensions/view';
+import { FoundationViewExtension } from '@blocksuite/affine/foundation/view';
+import { AffineCanvasTextFonts } from '@blocksuite/affine/shared/services';
 import { LinkedDocViewExtension } from '@blocksuite/affine/widgets/linked-doc/view';
 import type { FrameworkProvider } from '@toeverything/infra';
+import type { TemplateResult } from 'lit';
 
 import { CodeBlockPreviewViewExtension } from './code-block-preview';
+
+type Configure = {
+  init: () => Configure;
+
+  foundation: (framework?: FrameworkProvider) => Configure;
+  editorView: (options?: AffineEditorViewOptions) => Configure;
+  theme: (framework?: FrameworkProvider) => Configure;
+  editorConfig: (framework?: FrameworkProvider) => Configure;
+  edgelessBlockHeader: (options?: EdgelessBlockHeaderViewOptions) => Configure;
+  database: (framework?: FrameworkProvider) => Configure;
+  linkedDoc: (framework?: FrameworkProvider) => Configure;
+  paragraph: (enableAI?: boolean) => Configure;
+  cloud: (framework?: FrameworkProvider, enableCloud?: boolean) => Configure;
+  turboRenderer: (enableTurboRenderer?: boolean) => Configure;
+  pdf: (enablePDFEmbedPreview?: boolean, reactToLit?: ReactToLit) => Configure;
+  mobile: (framework?: FrameworkProvider) => Configure;
+  ai: (enable?: boolean, framework?: FrameworkProvider) => Configure;
+  electron: (framework?: FrameworkProvider) => Configure;
+  linkPreview: (framework?: FrameworkProvider) => Configure;
+
+  value: ViewExtensionManager;
+};
+
+const peekViewLogger = new DebugLogger('affine::patch-peek-view-service');
 
 class ViewProvider {
   static instance: ViewProvider | null = null;
@@ -40,7 +77,6 @@ class ViewProvider {
       ...getInternalViewExtensions(),
 
       AffineThemeViewExtension,
-      AffineCommonViewExtension,
       AffineEditorViewExtension,
       AffineEditorConfigViewExtension,
       CodeBlockPreviewViewExtension,
@@ -48,6 +84,10 @@ class ViewProvider {
       TurboRendererViewExtension,
       CloudViewExtension,
       PdfViewExtension,
+      MobileViewExtension,
+      AIViewExtension,
+      ElectronViewExtension,
+      AffineLinkPreviewExtension,
     ]);
   }
 
@@ -55,10 +95,10 @@ class ViewProvider {
     return this._manager;
   }
 
-  get config() {
+  get config(): Configure {
     return {
       init: this._initDefaultConfig,
-      common: this._configureCommon,
+      foundation: this._configureFoundation,
       editorView: this._configureEditorView,
       theme: this._configureTheme,
       editorConfig: this._configureEditorConfig,
@@ -69,13 +109,17 @@ class ViewProvider {
       cloud: this._configureCloud,
       turboRenderer: this._configureTurboRenderer,
       pdf: this._configurePdf,
+      mobile: this._configureMobile,
+      ai: this._configureAI,
+      electron: this._configureElectron,
+      linkPreview: this._configureLinkPreview,
       value: this._manager,
     };
   }
 
   private readonly _initDefaultConfig = () => {
     this.config
-      .common()
+      .foundation()
       .theme()
       .editorView()
       .editorConfig()
@@ -85,19 +129,55 @@ class ViewProvider {
       .paragraph()
       .cloud()
       .turboRenderer()
-      .pdf();
+      .pdf()
+      .mobile()
+      .ai()
+      .electron()
+      .linkPreview();
 
     return this.config;
   };
 
-  private readonly _configureCommon = (
-    framework?: FrameworkProvider,
-    enableAI?: boolean
-  ) => {
-    this._manager.configure(AffineCommonViewExtension, {
-      framework,
-      enableAI,
+  private readonly _configureFoundation = (framework?: FrameworkProvider) => {
+    const peekViewService = framework?.get(PeekViewService);
+
+    this._manager.configure(FoundationViewExtension, {
+      telemetry: {
+        track: (eventName, props) => {
+          mixpanel.track(eventName, props);
+        },
+      },
+      fontConfig: AffineCanvasTextFonts.map(font => ({
+        ...font,
+        url: environment.publicPath + 'fonts/' + font.url.split('/').pop(),
+      })),
+      peekView: !peekViewService
+        ? undefined
+        : ({
+            peek: (
+              element: {
+                target: HTMLElement;
+                docId: string;
+                blockIds?: string[];
+                template?: TemplateResult;
+              },
+              options?: PeekOptions
+            ) => {
+              peekViewLogger.debug('center peek', element);
+              const { template, target, ...props } = element;
+
+              return peekViewService.peekView.open(
+                {
+                  element: target,
+                  docRef: props,
+                },
+                template,
+                options?.abortSignal
+              );
+            },
+          } satisfies BSPeekViewService),
     });
+
     return this.config;
   };
 
@@ -146,7 +226,23 @@ class ViewProvider {
   };
 
   private readonly _configureParagraph = (enableAI?: boolean) => {
-    if (enableAI) {
+    if (BUILD_CONFIG.isMobileEdition) {
+      this._manager.configure(ParagraphViewExtension, {
+        getPlaceholder: model => {
+          const placeholders = {
+            text: '',
+            h1: 'Heading 1',
+            h2: 'Heading 2',
+            h3: 'Heading 3',
+            h4: 'Heading 4',
+            h5: 'Heading 5',
+            h6: 'Heading 6',
+            quote: '',
+          };
+          return placeholders[model.props.type] ?? '';
+        },
+      });
+    } else if (enableAI) {
       this._manager.configure(ParagraphViewExtension, {
         getPlaceholder: model => {
           const placeholders = {
@@ -191,6 +287,29 @@ class ViewProvider {
       enablePDFEmbedPreview,
       reactToLit,
     });
+    return this.config;
+  };
+
+  private readonly _configureMobile = (framework?: FrameworkProvider) => {
+    this._manager.configure(MobileViewExtension, { framework });
+    return this.config;
+  };
+
+  private readonly _configureAI = (
+    enable?: boolean,
+    framework?: FrameworkProvider
+  ) => {
+    this._manager.configure(AIViewExtension, { framework, enable });
+    return this.config;
+  };
+
+  private readonly _configureElectron = (framework?: FrameworkProvider) => {
+    this._manager.configure(ElectronViewExtension, { framework });
+    return this.config;
+  };
+
+  private readonly _configureLinkPreview = (framework?: FrameworkProvider) => {
+    this._manager.configure(AffineLinkPreviewExtension, { framework });
     return this.config;
   };
 }

@@ -1,5 +1,6 @@
-import type { IVec } from '@blocksuite/global/gfx';
+import type { ResizeHandle } from '@blocksuite/std/gfx';
 import { html, nothing } from 'lit';
+import { repeat } from 'lit/directives/repeat.js';
 
 export enum HandleDirection {
   Bottom = 'bottom',
@@ -12,62 +13,51 @@ export enum HandleDirection {
   TopRight = 'top-right',
 }
 
-function ResizeHandle(
-  handleDirection: HandleDirection,
-  onPointerDown?: (e: PointerEvent, direction: HandleDirection) => void,
-  updateCursor?: (
-    dragging: boolean,
-    options?: {
-      type: 'resize' | 'rotate';
-      target?: HTMLElement;
-      point?: IVec;
-    }
-  ) => void,
-  hideEdgeHandle?: boolean
+function ResizeHandleRenderer(
+  handle: ResizeHandle,
+  rotatable: boolean,
+  onPointerDown?: (e: PointerEvent, direction: ResizeHandle) => void,
+  updateCursor?: (options?: {
+    type: 'resize' | 'rotate';
+    handle: ResizeHandle;
+  }) => void
 ) {
   const handlerPointerDown = (e: PointerEvent) => {
     e.stopPropagation();
-    onPointerDown && onPointerDown(e, handleDirection);
+    onPointerDown && onPointerDown(e, handle);
   };
 
   const pointerEnter = (type: 'resize' | 'rotate') => (e: PointerEvent) => {
     e.stopPropagation();
     if (e.buttons === 1 || !updateCursor) return;
 
-    const { clientX, clientY } = e;
-    const target = e.target as HTMLElement;
-    const point: IVec = [clientX, clientY];
-
-    updateCursor(true, { type, point, target });
+    updateCursor({ type, handle });
   };
 
   const pointerLeave = (e: PointerEvent) => {
     e.stopPropagation();
     if (e.buttons === 1 || !updateCursor) return;
 
-    updateCursor(false);
+    updateCursor();
   };
 
   const rotationTpl =
-    handleDirection === HandleDirection.Top ||
-    handleDirection === HandleDirection.Bottom ||
-    handleDirection === HandleDirection.Left ||
-    handleDirection === HandleDirection.Right
-      ? nothing
-      : html`<div
+    handle.length > 6 && rotatable
+      ? html`<div
           class="rotate"
           @pointerover=${pointerEnter('rotate')}
           @pointerout=${pointerLeave}
-        ></div>`;
+        ></div>`
+      : nothing;
 
   return html`<div
     class="handle"
-    aria-label=${handleDirection}
+    aria-label=${handle}
     @pointerdown=${handlerPointerDown}
   >
     ${rotationTpl}
     <div
-      class="resize${hideEdgeHandle && ' transparent-handle'}"
+      class="resize transparent-handle"
       @pointerover=${pointerEnter('resize')}
       @pointerout=${pointerLeave}
     ></div>
@@ -85,135 +75,21 @@ function ResizeHandle(
  */
 export type ResizeMode = 'edge' | 'all' | 'none' | 'corner' | 'edgeAndCorner';
 
-export function ResizeHandles(
-  resizeMode: ResizeMode,
-  onPointerDown: (e: PointerEvent, direction: HandleDirection) => void,
-  updateCursor?: (
-    dragging: boolean,
-    options?: {
-      type: 'resize' | 'rotate';
-      target?: HTMLElement;
-      point?: IVec;
-    }
-  ) => void
+export function RenderResizeHandles(
+  resizeHandles: ResizeHandle[],
+  rotatable: boolean,
+  onPointerDown: (e: PointerEvent, direction: ResizeHandle) => void,
+  updateCursor?: (options?: {
+    type: 'resize' | 'rotate';
+    handle: ResizeHandle;
+  }) => void
 ) {
-  const getCornerHandles = () => {
-    const handleTopLeft = ResizeHandle(
-      HandleDirection.TopLeft,
-      onPointerDown,
-      updateCursor
-    );
-    const handleTopRight = ResizeHandle(
-      HandleDirection.TopRight,
-      onPointerDown,
-      updateCursor
-    );
-    const handleBottomLeft = ResizeHandle(
-      HandleDirection.BottomLeft,
-      onPointerDown,
-      updateCursor
-    );
-    const handleBottomRight = ResizeHandle(
-      HandleDirection.BottomRight,
-      onPointerDown,
-      updateCursor
-    );
-    return {
-      handleTopLeft,
-      handleTopRight,
-      handleBottomLeft,
-      handleBottomRight,
-    };
-  };
-  const getEdgeHandles = (hideEdgeHandle?: boolean) => {
-    const handleLeft = ResizeHandle(
-      HandleDirection.Left,
-      onPointerDown,
-      updateCursor,
-      hideEdgeHandle
-    );
-    const handleRight = ResizeHandle(
-      HandleDirection.Right,
-      onPointerDown,
-      updateCursor,
-      hideEdgeHandle
-    );
-    return { handleLeft, handleRight };
-  };
-  const getEdgeVerticalHandles = (hideEdgeHandle?: boolean) => {
-    const handleTop = ResizeHandle(
-      HandleDirection.Top,
-      onPointerDown,
-      updateCursor,
-      hideEdgeHandle
-    );
-    const handleBottom = ResizeHandle(
-      HandleDirection.Bottom,
-      onPointerDown,
-      updateCursor,
-      hideEdgeHandle
-    );
-    return { handleTop, handleBottom };
-  };
-  switch (resizeMode) {
-    case 'corner': {
-      const {
-        handleTopLeft,
-        handleTopRight,
-        handleBottomLeft,
-        handleBottomRight,
-      } = getCornerHandles();
-
-      // prettier-ignore
-      return html`
-        ${handleTopLeft}
-        ${handleTopRight}
-        ${handleBottomLeft}
-        ${handleBottomRight}
-      `;
-    }
-    case 'edge': {
-      const { handleLeft, handleRight } = getEdgeHandles();
-      return html`${handleLeft} ${handleRight}`;
-    }
-    case 'all': {
-      const {
-        handleTopLeft,
-        handleTopRight,
-        handleBottomLeft,
-        handleBottomRight,
-      } = getCornerHandles();
-      const { handleLeft, handleRight } = getEdgeHandles(true);
-      const { handleTop, handleBottom } = getEdgeVerticalHandles(true);
-
-      // prettier-ignore
-      return html`
-        ${handleTopLeft}
-        ${handleTop}
-        ${handleTopRight}
-        ${handleRight}
-        ${handleBottomRight}
-        ${handleBottom}
-        ${handleBottomLeft}
-        ${handleLeft}
-      `;
-    }
-    case 'edgeAndCorner': {
-      const {
-        handleTopLeft,
-        handleTopRight,
-        handleBottomLeft,
-        handleBottomRight,
-      } = getCornerHandles();
-      const { handleLeft, handleRight } = getEdgeHandles(true);
-
-      return html`
-        ${handleTopLeft} ${handleTopRight} ${handleRight} ${handleBottomRight}
-        ${handleBottomLeft} ${handleLeft}
-      `;
-    }
-    case 'none': {
-      return nothing;
-    }
-  }
+  return html`
+    ${repeat(
+      resizeHandles,
+      handle => handle,
+      handle =>
+        ResizeHandleRenderer(handle, rotatable, onPointerDown, updateCursor)
+    )}
+  `;
 }

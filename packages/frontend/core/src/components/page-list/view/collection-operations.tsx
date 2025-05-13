@@ -1,10 +1,8 @@
 import type { MenuItemProps } from '@affine/component';
 import { Menu, MenuItem, usePromptModal } from '@affine/component';
-import { useDeleteCollectionInfo } from '@affine/core/components/hooks/affine/use-delete-collection-info';
 import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { CompatibleFavoriteItemsAdapter } from '@affine/core/modules/favorite';
 import { WorkbenchService } from '@affine/core/modules/workbench';
-import type { Collection } from '@affine/env/filter';
 import { useI18n } from '@affine/i18n';
 import {
   DeleteIcon,
@@ -18,7 +16,10 @@ import { useLiveData, useService, useServices } from '@toeverything/infra';
 import type { PropsWithChildren, ReactElement } from 'react';
 import { useCallback, useMemo } from 'react';
 
-import { CollectionService } from '../../../modules/collection';
+import {
+  type Collection,
+  CollectionService,
+} from '../../../modules/collection';
 import { IsFavoriteIcon } from '../../pure/icons';
 import * as styles from './collection-operations.css';
 
@@ -41,7 +42,6 @@ export const CollectionOperations = ({
     WorkbenchService,
     WorkspaceDialogService,
   });
-  const deleteInfo = useDeleteCollectionInfo();
   const workbench = workbenchService.workbench;
   const t = useI18n();
   const { openPromptModal } = usePromptModal();
@@ -63,10 +63,9 @@ export const CollectionOperations = ({
         variant: 'primary',
       },
       onConfirm(name) {
-        service.updateCollection(collection.id, () => ({
-          ...collection,
+        service.updateCollection(collection.id, {
           name,
-        }));
+        });
       },
     });
   }, [openRenameModal, openPromptModal, t, service, collection]);
@@ -160,7 +159,7 @@ export const CollectionOperations = ({
         icon: <DeleteIcon />,
         name: t['Delete'](),
         click: () => {
-          service.deleteCollection(deleteInfo, collection.id);
+          service.deleteCollection(collection.id);
         },
         type: 'danger',
       },
@@ -175,7 +174,6 @@ export const CollectionOperations = ({
       openCollectionNewTab,
       openCollectionSplitView,
       service,
-      deleteInfo,
       collection.id,
     ]
   );

@@ -1,3 +1,4 @@
+import type { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { WorkspaceImpl } from '@affine/core/modules/workspace/impls/workspace';
 import type { ServiceProvider } from '@blocksuite/affine/global/di';
 import {
@@ -161,11 +162,13 @@ export async function markDownToDoc(
   provider: ServiceProvider,
   schema: Schema,
   answer: string,
-  middlewares?: TransformerMiddleware[]
+  middlewares?: TransformerMiddleware[],
+  affineFeatureFlagService?: FeatureFlagService
 ) {
   // Should not create a new doc in the original collection
   const collection = new WorkspaceImpl({
     rootDoc: new YDoc({ guid: 'markdownToDoc' }),
+    featureFlagService: affineFeatureFlagService,
   });
   collection.meta.initialize();
   const transformer = new Transformer({

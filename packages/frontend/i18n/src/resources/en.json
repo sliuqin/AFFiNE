@@ -1429,6 +1429,8 @@
   "com.affine.settings.workspace.experimental-features.enable-callout.description": "Let your words stand out. This also include the callout in the transcription block.",
   "com.affine.settings.workspace.experimental-features.enable-citation.name": "Citation",
   "com.affine.settings.workspace.experimental-features.enable-citation.description": "Enable citation feature.",
+  "com.affine.settings.workspace.experimental-features.enable-link-preview-cache.name": "Link Preview Cache",
+  "com.affine.settings.workspace.experimental-features.enable-link-preview-cache.description": "Once enabled, the link preview will be cached and cached data will be used when the same link is fetched again. Otherwise, the link preview will be fetched every time.",
   "com.affine.settings.workspace.experimental-features.enable-embed-iframe-block.name": "Embed Iframe Block",
   "com.affine.settings.workspace.experimental-features.enable-embed-iframe-block.description": "Enables Embed Iframe Block.",
   "com.affine.settings.workspace.experimental-features.enable-emoji-folder-icon.name": "Emoji Folder Icon",

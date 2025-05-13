@@ -7,6 +7,7 @@ import { literal } from 'lit/static-html.js';
 import { EmbedIframeBlockAdapterExtensions } from './adapters';
 import { embedIframeSlashMenuConfig } from './configs/slash-menu/slash-menu';
 import { createBuiltinToolbarConfigExtension } from './configs/toolbar';
+import { EmbedIframeInteraction } from './embed-edgeless-iframe-block';
 
 const flavour = EmbedIframeBlockSchema.model.flavour;
 
@@ -31,4 +32,5 @@ export const EmbedIframeViewExtensions: ExtensionType[] = [
   }),
   createBuiltinToolbarConfigExtension(flavour),
   SlashMenuConfigExtension(flavour, embedIframeSlashMenuConfig),
+  EmbedIframeInteraction,
 ].flat();

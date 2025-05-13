@@ -14,7 +14,6 @@ import { TagService } from '@affine/core/modules/tag';
 import { WorkbenchService } from '@affine/core/modules/workbench';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { inferOpenMode } from '@affine/core/utils';
-import type { Collection } from '@affine/env/filter';
 import { useI18n } from '@affine/i18n';
 import { track } from '@affine/track';
 import type { DocMode } from '@blocksuite/affine/model';
@@ -29,8 +28,10 @@ import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { usePageHelper } from '../../../blocksuite/block-suite-page-list/utils';
-import { CollectionService } from '../../../modules/collection';
-import { createTagFilter } from '../filter/utils';
+import {
+  type Collection,
+  CollectionService,
+} from '../../../modules/collection';
 import { SaveAsCollectionButton } from '../view';
 import * as styles from './page-list-header.css';
 import { PageListNewPageButton } from './page-list-new-page-button';
@@ -133,11 +134,12 @@ export const CollectionPageListHeader = ({
   const workspace = workspaceService.workspace;
   const { createEdgeless, createPage } = usePageHelper(workspace.docCollection);
   const { openConfirmModal } = useConfirmModal();
+  const name = useLiveData(collection.name$);
 
   const createAndAddDocument = useCallback(
     (createDocumentFn: () => DocRecord) => {
       const newDoc = createDocumentFn();
-      collectionService.addPageToCollection(collection.id, newDoc.id);
+      collectionService.addDocToCollection(collection.id, newDoc.id);
     },
     [collection.id, collectionService]
   );
@@ -183,7 +185,7 @@ export const CollectionPageListHeader = ({
         <div className={styles.titleIcon}>
           <ViewLayersIcon />
         </div>
-        <div className={styles.titleCollectionName}>{collection.name}</div>
+        <div className={styles.titleCollectionName}>{name}</div>
       </div>
       <div className={styles.rightButtonGroup}>
         <Button onClick={handleEdit}>{t['Edit']()}</Button>
@@ -221,12 +223,21 @@ export const TagPageListHeader = ({
   }, [jumpToTags, workspaceId]);
 
   const saveToCollection = useCallback(
-    (collection: Collection) => {
-      collectionService.addCollection({
-        ...collection,
-        filterList: [createTagFilter(tag.id)],
+    (collectionName: string) => {
+      const id = collectionService.createCollection({
+        name: collectionName,
+        rules: {
+          filters: [
+            {
+              type: 'system',
+              key: 'tags',
+              method: 'include-all',
+              value: tag.id,
+            },
+          ],
+        },
       });
-      jumpToCollection(workspaceId, collection.id);
+      jumpToCollection(workspaceId, id);
     },
     [collectionService, tag.id, jumpToCollection, workspaceId]
   );

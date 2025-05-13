@@ -520,10 +520,13 @@ export function newRecording(
 export function startRecording(
   appGroup?: AppGroupInfo | number
 ): RecordingStatus | null {
-  const state = recordingStateMachine.dispatch({
-    type: 'START_RECORDING',
-    appGroup: normalizeAppGroupInfo(appGroup),
-  });
+  const state = recordingStateMachine.dispatch(
+    {
+      type: 'START_RECORDING',
+      appGroup: normalizeAppGroupInfo(appGroup),
+    },
+    false
+  );
 
   if (state?.status === 'recording') {
     createRecording(state);
@@ -541,6 +544,8 @@ export function startRecording(
       });
     }
   }, MAX_DURATION_FOR_TRANSCRIPTION);
+
+  recordingStateMachine.status$.next(state);
 
   return state;
 }
@@ -654,6 +659,8 @@ export async function getRawAudioBuffers(
 }
 
 export async function readyRecording(id: number, buffer: Buffer) {
+  logger.info('readyRecording', id);
+
   const recordingStatus = recordingStatus$.value;
   const recording = recordings.get(id);
   if (!recordingStatus || recordingStatus.id !== id || !recording) {

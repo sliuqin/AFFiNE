@@ -1,8 +1,6 @@
 import { toast } from '@affine/component';
-import type {
-  CollectionMeta,
-  TagMeta,
-} from '@affine/core/components/page-list';
+import type { TagMeta } from '@affine/core/components/page-list';
+import type { CollectionMeta } from '@affine/core/modules/collection';
 import track from '@affine/track';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { scrollbarStyle } from '@blocksuite/affine/shared/styles';

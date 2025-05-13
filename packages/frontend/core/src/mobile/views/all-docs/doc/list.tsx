@@ -3,16 +3,16 @@ import { useBlockSuiteDocMeta } from '@affine/core/components/hooks/use-block-su
 import {
   type ItemGroupProps,
   useAllDocDisplayProperties,
-  useFilteredPageMetas,
 } from '@affine/core/components/page-list';
+import type { Collection } from '@affine/core/modules/collection';
+import { DocsService } from '@affine/core/modules/doc';
 import type { Tag } from '@affine/core/modules/tag';
 import { WorkspaceService } from '@affine/core/modules/workspace';
-import type { Collection, Filter } from '@affine/env/filter';
 import type { DocMeta } from '@blocksuite/affine/store';
 import { ToggleDownIcon } from '@blocksuite/icons/rc';
 import * as Collapsible from '@radix-ui/react-collapsible';
-import { useLiveData, useService } from '@toeverything/infra';
-import { useMemo } from 'react';
+import { LiveData, useLiveData, useService } from '@toeverything/infra';
+import { useEffect, useMemo, useState } from 'react';
 
 import * as styles from './list.css';
 import { MasonryDocs } from './masonry';
@@ -41,42 +41,53 @@ export const DocGroup = ({ group }: { group: ItemGroupProps<DocMeta> }) => {
 export interface AllDocListProps {
   collection?: Collection;
   tag?: Tag;
-  filters?: Filter[];
   trash?: boolean;
 }
 
-export const AllDocList = ({
-  trash,
-  collection,
-  tag,
-  filters = [],
-}: AllDocListProps) => {
+export const AllDocList = ({ trash, collection, tag }: AllDocListProps) => {
   const [properties] = useAllDocDisplayProperties();
   const workspace = useService(WorkspaceService).workspace;
   const allPageMetas = useBlockSuiteDocMeta(workspace.docCollection);
+  const docsService = useService(DocsService);
+
+  const allTrashPageIds = useLiveData(
+    LiveData.from(docsService.allTrashDocIds$(), [])
+  );
 
   const tagPageIds = useLiveData(tag?.pageIds$);
 
-  const filteredPageMetas = useFilteredPageMetas(allPageMetas, {
-    trash,
-    filters,
-    collection,
-  });
+  const [filteredPageIds, setFilteredPageIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const subscription = collection?.watch().subscribe(docIds => {
+      setFilteredPageIds(docIds);
+    });
+    return () => subscription?.unsubscribe();
+  }, [collection]);
 
   const finalPageMetas = useMemo(() => {
+    const collectionFilteredPageMetas = collection
+      ? allPageMetas.filter(page => filteredPageIds.includes(page.id))
+      : allPageMetas;
+
+    const filteredPageMetas = collectionFilteredPageMetas.filter(
+      page => allTrashPageIds.includes(page.id) === !!trash
+    );
+
     if (tag) {
       const pageIdsSet = new Set(tagPageIds);
       return filteredPageMetas.filter(page => pageIdsSet.has(page.id));
     }
     return filteredPageMetas;
-  }, [filteredPageMetas, tag, tagPageIds]);
-
-  // const groupDefs =
-  //   usePageItemGroupDefinitions() as ItemGroupDefinition<DocMeta>[];
-
-  // const groups = useMemo(() => {
-  //   return itemsToItemGroups(finalPageMetas ?? [], groupDefs);
-  // }, [finalPageMetas, groupDefs]);
+  }, [
+    allPageMetas,
+    allTrashPageIds,
+    collection,
+    filteredPageIds,
+    tag,
+    tagPageIds,
+    trash,
+  ]);
 
   if (!finalPageMetas.length) {
     return (
@@ -86,14 +97,6 @@ export const AllDocList = ({
       </>
     );
   }
-
-  // return (
-  //   <div className={styles.groups}>
-  //     {groups.map(group => (
-  //       <DocGroup key={group.id} group={group} />
-  //     ))}
-  //   </div>
-  // );
 
   return (
     <MasonryDocs

@@ -3,6 +3,7 @@ import {
   catchError,
   combineLatest,
   distinctUntilChanged,
+  firstValueFrom,
   map,
   type Observable,
   of,
@@ -21,7 +22,8 @@ export class CollectionRulesService extends Service {
   watch(
     filters: FilterParams[],
     groupBy?: GroupByParams,
-    orderBy?: OrderByParams
+    orderBy?: OrderByParams,
+    extraAllowList?: string[]
   ): Observable<{
     groups: {
       key: string;
@@ -36,7 +38,10 @@ export class CollectionRulesService extends Service {
       filterErrors: any[]; // errors from the filter providers
     }> =
       filters.length === 0
-        ? of({ filtered: new Set<string>(), filterErrors: [] })
+        ? of({
+            filtered: new Set<string>(extraAllowList ?? []),
+            filterErrors: [],
+          })
         : combineLatest(
             filters.map(filter => {
               const provider = filterProviders.get(filter.type);
@@ -57,7 +62,7 @@ export class CollectionRulesService extends Service {
             })
           ).pipe(
             map(results => {
-              const finalSet = results.reduce((acc, result) => {
+              const aggregated = results.reduce((acc, result) => {
                 if ('error' in acc) {
                   return acc;
                 }
@@ -67,8 +72,15 @@ export class CollectionRulesService extends Service {
                 return acc.intersection(result);
               });
 
+              const filtered =
+                'error' in aggregated ? new Set<string>() : aggregated;
+
+              const finalSet = filtered.union(
+                new Set<string>(extraAllowList ?? [])
+              );
+
               return {
-                filtered: 'error' in finalSet ? new Set<string>() : finalSet,
+                filtered: finalSet,
                 filterErrors: results.map(i => ('error' in i ? i.error : null)),
               };
             })
@@ -203,5 +215,16 @@ export class CollectionRulesService extends Service {
     );
 
     return final$;
+  }
+
+  compute(
+    filters: FilterParams[],
+    groupBy?: GroupByParams,
+    orderBy?: OrderByParams,
+    extraAllowList?: string[]
+  ) {
+    return firstValueFrom(
+      this.watch(filters, groupBy, orderBy, extraAllowList)
+    );
   }
 }

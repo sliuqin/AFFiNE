@@ -81,13 +81,13 @@ export function useAIChatConfig() {
       return tag$.value?.pageIds$.value ?? [];
     },
     getCollections: () => {
-      const collections$ = collectionService.collections$;
-      return createSignalFromObservable(collections$, []);
+      const collectionMetas$ = collectionService.collectionMetas$;
+      return createSignalFromObservable(collectionMetas$, []);
     },
     getCollectionPageIds: (collectionId: string) => {
       const collection$ = collectionService.collection$(collectionId);
       // TODO: lack of documents that meet the collection rules
-      return collection$?.value?.allowList ?? [];
+      return collection$?.value?.info$.value.allowList ?? [];
     },
   };
 

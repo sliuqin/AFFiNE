@@ -1,7 +1,6 @@
 import { usePageHelper } from '@affine/core/blocksuite/block-suite-page-list/utils';
 import { ExplorerNavigation } from '@affine/core/components/explorer/header/navigation';
 import {
-  AllPageListOperationsMenu,
   PageDisplayMenu,
   PageListNewPageButton,
 } from '@affine/core/components/page-list';
@@ -10,7 +9,6 @@ import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { WorkbenchService } from '@affine/core/modules/workbench';
 import { WorkspaceService } from '@affine/core/modules/workspace';
 import { inferOpenMode } from '@affine/core/utils';
-import type { Filter } from '@affine/env/filter';
 import { track } from '@affine/track';
 import { PlusIcon } from '@blocksuite/icons/rc';
 import { useServices } from '@toeverything/infra';
@@ -21,12 +19,8 @@ import * as styles from './all-page.css';
 
 export const AllPageHeader = ({
   showCreateNew,
-  filters,
-  onChangeFilters,
 }: {
   showCreateNew: boolean;
-  filters: Filter[];
-  onChangeFilters: (filters: Filter[]) => void;
 }) => {
   const { workspaceService, workspaceDialogService, workbenchService } =
     useServices({
@@ -90,11 +84,6 @@ export const AllPageHeader = ({
           >
             <PlusIcon />
           </PageListNewPageButton>
-          <AllPageListOperationsMenu
-            filterList={filters}
-            onChangeFilterList={onChangeFilters}
-            propertiesMeta={workspace.docCollection.meta.properties}
-          />
           <PageDisplayMenu />
         </>
       }

@@ -1,17 +1,15 @@
 import { useBlockSuiteDocMeta } from '@affine/core/components/hooks/use-block-suite-page-meta';
 import {
   PageListHeader,
-  useFilteredPageMetas,
   VirtualizedPageList,
 } from '@affine/core/components/page-list';
 import { GlobalContextService } from '@affine/core/modules/global-context';
 import { IntegrationService } from '@affine/core/modules/integration';
 import { WorkspacePermissionService } from '@affine/core/modules/permissions';
 import { WorkspaceService } from '@affine/core/modules/workspace';
-import type { Filter } from '@affine/env/filter';
 import { useI18n } from '@affine/i18n';
 import { useLiveData, useService } from '@toeverything/infra';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   useIsActiveView,
@@ -23,7 +21,6 @@ import {
 import { AllDocSidebarTabs } from '../layouts/all-doc-sidebar-tabs';
 import { EmptyPageList } from '../page-list-empty';
 import * as styles from './all-page.css';
-import { FilterContainer } from './all-page-filter';
 import { AllPageHeader } from './all-page-header';
 
 export const AllPage = () => {
@@ -37,10 +34,10 @@ export const AllPage = () => {
   const isOwner = useLiveData(permissionService.permission.isOwner$);
   const importing = useLiveData(integrationService.importing$);
 
-  const [filters, setFilters] = useState<Filter[]>([]);
-  const filteredPageMetas = useFilteredPageMetas(pageMetas, {
-    filters: filters,
-  });
+  const filteredPageMetas = useMemo(
+    () => pageMetas.filter(page => !page.trash),
+    [pageMetas]
+  );
 
   const isActiveView = useIsActiveView();
 
@@ -66,20 +63,14 @@ export const AllPage = () => {
       <ViewTitle title={t['All pages']()} />
       <ViewIcon icon="allDocs" />
       <ViewHeader>
-        <AllPageHeader
-          showCreateNew={!hideHeaderCreateNew}
-          filters={filters}
-          onChangeFilters={setFilters}
-        />
+        <AllPageHeader showCreateNew={!hideHeaderCreateNew} />
       </ViewHeader>
       <ViewBody>
         <div className={styles.body}>
-          <FilterContainer filters={filters} onChangeFilters={setFilters} />
           {filteredPageMetas.length > 0 ? (
             <VirtualizedPageList
               disableMultiDelete={!isAdmin && !isOwner}
               setHideHeaderCreateNewPage={setHideHeaderCreateNew}
-              filters={filters}
             />
           ) : (
             <EmptyPageList type="all" heading={<PageListHeader />} />

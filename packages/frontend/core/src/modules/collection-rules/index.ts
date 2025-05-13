@@ -1,6 +1,8 @@
 import type { Framework } from '@toeverything/infra';
 
 import { DocsService } from '../doc';
+import { FavoriteService } from '../favorite';
+import { ShareDocsListService } from '../share-doc';
 import { TagService } from '../tag';
 import { WorkspaceScope } from '../workspace';
 import { WorkspacePropertyService } from '../workspace-property';
@@ -10,8 +12,10 @@ import { CreatedByFilterProvider } from './impls/filters/created-by';
 import { DatePropertyFilterProvider } from './impls/filters/date';
 import { DocPrimaryModeFilterProvider } from './impls/filters/doc-primary-mode';
 import { EmptyJournalFilterProvider } from './impls/filters/empty-journal';
+import { FavoriteFilterProvider } from './impls/filters/favorite';
 import { JournalFilterProvider } from './impls/filters/journal';
 import { PropertyFilterProvider } from './impls/filters/property';
+import { SharedFilterProvider } from './impls/filters/shared';
 import { SystemFilterProvider } from './impls/filters/system';
 import { TagsFilterProvider } from './impls/filters/tags';
 import { TextPropertyFilterProvider } from './impls/filters/text';
@@ -116,6 +120,14 @@ export function configureCollectionRulesModule(framework: Framework) {
       DocsService,
     ])
     .impl(FilterProvider('system:empty-journal'), EmptyJournalFilterProvider, [
+      DocsService,
+    ])
+    .impl(FilterProvider('system:favorite'), FavoriteFilterProvider, [
+      FavoriteService,
+      DocsService,
+    ])
+    .impl(FilterProvider('system:shared'), SharedFilterProvider, [
+      ShareDocsListService,
       DocsService,
     ])
     // --------------- Group By ---------------

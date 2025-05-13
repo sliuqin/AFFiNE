@@ -19,7 +19,6 @@ import {
   ImageProxyService,
 } from '@blocksuite/affine/shared/adapters';
 import { focusBlockEnd } from '@blocksuite/affine/shared/commands';
-import { LinkPreviewerService } from '@blocksuite/affine/shared/services';
 import { getLastNoteBlock } from '@blocksuite/affine/shared/utils';
 import type { BlockStdScope, EditorHost } from '@blocksuite/affine/std';
 import type { Store } from '@blocksuite/affine/store';
@@ -212,13 +211,7 @@ const BlockSuiteEditorImpl = ({
       server.baseUrl
     ).toString();
 
-    const linkPreviewUrl = new URL(
-      BUILD_CONFIG.linkPreviewUrl,
-      server.baseUrl
-    ).toString();
-
     editor.std.clipboard.use(customImageProxyMiddleware(imageProxyUrl));
-    page.get(LinkPreviewerService).setEndpoint(linkPreviewUrl);
     page.get(ImageProxyService).setImageProxyURL(imageProxyUrl);
 
     editor.updateComplete

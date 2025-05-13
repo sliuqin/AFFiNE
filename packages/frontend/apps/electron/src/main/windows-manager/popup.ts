@@ -61,10 +61,7 @@ abstract class PopupWindow {
 
   abstract windowOptions: Partial<BrowserWindowConstructorOptions>;
 
-  resolveReady: () => void = () => {};
-  ready = new Promise<void>(resolve => {
-    this.resolveReady = resolve;
-  });
+  ready = Promise.withResolvers<void>();
 
   private readonly showing$ = new BehaviorSubject<boolean>(false);
 
@@ -109,12 +106,12 @@ abstract class PopupWindow {
       visibleOnFullScreen: true,
     });
 
-    browserWindow.loadURL(popupViewUrl).catch(err => logger.error(err));
-    browserWindow.on('ready-to-show', () => {
-      browserWindow.webContents.on('did-finish-load', () => {
-        this.resolveReady();
-      });
+    logger.info('loading popup', this.name, popupViewUrl);
+    browserWindow.webContents.on('did-finish-load', () => {
+      this.ready.resolve();
+      logger.info('popup ready', this.name);
     });
+    browserWindow.loadURL(popupViewUrl).catch(err => logger.error(err));
     return browserWindow;
   }
 
@@ -126,7 +123,7 @@ abstract class PopupWindow {
     const workArea = getCurrentDisplay(browserWindow).workArea;
     const popupSize = browserWindow.getSize();
 
-    await this.ready;
+    await this.ready.promise;
 
     this.showing$.next(true);
 
@@ -140,6 +137,8 @@ abstract class PopupWindow {
 
     // Set initial position
     browserWindow.setPosition(startX, y);
+
+    logger.info('showing popup', this.name);
 
     // First fade in, then slide
     await Promise.all([
@@ -169,6 +168,7 @@ abstract class PopupWindow {
     if (!this.browserWindow) {
       return;
     }
+    logger.info('hiding popup', this.name);
     this.showing$.next(false);
     await animate(this.browserWindow.getOpacity(), 0, opacity => {
       this.browserWindow?.setOpacity(opacity);

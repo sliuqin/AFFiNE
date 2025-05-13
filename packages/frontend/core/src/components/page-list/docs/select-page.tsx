@@ -1,18 +1,27 @@
 import { IconButton, Menu, toast } from '@affine/component';
 import { useBlockSuiteDocMeta } from '@affine/core/components/hooks/use-block-suite-page-meta';
+import {
+  CollectionRulesService,
+  type FilterParams,
+} from '@affine/core/modules/collection-rules';
 import { CompatibleFavoriteItemsAdapter } from '@affine/core/modules/favorite';
 import { ShareDocsListService } from '@affine/core/modules/share-doc';
 import { WorkspaceService } from '@affine/core/modules/workspace';
-import { PublicDocMode } from '@affine/graphql';
 import { Trans, useI18n } from '@affine/i18n';
 import type { DocMeta } from '@blocksuite/affine/store';
 import { FilterIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useServices } from '@toeverything/infra';
-import { type ReactNode, useCallback, useEffect, useState } from 'react';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
+import { Filters } from '../../filter';
+import { AddFilterMenu } from '../../filter/add-filter';
 import { AffineShapeIcon, FavoriteTag } from '..';
-import { FilterList } from '../filter';
-import { VariableSelect } from '../filter/vars';
 import { usePageHeaderColsDef } from '../header-col-def';
 import { PageListItemRenderer } from '../page-group';
 import { ListTableHeader } from '../page-header';
@@ -20,7 +29,6 @@ import { SelectorLayout } from '../selector/selector-layout';
 import type { ListItem } from '../types';
 import { VirtualizedList } from '../virtualized-list';
 import * as styles from './select-page.css';
-import { useFilter } from './use-filter';
 import { useSearch } from './use-search';
 
 export const SelectPage = ({
@@ -58,12 +66,13 @@ export const SelectPage = ({
     workspaceService,
     compatibleFavoriteItemsAdapter,
     shareDocsListService,
+    collectionRulesService,
   } = useServices({
     ShareDocsListService,
     WorkspaceService,
     CompatibleFavoriteItemsAdapter,
+    CollectionRulesService,
   });
-  const shareDocs = useLiveData(shareDocsListService.shareDocs?.list$);
   const workspace = workspaceService.workspace;
   const docCollection = workspace.docCollection;
   const pageMetas = useBlockSuiteDocMeta(docCollection);
@@ -72,20 +81,6 @@ export const SelectPage = ({
   useEffect(() => {
     shareDocsListService.shareDocs?.revalidate();
   }, [shareDocsListService.shareDocs]);
-
-  const getPublicMode = useCallback(
-    (id: string) => {
-      const mode = shareDocs?.find(shareDoc => shareDoc.id === id)?.mode;
-      if (mode === PublicDocMode.Edgeless) {
-        return 'edgeless';
-      } else if (mode === PublicDocMode.Page) {
-        return 'page';
-      } else {
-        return undefined;
-      }
-    },
-    [shareDocs]
-  );
 
   const isFavorite = useCallback(
     (meta: DocMeta) => favourites.some(fav => fav.id === meta.id),
@@ -106,22 +101,41 @@ export const SelectPage = ({
   );
 
   const pageHeaderColsDef = usePageHeaderColsDef();
-  const {
-    clickFilter,
-    createFilter,
-    filters,
-    showFilter,
-    updateFilters,
-    filteredList,
-  } = useFilter(
-    pageMetas.map(meta => ({
-      meta,
-      publicMode: getPublicMode(meta.id),
-      favorite: isFavorite(meta),
-    }))
-  );
+  const [filters, setFilters] = useState<FilterParams[]>([]);
+
+  const [filteredDocIds, setFilteredDocIds] = useState<string[]>([]);
+  const filteredPageMetas = useMemo(() => {
+    const idSet = new Set(filteredDocIds);
+    return pageMetas.filter(page => idSet.has(page.id));
+  }, [pageMetas, filteredDocIds]);
+
   const { searchText, updateSearchText, searchedList } =
-    useSearch(filteredList);
+    useSearch(filteredPageMetas);
+
+  useEffect(() => {
+    const subscription = collectionRulesService
+      .watch([
+        ...filters,
+        {
+          type: 'system',
+          key: 'empty-journal',
+          method: 'is',
+          value: 'false',
+        },
+        {
+          type: 'system',
+          key: 'trash',
+          method: 'is',
+          value: 'false',
+        },
+      ])
+      .subscribe(result => {
+        setFilteredDocIds(result.groups.flatMap(group => group.items));
+      });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [collectionRulesService, filters]);
 
   const operationsRenderer = useCallback(
     (item: ListItem) => {
@@ -162,29 +176,21 @@ export const SelectPage = ({
               {t['com.affine.selectPage.title']()}
             </div>
           )}
-          {!showFilter && filters.length === 0 ? (
+          {filters.length === 0 ? (
             <Menu
               items={
-                <VariableSelect
-                  propertiesMeta={docCollection.meta.properties}
-                  selected={filters}
-                  onSelect={createFilter}
+                <AddFilterMenu
+                  onAdd={params => setFilters([...filters, params])}
                 />
               }
             >
-              <IconButton icon={<FilterIcon />} onClick={clickFilter} />
+              <IconButton icon={<FilterIcon />} />
             </Menu>
-          ) : (
-            <IconButton icon={<FilterIcon />} onClick={clickFilter} />
-          )}
+          ) : null}
         </div>
-        {showFilter ? (
+        {filters.length !== 0 ? (
           <div style={{ padding: '12px 16px 16px' }}>
-            <FilterList
-              propertiesMeta={docCollection.meta.properties}
-              value={filters}
-              onChange={updateFilters}
-            />
+            <Filters filters={filters} onChange={setFilters} />
           </div>
         ) : null}
         {searchedList.length ? (

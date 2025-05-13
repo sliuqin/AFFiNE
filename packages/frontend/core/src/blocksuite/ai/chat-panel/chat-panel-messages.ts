@@ -158,6 +158,9 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
   @property({ attribute: false })
   accessor extensions!: ExtensionType[];
 
+  @property({ attribute: false })
+  accessor affineFeatureFlagService!: FeatureFlagService;
+
   @query('.chat-panel-messages-container')
   accessor messagesContainer: HTMLDivElement | null = null;
 
@@ -271,6 +274,7 @@ export class ChatPanelMessages extends WithDisposable(ShadowlessElement) {
                     .status=${isLast ? status : 'idle'}
                     .error=${isLast ? error : null}
                     .extensions=${this.extensions}
+                    .affineFeatureFlagService=${this.affineFeatureFlagService}
                     .getSessionId=${this.getSessionId}
                     .retry=${() => this.retry()}
                   ></chat-message-assistant>`;

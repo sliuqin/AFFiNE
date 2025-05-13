@@ -30,10 +30,13 @@ export async function waitForEditorLoad(page: Page) {
 }
 
 export async function waitForAllPagesLoad(page: Page) {
-  // if filters tag is rendered, we believe all_pages is ready
-  await page.waitForSelector('[data-testid="create-first-filter"]', {
-    timeout: 20000,
-  });
+  // if page-list-header-selection-checkbox is rendered, we believe all_pages is ready
+  await page.waitForSelector(
+    '[data-testid="page-list-header-selection-checkbox"]',
+    {
+      timeout: 20000,
+    }
+  );
 }
 
 export async function clickNewPageButton(page: Page, title?: string) {

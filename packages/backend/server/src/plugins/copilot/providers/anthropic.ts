@@ -34,7 +34,10 @@ export class AnthropicProvider
 {
   override readonly type = CopilotProviderType.Anthropic;
   override readonly capabilities = [CopilotCapability.TextToText];
-  override readonly models = ['claude-3-7-sonnet-20250219'];
+  override readonly models = [
+    'claude-3-7-sonnet-20250219',
+    'claude-3-5-sonnet-20241022',
+  ];
 
   private readonly MAX_STEPS = 20;
 

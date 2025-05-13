@@ -1,4 +1,5 @@
 import { createReactComponentFromLit } from '@affine/component';
+import type { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { Container, type ServiceProvider } from '@blocksuite/affine/global/di';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import {
@@ -6,10 +7,7 @@ import {
   defaultImageProxyMiddleware,
   ImageProxyService,
 } from '@blocksuite/affine/shared/adapters';
-import {
-  LinkPreviewerService,
-  ThemeProvider,
-} from '@blocksuite/affine/shared/services';
+import { ThemeProvider } from '@blocksuite/affine/shared/services';
 import { unsafeCSSVarV2 } from '@blocksuite/affine/shared/theme';
 import {
   BlockStdScope,
@@ -104,6 +102,7 @@ export type TextRendererOptions = {
   extensions?: ExtensionType[];
   additionalMiddlewares?: TransformerMiddleware[];
   testId?: string;
+  affineFeatureFlagService?: FeatureFlagService;
 };
 
 // todo: refactor it for more general purpose usage instead of AI only?
@@ -266,7 +265,14 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
           codeBlockWrapMiddleware(true),
           ...(this.options.additionalMiddlewares ?? []),
         ];
-        markDownToDoc(provider, schema, latestAnswer, middlewares)
+        const affineFeatureFlagService = this.options.affineFeatureFlagService;
+        markDownToDoc(
+          provider,
+          schema,
+          latestAnswer,
+          middlewares,
+          affineFeatureFlagService
+        )
           .then(doc => {
             this.disposeDoc();
             this._doc = doc.doc.getStore({
@@ -278,16 +284,10 @@ export class TextRenderer extends WithDisposable(ShadowlessElement) {
             this._doc.readonly = true;
             this.requestUpdate();
             if (this.state !== 'generating') {
-              // LinkPreviewerService & ImageProxyService config should read from host settings
-              const linkPreviewerService =
-                this.host?.std.store.get(LinkPreviewerService);
+              this._doc.load();
+              // LinkPreviewService & ImageProxyService config should read from host settings
               const imageProxyService =
                 this.host?.std.store.get(ImageProxyService);
-              if (linkPreviewerService) {
-                this._doc
-                  ?.get(LinkPreviewerService)
-                  .setEndpoint(linkPreviewerService.endpoint);
-              }
               if (imageProxyService) {
                 this._doc
                   ?.get(ImageProxyService)

@@ -1,10 +1,10 @@
 import type { ConfirmModalProps, ElementOrFactory } from '@affine/component';
 import { patchForAudioEmbedView } from '@affine/core/blocksuite/extensions/audio/audio-view';
 import { patchDatabaseBlockConfigService } from '@affine/core/blocksuite/extensions/database-block-config-service';
+import { buildDocDisplayMetaExtension } from '@affine/core/blocksuite/extensions/display-meta';
 import { patchDocModeService } from '@affine/core/blocksuite/extensions/doc-mode-service';
 import { patchDocUrlExtensions } from '@affine/core/blocksuite/extensions/doc-url';
-import { EdgelessClipboardAIChatConfig } from '@affine/core/blocksuite/extensions/edgeless-clipboard';
-import { patchForClipboardInElectron } from '@affine/core/blocksuite/extensions/electron-clipboard';
+import { patchFileSizeLimitExtension } from '@affine/core/blocksuite/extensions/file-size-limit';
 import { patchNotificationService } from '@affine/core/blocksuite/extensions/notification-service';
 import { patchOpenDocExtension } from '@affine/core/blocksuite/extensions/open-doc';
 import { patchQuickSearchService } from '@affine/core/blocksuite/extensions/quick-search-service';
@@ -28,13 +28,6 @@ import {
 import { FrameworkProvider } from '@toeverything/infra';
 import type { TemplateResult } from 'lit';
 import { z } from 'zod';
-
-import {
-  KeyboardToolbarExtension,
-  mobileCodeConfig,
-  mobileParagraphConfig,
-  MobileSpecsPatches,
-} from '../extensions/mobile-config';
 
 const optionsSchema = z.object({
   // services
@@ -106,8 +99,6 @@ export class AffineEditorViewExtension extends ViewExtensionProvider<AffineEdito
       reactToLit,
       confirmModal,
     } = options;
-    const isMobileEdition = BUILD_CONFIG.isMobileEdition;
-    const isElectron = BUILD_CONFIG.isElectron;
 
     const docService = framework.get(DocService);
     const docsService = framework.get(DocsService);
@@ -115,30 +106,21 @@ export class AffineEditorViewExtension extends ViewExtensionProvider<AffineEdito
 
     const referenceRenderer = this._getCustomReferenceRenderer(framework);
 
-    context.register([
-      patchReferenceRenderer(reactToLit, referenceRenderer),
-      patchNotificationService(confirmModal),
-      patchOpenDocExtension(),
-      EdgelessClipboardAIChatConfig,
-      patchSideBarService(framework),
-      patchDocModeService(docService, docsService, editorService),
-    ]);
-    context.register(patchDocUrlExtensions(framework));
-    context.register(patchQuickSearchService(framework));
-    context.register([
-      patchDatabaseBlockConfigService(),
-      patchForAudioEmbedView(reactToLit),
-    ]);
-    if (isMobileEdition) {
-      context.register([
-        KeyboardToolbarExtension(framework),
-        MobileSpecsPatches,
-        mobileParagraphConfig,
-        mobileCodeConfig,
+    context
+      .register([
+        patchReferenceRenderer(reactToLit, referenceRenderer),
+        patchNotificationService(confirmModal),
+        patchOpenDocExtension(),
+        patchSideBarService(framework),
+        patchDocModeService(docService, docsService, editorService),
+        patchFileSizeLimitExtension(framework),
+        buildDocDisplayMetaExtension(framework),
+      ])
+      .register(patchDocUrlExtensions(framework))
+      .register(patchQuickSearchService(framework))
+      .register([
+        patchDatabaseBlockConfigService(),
+        patchForAudioEmbedView(reactToLit),
       ]);
-    }
-    if (isElectron) {
-      context.register(patchForClipboardInElectron(framework));
-    }
   }
 }

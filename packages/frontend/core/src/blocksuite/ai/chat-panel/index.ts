@@ -1,5 +1,6 @@
 import './chat-panel-messages';
 
+import type { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import type { ContextEmbedStatus } from '@affine/graphql';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import type { EditorHost } from '@blocksuite/affine/std';
@@ -205,6 +206,9 @@ export class ChatPanel extends SignalWatcher(
   @property({ attribute: false })
   accessor extensions!: ExtensionType[];
 
+  @property({ attribute: false })
+  accessor affineFeatureFlagService!: FeatureFlagService;
+
   @state()
   accessor isLoading = false;
 
@@ -399,6 +403,7 @@ export class ChatPanel extends SignalWatcher(
         .host=${this.host}
         .isLoading=${this.isLoading}
         .extensions=${this.extensions}
+        .affineFeatureFlagService=${this.affineFeatureFlagService}
       ></chat-panel-messages>
       <ai-chat-composer
         .host=${this.host}

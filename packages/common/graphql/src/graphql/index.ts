@@ -1036,24 +1036,6 @@ export const getInviteInfoQuery = {
 }`,
 };
 
-export const getIsAdminQuery = {
-  id: 'getIsAdminQuery' as const,
-  op: 'getIsAdmin',
-  query: `query getIsAdmin($workspaceId: String!) {
-  isAdmin(workspaceId: $workspaceId)
-}`,
-  deprecations: ["'isAdmin' is deprecated: use WorkspaceType[role] instead"],
-};
-
-export const getIsOwnerQuery = {
-  id: 'getIsOwnerQuery' as const,
-  op: 'getIsOwner',
-  query: `query getIsOwner($workspaceId: String!) {
-  isOwner(workspaceId: $workspaceId)
-}`,
-  deprecations: ["'isOwner' is deprecated: use WorkspaceType[role] instead"],
-};
-
 export const getMemberCountByWorkspaceIdQuery = {
   id: 'getMemberCountByWorkspaceIdQuery' as const,
   op: 'getMemberCountByWorkspaceId',
@@ -1185,13 +1167,11 @@ export const getWorkspaceInfoQuery = {
   id: 'getWorkspaceInfoQuery' as const,
   op: 'getWorkspaceInfo',
   query: `query getWorkspaceInfo($workspaceId: String!) {
-  isAdmin(workspaceId: $workspaceId)
-  isOwner(workspaceId: $workspaceId)
   workspace(id: $workspaceId) {
+    role
     team
   }
 }`,
-  deprecations: ["'isAdmin' is deprecated: use WorkspaceType[role] instead","'isOwner' is deprecated: use WorkspaceType[role] instead"],
 };
 
 export const getWorkspacePageByIdQuery = {

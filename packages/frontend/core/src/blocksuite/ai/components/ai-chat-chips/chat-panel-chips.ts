@@ -1,5 +1,4 @@
 import type { TagMeta } from '@affine/core/components/page-list';
-import type { Collection } from '@affine/env/filter';
 import { createLitPortal } from '@blocksuite/affine/components/portal';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { unsafeCSSVarV2 } from '@blocksuite/affine/shared/theme';
@@ -128,7 +127,7 @@ export class ChatPanelChips extends SignalWatcher(
 
   private _tags: Signal<TagMeta[]> = signal([]);
 
-  private _collections: Signal<Collection[]> = signal([]);
+  private _collections: Signal<{ id: string; name: string }[]> = signal([]);
 
   private _cleanup: (() => void) | null = null;
 

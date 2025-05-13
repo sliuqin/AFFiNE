@@ -7,6 +7,7 @@ import { literal } from 'lit/static-html.js';
 import { createBuiltinToolbarConfigExtension } from '../configs/toolbar';
 import { EmbedGithubBlockAdapterExtensions } from './adapters/extension';
 import { embedGithubSlashMenuConfig } from './configs/slash-menu';
+import { EmbedGithubBlockInteraction } from './embed-edgeless-github-block';
 import { EmbedGithubBlockComponent } from './embed-github-block';
 import {
   EmbedGithubBlockOptionConfig,
@@ -38,6 +39,7 @@ export const EmbedGithubViewExtensions: ExtensionType[] = [
       : literal`affine-embed-github-block`;
   }),
   EmbedGithubBlockOptionConfig,
+  EmbedGithubBlockInteraction,
   createBuiltinToolbarConfigExtension(flavour, EmbedGithubBlockComponent),
   SlashMenuConfigExtension(flavour, embedGithubSlashMenuConfig),
 ].flat();

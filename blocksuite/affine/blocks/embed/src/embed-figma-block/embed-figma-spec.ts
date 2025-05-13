@@ -7,6 +7,7 @@ import { literal } from 'lit/static-html.js';
 import { createBuiltinToolbarConfigExtension } from '../configs/toolbar';
 import { EmbedFigmaBlockAdapterExtensions } from './adapters/extension';
 import { embedFigmaSlashMenuConfig } from './configs/slash-menu';
+import { EmbedFigmaBlockInteraction } from './embed-edgeless-figma-block';
 import { EmbedFigmaBlockComponent } from './embed-figma-block';
 import { EmbedFigmaBlockOptionConfig } from './embed-figma-service';
 
@@ -35,4 +36,5 @@ export const EmbedFigmaViewExtensions: ExtensionType[] = [
   EmbedFigmaBlockOptionConfig,
   createBuiltinToolbarConfigExtension(flavour, EmbedFigmaBlockComponent),
   SlashMenuConfigExtension(flavour, embedFigmaSlashMenuConfig),
+  EmbedFigmaBlockInteraction,
 ].flat();

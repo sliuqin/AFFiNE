@@ -102,7 +102,10 @@ export const WorkspacePropertyTypes = {
     renameable: false,
     description: 'com.affine.page-properties.property.tags.tooltips',
     filterMethod: {
-      include: 'com.affine.filter.contains all',
+      'include-all': 'com.affine.filter.contains all',
+      'include-any-of': 'com.affine.filter.contains one of',
+      'not-include-all': 'com.affine.filter.does not contains all',
+      'not-include-any-of': 'com.affine.filter.does not contains one of',
       'is-not-empty': 'com.affine.filter.is not empty',
       'is-empty': 'com.affine.filter.is empty',
     },

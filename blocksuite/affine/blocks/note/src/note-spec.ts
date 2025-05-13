@@ -9,6 +9,7 @@ import {
 } from './adapters/index';
 import { NoteSlashMenuConfigExtension } from './configs/slash-menu';
 import { createBuiltinToolbarConfigExtension } from './configs/toolbar';
+import { EdgelessNoteInteraction } from './note-edgeless-block';
 import { NoteKeymapExtension } from './note-keymap.js';
 
 const flavour = NoteBlockSchema.model.flavour;
@@ -28,4 +29,5 @@ export const EdgelessNoteBlockSpec: ExtensionType[] = [
   NoteSlashMenuConfigExtension,
   createBuiltinToolbarConfigExtension(flavour),
   NoteKeymapExtension,
+  EdgelessNoteInteraction,
 ].flat();

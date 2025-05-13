@@ -397,6 +397,7 @@ model AiPrompt {
   // it is only used in the frontend and does not affect the backend
   action    String?  @db.VarChar
   model     String   @db.VarChar
+  optionalModels String[] @default([]) @db.VarChar @map("optional_models")
   config    Json?    @db.Json
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)

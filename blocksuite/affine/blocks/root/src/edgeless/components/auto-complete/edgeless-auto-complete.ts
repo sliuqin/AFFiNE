@@ -691,6 +691,12 @@ export class EdgelessAutoComplete extends WithDisposable(LitElement) {
       })
     );
 
+    _disposables.add(
+      gfx.selection.slots.updated.subscribe(() => {
+        this.requestUpdate();
+      })
+    );
+
     _disposables.add(() => this.removeOverlay());
 
     _disposables.add(
@@ -716,6 +722,15 @@ export class EdgelessAutoComplete extends WithDisposable(LitElement) {
     });
   }
 
+  private _canAutoComplete() {
+    const selection = this.gfx.selection;
+    return (
+      selection.selectedElements.length === 1 &&
+      (selection.selectedElements[0] instanceof ShapeElementModel ||
+        isNoteBlock(selection.selectedElements[0]))
+    );
+  }
+
   removeOverlay() {
     this._timer && clearTimeout(this._timer);
     const surface = getSurfaceComponent(this.std);
@@ -727,7 +742,10 @@ export class EdgelessAutoComplete extends WithDisposable(LitElement) {
     const isShape = this.current instanceof ShapeElementModel;
     const isMindMap = this.current.group instanceof MindmapElementModel;
 
-    if (this._isMoving || (this._isHover && !isShape)) {
+    if (
+      this._isMoving ||
+      (this._isHover && !isShape && this._canAutoComplete())
+    ) {
       this.removeOverlay();
       return nothing;
     }

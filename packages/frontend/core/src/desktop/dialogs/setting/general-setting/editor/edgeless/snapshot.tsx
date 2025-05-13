@@ -58,7 +58,7 @@ export const EdgelessSnapshot = (props: Props) => {
   const extensions = useMemo(() => {
     const manager = getViewManager()
       .config.init()
-      .common(framework)
+      .foundation(framework)
       .theme(framework)
       .database(framework)
       .linkedDoc(framework).value;

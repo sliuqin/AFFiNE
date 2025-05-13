@@ -1,4 +1,5 @@
 import { shallowEqual } from '@affine/component';
+import type { CollectionMeta } from '@affine/core/modules/collection';
 import { DocDisplayMetaService } from '@affine/core/modules/doc-display-meta';
 import { useI18n } from '@affine/i18n';
 import type { DocMeta } from '@blocksuite/affine/store';
@@ -25,7 +26,6 @@ import {
 import { TagListItem } from './tags/tag-list-item';
 import type {
   CollectionListItemProps,
-  CollectionMeta,
   ItemGroupProps,
   ListItem,
   ListProps,

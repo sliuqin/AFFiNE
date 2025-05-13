@@ -17,7 +17,7 @@ import { useRightPanel } from '../../panel/context';
 import type { UserType } from '../schema';
 import { DiscardChanges } from './discard-changes';
 import { ExportUsersDialog } from './export-users-dialog';
-import { ImportUsersDialog } from './import-users-dialog';
+import { ImportUsersDialog } from './import-users';
 import { CreateUserForm } from './user-form';
 
 interface DataTableToolbarProps<TData> {

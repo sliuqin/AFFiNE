@@ -45,6 +45,10 @@ export class ChatSession implements AsyncDisposable {
     return this.state.prompt.model;
   }
 
+  get optionalModels() {
+    return this.state.prompt.optionalModels;
+  }
+
   get config() {
     const {
       sessionId,

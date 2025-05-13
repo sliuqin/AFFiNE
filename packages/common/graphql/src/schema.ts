@@ -3665,18 +3665,6 @@ export type GetInviteInfoQuery = {
   };
 };
 
-export type GetIsAdminQueryVariables = Exact<{
-  workspaceId: Scalars['String']['input'];
-}>;
-
-export type GetIsAdminQuery = { __typename?: 'Query'; isAdmin: boolean };
-
-export type GetIsOwnerQueryVariables = Exact<{
-  workspaceId: Scalars['String']['input'];
-}>;
-
-export type GetIsOwnerQuery = { __typename?: 'Query'; isOwner: boolean };
-
 export type GetMemberCountByWorkspaceIdQueryVariables = Exact<{
   workspaceId: Scalars['String']['input'];
 }>;
@@ -3829,9 +3817,7 @@ export type GetWorkspaceInfoQueryVariables = Exact<{
 
 export type GetWorkspaceInfoQuery = {
   __typename?: 'Query';
-  isAdmin: boolean;
-  isOwner: boolean;
-  workspace: { __typename?: 'WorkspaceType'; team: boolean };
+  workspace: { __typename?: 'WorkspaceType'; role: Permission; team: boolean };
 };
 
 export type GetWorkspacePageByIdQueryVariables = Exact<{
@@ -4824,16 +4810,6 @@ export type Queries =
       name: 'getInviteInfoQuery';
       variables: GetInviteInfoQueryVariables;
       response: GetInviteInfoQuery;
-    }
-  | {
-      name: 'getIsAdminQuery';
-      variables: GetIsAdminQueryVariables;
-      response: GetIsAdminQuery;
-    }
-  | {
-      name: 'getIsOwnerQuery';
-      variables: GetIsOwnerQueryVariables;
-      response: GetIsOwnerQuery;
     }
   | {
       name: 'getMemberCountByWorkspaceIdQuery';

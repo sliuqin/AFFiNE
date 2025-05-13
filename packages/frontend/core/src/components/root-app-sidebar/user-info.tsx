@@ -83,7 +83,7 @@ const AccountMenu = () => {
   const openSignOutModal = useSignOut();
   const serverService = useService(ServerService);
   const userFeatureService = useService(UserFeatureService);
-  const isAdmin = useLiveData(userFeatureService.userFeature.isAdmin$);
+  const isAFFiNEAdmin = useLiveData(userFeatureService.userFeature.isAdmin$);
 
   const onOpenAccountSetting = useCallback(() => {
     track.$.navigationPanel.profileAndBadge.openSettings({ to: 'account' });
@@ -111,7 +111,7 @@ const AccountMenu = () => {
       >
         {t['com.affine.workspace.cloud.account.settings']()}
       </MenuItem>
-      {isAdmin ? (
+      {isAFFiNEAdmin ? (
         <MenuItem
           prefixIcon={<AdminIcon />}
           data-testid="workspace-modal-account-admin-option"

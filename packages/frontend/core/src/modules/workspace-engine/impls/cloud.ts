@@ -4,6 +4,7 @@ import {
   deleteWorkspaceMutation,
   getWorkspaceInfoQuery,
   getWorkspacesQuery,
+  Permission,
   ServerDeploymentType,
 } from '@affine/graphql';
 import type {
@@ -339,8 +340,8 @@ class CloudWorkspaceFlavourProvider implements WorkspaceFlavourProvider {
 
     if (!cloudData && !localData) {
       return {
-        isOwner: info.isOwner,
-        isAdmin: info.isAdmin,
+        isOwner: info.workspace.role === Permission.Owner,
+        isAdmin: info.workspace.role === Permission.Admin,
         isTeam: info.workspace.team,
       };
     }
@@ -355,8 +356,8 @@ class CloudWorkspaceFlavourProvider implements WorkspaceFlavourProvider {
     return {
       name: result.name,
       avatar: result.avatar,
-      isOwner: info.isOwner,
-      isAdmin: info.isAdmin,
+      isOwner: info.workspace.role === Permission.Owner,
+      isAdmin: info.workspace.role === Permission.Admin,
       isTeam: info.workspace.team,
     };
   }

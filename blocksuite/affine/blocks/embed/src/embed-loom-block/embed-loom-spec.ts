@@ -7,6 +7,7 @@ import { literal } from 'lit/static-html.js';
 import { createBuiltinToolbarConfigExtension } from '../configs/toolbar';
 import { EmbedLoomBlockAdapterExtensions } from './adapters/extension';
 import { embedLoomSlashMenuConfig } from './configs/slash-menu';
+import { EmbedLoomBlockInteraction } from './embed-edgeless-loom-bock';
 import { EmbedLoomBlockComponent } from './embed-loom-block';
 import {
   EmbedLoomBlockOptionConfig,
@@ -40,4 +41,5 @@ export const EmbedLoomViewExtensions: ExtensionType[] = [
   EmbedLoomBlockOptionConfig,
   createBuiltinToolbarConfigExtension(flavour, EmbedLoomBlockComponent),
   SlashMenuConfigExtension(flavour, embedLoomSlashMenuConfig),
+  EmbedLoomBlockInteraction,
 ].flat();

@@ -594,6 +594,10 @@ export async function resizeElementByHandle(
   page: Page,
   delta: Point,
   corner:
+    | 'top'
+    | 'bottom'
+    | 'left'
+    | 'right'
     | 'top-left'
     | 'top-right'
     | 'bottom-right'
@@ -604,11 +608,13 @@ export async function resizeElementByHandle(
   const handle = page.locator(`.handle[aria-label="${corner}"] .resize`);
   const box = await handle.boundingBox();
   if (box === null) throw new Error();
-  const offset = 5;
+  const xOffset = box.width / 2;
+  const yOffset = box.height / 2;
+
   await dragBetweenCoords(
     page,
-    { x: box.x + offset, y: box.y + offset },
-    { x: box.x + delta.x + offset, y: box.y + delta.y + offset },
+    { x: box.x + xOffset, y: box.y + yOffset },
+    { x: box.x + delta.x + xOffset, y: box.y + delta.y + yOffset },
     {
       steps,
       beforeMouseUp,

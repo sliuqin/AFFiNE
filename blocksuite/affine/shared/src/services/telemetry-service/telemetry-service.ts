@@ -1,4 +1,5 @@
 import { createIdentifier } from '@blocksuite/global/di';
+import type { ExtensionType } from '@blocksuite/store';
 
 import type { OutDatabaseAllEvents } from './database.js';
 import type { LinkToolbarEvents } from './link.js';
@@ -46,3 +47,13 @@ export interface TelemetryService {
 export const TelemetryProvider = createIdentifier<TelemetryService>(
   'AffineTelemetryService'
 );
+
+export const TelemetryExtension = (
+  service: TelemetryService
+): ExtensionType => {
+  return {
+    setup: di => {
+      di.override(TelemetryProvider, () => service);
+    },
+  };
+};

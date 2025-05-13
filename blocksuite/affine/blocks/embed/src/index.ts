@@ -20,7 +20,10 @@ export const EmbedExtensions: ExtensionType[] = [
 export { createEmbedBlockHtmlAdapterMatcher } from './common/adapters/html';
 export { createEmbedBlockMarkdownAdapterMatcher } from './common/adapters/markdown';
 export { createEmbedBlockPlainTextAdapterMatcher } from './common/adapters/plain-text';
-export { EmbedBlockComponent } from './common/embed-block-element';
+export {
+  createEmbedEdgelessBlockInteraction,
+  EmbedBlockComponent,
+} from './common/embed-block-element';
 export * from './common/embed-note-content-styles';
 export { insertEmbedCard } from './common/insert-embed-card';
 export * from './common/render-linked-doc';

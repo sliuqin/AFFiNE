@@ -57,6 +57,9 @@ type SpacialProperty = {
   valueGet: (rowId: string, propertyId: string) => unknown;
 };
 export class DatabaseBlockDataSource extends DataSourceBase {
+  override get parentProvider() {
+    return this._model.store.provider;
+  }
   spacialProperties: Record<string, SpacialProperty> = {
     'created-time': {
       valueSet: () => {},
@@ -186,9 +189,13 @@ export class DatabaseBlockDataSource extends DataSourceBase {
     );
   });
 
-  constructor(model: DatabaseBlockModel) {
+  constructor(
+    model: DatabaseBlockModel,
+    init?: (dataSource: DatabaseBlockDataSource) => void
+  ) {
     super();
-    this._model = model;
+    this._model = model; // ensure invariants first
+    init?.(this); // then allow external initialisation
   }
 
   private _runCapture() {

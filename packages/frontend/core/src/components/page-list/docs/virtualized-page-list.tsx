@@ -1,14 +1,13 @@
 import { toast, useConfirmModal } from '@affine/component';
 import { useBlockSuiteDocMeta } from '@affine/core/components/hooks/use-block-suite-page-meta';
-import { CollectionService } from '@affine/core/modules/collection';
+import { type Collection } from '@affine/core/modules/collection';
 import { DocsService } from '@affine/core/modules/doc';
 import type { Tag } from '@affine/core/modules/tag';
 import { WorkspaceService } from '@affine/core/modules/workspace';
-import type { Collection, Filter } from '@affine/env/filter';
 import { Trans, useI18n } from '@affine/i18n';
 import type { DocMeta } from '@blocksuite/affine/store';
-import { useService } from '@toeverything/infra';
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useLiveData, useService } from '@toeverything/infra';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ListFloatingToolbar } from '../components/list-floating-toolbar';
 import { usePageItemGroupDefinitions } from '../group-definitions';
@@ -17,7 +16,6 @@ import { PageOperationCell } from '../operation-cell';
 import { PageListItemRenderer } from '../page-group';
 import { ListTableHeader } from '../page-header';
 import type { ItemListHandle, ListItem } from '../types';
-import { useFilteredPageMetas } from '../use-filtered-page-metas';
 import { VirtualizedList } from '../virtualized-list';
 import {
   CollectionPageListHeader,
@@ -25,15 +23,14 @@ import {
   TagPageListHeader,
 } from './page-list-header';
 
-const usePageOperationsRenderer = () => {
+const usePageOperationsRenderer = (collection?: Collection) => {
   const t = useI18n();
-  const collectionService = useService(CollectionService);
   const removeFromAllowList = useCallback(
     (id: string) => {
-      collectionService.deletePagesFromCollections([id]);
+      collection?.removeDoc(id);
       toast(t['com.affine.collection.removePage.success']());
     },
-    [collectionService, t]
+    [collection, t]
   );
   const pageOperationsRenderer = useCallback(
     (page: DocMeta, isInAllowList?: boolean) => {
@@ -53,14 +50,12 @@ const usePageOperationsRenderer = () => {
 export const VirtualizedPageList = memo(function VirtualizedPageList({
   tag,
   collection,
-  filters,
   listItem,
   setHideHeaderCreateNewPage,
   disableMultiDelete,
 }: {
   tag?: Tag;
   collection?: Collection;
-  filters?: Filter[];
   listItem?: DocMeta[];
   setHideHeaderCreateNewPage?: (hide: boolean) => void;
   disableMultiDelete?: boolean;
@@ -72,19 +67,28 @@ export const VirtualizedPageList = memo(function VirtualizedPageList({
   const currentWorkspace = useService(WorkspaceService).workspace;
   const docsService = useService(DocsService);
   const pageMetas = useBlockSuiteDocMeta(currentWorkspace.docCollection);
-  const pageOperations = usePageOperationsRenderer();
+  const pageOperations = usePageOperationsRenderer(collection);
   const pageHeaderColsDef = usePageHeaderColsDef();
 
-  const filteredPageMetas = useFilteredPageMetas(pageMetas, {
-    filters,
-    collection,
-  });
+  const [filteredPageIds, setFilteredPageIds] = useState<string[]>([]);
+  useEffect(() => {
+    const subscription = collection?.watch().subscribe(docIds => {
+      setFilteredPageIds(docIds);
+    });
+    return () => subscription?.unsubscribe();
+  }, [collection]);
+  const allowList = useLiveData(collection?.info$.map(info => info.allowList));
   const pageMetasToRender = useMemo(() => {
     if (listItem) {
       return listItem;
     }
-    return filteredPageMetas;
-  }, [filteredPageMetas, listItem]);
+    if (collection) {
+      return pageMetas.filter(
+        page => filteredPageIds.includes(page.id) && !page.trash
+      );
+    }
+    return pageMetas.filter(page => !page.trash);
+  }, [collection, filteredPageIds, listItem, pageMetas]);
 
   const filteredSelectedPageIds = useMemo(() => {
     const ids = new Set(pageMetasToRender.map(page => page.id));
@@ -98,10 +102,10 @@ export const VirtualizedPageList = memo(function VirtualizedPageList({
   const pageOperationRenderer = useCallback(
     (item: ListItem) => {
       const page = item as DocMeta;
-      const isInAllowList = collection?.allowList?.includes(page.id);
+      const isInAllowList = allowList?.includes(page.id);
       return pageOperations(page, isInAllowList);
     },
-    [collection, pageOperations]
+    [allowList, pageOperations]
   );
 
   const pageHeaderRenderer = useCallback(() => {

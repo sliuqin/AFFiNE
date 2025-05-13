@@ -2,7 +2,7 @@ import { IconButton, Menu, MenuItem, MenuSeparator } from '@affine/component';
 import type { FilterParams } from '@affine/core/modules/collection-rules';
 import { WorkspacePropertyService } from '@affine/core/modules/workspace-property';
 import { useI18n } from '@affine/i18n';
-import { PlusIcon } from '@blocksuite/icons/rc';
+import { FavoriteIcon, PlusIcon } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 
 import { WorkspacePropertyIcon, WorkspacePropertyName } from '../properties';
@@ -24,6 +24,36 @@ export const AddFilterMenu = ({
         {t['com.affine.filter']()}
       </div>
       <MenuSeparator />
+      <MenuItem
+        prefixIcon={<FavoriteIcon className={styles.filterTypeItemIcon} />}
+        key={'favorite'}
+        onClick={() => {
+          onAdd({
+            type: 'system',
+            key: 'favorite',
+            method: 'is',
+            value: 'true',
+          });
+        }}
+      >
+        <span className={styles.filterTypeItemName}>{t['Favorited']()}</span>
+      </MenuItem>
+      <MenuItem
+        prefixIcon={<FavoriteIcon className={styles.filterTypeItemIcon} />}
+        key={'shared'}
+        onClick={() => {
+          onAdd({
+            type: 'system',
+            key: 'shared',
+            method: 'is',
+            value: 'true',
+          });
+        }}
+      >
+        <span className={styles.filterTypeItemName}>
+          {t['com.affine.filter.is-public']()}
+        </span>
+      </MenuItem>
       {workspaceProperties.map(property => {
         const type = WorkspacePropertyTypes[property.type];
         const defaultFilter = type?.defaultFilter;

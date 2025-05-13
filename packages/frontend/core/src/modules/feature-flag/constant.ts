@@ -106,6 +106,16 @@ export const AFFINE_FLAGS = {
     configurable: isCanaryBuild,
     defaultState: isCanaryBuild,
   },
+  enable_link_preview_cache: {
+    category: 'blocksuite',
+    bsFlag: 'enable_link_preview_cache',
+    displayName:
+      'com.affine.settings.workspace.experimental-features.enable-link-preview-cache.name',
+    description:
+      'com.affine.settings.workspace.experimental-features.enable-link-preview-cache.description',
+    configurable: isCanaryBuild,
+    defaultState: isCanaryBuild,
+  },
 
   enable_emoji_folder_icon: {
     category: 'affine',

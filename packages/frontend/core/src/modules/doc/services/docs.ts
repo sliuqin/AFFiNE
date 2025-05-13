@@ -69,6 +69,10 @@ export class DocsService extends Service {
     return this.store.watchAllDocTagIds();
   }
 
+  allDocIds$() {
+    return this.store.watchDocIds();
+  }
+
   allNonTrashDocIds$() {
     return this.store.watchNonTrashDocIds();
   }

@@ -1,19 +1,20 @@
 import { EmptyCollectionDetail } from '@affine/core/components/affine/empty';
-import { isEmptyCollection } from '@affine/core/desktop/pages/workspace/collection';
-import { AppTabs, PageHeader } from '@affine/core/mobile/components';
+import { PageHeader } from '@affine/core/mobile/components';
 import { Page } from '@affine/core/mobile/components/page';
-import type { Collection } from '@affine/env/filter';
+import type { Collection } from '@affine/core/modules/collection';
 import { ViewLayersIcon } from '@blocksuite/icons/rc';
+import { useLiveData } from '@toeverything/infra';
 
 import { AllDocList } from '../doc/list';
 import * as styles from './detail.css';
 
 export const DetailHeader = ({ collection }: { collection: Collection }) => {
+  const name = useLiveData(collection.name$);
   return (
     <PageHeader className={styles.header} back>
       <div className={styles.headerContent}>
         <ViewLayersIcon className={styles.headerIcon} />
-        {collection.name}
+        {name}
       </div>
     </PageHeader>
   );
@@ -24,13 +25,14 @@ export const CollectionDetail = ({
 }: {
   collection: Collection;
 }) => {
-  if (isEmptyCollection(collection)) {
+  const info = useLiveData(collection.info$);
+  if (info.allowList.length === 0 && info.rules.filters.length === 0) {
     return (
-      <>
-        <DetailHeader collection={collection} />
-        <EmptyCollectionDetail collection={collection} absoluteCenter />
-        <AppTabs />
-      </>
+      <Page header={<DetailHeader collection={collection} />}>
+        <div style={{ flexGrow: 1 }}>
+          <EmptyCollectionDetail collection={collection} absoluteCenter />
+        </div>
+      </Page>
     );
   }
 

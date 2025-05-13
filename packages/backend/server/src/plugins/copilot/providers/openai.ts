@@ -74,6 +74,7 @@ export class OpenAIProvider
     'gpt-4.1-2025-04-14',
     'gpt-4.1-mini',
     'o1',
+    'o3',
     'o4-mini',
     // embeddings
     'text-embedding-3-large',

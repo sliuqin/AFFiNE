@@ -10,7 +10,7 @@ import {
   type CellRenderProps,
   createIcon,
   type DataViewCellLifeCycle,
-  HostContextKey,
+  EditorHostKey,
 } from '@blocksuite/affine/blocks/database';
 import { openFileOrFiles } from '@blocksuite/affine/shared/utils';
 import type { BlobEngine } from '@blocksuite/affine/sync';
@@ -226,8 +226,8 @@ class FileCellManager {
     this.cell = props.cell;
     this.selectCurrentCell = props.selectCurrentCell;
     this.isEditing = props.isEditing$;
-    this.blobSync = this.cell?.view?.contextGet
-      ? this.cell.view.contextGet(HostContextKey)?.store.blobSync
+    this.blobSync = this.cell?.view?.serviceGet
+      ? this.cell.view.serviceGet(EditorHostKey)?.store.blobSync
       : undefined;
 
     this.fileUploadManager = this.blobSync

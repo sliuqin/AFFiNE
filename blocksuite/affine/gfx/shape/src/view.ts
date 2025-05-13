@@ -8,7 +8,7 @@ import {
   HighlighterElementRendererExtension,
   ShapeElementRendererExtension,
 } from './element-renderer';
-import { ShapeElementView } from './element-view';
+import { ShapeElementView, ShapeViewInteraction } from './element-view';
 import { ShapeTool } from './shape-tool';
 import { shapeSeniorTool, shapeToolbarExtension } from './toolbar';
 
@@ -29,6 +29,7 @@ export class ShapeViewExtension extends ViewExtensionProvider {
       context.register(ShapeTool);
       context.register(shapeSeniorTool);
       context.register(shapeToolbarExtension);
+      context.register(ShapeViewInteraction);
     }
   }
 }

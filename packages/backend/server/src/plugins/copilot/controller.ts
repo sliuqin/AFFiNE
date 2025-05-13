@@ -62,7 +62,7 @@ export interface ChatEvent {
 }
 
 type CheckResult = {
-  model: string | undefined;
+  model: string;
   hasAttachment?: boolean;
 };
 
@@ -94,7 +94,8 @@ export class CopilotController implements BeforeApplicationShutdown {
   private async checkRequest(
     userId: string,
     sessionId: string,
-    messageId?: string
+    messageId?: string,
+    modelId?: string
   ): Promise<CheckResult> {
     await this.chatSession.checkQuota(userId);
     const session = await this.chatSession.get(sessionId);
@@ -102,7 +103,13 @@ export class CopilotController implements BeforeApplicationShutdown {
       throw new CopilotSessionNotFound();
     }
 
-    const ret: CheckResult = { model: session.model };
+    const ret: CheckResult = {
+      model: session.model,
+    };
+
+    if (modelId && session.optionalModels.includes(modelId)) {
+      ret.model = modelId;
+    }
 
     if (messageId && typeof messageId === 'string') {
       const message = await session.getMessageById(messageId);
@@ -116,13 +123,16 @@ export class CopilotController implements BeforeApplicationShutdown {
   private async chooseTextProvider(
     userId: string,
     sessionId: string,
-    messageId?: string
-  ): Promise<CopilotTextProvider> {
+    messageId?: string,
+    modelId?: string
+  ): Promise<{ provider: CopilotTextProvider; model: string }> {
     const { hasAttachment, model } = await this.checkRequest(
       userId,
       sessionId,
-      messageId
+      messageId,
+      modelId
     );
+
     let provider = await this.provider.getProviderByCapability(
       CopilotCapability.TextToText,
       { model }
@@ -138,7 +148,7 @@ export class CopilotController implements BeforeApplicationShutdown {
       throw new NoCopilotProviderAvailable();
     }
 
-    return provider;
+    return { provider, model };
   }
 
   private async appendSessionMessage(
@@ -182,13 +192,17 @@ export class CopilotController implements BeforeApplicationShutdown {
     const webSearch = Array.isArray(params.webSearch)
       ? Boolean(params.webSearch[0])
       : Boolean(params.webSearch);
+    const modelId = Array.isArray(params.modelId)
+      ? params.modelId[0]
+      : params.modelId;
 
     delete params.messageId;
     delete params.retry;
     delete params.reasoning;
     delete params.webSearch;
+    delete params.modelId;
 
-    return { messageId, retry, reasoning, webSearch, params };
+    return { messageId, retry, reasoning, webSearch, modelId, params };
   }
 
   private getSignal(req: Request) {
@@ -236,13 +250,14 @@ export class CopilotController implements BeforeApplicationShutdown {
     const info: any = { sessionId, params };
 
     try {
-      const { messageId, retry, reasoning, webSearch } =
+      const { messageId, retry, reasoning, webSearch, modelId } =
         this.prepareParams(params);
 
-      const provider = await this.chooseTextProvider(
+      const { provider, model } = await this.chooseTextProvider(
         user.id,
         sessionId,
-        messageId
+        messageId,
+        modelId
       );
 
       const [latestMessage, session] = await this.appendSessionMessage(
@@ -251,8 +266,8 @@ export class CopilotController implements BeforeApplicationShutdown {
         retry
       );
 
-      info.model = session.model;
-      metrics.ai.counter('chat_calls').add(1, { model: session.model });
+      info.model = model;
+      metrics.ai.counter('chat_calls').add(1, { model });
 
       if (latestMessage) {
         params = Object.assign({}, params, latestMessage.params, {
@@ -264,7 +279,7 @@ export class CopilotController implements BeforeApplicationShutdown {
       const finalMessage = session.finish(params);
       info.finalMessage = finalMessage.filter(m => m.role !== 'system');
 
-      const content = await provider.generateText(finalMessage, session.model, {
+      const content = await provider.generateText(finalMessage, model, {
         ...session.config.promptConfig,
         signal: this.getSignal(req),
         user: user.id,
@@ -302,13 +317,14 @@ export class CopilotController implements BeforeApplicationShutdown {
     const info: any = { sessionId, params, throwInStream: false };
 
     try {
-      const { messageId, retry, reasoning, webSearch } =
+      const { messageId, retry, reasoning, webSearch, modelId } =
         this.prepareParams(params);
 
-      const provider = await this.chooseTextProvider(
+      const { provider, model } = await this.chooseTextProvider(
         user.id,
         sessionId,
-        messageId
+        messageId,
+        modelId
       );
 
       const [latestMessage, session] = await this.appendSessionMessage(
@@ -317,8 +333,8 @@ export class CopilotController implements BeforeApplicationShutdown {
         retry
       );
 
-      info.model = session.model;
-      metrics.ai.counter('chat_stream_calls').add(1, { model: session.model });
+      info.model = model;
+      metrics.ai.counter('chat_stream_calls').add(1, { model });
 
       if (latestMessage) {
         params = Object.assign({}, params, latestMessage.params, {
@@ -332,7 +348,7 @@ export class CopilotController implements BeforeApplicationShutdown {
       info.finalMessage = finalMessage.filter(m => m.role !== 'system');
 
       const source$ = from(
-        provider.generateTextStream(finalMessage, session.model, {
+        provider.generateTextStream(finalMessage, model, {
           ...session.config.promptConfig,
           signal: this.getSignal(req),
           user: user.id,

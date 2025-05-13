@@ -454,6 +454,10 @@ export async function resizeElementByHandle(
   page: Page,
   delta: IVec,
   corner:
+    | 'right'
+    | 'left'
+    | 'top'
+    | 'bottom'
     | 'top-left'
     | 'top-right'
     | 'bottom-right'

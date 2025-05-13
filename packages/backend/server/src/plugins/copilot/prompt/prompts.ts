@@ -5,8 +5,15 @@ import { PromptConfig, PromptMessage } from '../providers';
 
 type Prompt = Omit<
   AiPrompt,
-  'id' | 'createdAt' | 'updatedAt' | 'modified' | 'action' | 'config'
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'modified'
+  | 'action'
+  | 'config'
+  | 'optionalModels'
 > & {
+  optionalModels?: string[];
   action?: string;
   messages: PromptMessage[];
   config?: PromptConfig;
@@ -1037,7 +1044,13 @@ Finally, please only send us the content of your continuation in Markdown Format
 const chat: Prompt[] = [
   {
     name: 'Chat With AFFiNE AI',
-    model: 'o4-mini',
+    model: 'gpt-4.1',
+    optionalModels: [
+      'o3',
+      'o4-mini',
+      'claude-3-7-sonnet-20250219',
+      'claude-3-5-sonnet-20241022',
+    ],
     messages: [
       {
         role: 'system',
@@ -1161,14 +1174,15 @@ export async function refreshPrompts(db: PrismaClient) {
       create: {
         name: prompt.name,
         action: prompt.action,
-        config: prompt.config || undefined,
+        config: prompt.config ?? undefined,
         model: prompt.model,
+        optionalModels: prompt.optionalModels,
         messages: {
           create: prompt.messages.map((message, idx) => ({
             idx,
             role: message.role,
             content: message.content,
-            params: message.params || undefined,
+            params: message.params ?? undefined,
           })),
         },
       },
@@ -1177,6 +1191,7 @@ export async function refreshPrompts(db: PrismaClient) {
         action: prompt.action,
         config: prompt.config ?? undefined,
         model: prompt.model,
+        optionalModels: prompt.optionalModels,
         updatedAt: new Date(),
         messages: {
           deleteMany: {},
@@ -1184,7 +1199,7 @@ export async function refreshPrompts(db: PrismaClient) {
             idx,
             role: message.role,
             content: message.content,
-            params: message.params || undefined,
+            params: message.params ?? undefined,
           })),
         },
       },

@@ -3,7 +3,12 @@ import {
   EdgelessCRUDIdentifier,
   reassociateConnectorsCommand,
 } from '@blocksuite/affine-block-surface';
-import type { AliasInfo } from '@blocksuite/affine-model';
+import {
+  type AliasInfo,
+  EmbedSyncedDocBlockSchema,
+  SYNCED_MIN_HEIGHT,
+  SYNCED_MIN_WIDTH,
+} from '@blocksuite/affine-model';
 import {
   EMBED_CARD_HEIGHT,
   EMBED_CARD_WIDTH,
@@ -12,8 +17,9 @@ import {
   ThemeExtensionIdentifier,
   ThemeProvider,
 } from '@blocksuite/affine-shared/services';
-import { Bound } from '@blocksuite/global/gfx';
+import { Bound, clamp } from '@blocksuite/global/gfx';
 import { type BlockComponent, BlockStdScope } from '@blocksuite/std';
+import { GfxViewInteractionExtension } from '@blocksuite/std/gfx';
 import { html, nothing } from 'lit';
 import { query, queryAsync } from 'lit/decorators.js';
 import { choose } from 'lit/directives/choose.js';
@@ -199,3 +205,60 @@ export class EmbedEdgelessSyncedDocBlockComponent extends toEdgelessEmbedBlock(
 
   override accessor useCaptionEditor = true;
 }
+
+export const EmbedSyncedDocInteraction =
+  GfxViewInteractionExtension<EmbedEdgelessSyncedDocBlockComponent>(
+    EmbedSyncedDocBlockSchema.model.flavour,
+    {
+      resizeConstraint: {
+        minWidth: SYNCED_MIN_WIDTH,
+        minHeight: SYNCED_MIN_HEIGHT,
+      },
+
+      handleRotate: () => {
+        return {
+          beforeRotate(context) {
+            context.set({
+              rotatable: false,
+            });
+          },
+        };
+      },
+
+      handleResize: ({ model }) => {
+        const initialScale = model.props.scale ?? 1;
+
+        return {
+          onResizeStart: context => {
+            context.default(context);
+            model.stash('scale');
+          },
+          onResizeMove: context => {
+            const { lockRatio, originalBound, constraint, newBound } = context;
+
+            let scale = initialScale;
+            const realWidth = originalBound.w / initialScale;
+
+            if (lockRatio) {
+              scale = newBound.w / realWidth;
+            }
+
+            const newWidth = newBound.w / scale;
+
+            newBound.w =
+              clamp(newWidth, constraint.minWidth, constraint.maxWidth) * scale;
+            newBound.h =
+              clamp(newBound.h, constraint.minHeight, constraint.maxHeight) *
+              scale;
+
+            model.props.scale = scale;
+            model.xywh = newBound.serialize();
+          },
+          onResizeEnd: context => {
+            context.default(context);
+            model.pop('scale');
+          },
+        };
+      },
+    }
+  );

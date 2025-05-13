@@ -193,7 +193,7 @@ impl AggregateDevice {
 
     let audio_stats = AudioStats {
       sample_rate,
-      channels: 1, // we combined the stereo pcm data into a single channel
+      channels: 2,
     };
 
     Ok(audio_stats)
@@ -654,7 +654,7 @@ impl AggregateDeviceManager {
       .get_aggregate_device_stats()
       .unwrap_or(AudioStats {
         sample_rate: 48000.0, // Match fallback in setup_device_change_listeners
-        channels: 1,
+        channels: 2,
       });
     self.original_audio_stats = Some(original_audio_stats); // Store for listener use
 

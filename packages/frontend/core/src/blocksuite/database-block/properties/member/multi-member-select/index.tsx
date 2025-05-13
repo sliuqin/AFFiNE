@@ -16,6 +16,7 @@ import {
 
 import { useSignalValue } from '../../../../../modules/doc-info/utils';
 import { Spinner } from '../../../components/loading';
+import { useMemberInfo } from '../../../hooks/use-member-info';
 import * as styles from './style.css';
 
 type BaseOptions = {
@@ -172,13 +173,6 @@ class MemberManager {
   };
 }
 
-export const useMemberInfo = (id: string, memberManager: MemberManager) => {
-  useEffect(() => {
-    memberManager.userService?.revalidateUserInfo(id);
-  }, [id, memberManager.userService]);
-  return useSignalValue(memberManager.userService?.userInfo$(id));
-};
-
 export const MemberListItem = (props: {
   member: ExistedUserInfo;
   memberManager: MemberManager;
@@ -225,7 +219,7 @@ export const MemberPreview = ({
   memberManager: MemberManager;
   onDelete?: () => void;
 }) => {
-  const userInfo = useMemberInfo(memberId, memberManager);
+  const userInfo = useMemberInfo(memberId, memberManager.userService);
   if (!userInfo) {
     return null;
   }

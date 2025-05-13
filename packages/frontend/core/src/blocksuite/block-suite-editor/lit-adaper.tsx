@@ -80,7 +80,8 @@ const usePatchSpecs = (mode: DocMode) => {
   const patchedSpecs = useMemo(() => {
     const manager = getViewManager()
       .config.init()
-      .common(framework, enableAI)
+      .foundation(framework)
+      .ai(enableAI, framework)
       .theme(framework)
       .editorConfig(framework)
       .editorView({
@@ -98,7 +99,10 @@ const usePatchSpecs = (mode: DocMode) => {
       })
       .database(framework)
       .linkedDoc(framework)
-      .paragraph(enableAI).value;
+      .paragraph(enableAI)
+      .mobile(framework)
+      .electron(framework)
+      .linkPreview(framework).value;
 
     if (BUILD_CONFIG.isMobileEdition) {
       if (mode === 'page') {

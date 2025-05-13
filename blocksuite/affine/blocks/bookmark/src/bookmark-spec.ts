@@ -4,6 +4,7 @@ import type { ExtensionType } from '@blocksuite/store';
 import { literal } from 'lit/static-html.js';
 
 import { BookmarkBlockAdapterExtensions } from './adapters/extension';
+import { BookmarkBlockInteraction } from './bookmark-edgeless-block';
 import { BookmarkSlashMenuConfigExtension } from './configs/slash-menu';
 import { createBuiltinToolbarConfigExtension } from './configs/toolbar';
 
@@ -16,6 +17,7 @@ export const BookmarkBlockSpec: ExtensionType[] = [
       ? literal`affine-edgeless-bookmark`
       : literal`affine-bookmark`;
   }),
+  BookmarkBlockInteraction,
   BookmarkBlockAdapterExtensions,
   createBuiltinToolbarConfigExtension(flavour),
   BookmarkSlashMenuConfigExtension,

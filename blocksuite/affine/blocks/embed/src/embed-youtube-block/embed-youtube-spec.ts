@@ -7,6 +7,7 @@ import { literal } from 'lit/static-html.js';
 import { createBuiltinToolbarConfigExtension } from '../configs/toolbar';
 import { EmbedYoutubeBlockAdapterExtensions } from './adapters/extension';
 import { embedYoutubeSlashMenuConfig } from './configs/slash-menu';
+import { EmbedYoutubeBlockInteraction } from './embed-edgeless-youtube-block';
 import { EmbedYoutubeBlockComponent } from './embed-youtube-block';
 import {
   EmbedYoutubeBlockOptionConfig,
@@ -40,4 +41,5 @@ export const EmbedYoutubeViewExtensions: ExtensionType[] = [
   EmbedYoutubeBlockOptionConfig,
   createBuiltinToolbarConfigExtension(flavour, EmbedYoutubeBlockComponent),
   SlashMenuConfigExtension('affine:embed-youtube', embedYoutubeSlashMenuConfig),
+  EmbedYoutubeBlockInteraction,
 ].flat();

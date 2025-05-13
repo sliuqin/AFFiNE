@@ -1,6 +1,7 @@
 import '../content/assistant-avatar';
 import '../content/rich-text';
 
+import type { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import { WithDisposable } from '@blocksuite/affine/global/lit';
 import { isInsidePageEditor } from '@blocksuite/affine/shared/utils';
 import type { EditorHost } from '@blocksuite/affine/std';
@@ -49,6 +50,9 @@ export class ChatMessageAssistant extends WithDisposable(ShadowlessElement) {
   accessor extensions!: ExtensionType[];
 
   @property({ attribute: false })
+  accessor affineFeatureFlagService!: FeatureFlagService;
+
+  @property({ attribute: false })
   accessor getSessionId!: () => Promise<string | undefined>;
 
   @property({ attribute: false })
@@ -93,6 +97,7 @@ export class ChatMessageAssistant extends WithDisposable(ShadowlessElement) {
         .text=${item.content}
         .state=${state}
         .extensions=${this.extensions}
+        .affineFeatureFlagService=${this.affineFeatureFlagService}
       ></chat-content-rich-text>
       ${shouldRenderError ? AIChatErrorRenderer(host, error) : nothing}
       ${this.renderEditorActions()}
