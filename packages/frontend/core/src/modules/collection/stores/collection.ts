@@ -7,7 +7,7 @@ import {
 } from '@toeverything/infra';
 import dayjs from 'dayjs';
 import { nanoid } from 'nanoid';
-import { map, type Observable, switchMap } from 'rxjs';
+import { distinctUntilChanged, map, type Observable, switchMap } from 'rxjs';
 import { Array as YArray } from 'yjs';
 
 import type { FilterParams } from '../../collection-rules';
@@ -33,6 +33,17 @@ export class CollectionStore extends Store {
 
   private get workspaceSettingYMap() {
     return this.rootYDoc.getMap('setting');
+  }
+
+  watchCollectionDataReady() {
+    return this.workspaceService.workspace.engine.doc
+      .docState$(this.workspaceService.workspace.id)
+      .pipe(
+        map(docState => {
+          return docState.ready;
+        }),
+        distinctUntilChanged()
+      );
   }
 
   watchCollectionMetas() {

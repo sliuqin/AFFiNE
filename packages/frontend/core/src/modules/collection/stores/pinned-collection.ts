@@ -13,6 +13,10 @@ export class PinnedCollectionStore extends Store {
     super();
   }
 
+  watchPinnedCollectionDataReady() {
+    return this.workspaceDBService.db.pinnedCollections.isReady$;
+  }
+
   watchPinnedCollections(): Observable<PinnedCollectionRecord[]> {
     return this.workspaceDBService.db.pinnedCollections.find$();
   }

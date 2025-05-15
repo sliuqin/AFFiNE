@@ -114,6 +114,18 @@ export const AllPage = () => {
   const collectionService = useService(CollectionService);
   const pinnedCollectionService = useService(PinnedCollectionService);
 
+  const isCollectionDataReady = useLiveData(
+    collectionService.collectionDataReady$
+  );
+
+  const isPinnedCollectionDataReady = useLiveData(
+    pinnedCollectionService.pinnedCollectionDataReady$
+  );
+
+  const pinnedCollections = useLiveData(
+    pinnedCollectionService.pinnedCollections$
+  );
+
   const [selectedCollectionId, setSelectedCollectionId] = useState<
     string | null
   >(null);
@@ -124,17 +136,28 @@ export const AllPage = () => {
   );
 
   useEffect(() => {
-    // if selected collection is not found, set selected collection id to null
-    if (!selectedCollection && selectedCollectionId) {
+    // if selected collection is not in pinned collections, set selected collection id to null
+    if (
+      isPinnedCollectionDataReady &&
+      selectedCollectionId &&
+      !pinnedCollections.some(c => c.collectionId === selectedCollectionId)
+    ) {
       setSelectedCollectionId(null);
     }
-  }, [selectedCollection, selectedCollectionId]);
+  }, [isPinnedCollectionDataReady, pinnedCollections, selectedCollectionId]);
+
+  useEffect(() => {
+    // if selected collection is not found, set selected collection id to null
+    if (!selectedCollection && selectedCollectionId && isCollectionDataReady) {
+      setSelectedCollectionId(null);
+    }
+  }, [isCollectionDataReady, selectedCollection, selectedCollectionId]);
 
   const selectedCollectionInfo = useLiveData(
     selectedCollection ? selectedCollection.info$ : null
   );
 
-  const [tempFilters, setTempFilters] = useState<FilterParams[]>([]);
+  const [tempFilters, setTempFilters] = useState<FilterParams[] | null>(null);
 
   const [explorerContextValue] = useState(createDocExplorerContext);
 
@@ -178,10 +201,9 @@ export const AllPage = () => {
   useEffect(() => {
     const subscription = collectionRulesService
       .watch(
-        // collection filters and temp filters can't exist at the same time
         selectedCollectionInfo
           ? {
-              filters: selectedCollectionInfo.rules.filters,
+              filters: tempFilters ?? selectedCollectionInfo.rules.filters,
               groupBy,
               orderBy,
               extraAllowList: selectedCollectionInfo.allowList,
@@ -303,41 +325,73 @@ export const AllPage = () => {
     });
   }, [docsService.list, openConfirmModal, selectedDocIds, t]);
 
+  const handleSelectCollection = useCallback((collectionId: string) => {
+    setSelectedCollectionId(collectionId);
+    setTempFilters(null);
+  }, []);
+
+  const handleEditCollection = useCallback(
+    (collectionId: string) => {
+      const collection = collectionService.collection$(collectionId).value;
+      if (!collection) {
+        return;
+      }
+      setSelectedCollectionId(collectionId);
+      setTempFilters(collection.info$.value.rules.filters);
+    },
+    [collectionService]
+  );
+
   const handleSaveFilters = useCallback(() => {
-    openPromptModal({
-      title: t['com.affine.editCollection.saveCollection'](),
-      label: t['com.affine.editCollectionName.name'](),
-      inputOptions: {
-        placeholder: t['com.affine.editCollectionName.name.placeholder'](),
-      },
-      children: t['com.affine.editCollectionName.createTips'](),
-      confirmText: t['com.affine.editCollection.save'](),
-      cancelText: t['com.affine.editCollection.button.cancel'](),
-      confirmButtonOptions: {
-        variant: 'primary',
-      },
-      onConfirm(name) {
-        const id = collectionService.createCollection({
-          name,
-          rules: {
-            filters: tempFilters,
-          },
-        });
-        pinnedCollectionService.addPinnedCollection({
-          collectionId: id,
-          index: pinnedCollectionService.indexAt('after'),
-        });
-        setTempFilters([]);
-        setSelectedCollectionId(id);
-      },
-    });
+    if (selectedCollectionId) {
+      collectionService.updateCollection(selectedCollectionId, {
+        rules: {
+          filters: tempFilters ?? [],
+        },
+      });
+      setTempFilters(null);
+    } else {
+      openPromptModal({
+        title: t['com.affine.editCollection.saveCollection'](),
+        label: t['com.affine.editCollectionName.name'](),
+        inputOptions: {
+          placeholder: t['com.affine.editCollectionName.name.placeholder'](),
+        },
+        children: t['com.affine.editCollectionName.createTips'](),
+        confirmText: t['com.affine.editCollection.save'](),
+        cancelText: t['com.affine.editCollection.button.cancel'](),
+        confirmButtonOptions: {
+          variant: 'primary',
+        },
+        onConfirm(name) {
+          const id = collectionService.createCollection({
+            name,
+            rules: {
+              filters: tempFilters ?? [],
+            },
+          });
+          pinnedCollectionService.addPinnedCollection({
+            collectionId: id,
+            index: pinnedCollectionService.indexAt('after'),
+          });
+          setTempFilters(null);
+          setSelectedCollectionId(id);
+        },
+      });
+    }
   }, [
     collectionService,
     openPromptModal,
     pinnedCollectionService,
+    selectedCollectionId,
     t,
     tempFilters,
   ]);
+
+  const handleNewTempFilter = useCallback((params: FilterParams) => {
+    setSelectedCollectionId(null);
+    setTempFilters([params]);
+  }, []);
 
   return (
     <DocExplorerContext.Provider value={explorerContextValue}>
@@ -352,29 +406,24 @@ export const AllPage = () => {
           <div className={styles.pinnedCollection}>
             <PinnedCollections
               activeCollectionId={selectedCollectionId}
-              onClickAll={() => setSelectedCollectionId(null)}
-              onClickCollection={collectionId => {
-                setSelectedCollectionId(collectionId);
-                setTempFilters([]);
-              }}
-              onAddFilter={params => {
-                setSelectedCollectionId(null);
-                setTempFilters([...(tempFilters ?? []), params]);
-              }}
-              hiddenAdd={tempFilters.length > 0}
+              onActiveAll={() => setSelectedCollectionId(null)}
+              onActiveCollection={handleSelectCollection}
+              onAddFilter={handleNewTempFilter}
+              onEditCollection={handleEditCollection}
+              hiddenAdd={tempFilters !== null}
             />
           </div>
-          {tempFilters.length > 0 && (
+          {tempFilters !== null && (
             <div className={styles.filterArea}>
               <Filters
                 className={styles.filters}
-                filters={tempFilters ?? []}
+                filters={tempFilters}
                 onChange={handleFilterChange}
               />
               <Button
                 variant="plain"
                 onClick={() => {
-                  setTempFilters([]);
+                  setTempFilters(null);
                 }}
               >
                 {t['Cancel']()}

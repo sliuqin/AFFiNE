@@ -19,6 +19,11 @@ export class CollectionService extends Service {
     },
   });
 
+  readonly collectionDataReady$ = LiveData.from(
+    this.store.watchCollectionDataReady(),
+    false
+  );
+
   // collection metas used in collection list, only include `id` and `name`, without `rules` and `allowList`
   readonly collectionMetas$ = LiveData.from(
     this.store.watchCollectionMetas(),

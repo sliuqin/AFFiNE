@@ -14,6 +14,11 @@ export class PinnedCollectionService extends Service {
     super();
   }
 
+  pinnedCollectionDataReady$ = LiveData.from(
+    this.pinnedCollectionStore.watchPinnedCollectionDataReady(),
+    false
+  );
+
   pinnedCollections$ = LiveData.from<PinnedCollectionRecord[]>(
     this.pinnedCollectionStore.watchPinnedCollections(),
     []

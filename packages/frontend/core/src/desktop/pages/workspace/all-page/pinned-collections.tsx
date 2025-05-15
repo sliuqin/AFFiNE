@@ -7,7 +7,13 @@ import {
 } from '@affine/core/modules/collection';
 import type { FilterParams } from '@affine/core/modules/collection-rules';
 import { useI18n } from '@affine/i18n';
-import { CollectionsIcon, FilterIcon, PlusIcon } from '@blocksuite/icons/rc';
+import {
+  CloseIcon,
+  CollectionsIcon,
+  EditIcon,
+  FilterIcon,
+  PlusIcon,
+} from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
 import { useMemo, useState } from 'react';
 
@@ -17,10 +23,14 @@ export const PinnedCollectionItem = ({
   record,
   isActive,
   onClick,
+  onClickRemove,
+  onClickEdit,
 }: {
   record: PinnedCollectionRecord;
+  onClickRemove: () => void;
   isActive: boolean;
   onClick: () => void;
+  onClickEdit: () => void;
 }) => {
   const t = useI18n();
   const collectionService = useService(CollectionService);
@@ -38,22 +48,46 @@ export const PinnedCollectionItem = ({
       data-active={isActive ? 'true' : undefined}
       onClick={onClick}
     >
-      {name ?? t['Untitled']()}
+      <span className={styles.itemContent}>{name ?? t['Untitled']()}</span>
+      <IconButton
+        size="16"
+        className={styles.editIconButton}
+        onClick={e => {
+          e.stopPropagation();
+          onClickEdit();
+        }}
+      >
+        <EditIcon />
+      </IconButton>
+      {isActive && (
+        <IconButton
+          className={styles.closeButton}
+          size="16"
+          onClick={e => {
+            e.stopPropagation();
+            onClickRemove();
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      )}
     </div>
   );
 };
 
 export const PinnedCollections = ({
   activeCollectionId,
-  onClickAll,
-  onClickCollection,
+  onActiveAll,
+  onActiveCollection,
   onAddFilter,
+  onEditCollection,
   hiddenAdd,
 }: {
   activeCollectionId: string | null;
-  onClickAll: () => void;
-  onClickCollection: (collectionId: string) => void;
+  onActiveAll: () => void;
+  onActiveCollection: (collectionId: string) => void;
   onAddFilter: (params: FilterParams) => void;
+  onEditCollection: (collectionId: string) => void;
   hiddenAdd?: boolean;
 }) => {
   const t = useI18n();
@@ -74,22 +108,32 @@ export const PinnedCollections = ({
       <div
         className={styles.item}
         data-active={activeCollectionId === null ? 'true' : undefined}
-        onClick={onClickAll}
+        onClick={onActiveAll}
         role="button"
       >
         {t['com.affine.all-docs.pinned-collection.all']()}
       </div>
-      {pinnedCollections.map(record => (
+      {pinnedCollections.map((record, index) => (
         <PinnedCollectionItem
           key={record.collectionId}
           record={record}
           isActive={activeCollectionId === record.collectionId}
-          onClick={() => onClickCollection(record.collectionId)}
+          onClick={() => onActiveCollection(record.collectionId)}
+          onClickEdit={() => onEditCollection(record.collectionId)}
+          onClickRemove={() => {
+            const nextCollectionId = pinnedCollections[index - 1]?.collectionId;
+            if (nextCollectionId) {
+              onActiveCollection(nextCollectionId);
+            } else {
+              onActiveAll();
+            }
+            pinnedCollectionService.removePinnedCollection(record.collectionId);
+          }}
         />
       ))}
       {!hiddenAdd && (
         <AddPinnedCollection
-          onAddPinnedCollection={handleAddPinnedCollection}
+          onPinCollection={handleAddPinnedCollection}
           onAddFilter={onAddFilter}
         />
       )}
@@ -98,17 +142,17 @@ export const PinnedCollections = ({
 };
 
 export const AddPinnedCollection = ({
-  onAddPinnedCollection,
+  onPinCollection,
   onAddFilter,
 }: {
-  onAddPinnedCollection: (collectionId: string) => void;
+  onPinCollection: (collectionId: string) => void;
   onAddFilter: (params: FilterParams) => void;
 }) => {
   return (
     <Menu
       items={
         <AddPinnedCollectionMenuContent
-          onAddPinnedCollection={onAddPinnedCollection}
+          onPinCollection={onPinCollection}
           onAddFilter={onAddFilter}
         />
       }
@@ -121,10 +165,10 @@ export const AddPinnedCollection = ({
 };
 
 export const AddPinnedCollectionMenuContent = ({
-  onAddPinnedCollection,
+  onPinCollection,
   onAddFilter,
 }: {
-  onAddPinnedCollection: (collectionId: string) => void;
+  onPinCollection: (collectionId: string) => void;
   onAddFilter: (params: FilterParams) => void;
 }) => {
   const [addingFilter, setAddingFilter] = useState<boolean>(false);
@@ -167,7 +211,7 @@ export const AddPinnedCollectionMenuContent = ({
           prefixIcon={<CollectionsIcon />}
           suffixIcon={<PlusIcon />}
           onClick={() => {
-            onAddPinnedCollection(meta.id);
+            onPinCollection(meta.id);
           }}
         >
           {meta.name ?? t['Untitled']()}

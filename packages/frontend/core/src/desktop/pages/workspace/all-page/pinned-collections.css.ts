@@ -27,6 +27,38 @@ export const item = style({
   },
 });
 
+export const itemContent = style({
+  display: 'inline-block',
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  textAlign: 'center',
+  maxWidth: '128px',
+  minWidth: '32px',
+
+  selectors: {
+    [`${item}:hover > &`]: {
+      mask:
+        'linear-gradient(#fff) left / calc(100% - 32px) no-repeat,' +
+        'linear-gradient(90deg,#fff 0%,transparent 50%,transparent 100%) right / 32px no-repeat',
+    },
+  },
+});
+
+export const editIconButton = style({
+  opacity: 0,
+  marginLeft: -16,
+  backgroundColor: cssVarV2('layer/background/hoverOverlay'),
+
+  selectors: {
+    [`${item}:hover > &`]: {
+      opacity: 1,
+    },
+  },
+});
+
+export const closeButton = style({});
+
 export const container = style({
   display: 'flex',
   flexDirection: 'row',
