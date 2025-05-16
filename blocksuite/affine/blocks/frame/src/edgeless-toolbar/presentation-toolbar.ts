@@ -233,7 +233,7 @@ export class PresentationToolbar extends EdgelessToolbarToolMixin(
         bound = Bound.fromCenter(center, w, h);
       }
 
-      viewport.setViewportByBound(bound, [0, 0, 0, 0], false);
+      viewport.setViewportByBound(bound, [0, 0, 0, 0], true);
       this.slots.navigatorFrameChanged.next(
         this._frames[this._currentFrameIndex]
       );
