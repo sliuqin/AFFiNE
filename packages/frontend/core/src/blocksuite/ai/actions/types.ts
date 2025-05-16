@@ -291,7 +291,6 @@ declare global {
         file: File,
         options: {
           contextId: string;
-          blobId: string;
         }
       ) => Promise<CopilotContextFile>;
       removeContextFile: (options: {

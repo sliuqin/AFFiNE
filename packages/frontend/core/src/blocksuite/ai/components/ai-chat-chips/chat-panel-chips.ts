@@ -403,10 +403,8 @@ export class ChatPanelChips extends SignalWatcher(
       if (!contextId || !AIProvider.context) {
         throw new Error('Context not found');
       }
-      const blobId = await this.host.store.blobSync.set(chip.file);
       const contextFile = await AIProvider.context.addContextFile(chip.file, {
         contextId,
-        blobId,
       });
       this._updateChip(chip, {
         state: contextFile.status,
