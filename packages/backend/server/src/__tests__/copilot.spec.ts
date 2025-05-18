@@ -86,6 +86,9 @@ test.before(async t => {
             openai: {
               apiKey: process.env.COPILOT_OPENAI_API_KEY ?? '1',
             },
+            gemini: {
+              privateKey: process.env.COPILOT_GEMINI_PRIVATE_KEY ?? '1',
+            },
             fal: {
               apiKey: process.env.COPILOT_FAL_API_KEY ?? '1',
             },
@@ -94,6 +97,7 @@ test.before(async t => {
             },
             anthropic: {
               apiKey: process.env.COPILOT_ANTHROPIC_API_KEY ?? '1',
+              privateKey: process.env.COPILOT_ANTHROPIC_PRIVATE_KEY ?? '1',
             },
           },
           exa: {

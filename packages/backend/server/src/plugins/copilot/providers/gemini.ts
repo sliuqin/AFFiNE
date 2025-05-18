@@ -7,7 +7,6 @@ import {
   JSONParseError,
   streamText,
 } from 'ai';
-import { z } from 'zod';
 
 import {
   CopilotPromptInvalid,
@@ -23,6 +22,8 @@ import {
   CopilotProviderType,
   CopilotTextToTextProvider,
   PromptMessage,
+  VertexPrivateKey,
+  VertexPrivateKeySchema,
 } from './types';
 import { chatToGPTMessage } from './utils';
 
@@ -31,18 +32,6 @@ export const DEFAULT_DIMENSIONS = 256;
 export type GeminiConfig = {
   privateKey: string;
 };
-
-const PrivateKeySchema = z.object({
-  type: z.string(),
-  client_email: z.string(),
-  private_key: z.string(),
-  private_key_id: z.string(),
-  project_id: z.string(),
-  client_id: z.string(),
-  universe_domain: z.string().optional(),
-});
-
-type PrivateKey = z.infer<typeof PrivateKeySchema>;
 
 export class GeminiProvider
   extends CopilotProvider<GeminiConfig>
@@ -311,9 +300,9 @@ export class GeminiProvider
     return options?.tools?.includes('webSearch');
   }
 
-  private parsePrivateKey(jsonString: string): PrivateKey | null {
+  private parsePrivateKey(jsonString: string): VertexPrivateKey | null {
     try {
-      return PrivateKeySchema.parse(JSON.parse(jsonString));
+      return VertexPrivateKeySchema.parse(JSON.parse(jsonString));
     } catch {
       return null;
     }

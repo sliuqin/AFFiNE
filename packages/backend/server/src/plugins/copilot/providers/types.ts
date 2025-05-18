@@ -19,6 +19,18 @@ export enum CopilotCapability {
   ImageToText = 'image-to-text',
 }
 
+export const VertexPrivateKeySchema = z.object({
+  type: z.string(),
+  client_email: z.string(),
+  private_key: z.string(),
+  private_key_id: z.string(),
+  project_id: z.string(),
+  client_id: z.string(),
+  universe_domain: z.string().optional(),
+});
+
+export type VertexPrivateKey = z.infer<typeof VertexPrivateKeySchema>;
+
 export const PromptConfigStrictSchema = z.object({
   tools: z.enum(['webSearch']).array().nullable().optional(),
   // openai

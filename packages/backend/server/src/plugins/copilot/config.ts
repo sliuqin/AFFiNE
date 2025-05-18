@@ -65,6 +65,7 @@ defineModuleConfig('copilot', {
     desc: 'The config for the anthropic provider.',
     default: {
       apiKey: '',
+      privateKey: '',
     },
   },
   unsplash: {

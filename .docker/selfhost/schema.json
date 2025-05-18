@@ -648,9 +648,10 @@
         },
         "providers.anthropic": {
           "type": "object",
-          "description": "The config for the anthropic provider.\n@default {\"apiKey\":\"\"}",
+          "description": "The config for the anthropic provider.\n@default {\"apiKey\":\"\",\"privateKey\":\"\"}",
           "default": {
-            "apiKey": ""
+            "apiKey": "",
+            "privateKey": ""
           }
         },
         "unsplash": {

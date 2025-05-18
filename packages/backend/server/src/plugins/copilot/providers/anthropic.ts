@@ -3,6 +3,10 @@ import {
   AnthropicProviderOptions,
   createAnthropic,
 } from '@ai-sdk/anthropic';
+import {
+  createVertexAnthropic,
+  type GoogleVertexAnthropicProvider,
+} from '@ai-sdk/google-vertex/anthropic';
 import { AISDKError, generateText, streamText } from 'ai';
 
 import {
@@ -20,12 +24,16 @@ import {
   CopilotProviderType,
   CopilotTextToTextProvider,
   PromptMessage,
+  VertexPrivateKey,
+  VertexPrivateKeySchema,
 } from './types';
 import { chatToGPTMessage } from './utils';
 
 export type AnthropicConfig = {
   apiKey: string;
   baseUrl?: string;
+  // google vertex ai
+  privateKey: string;
 };
 
 export class AnthropicProvider
@@ -37,23 +45,58 @@ export class AnthropicProvider
   override readonly models = [
     'claude-3-7-sonnet-20250219',
     'claude-3-5-sonnet-20241022',
+    // google vertex ai
+    'claude-3-7-sonnet@20250219',
+    'claude-3-5-sonnet-v2@20241022',
+    'claude-3-5-sonnet@20240620',
   ];
 
   private readonly MAX_STEPS = 20;
 
   private readonly CALLOUT_PREFIX = '\n> [!]\n> ';
 
-  #instance!: AnthropicSDKProvider;
+  #anthropic!: AnthropicSDKProvider;
+
+  #vertex!: GoogleVertexAnthropicProvider;
 
   override configured(): boolean {
-    return !!this.config.apiKey;
+    return (
+      !!this.config.apiKey && !!this.parsePrivateKey(this.config.privateKey)
+    );
   }
 
   protected override setup() {
     super.setup();
-    this.#instance = createAnthropic({
+    this.#anthropic = createAnthropic({
       apiKey: this.config.apiKey,
       baseURL: this.config.baseUrl,
+    });
+
+    // can not throw error here
+    const {
+      type,
+      client_email,
+      private_key,
+      private_key_id,
+      project_id,
+      client_id,
+      universe_domain,
+    } = this.parsePrivateKey(this.config.privateKey) || {};
+
+    this.#vertex = createVertexAnthropic({
+      project: project_id,
+      location: 'us-east5',
+      googleAuthOptions: {
+        credentials: {
+          type,
+          client_email,
+          private_key,
+          private_key_id,
+          project_id,
+          client_id,
+          universe_domain,
+        },
+      },
     });
   }
 
@@ -96,6 +139,13 @@ export class AnthropicProvider
     }
   }
 
+  private instance(model: string) {
+    if (model.includes('@')) {
+      return this.#vertex(model);
+    }
+    return this.#anthropic(model);
+  }
+
   private handleError(e: any) {
     if (e instanceof UserFriendlyError) {
       return e;
@@ -128,7 +178,7 @@ export class AnthropicProvider
 
       const [system, msgs] = await chatToGPTMessage(messages);
 
-      const modelInstance = this.#instance(model);
+      const modelInstance = this.instance(model);
       const { text, reasoning } = await generateText({
         model: modelInstance,
         system,
@@ -162,7 +212,7 @@ export class AnthropicProvider
       metrics.ai.counter('chat_text_stream_calls').add(1, { model });
       const [system, msgs] = await chatToGPTMessage(messages);
       const { fullStream } = streamText({
-        model: this.#instance(model),
+        model: this.instance(model),
         system,
         messages: msgs,
         abortSignal: options.signal,
@@ -285,5 +335,13 @@ export class AnthropicProvider
 
   private isThinkingModel(model: string) {
     return model.startsWith('claude-3-7-sonnet');
+  }
+
+  private parsePrivateKey(jsonString: string): VertexPrivateKey | null {
+    try {
+      return VertexPrivateKeySchema.parse(JSON.parse(jsonString));
+    } catch {
+      return null;
+    }
   }
 }
