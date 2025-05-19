@@ -1087,7 +1087,8 @@ export class DragEventWatcher {
         } else if (
           block.flavour === 'affine:attachment' ||
           block.flavour === 'affine:bookmark' ||
-          block.flavour.startsWith('affine:embed-')
+          block.flavour.startsWith('affine:embed-') ||
+          block.flavour === 'affine:code'
         ) {
           const style = (block.props.style ?? 'vertical') as EmbedCardStyle;
           block.props.style = style;
@@ -1173,7 +1174,8 @@ export class DragEventWatcher {
                   block.flavour === 'affine:image' ||
                   block.flavour === 'affine:attachment' ||
                   block.flavour === 'affine:bookmark' ||
-                  block.flavour.startsWith('affine:embed-')
+                  block.flavour.startsWith('affine:embed-') ||
+                  block.flavour === 'affine:code'
                 ) {
                   store.updateBlock(block.id, {
                     xywh: content[idx].props.xywh,

@@ -41,7 +41,11 @@ export class CodeBlockViewExtension extends ViewExtensionProvider {
     context.register([
       FlavourExtension('affine:code'),
       CodeBlockHighlighter,
-      BlockViewExtension('affine:code', literal`affine-code`),
+      BlockViewExtension('affine:code', model => {
+        return model.parent?.flavour === 'affine:surface'
+          ? literal`affine-edgeless-code`
+          : literal`affine-code`;
+      }),
       SlashMenuConfigExtension('affine:code', codeSlashMenuConfig),
       CodeKeymapExtension,
       ...getCodeClipboardExtensions(),

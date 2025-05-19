@@ -1,4 +1,5 @@
 import { CodeBlockComponent } from './code-block';
+import { CodeEdgelessBlockComponent } from './code-edgeless-block';
 import {
   AFFINE_CODE_TOOLBAR_WIDGET,
   AffineCodeToolbarWidget,
@@ -14,6 +15,7 @@ export function effects() {
   customElements.define(AFFINE_CODE_TOOLBAR_WIDGET, AffineCodeToolbarWidget);
   customElements.define('affine-code-unit', AffineCodeUnit);
   customElements.define('affine-code', CodeBlockComponent);
+  customElements.define('affine-edgeless-code', CodeEdgelessBlockComponent);
   customElements.define('preview-button', PreviewButton);
 }
 

@@ -1,4 +1,9 @@
 import {
+  type GfxCommonBlockProps,
+  GfxCompatible,
+  type GfxElementGeometry,
+} from '@blocksuite/std/gfx';
+import {
   BlockModel,
   BlockSchemaExtension,
   defineBlockSchema,
@@ -14,7 +19,8 @@ type CodeBlockProps = {
   caption: string;
   preview?: boolean;
   lineNumber?: boolean;
-} & BlockMeta;
+} & BlockMeta &
+  GfxCommonBlockProps;
 
 export const CodeBlockSchema = defineBlockSchema({
   flavour: 'affine:code',
@@ -30,6 +36,10 @@ export const CodeBlockSchema = defineBlockSchema({
       'meta:createdBy': undefined,
       'meta:updatedAt': undefined,
       'meta:updatedBy': undefined,
+      xywh: '[0,0,16,16]',
+      index: 'a0',
+      scale: 1,
+      rotate: 0,
     }) as CodeBlockProps,
   metadata: {
     version: 1,
@@ -39,6 +49,7 @@ export const CodeBlockSchema = defineBlockSchema({
       'affine:paragraph',
       'affine:list',
       'affine:edgeless-text',
+      'affine:surface',
     ],
     children: [],
   },
@@ -47,4 +58,6 @@ export const CodeBlockSchema = defineBlockSchema({
 
 export const CodeBlockSchemaExtension = BlockSchemaExtension(CodeBlockSchema);
 
-export class CodeBlockModel extends BlockModel<CodeBlockProps> {}
+export class CodeBlockModel
+  extends GfxCompatible<CodeBlockProps>(BlockModel)
+  implements GfxElementGeometry {}

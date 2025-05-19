@@ -28,6 +28,7 @@ export const SurfaceBlockSchema = defineBlockSchema({
       'affine:attachment',
       'affine:embed-*',
       'affine:edgeless-text',
+      'affine:code',
     ],
   },
   transformer: transformerConfigs =>
