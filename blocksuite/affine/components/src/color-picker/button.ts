@@ -24,7 +24,7 @@ type Type = 'normal' | 'custom';
 export class EdgelessColorPickerButton extends WithDisposable(LitElement) {
   readonly #select = (e: ColorEvent) => {
     e.stopPropagation();
-    this.#pick(e.detail);
+    this.pick?.({ type: 'pick', detail: e.detail });
   };
 
   switchToCustomTab = (e: MouseEvent) => {
@@ -60,12 +60,6 @@ export class EdgelessColorPickerButton extends WithDisposable(LitElement) {
 
   get tabContentPadding() {
     return `${this.tabType === 'custom' ? 0 : 8}px`;
-  }
-
-  #pick(detail: Palette) {
-    this.pick?.({ type: 'start' });
-    this.pick?.({ type: 'pick', detail });
-    this.pick?.({ type: 'end' });
   }
 
   override firstUpdated() {
