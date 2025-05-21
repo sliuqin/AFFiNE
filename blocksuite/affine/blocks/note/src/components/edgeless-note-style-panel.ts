@@ -24,7 +24,7 @@ import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { ArrowLeftSmallIcon, PaletteIcon } from '@blocksuite/icons/lit';
 import { BlockStdScope, PropTypes, requiredProperties } from '@blocksuite/std';
 import { css, html, LitElement } from 'lit';
-import { property, query, state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { choose } from 'lit/directives/choose.js';
 
 @requiredProperties({
@@ -39,9 +39,6 @@ export class EdgelessNoteStylePanel extends SignalWatcher(
 
   @property({ attribute: false })
   accessor std!: BlockStdScope;
-
-  @query('.edgeless-note-style-panel')
-  private accessor _panel!: HTMLDivElement;
 
   @state()
   accessor tabType: 'style' | 'customColor' = 'style';
@@ -187,7 +184,30 @@ export class EdgelessNoteStylePanel extends SignalWatcher(
   };
 
   private readonly _pickColor = (e: PickColorEvent) => {
-    console.log(e);
+    this._beforeChange();
+    switch (e.type) {
+      case 'pick':
+        {
+          const color = e.detail.value;
+          const crud = this.std.get(EdgelessCRUDIdentifier);
+          this.notes.forEach(note => {
+            crud.updateElement(note.id, {
+              background: color,
+            } satisfies Partial<NoteProps>);
+          });
+        }
+        break;
+      case 'start':
+        this.notes.forEach(note => {
+          note.stash('background');
+        });
+        break;
+      case 'end':
+        this.notes.forEach(note => {
+          note.pop('background');
+        });
+        break;
+    }
   };
 
   private readonly _selectShadow = (e: CustomEvent<NoteShadow>) => {
@@ -265,7 +285,7 @@ export class EdgelessNoteStylePanel extends SignalWatcher(
   };
 
   private _renderStylePanel() {
-    return html` <div class="edgeless-note-style-panel">
+    return html`<div class="edgeless-note-style-panel">
       <div class="edgeless-note-style-section">
         <div class="edgeless-note-style-section-title">Fill color</div>
         <edgeless-color-panel
@@ -368,8 +388,9 @@ export class EdgelessNoteStylePanel extends SignalWatcher(
     </div>`;
   }
 
-  override firstUpdated() {
-    this.disposables.addFromEvent(this._panel, 'click', e => {
+  override connectedCallback() {
+    super.connectedCallback();
+    this.disposables.addFromEvent(this, 'click', e => {
       e.stopPropagation();
     });
   }
@@ -383,6 +404,11 @@ export class EdgelessNoteStylePanel extends SignalWatcher(
             ${PaletteIcon()}
           </editor-icon-button>
         `}
+        @toggle=${(e: CustomEvent<boolean>) => {
+          if (!e.detail) {
+            this.tabType = 'style';
+          }
+        }}
       >
         ${choose(this.tabType, [
           ['style', () => this._renderStylePanel()],

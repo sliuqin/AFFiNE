@@ -333,7 +333,9 @@ export class SyncController {
 
     const value = model.props[prop];
     this._stashed.delete(prop);
-    model.props[prop] = value;
+    this.model.store.transact(() => {
+      model.props[prop] = value;
+    });
   }
 
   private _stashProp(prop: string) {
