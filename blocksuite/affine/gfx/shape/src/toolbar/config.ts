@@ -176,11 +176,11 @@ export const shapeToolbarConfig = {
 
           if (d.type === 'pick') {
             const value = d.detail.value;
-            const filled = isTransparent(value);
+            const filled = !isTransparent(value);
             for (const model of models) {
               const props = packColor(field, value);
               // If `filled` can be set separately, this logic can be removed
-              if (field && !model.filled) {
+              if (filled && !model.filled) {
                 const color = getTextColor(value, filled);
                 Object.assign(props, { filled, color });
               }
