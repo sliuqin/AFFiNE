@@ -210,6 +210,7 @@ export function createTextActions<
           ) ?? resolveColor(defaultColor, theme);
 
         const onPick = (e: PickColorEvent) => {
+          ctx.store.captureSync();
           if (e.type === 'pick') {
             const color = e.detail.value;
             for (const model of models) {

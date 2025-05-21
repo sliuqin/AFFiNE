@@ -24,9 +24,11 @@ import {
 import {
   pressBackspace,
   pressEscape,
+  redoByKeyboard,
   SHORT_KEY,
   undoByKeyboard,
 } from '../../utils/actions/keyboard.js';
+import { waitNextFrame } from '../../utils/actions/misc.js';
 import {
   assertCanvasElementsCount,
   assertContainerChildCount,
@@ -419,4 +421,60 @@ test('undo should work when create a frame by dragging', async ({ page }) => {
   await dragBetweenViewCoords(page, [0, 0], [100, 100], { steps: 50 });
   await undoByKeyboard(page);
   await expect(page.locator('affine-frame')).toHaveCount(0);
+});
+
+test('undo/redo should work when change frame background', async ({ page }) => {
+  await createFrame(page, [50, 50], [450, 450]);
+  await pressEscape(page);
+
+  const frameTitle = page.locator('affine-frame-title');
+  await frameTitle.click();
+
+  const getFrameBackground = async () => {
+    return page.locator('affine-frame .affine-frame-container').evaluate(el => {
+      return getComputedStyle(el).backgroundColor;
+    });
+  };
+  const colorPanel = page.locator('edgeless-color-picker-button');
+
+  let prevBackground = await getFrameBackground();
+
+  // preset color
+  {
+    await colorPanel.click();
+    await colorPanel.getByLabel('LightRed').click();
+    expect(await getFrameBackground()).not.toBe(prevBackground);
+
+    await undoByKeyboard(page);
+    await waitNextFrame(page);
+    expect(await getFrameBackground()).toBe(prevBackground);
+
+    await redoByKeyboard(page);
+    await waitNextFrame(page);
+    expect(await getFrameBackground()).not.toBe(prevBackground);
+  }
+
+  prevBackground = await getFrameBackground();
+
+  // custom color
+  {
+    await colorPanel.click();
+    await colorPanel.locator('edgeless-color-custom-button').click();
+    await page.locator('.color-palette').click({
+      position: {
+        x: 100,
+        y: 100,
+      },
+    });
+    await pressEscape(page);
+
+    expect(await getFrameBackground()).not.toBe(prevBackground);
+    await undoByKeyboard(page);
+    await waitNextFrame(page);
+    expect(await getFrameBackground()).toBe(prevBackground);
+
+    await redoByKeyboard(page);
+    await waitNextFrame(page);
+    expect(await getFrameBackground()).not.toBe(prevBackground);
+  }
 });

@@ -6,7 +6,9 @@ import {
   autoFit,
   captureHistory,
   cutByKeyboard,
+  dblclickView,
   dragBetweenIndices,
+  edgelessCommonSetup,
   enterPlaygroundRoom,
   getEdgelessSelectedRect,
   getPageSnapshot,
@@ -19,6 +21,7 @@ import {
   pressBackspace,
   pressEnter,
   pressEscape,
+  redoByKeyboard,
   selectAllByKeyboard,
   setEdgelessTool,
   switchEditorMode,
@@ -597,4 +600,63 @@ test('press backspace at the start of first line when edgeless text exist', asyn
   expect(await getPageSnapshot(page, true)).toMatchSnapshot(
     `${testInfo.title}_finial.json`
   );
+});
+
+test('undo/redo should work when change frame background', async ({ page }) => {
+  await edgelessCommonSetup(page);
+  await dblclickView(page, [100, 100]);
+  await type(page, 'abc');
+  await pressEscape(page, 3);
+  await waitNextFrame(page);
+
+  const edgelessText = page.locator('affine-edgeless-text');
+  await edgelessText.click();
+
+  const getTextColor = async () => {
+    return edgelessText.locator('span[data-v-text="true"]').evaluate(el => {
+      return getComputedStyle(el).color;
+    });
+  };
+  const colorPanel = page.locator('edgeless-color-picker-button');
+
+  let prevTextColor = await getTextColor();
+
+  // preset color
+  {
+    await colorPanel.click();
+    await colorPanel.getByLabel('LightRed').click();
+    expect(await getTextColor()).not.toBe(prevTextColor);
+
+    await undoByKeyboard(page);
+    await waitNextFrame(page);
+    expect(await getTextColor()).toBe(prevTextColor);
+
+    await redoByKeyboard(page);
+    await waitNextFrame(page);
+    expect(await getTextColor()).not.toBe(prevTextColor);
+  }
+
+  prevTextColor = await getTextColor();
+
+  // custom color
+  {
+    await colorPanel.click();
+    await colorPanel.locator('edgeless-color-custom-button').click();
+    await page.locator('.color-palette').click({
+      position: {
+        x: 100,
+        y: 100,
+      },
+    });
+    await pressEscape(page);
+
+    expect(await getTextColor()).not.toBe(prevTextColor);
+    await undoByKeyboard(page);
+    await waitNextFrame(page);
+    expect(await getTextColor()).toBe(prevTextColor);
+
+    await redoByKeyboard(page);
+    await waitNextFrame(page);
+    expect(await getTextColor()).not.toBe(prevTextColor);
+  }
 });

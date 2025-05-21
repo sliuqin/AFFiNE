@@ -160,6 +160,7 @@ const builtinSurfaceToolbarConfig = {
             background => resolveColor(background, theme)
           ) ?? DefaultTheme.transparent;
         const onPick = (e: PickColorEvent) => {
+          ctx.store.captureSync();
           if (e.type === 'pick') {
             const color = e.detail.value;
             for (const model of models) {
