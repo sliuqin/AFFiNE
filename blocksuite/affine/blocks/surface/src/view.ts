@@ -7,6 +7,7 @@ import { literal } from 'lit/static-html.js';
 
 import { effects } from './effects';
 import {
+  ConnectorDomRendererExtension,
   EdgelessCRUDExtension,
   EdgelessLegacySlotExtension,
   EditPropsMiddlewareBuilder,
@@ -26,6 +27,7 @@ export class SurfaceViewExtension extends ViewExtensionProvider {
     super.setup(context);
     context.register([
       FlavourExtension('affine:surface'),
+      ConnectorDomRendererExtension,
       EdgelessCRUDExtension,
       EdgelessLegacySlotExtension,
       ExportManagerExtension,

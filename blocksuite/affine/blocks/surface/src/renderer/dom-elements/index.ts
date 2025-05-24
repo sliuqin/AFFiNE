@@ -29,3 +29,9 @@ export const DomElementRendererIdentifier = (type: string) =>
 export type DomElementRenderer<
   T extends SurfaceElementModel = SurfaceElementModel,
 > = (elementModel: T, domElement: HTMLElement, renderer: DomRenderer) => void;
+
+// Export the connector DOM renderer
+export {
+  connectorDomRenderer,
+  ConnectorDomRendererExtension,
+} from './connector.js';

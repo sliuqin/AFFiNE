@@ -1,4 +1,5 @@
 export * from './clipboard-config';
+export * from './connector-dom-renderer';
 export * from './crud-extension';
 export * from './dom-element-renderer';
 export * from './edit-props-middleware-builder';
