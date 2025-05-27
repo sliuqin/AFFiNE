@@ -2,7 +2,7 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import type { CookieOptions, Request, Response } from 'express';
 import { assign, pick } from 'lodash-es';
 
-import { Config, SignUpForbidden } from '../../base';
+import { Config, type Duration, SignUpForbidden } from '../../base';
 import { Models, type User, type UserSession } from '../../models';
 import { FeatureService } from '../features';
 import { Mailer } from '../mail/mailer';
@@ -128,7 +128,7 @@ export class AuthService implements OnApplicationBootstrap {
     return await this.models.session.findUserSessionsBySessionId(sessionId);
   }
 
-  async createUserSession(userId: string, sessionId?: string, ttl?: number) {
+  async createUserSession(userId: string, sessionId?: string, ttl?: Duration) {
     return await this.models.session.createOrRefreshUserSession(
       userId,
       sessionId,
@@ -157,7 +157,7 @@ export class AuthService implements OnApplicationBootstrap {
   async refreshUserSessionIfNeeded(
     res: Response,
     userSession: UserSession,
-    ttr?: number
+    ttr?: Duration
   ): Promise<boolean> {
     const newExpiresAt = await this.models.session.refreshUserSessionIfNeeded(
       userSession,

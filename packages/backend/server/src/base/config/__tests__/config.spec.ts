@@ -103,8 +103,8 @@ test('should override correctly', t => {
       // keyed config
       // 'session.ttl', 'session.ttr'
       session: {
-        ttl: 2000,
-        ttr: 1000,
+        ttl: '1M',
+        ttr: '1d',
       },
     },
     storages: {
@@ -131,7 +131,7 @@ test('should override correctly', t => {
       },
       allowSignup: true,
       session: {
-        ttl: 3000,
+        ttl: '2M',
       },
     },
     storages: {
@@ -159,8 +159,8 @@ test('should override correctly', t => {
 
   // right merged to left
   t.deepEqual(config.auth.session, {
-    ttl: 3000,
-    ttr: 1000,
+    ttl: '2M',
+    ttr: '1d',
   });
 
   // right covered left

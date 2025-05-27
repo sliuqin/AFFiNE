@@ -6,7 +6,7 @@ import {
   type UserSession,
 } from '@prisma/client';
 
-import { Config } from '../base';
+import { Config, Due, Duration } from '../base';
 import { BaseModel } from './base';
 
 export type { Session, UserSession };
@@ -46,7 +46,7 @@ export class SessionModel extends BaseModel {
   async createOrRefreshUserSession(
     userId: string,
     sessionId?: string,
-    ttl = this.config.auth.session.ttl
+    ttl: Duration = this.config.auth.session.ttl
   ) {
     // check whether given session is valid
     if (sessionId) {
@@ -66,7 +66,7 @@ export class SessionModel extends BaseModel {
       sessionId = session.id;
     }
 
-    const expiresAt = new Date(Date.now() + ttl * 1000);
+    const expiresAt = Due.after(ttl);
     return await this.db.userSession.upsert({
       where: {
         sessionId_userId: {
@@ -87,19 +87,17 @@ export class SessionModel extends BaseModel {
 
   async refreshUserSessionIfNeeded(
     userSession: UserSession,
-    ttr = this.config.auth.session.ttr
+    ttr: Duration = this.config.auth.session.ttr
   ): Promise<Date | undefined> {
     if (
       userSession.expiresAt &&
-      userSession.expiresAt.getTime() - Date.now() > ttr * 1000
+      Due.before(ttr, userSession.expiresAt) > new Date()
     ) {
       // no need to refresh
       return;
     }
 
-    const newExpiresAt = new Date(
-      Date.now() + this.config.auth.session.ttl * 1000
-    );
+    const newExpiresAt = Due.after(this.config.auth.session.ttl);
     await this.db.userSession.update({
       where: {
         id: userSession.id,

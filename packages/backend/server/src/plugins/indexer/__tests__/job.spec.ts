@@ -6,7 +6,7 @@ import Sinon from 'sinon';
 
 import { createModule } from '../../../__tests__/create-module';
 import { Mockers } from '../../../__tests__/mocks';
-import { JOB_SIGNAL } from '../../../base';
+import { Due, JOB_SIGNAL } from '../../../base';
 import { ConfigModule } from '../../../base/config';
 import { ServerConfigModule } from '../../../core/config';
 import { Models } from '../../../models';
@@ -160,7 +160,7 @@ test('should not index workspace if it is not updated in 180 days', async t => {
     user,
     workspaceId: workspace.id,
     docId: workspace.id,
-    updatedAt: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000 - 1),
+    updatedAt: Due.before('181d'),
   });
 
   const count = module.queue.count('indexer.indexWorkspace');

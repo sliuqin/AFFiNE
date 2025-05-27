@@ -29,7 +29,7 @@ export class OAuthService {
   async saveOAuthState(state: OAuthState) {
     const token = randomUUID();
     await this.cache.set(`${OAUTH_STATE_KEY}:${token}`, state, {
-      ttl: 3600 * 3 * 1000 /* 3 hours */,
+      ttl: '3h',
     });
 
     return token;

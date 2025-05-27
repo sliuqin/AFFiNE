@@ -199,21 +199,17 @@ export class AuthController {
       throw new WrongSignInCredentials({ email });
     }
 
-    const ttlInSec = 30 * 60;
+    const ttl = '30m';
     const token = await this.models.verificationToken.create(
       TokenType.SignIn,
       email,
-      ttlInSec
+      ttl
     );
 
     const otp = this.crypto.otp();
     // TODO(@forehalo): this is a temporary solution, we should not rely on cache to store the otp
     const cacheKey = OTP_CACHE_KEY(otp);
-    await this.cache.set(
-      cacheKey,
-      { token, clientNonce },
-      { ttl: ttlInSec * 1000 }
-    );
+    await this.cache.set(cacheKey, { token, clientNonce }, { ttl });
 
     const magicLink = this.url.link(callbackUrl, {
       token: otp,

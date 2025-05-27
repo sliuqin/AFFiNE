@@ -53,26 +53,28 @@ function parse(str: string): DurationInput {
   return input;
 }
 
+export type Duration = string | DurationInput;
+
 export const Due = {
-  ms: (dueStr: string | DurationInput) => {
-    const input = typeof dueStr === 'string' ? parse(dueStr) : dueStr;
+  ms: (duration: Duration) => {
+    const input = typeof duration === 'string' ? parse(duration) : duration;
     return Object.entries(input).reduce((duration, [unit, val]) => {
       return duration + UnitToSecMap[unit as DurationUnit] * (val || 0) * 1000;
     }, 0);
   },
-  s: (dueStr: string | DurationInput) => {
-    const input = typeof dueStr === 'string' ? parse(dueStr) : dueStr;
+  s: (duration: Duration) => {
+    const input = typeof duration === 'string' ? parse(duration) : duration;
     return Object.entries(input).reduce((duration, [unit, val]) => {
       return duration + UnitToSecMap[unit as DurationUnit] * (val || 0);
     }, 0);
   },
   parse,
-  after: (dueStr: string | number | DurationInput, date?: Date) => {
-    const timestamp = typeof dueStr === 'number' ? dueStr : Due.ms(dueStr);
+  after: (duration: Duration, date?: Date) => {
+    const timestamp = Due.ms(duration);
     return new Date((date?.getTime() ?? Date.now()) + timestamp);
   },
-  before: (dueStr: string | number | DurationInput, date?: Date) => {
-    const timestamp = typeof dueStr === 'number' ? dueStr : Due.ms(dueStr);
+  before: (duration: Duration, date?: Date) => {
+    const timestamp = Due.ms(duration);
     return new Date((date?.getTime() ?? Date.now()) - timestamp);
   },
 };

@@ -174,13 +174,11 @@ export class InviteResult {
   error?: object;
 }
 
-const Day = 24 * 60 * 60 * 1000;
-
 export enum WorkspaceInviteLinkExpireTime {
-  OneDay = Day,
-  ThreeDays = 3 * Day,
-  OneWeek = 7 * Day,
-  OneMonth = 30 * Day,
+  OneDay = '1d',
+  ThreeDays = '3d',
+  OneWeek = '1w',
+  OneMonth = '1M',
 }
 
 registerEnumType(WorkspaceInviteLinkExpireTime, {

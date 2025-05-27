@@ -403,8 +403,7 @@ export class WorkspaceDocResolver {
     const allowed = await this.cache.setnx(
       `fixingOwner:${workspaceId}:${docId}`,
       1,
-      // TODO(@forehalo): we definitely need a timer helper
-      { ttl: 1000 * 60 * 60 * 24 }
+      { ttl: '1d' }
     );
 
     // fixed by other instance

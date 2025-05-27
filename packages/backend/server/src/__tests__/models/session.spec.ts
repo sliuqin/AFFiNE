@@ -5,6 +5,7 @@ import { Config } from '../../base/config';
 import { SessionModel } from '../../models/session';
 import { UserModel } from '../../models/user';
 import { createTestingModule, type TestingModule } from '../utils';
+import { Due } from '../../base/utils';
 
 interface Context {
   config: Config;
@@ -137,9 +138,7 @@ test('should not refresh userSession when expires time not hit ttr', async t => 
   let newExpiresAt =
     await t.context.session.refreshUserSessionIfNeeded(userSession);
   t.is(newExpiresAt, undefined);
-  userSession.expiresAt = new Date(
-    userSession.expiresAt!.getTime() - t.context.config.auth.session.ttr * 1000
-  );
+  userSession.expiresAt = Due.before(t.context.config.auth.session.ttr);
   newExpiresAt =
     await t.context.session.refreshUserSessionIfNeeded(userSession);
   t.is(newExpiresAt, undefined);
@@ -154,9 +153,9 @@ test('should not refresh userSession when expires time hit ttr', async t => {
     user.id,
     session.id
   );
-  const ttr = t.context.config.auth.session.ttr * 2;
   userSession.expiresAt = new Date(
-    userSession.expiresAt!.getTime() - ttr * 1000
+    userSession.expiresAt!.getTime() -
+      Due.ms(t.context.config.auth.session.ttr) * 2
   );
   const newExpiresAt =
     await t.context.session.refreshUserSessionIfNeeded(userSession);

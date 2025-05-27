@@ -26,9 +26,6 @@ import {
 } from './utils';
 import { decodeWithCharset } from './utils/encoding';
 
-// cache for 30 minutes
-const CACHE_TTL = 1000 * 60 * 30;
-
 @Public()
 @UseNamedGuard('selfhost')
 @Controller('/api/worker')
@@ -98,7 +95,7 @@ export class WorkerController {
       if (contentType?.startsWith('image/')) {
         const buffer = Buffer.from(await response.arrayBuffer());
         await this.cache.set(cachedUrl, buffer.toString('base64'), {
-          ttl: CACHE_TTL,
+          ttl: '30m',
         });
         const contentDisposition = response.headers.get('Content-Disposition');
         return resp
@@ -118,7 +115,7 @@ export class WorkerController {
       if (response.status >= 400 && response.status < 500) {
         // rejected by server, cache a empty response
         await this.cache.set(cachedUrl, Buffer.from([]).toString('base64'), {
-          ttl: CACHE_TTL,
+          ttl: '30m',
         });
       }
       this.logger.error('Failed to fetch image', {
@@ -302,7 +299,7 @@ export class WorkerController {
         responseSize: json.length,
       });
 
-      await this.cache.set(cachedUrl, res, { ttl: CACHE_TTL });
+      await this.cache.set(cachedUrl, res, { ttl: '30m' });
       return resp
         .status(200)
         .header({

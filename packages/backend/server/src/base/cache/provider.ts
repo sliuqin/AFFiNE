@@ -1,10 +1,11 @@
 import Redis from 'ioredis';
+import { type Duration, Due } from '../utils';
 
 export interface CacheSetOptions {
   /**
    * in milliseconds
    */
-  ttl?: number;
+  ttl?: Duration;
 }
 
 export class CacheProvider {
@@ -30,7 +31,7 @@ export class CacheProvider {
   ): Promise<boolean> {
     if (opts.ttl) {
       return this.redis
-        .set(key, JSON.stringify(value), 'PX', opts.ttl)
+        .set(key, JSON.stringify(value), 'PX', Due.ms(opts.ttl))
         .then(() => true)
         .catch(() => false);
     }
@@ -56,7 +57,7 @@ export class CacheProvider {
   ): Promise<boolean> {
     if (opts.ttl) {
       return this.redis
-        .set(key, JSON.stringify(value), 'PX', opts.ttl, 'NX')
+        .set(key, JSON.stringify(value), 'PX', Due.ms(opts.ttl), 'NX')
         .then(v => !!v)
         .catch(() => false);
     }

@@ -6,7 +6,6 @@ import { SessionCache } from '../../base';
 import { SubmittedMessage, SubmittedMessageSchema } from './types';
 
 const CHAT_MESSAGE_KEY = 'chat-message';
-const CHAT_MESSAGE_TTL = 3600 * 1 * 1000; // 1 hours
 
 @Injectable()
 export class ChatMessageCache {
@@ -20,7 +19,7 @@ export class ChatMessageCache {
     const parsedMessage = SubmittedMessageSchema.parse(message);
     const id = randomUUID();
     await this.cache.set(`${CHAT_MESSAGE_KEY}:${id}`, parsedMessage, {
-      ttl: CHAT_MESSAGE_TTL,
+      ttl: '1h',
     });
     return id;
   }

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { OneDay, OneGB, OneMB } from '../../base';
+import { Due, OneGB, OneMB } from '../../base';
 
 const UserPlanQuotaConfig = z.object({
   // quota name
@@ -104,7 +104,7 @@ export const FeatureConfigs: {
       blobLimit: 10 * OneMB,
       businessBlobLimit: 100 * OneMB,
       storageQuota: 10 * OneGB,
-      historyPeriod: 7 * OneDay,
+      historyPeriod: Due.ms('7d'),
       memberLimit: 3,
       copilotActionLimit: 10,
     },
@@ -116,7 +116,7 @@ export const FeatureConfigs: {
       name: 'Pro',
       blobLimit: 100 * OneMB,
       storageQuota: 100 * OneGB,
-      historyPeriod: 30 * OneDay,
+      historyPeriod: Due.ms('30d'),
       memberLimit: 10,
       copilotActionLimit: 10,
     },
@@ -128,7 +128,7 @@ export const FeatureConfigs: {
       name: 'Lifetime Pro',
       blobLimit: 100 * OneMB,
       storageQuota: 1024 * OneGB,
-      historyPeriod: 30 * OneDay,
+      historyPeriod: Due.ms('30d'),
       memberLimit: 10,
       copilotActionLimit: 10,
     },
@@ -141,7 +141,7 @@ export const FeatureConfigs: {
       blobLimit: 500 * OneMB,
       storageQuota: 100 * OneGB,
       seatQuota: 20 * OneGB,
-      historyPeriod: 30 * OneDay,
+      historyPeriod: Due.ms('30d'),
       memberLimit: 1,
     },
   },

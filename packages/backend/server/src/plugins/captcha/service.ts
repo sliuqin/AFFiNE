@@ -78,7 +78,7 @@ export class CaptchaService {
     const challenge = await this.models.verificationToken.create(
       TokenType.Challenge,
       resource,
-      5 * 60
+      '5m'
     );
 
     return {

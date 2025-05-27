@@ -4,6 +4,7 @@ import { chunk } from 'lodash-es';
 import {
   DocHistoryNotFound,
   DocNotFound,
+  Due,
   EventBus,
   FailedToSaveUpdates,
   FailedToUpsertSnapshot,
@@ -251,7 +252,8 @@ export class PgWorkspaceDocStorageAdapter extends DocStorageAdapter {
         force ||
         // last history created before interval in configs
         lastHistoryTimestamp <
-          snapshot.timestamp - this.options.historyMinInterval(snapshot.spaceId)
+          snapshot.timestamp -
+            Due.ms(this.options.historyMinInterval(snapshot.spaceId))
       ) {
         shouldCreateHistory = true;
       }

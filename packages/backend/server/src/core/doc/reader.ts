@@ -25,8 +25,6 @@ import {
 import { PgWorkspaceDocStorageAdapter } from './adapters/workspace';
 import { type DocDiff, type DocRecord } from './storage';
 
-const DOC_CONTENT_CACHE_7_DAYS = 7 * 24 * 60 * 60 * 1000;
-
 export interface WorkspaceDocInfo {
   id: string;
   name: string;
@@ -90,7 +88,7 @@ export abstract class DocReader {
     const content = await this.getDocContentWithoutCache(workspaceId, docId);
     if (content) {
       await this.cache.set(cacheKey, content, {
-        ttl: DOC_CONTENT_CACHE_7_DAYS,
+        ttl: '7d',
       });
     }
     return content;
