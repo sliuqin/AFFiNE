@@ -98,6 +98,76 @@ type ChatMessage {
   role: String!
 }
 
+"""Comment change action"""
+enum CommentChangeAction {
+  create
+  delete
+  update
+}
+
+type CommentChangeObjectType {
+  """The action of the comment change"""
+  action: CommentChangeAction!
+
+  """
+  The item of the comment or reply, different types have different fields, see UnionCommentObjectType
+  """
+  item: JSONObject!
+}
+
+type CommentChangeObjectTypeEdge {
+  cursor: String!
+  node: CommentChangeObjectType!
+}
+
+input CommentCreateInput {
+  content: JSONObject!
+  docId: ID!
+  metadata: JSONObject!
+  workspaceId: ID!
+}
+
+type CommentObjectType {
+  """The content of the comment"""
+  content: JSONObject!
+
+  """The created at time of the comment"""
+  createdAt: String!
+  id: ID!
+
+  """The metadata of the comment"""
+  metadata: JSONObject!
+
+  """The replies of the comment"""
+  replies: [ReplyObjectType!]!
+
+  """Whether the comment is resolved"""
+  resolved: Boolean!
+
+  """The updated at time of the comment"""
+  updatedAt: String!
+
+  """The user who created the comment"""
+  user: PublicUserType!
+}
+
+type CommentObjectTypeEdge {
+  cursor: String!
+  node: CommentObjectType!
+}
+
+input CommentResolveInput {
+  id: ID!
+
+  """Whether the comment is resolved"""
+  resolved: Boolean!
+}
+
+input CommentUpdateInput {
+  content: JSONObject!
+  id: ID!
+}
+
 enum ContextCategories {
   Collection
   Tag
@@ -549,6 +619,7 @@ enum ErrorNames {
   CAN_NOT_BATCH_GRANT_DOC_OWNER_PERMISSIONS
   CAN_NOT_REVOKE_YOURSELF
   CAPTCHA_VERIFICATION_FAILED
+  COMMENT_NOT_FOUND
   COPILOT_ACTION_TAKEN
   COPILOT_CONTEXT_FILE_NOT_SUPPORTED
   COPILOT_DOCS_NOT_FOUND
@@ -637,6 +708,7 @@ enum ErrorNames {
   OWNER_CAN_NOT_LEAVE_WORKSPACE
   PASSWORD_REQUIRED
   QUERY_TOO_LONG
+  REPLY_NOT_FOUND
   RUNTIME_CONFIG_NOT_FOUND
   SAME_EMAIL_PROVIDED
   SAME_SUBSCRIPTION_RECURRING
@@ -1095,6 +1167,7 @@ type Mutation {
 
   """Create a subscription checkout link of stripe"""
   createCheckoutSession(input: CreateCheckoutSessionInput!): String!
+  createComment(input: CommentCreateInput!): CommentObjectType!
 
   """Create a context session"""
   createCopilotContext(sessionId: String!, workspaceId: String!): String!
@@ -1111,6 +1184,7 @@ type Mutation {
   """Create a stripe customer portal to manage payment methods"""
   createCustomerPortal: String!
   createInviteLink(expireTime: WorkspaceInviteLinkExpireTime!, workspaceId: String!): InviteLink!
+  createReply(input: ReplyCreateInput!): ReplyObjectType!
   createSelfhostWorkspaceCustomerPortal(workspaceId: String!): String!
 
   """Create a new user"""
@@ -1121,6 +1195,12 @@ type Mutation {
   deactivateLicense(workspaceId: String!): Boolean!
   deleteAccount: DeleteAccount!
   deleteBlob(hash: String @deprecated(reason: "use parameter [key]"), key: String, permanently: Boolean! = false, workspaceId: String!): Boolean!
+
+  """Delete a comment"""
+  deleteComment(id: String!): Boolean!
+
+  """Delete a reply"""
+  deleteReply(id: String!): Boolean!
 
   """Delete a user account"""
   deleteUser(id: String!): DeleteAccount!
@@ -1170,6 +1250,9 @@ type Mutation {
   """Remove workspace embedding files"""
   removeWorkspaceEmbeddingFiles(fileId: String!, workspaceId: String!): Boolean!
   removeWorkspaceFeature(feature: FeatureType!, workspaceId: String!): Boolean!
+
+  """Resolve a comment or not"""
+  resolveComment(input: CommentResolveInput!): Boolean!
   resumeSubscription(idempotencyKey: String @deprecated(reason: "use header `Idempotency-Key`"), plan: SubscriptionPlan = Pro, workspaceId: String): SubscriptionType!
   retryAudioTranscription(jobId: String!, workspaceId: String!): TranscriptionResultType
   revoke(userId: String!, workspaceId: String!): Boolean! @deprecated(reason: "use [revokeMember] instead")
@@ -1190,6 +1273,9 @@ type Mutation {
   """update app configuration"""
   updateAppConfig(updates: [UpdateAppConfigInput!]!): JSONObject!
 
+  """Update a comment content"""
+  updateComment(input: CommentUpdateInput!): Boolean!
+
   """Update a copilot prompt"""
   updateCopilotPrompt(messages: [CopilotPromptMessageInput!]!, name: String!): CopilotPromptType!
 
@@ -1198,6 +1284,9 @@ type Mutation {
   updateDocDefaultRole(input: UpdateDocDefaultRoleInput!): Boolean!
   updateDocUserRole(input: UpdateDocUserRoleInput!): Boolean!
   updateProfile(input: UpdateUserInput!): UserType!
+
+  """Update a reply content"""
+  updateReply(input: ReplyUpdateInput!): Boolean!
 
   """Update user settings"""
   updateSettings(input: UpdateUserSettingsInput!): Boolean!
@@ -1304,6 +1393,18 @@ type PageInfo {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
   startCursor: String
+}
+
+type PaginatedCommentChangeObjectType {
+  edges: [CommentChangeObjectTypeEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type PaginatedCommentObjectType {
+  edges: [CommentObjectTypeEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
 }
 
 type PaginatedCopilotWorkspaceFileType {
@@ -1472,6 +1573,33 @@ input RemoveContextDocInput {
 input RemoveContextFileInput {
   contextId: String!
   fileId: String!
+}
+
+input ReplyCreateInput {
+  commentId: ID!
+  content: JSONObject!
+}
+
+type ReplyObjectType {
+  commentId: ID!
+
+  """The content of the reply"""
+  content: JSONObject!
+
+  """The created at time of the reply"""
+  createdAt: String!
+  id: ID!
+
+  """The updated at time of the reply"""
+  updatedAt: String!
+
+  """The user who created the reply"""
+  user: PublicUserType!
+}
+
+input ReplyUpdateInput {
+  content: JSONObject!
+  id: ID!
 }
 
 input RevokeDocUserRoleInput {
@@ -1980,6 +2108,12 @@ type WorkspaceType {
 
   """Blobs size of workspace"""
   blobsSize: Int!
+
+  """Get comment changes of a doc"""
+  commentChanges(docId: String!, pagination: PaginationInput!): PaginatedCommentChangeObjectType!
+
+  """Get comments of a doc"""
+  comments(docId: String!, pagination: PaginationInput): PaginatedCommentObjectType!
 
   """Workspace created date"""
   createdAt: DateTime!
