@@ -1302,6 +1302,9 @@ jobs:
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn affine @affine-test/affine-desktop e2e
 
+      - name: Instal ffmpeg
+        run: npx playwright install ffmpeg
+
       - name: Run desktop tests
         if: ${{ matrix.spec.test && matrix.spec.os != 'ubuntu-latest' }}
         run: yarn affine @affine-test/affine-desktop e2e
