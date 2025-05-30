@@ -32,7 +32,7 @@ import {
 import { BlockSelection } from '@blocksuite/std';
 import { nanoid, Slice } from '@blocksuite/store';
 import { computed, signal } from '@preact/signals-core';
-import { html, type TemplateResult } from 'lit';
+import { html, nothing, type TemplateResult } from 'lit';
 import { choose } from 'lit/directives/choose.js';
 import { type ClassInfo, classMap } from 'lit/directives/class-map.js';
 import { guard } from 'lit/directives/guard.js';
@@ -71,7 +71,7 @@ export class AttachmentBlockComponent extends CaptionedBlockComponent<Attachment
     return name.split('.').pop() ?? '';
   }
 
-  protected containerStyleMap = styleMap({
+  containerStyleMap = styleMap({
     position: 'relative',
     width: '100%',
     margin: '18px 0px',
@@ -205,7 +205,7 @@ export class AttachmentBlockComponent extends CaptionedBlockComponent<Attachment
     this.disposables.addFromEvent(this, 'click', this.onClick);
   }
 
-  protected onClick(event: MouseEvent) {
+  onClick = (event: MouseEvent) => {
     // the peek view need handle shift + click
     if (event.defaultPrevented) return;
 
@@ -214,7 +214,7 @@ export class AttachmentBlockComponent extends CaptionedBlockComponent<Attachment
     if (!this.selected$.peek()) {
       this._selectBlock();
     }
-  }
+  };
 
   protected renderUpgradeButton = () => {
     if (this.std.store.readonly) return null;
@@ -440,34 +440,22 @@ export class AttachmentBlockComponent extends CaptionedBlockComponent<Attachment
     `;
   };
 
-  private readonly _renderCitation = () => {
-    const { name, footnoteIdentifier } = this.model.props;
-    const icon = getAttachmentFileIcon(this.filetype);
-
-    return html`<affine-citation-card
-      .icon=${icon}
-      .citationTitle=${name}
-      .citationIdentifier=${footnoteIdentifier}
-      .active=${this.selected$.value}
-    ></affine-citation-card>`;
-  };
-
   override renderBlock() {
-    return html`
-      <div
-        class=${classMap({
-          'affine-attachment-container': true,
-          focused: this.selected$.value,
-        })}
-        style=${this.containerStyleMap}
-      >
-        ${when(
-          this.isCitation,
-          () => this._renderCitation(),
-          () => this.renderEmbedView() ?? this.renderCardView()
-        )}
-      </div>
-    `;
+    return when(
+      this.isCitation,
+      () => nothing,
+      () => html`
+        <div
+          class=${classMap({
+            'affine-attachment-container': true,
+            focused: this.selected$.value,
+          })}
+          style=${this.containerStyleMap}
+        >
+          ${this.renderEmbedView() ?? this.renderCardView()}
+        </div>
+      `
+    );
   }
 
   override accessor selectedStyle = SelectedStyle.Border;
