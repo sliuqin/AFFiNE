@@ -16,6 +16,11 @@ mutation createComment($input: CommentCreateInput!) {
       content
       createdAt
       updatedAt
+      user {
+        id
+        name
+        avatarUrl
+      }
     }
   }
 }
