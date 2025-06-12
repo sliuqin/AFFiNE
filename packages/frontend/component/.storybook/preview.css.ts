@@ -6,6 +6,7 @@ globalStyle('*', {
 });
 
 globalStyle('body', {
+  overflow: 'auto',
   color: 'var(--affine-text-primary-color)',
   fontFamily: 'var(--affine-font-family)',
   fontSize: 'var(--affine-font-base)',
