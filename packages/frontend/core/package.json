@@ -19,6 +19,7 @@
     "@affine/templates": "workspace:*",
     "@affine/track": "workspace:*",
     "@blocksuite/affine": "workspace:*",
+    "@blocksuite/affine-shared": "workspace:*",
     "@blocksuite/icons": "^2.2.13",
     "@blocksuite/std": "workspace:*",
     "@dotlottie/player-component": "^2.7.12",

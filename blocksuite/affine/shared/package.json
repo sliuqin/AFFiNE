@@ -10,6 +10,8 @@
   "author": "toeverything",
   "license": "MIT",
   "dependencies": {
+    "@blocksuite/affine": "workspace:*",
+    "@blocksuite/affine-ext-loader": "workspace:*",
     "@blocksuite/affine-model": "workspace:*",
     "@blocksuite/global": "workspace:*",
     "@blocksuite/icons": "^2.2.12",
@@ -63,7 +65,8 @@
     "./theme": "./src/theme/index.ts",
     "./styles": "./src/styles/index.ts",
     "./services": "./src/services/index.ts",
-    "./adapters": "./src/adapters/index.ts"
+    "./adapters": "./src/adapters/index.ts",
+    "./test-utils": "./src/test-utils/index.ts"
   },
   "files": [
     "src",

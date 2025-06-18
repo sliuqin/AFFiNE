@@ -1,29 +1,32 @@
-import {
-  CodeBlockSchemaExtension,
-  DatabaseBlockSchemaExtension,
-  ImageBlockSchemaExtension,
-  ListBlockSchemaExtension,
-  NoteBlockSchemaExtension,
-  ParagraphBlockSchemaExtension,
-  RootBlockSchemaExtension,
-} from '@blocksuite/affine-model';
+import { getInternalStoreExtensions } from '@blocksuite/affine/extensions/store';
+import { StoreExtensionManager } from '@blocksuite/affine-ext-loader';
+import { Container } from '@blocksuite/global/di';
 import { TextSelection } from '@blocksuite/std';
-import { type Block, type Store } from '@blocksuite/store';
-import { Text } from '@blocksuite/store';
+import { type Block, type Store, Text } from '@blocksuite/store';
 import { TestWorkspace } from '@blocksuite/store/test';
 
 import { createTestHost } from './create-test-host';
 
-// Extensions array
-const extensions = [
-  RootBlockSchemaExtension,
-  NoteBlockSchemaExtension,
-  ParagraphBlockSchemaExtension,
-  ListBlockSchemaExtension,
-  ImageBlockSchemaExtension,
-  DatabaseBlockSchemaExtension,
-  CodeBlockSchemaExtension,
-];
+const manager = new StoreExtensionManager(getInternalStoreExtensions());
+const extensions = manager.get('store');
+
+// // Extensions array
+// const extensions = [
+//   RootBlockSchemaExtension,
+//   NoteBlockSchemaExtension,
+//   ParagraphBlockSchemaExtension,
+//   ListBlockSchemaExtension,
+//   ImageBlockSchemaExtension,
+//   DatabaseBlockSchemaExtension,
+//   CodeBlockSchemaExtension,
+//   RootStoreExtension,
+//   NoteStoreExtension,
+//   ParagraphStoreExtension,
+//   ListStoreExtension,
+//   ImageStoreExtension,
+//   DatabaseStoreExtension,
+//   CodeStoreExtension
+// ];
 
 // Mapping from tag names to flavours
 const tagToFlavour: Record<string, string> = {
@@ -75,8 +78,11 @@ export function affine(strings: TemplateStringsArray, ...values: any[]) {
   const workspace = new TestWorkspace({});
   workspace.meta.initialize();
   const doc = workspace.createDoc('test-doc');
-  const store = doc.getStore({ extensions });
-
+  const container = new Container();
+  extensions.forEach(extension => {
+    extension.setup(container);
+  });
+  const store = doc.getStore({ extensions, provider: container.provider() });
   let selectionInfo: SelectionInfo = {};
 
   // Use DOMParser to parse HTML string
