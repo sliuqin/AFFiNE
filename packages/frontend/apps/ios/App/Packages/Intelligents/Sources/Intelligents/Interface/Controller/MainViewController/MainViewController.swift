@@ -1,3 +1,4 @@
+import Combine
 import SnapKit
 import Then
 import UIKit
@@ -5,35 +6,28 @@ import UIKit
 class MainViewController: UIViewController {
   // MARK: - UI Components
 
-  private lazy var headerView = MainHeaderView().then {
+  lazy var headerView = MainHeaderView().then {
     $0.delegate = self
   }
 
-  private lazy var inputBox = InputBox().then {
+  lazy var inputBox = InputBox().then {
     $0.delegate = self
   }
+
+  // MARK: - Properties
+
+  private var cancellables = Set<AnyCancellable>()
+  private let intelligentContext = IntelligentContext.shared
 
   // MARK: - Lifecycle
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    setupUI()
-  }
-
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    navigationController!.setNavigationBarHidden(true, animated: animated)
-  }
-
-  override func viewWillDisappear(_ animated: Bool) {
-    super.viewWillDisappear(animated)
-    navigationController!.setNavigationBarHidden(false, animated: animated)
-  }
-
-  // MARK: - Setup
-
-  private func setupUI() {
     view.backgroundColor = .systemBackground
+    let inputBox = InputBox().then {
+      $0.delegate = self
+    }
+    self.inputBox = inputBox
 
     view.addSubview(headerView)
     view.addSubview(inputBox)
@@ -48,51 +42,17 @@ class MainViewController: UIViewController {
       make.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
     }
   }
-}
 
-// MARK: - MainHeaderViewDelegate
-
-extension MainViewController: MainHeaderViewDelegate {
-  func mainHeaderViewDidTapClose() {
-    dismiss(animated: true)
-  }
-
-  func mainHeaderViewDidTapDropdown() {
-    // TODO: 实现下拉功能
-    print("Dropdown tapped")
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    navigationController!.setNavigationBarHidden(true, animated: animated)
+    DispatchQueue.main.async {
+      self.inputBox.textView.becomeFirstResponder()
+    }
   }
 
-  func mainHeaderViewDidTapMenu() {
-    // TODO: 实现菜单功能
-    print("Menu tapped")
+  override func viewWillDisappear(_ animated: Bool) {
+    super.viewWillDisappear(animated)
+    navigationController!.setNavigationBarHidden(false, animated: animated)
   }
-}
-
-// MARK: - InputBoxDelegate
-
-extension MainViewController: InputBoxDelegate {
-  func inputBoxDidTapAddAttachment() {
-    
-  }
-  
-  func inputBoxDidTapTool() {
-    
-  }
-  
-  func inputBoxDidTapNetwork() {
-    
-  }
-  
-  func inputBoxDidTapDeepThinking() {
-    
-  }
-  
-  func inputBoxDidTapSend() {
-    
-  }
-  
-  func inputBoxTextDidChange(_ text: String) {
-    
-  }
-  
 }

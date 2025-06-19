@@ -35,7 +35,6 @@ class BlurTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate
 
 class BlurTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
   private let presenting: Bool
-  private let duration: TimeInterval = 0.5
 
   private let snapshotViewTag = "snapshotView".hashValue
   private let blurViewTag = "blurView".hashValue
@@ -45,23 +44,8 @@ class BlurTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     super.init()
   }
 
-  private func performAnimation(
-    animations: @escaping () -> Void,
-    completion: @escaping (Bool) -> Void
-  ) {
-    UIView.animate(
-      withDuration: duration,
-      delay: 0,
-      usingSpringWithDamping: 0.75,
-      initialSpringVelocity: 0.75,
-      options: [.beginFromCurrentState, .allowAnimatedContent, .curveEaseInOut],
-      animations: animations,
-      completion: completion
-    )
-  }
-
   func transitionDuration(using _: UIViewControllerContextTransitioning?) -> TimeInterval {
-    duration
+    0.5
   }
 
   func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -106,11 +90,15 @@ class BlurTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     toView.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
     containerView.addSubview(toView)
 
-    performAnimation(animations: {
+    toView.layoutIfNeeded()
+
+    performWithAnimation(animations: {
       blurEffectView.effect = UIBlurEffect(style: .systemMaterial)
       fromViewSnapshot.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
       toView.alpha = 1
       toView.transform = .identity
+      fromView.layoutIfNeeded()
+      toView.layoutIfNeeded()
     }) { _ in
       let success = !transitionContext.transitionWasCancelled
       if !success {
@@ -146,7 +134,7 @@ class BlurTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
       return
     }
 
-    performAnimation(animations: {
+    performWithAnimation(animations: {
       fromViewSnapshot.transform = .identity
       blurEffectView.effect = nil
       fromView.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
@@ -157,6 +145,8 @@ class BlurTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         toView.isHidden = false
         fromViewSnapshot.removeFromSuperview()
         blurEffectView.removeFromSuperview()
+        fromView.layoutIfNeeded()
+        toView.layoutIfNeeded()
       } else {
         assertionFailure()
         fromView.transform = .identity

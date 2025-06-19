@@ -68,7 +68,9 @@ class MainHeaderView: UIView {
   init() {
     super.init(frame: .zero)
 
+
     backgroundColor = UIColor.clear
+
     addSubview(mainStackView)
 
     mainStackView.snp.makeConstraints { make in
