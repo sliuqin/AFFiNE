@@ -15,10 +15,10 @@ class InputBox: UIView {
   weak var delegate: InputBoxDelegate?
 
   private lazy var containerView = UIView().then {
-    $0.backgroundColor = .systemBackground
+    $0.backgroundColor = UIColor.affineLayerBackgroundPrimary
     $0.layer.cornerRadius = 12
     $0.layer.borderWidth = 0.5
-    $0.layer.borderColor = UIColor.systemGray4.cgColor
+    $0.layer.borderColor = UIColor.affineLayerBorder.cgColor
     $0.layer.shadowColor = UIColor.black.cgColor
     $0.layer.shadowOffset = CGSize(width: 0, height: 2)
     $0.layer.shadowRadius = 6
@@ -45,42 +45,42 @@ class InputBox: UIView {
   }
 
   private lazy var addButton = UIButton(type: .system).then {
-    $0.backgroundColor = .systemBackground
+    $0.backgroundColor = UIColor.affineLayerBackgroundPrimary
     $0.layer.cornerRadius = 6
     $0.layer.borderWidth = 0.5
-    $0.layer.borderColor = UIColor.systemGray4.cgColor
-    $0.setImage(UIImage(named: "inputbox.add.attachment", in: .module, with: nil), for: .normal)
-    $0.tintColor = .secondaryLabel
+    $0.layer.borderColor = UIColor.affineLayerBorder.cgColor
+    $0.setImage(UIImage.affinePlus, for: .normal)
+    $0.tintColor = UIColor.affineIconPrimary
     $0.imageView?.contentMode = .scaleAspectFit
     $0.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
   }
 
   private lazy var toolButton = UIButton(type: .system).then {
-    $0.setImage(UIImage(named: "inputbox.tool", in: .module, with: nil), for: .normal)
-    $0.tintColor = .secondaryLabel
+    $0.setImage(UIImage.affineTools, for: .normal)
+    $0.tintColor = UIColor.affineIconPrimary
     $0.imageView?.contentMode = .scaleAspectFit
     $0.addTarget(self, action: #selector(toolButtonTapped), for: .touchUpInside)
   }
 
   private lazy var webButton = UIButton(type: .system).then {
-    $0.setImage(UIImage(named: "inputbox.network", in: .module, with: nil), for: .normal)
-    $0.tintColor = .secondaryLabel
+    $0.setImage(UIImage.affineWeb, for: .normal)
+    $0.tintColor = UIColor.affineIconPrimary
     $0.imageView?.contentMode = .scaleAspectFit
     $0.addTarget(self, action: #selector(webButtonTapped), for: .touchUpInside)
   }
 
   private lazy var reactButton = UIButton(type: .system).then {
-    $0.setImage(UIImage(named: "inputbox.deep.thinking", in: .module, with: nil), for: .normal)
-    $0.tintColor = .secondaryLabel
+    $0.setImage(UIImage.affineThink, for: .normal)
+    $0.tintColor = UIColor.affineIconPrimary
     $0.imageView?.contentMode = .scaleAspectFit
     $0.addTarget(self, action: #selector(reactButtonTapped), for: .touchUpInside)
   }
 
   private lazy var sendButton = UIButton(type: .system).then {
-    $0.backgroundColor = UIColor.systemBlue
+    $0.backgroundColor = UIColor.affineButtonPrimary
     $0.layer.cornerRadius = 19
-    $0.setImage(UIImage(named: "inputbox.send", in: .module, with: nil), for: .normal)
-    $0.tintColor = .white
+    $0.setImage(UIImage.affineArrowUpBig, for: .normal)
+    $0.tintColor = UIColor.affineLayerPureWhite
     $0.imageView?.contentMode = .scaleAspectFit
     $0.addTarget(self, action: #selector(sendButtonTapped), for: .touchUpInside)
   }
@@ -120,8 +120,8 @@ class InputBox: UIView {
   }
 
   private var textViewHeightConstraint: Constraint?
-  private let minTextViewHeight: CGFloat = 22
-  private let maxTextViewHeight: CGFloat = 100
+  private let minTextViewHeight: CGFloat = 48
+  private let maxTextViewHeight: CGFloat = 140
 
   var text: String {
     get { textView.text ?? "" }
@@ -153,11 +153,11 @@ class InputBox: UIView {
 
   private func setupConstraints() {
     containerView.snp.makeConstraints { make in
-      make.edges.equalToSuperview().inset(16)
+      make.edges.equalToSuperview().inset(8)
     }
 
     mainStackView.snp.makeConstraints { make in
-      make.edges.equalToSuperview().inset(16)
+      make.edges.equalToSuperview().inset(8)
     }
 
     addButton.snp.makeConstraints { make in
