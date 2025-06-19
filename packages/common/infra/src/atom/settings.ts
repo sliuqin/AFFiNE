@@ -34,7 +34,7 @@ const appSettingBaseAtom = atomWithStorage<AppSetting>(
     autoCheckUpdate: true,
     autoDownloadUpdate: true,
     enableTelemetry: true,
-    showLinkedDocInSidebar: true,
+    showLinkedDocInSidebar: false,
   },
   undefined,
   {
