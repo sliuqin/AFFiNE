@@ -28,6 +28,7 @@ import { query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { repeat } from 'lit/directives/repeat.js';
 
 import { ParagraphBlockConfigExtension } from './paragraph-block-config.js';
 import { paragraphBlockStyles } from './styles.js';
@@ -227,6 +228,12 @@ export class ParagraphBlockComponent extends CaptionedBlockComponent<ParagraphBl
   }
 
   override renderBlock(): TemplateResult<1> {
+    const widgets = html`${repeat(
+      Object.entries(this.widgets),
+      ([id]) => id,
+      ([_, widget]) => widget
+    )}`;
+
     const { type$ } = this.model.props;
     const collapsed = this.store.readonly
       ? this._readonlyCollapsed
@@ -341,6 +348,7 @@ export class ParagraphBlockComponent extends CaptionedBlockComponent<ParagraphBl
         </div>
 
         ${children}
+        ${widgets}
       </div>
     `;
   }

@@ -71,6 +71,7 @@ import {
 } from './widgets/ai-panel/components';
 import { AIFinishTip } from './widgets/ai-panel/components/finish-tip';
 import { GeneratingPlaceholder } from './widgets/ai-panel/components/generating-placeholder';
+import { AFFINE_BLOCK_DIFF_WIDGET, AffineBlockDiffWidget } from './widgets/block-diff/widget';
 import {
   AFFINE_EDGELESS_COPILOT_WIDGET,
   EdgelessCopilotWidget,
@@ -158,6 +159,7 @@ export function registerAIEffects() {
 
   customElements.define(AFFINE_AI_PANEL_WIDGET, AffineAIPanelWidget);
   customElements.define(AFFINE_EDGELESS_COPILOT_WIDGET, EdgelessCopilotWidget);
+  customElements.define(AFFINE_BLOCK_DIFF_WIDGET, AffineBlockDiffWidget);
 
   customElements.define('edgeless-copilot-panel', EdgelessCopilotPanel);
   customElements.define(

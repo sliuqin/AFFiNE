@@ -505,6 +505,7 @@ export class AffineAIPanelWidget extends WidgetComponent {
   }
 
   override render() {
+    console.log
     if (this.state === 'hidden') {
       return nothing;
     }

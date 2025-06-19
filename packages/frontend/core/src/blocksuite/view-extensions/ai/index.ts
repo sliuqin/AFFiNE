@@ -20,6 +20,7 @@ import { FrameworkProvider } from '@toeverything/infra';
 import { z } from 'zod';
 
 import { EdgelessClipboardAIChatConfig } from './edgeless-clipboard';
+import { blockDiffWidget } from '../../ai/widgets/block-diff/widget';
 
 const optionsSchema = z.object({
   enable: z.boolean().optional(),
@@ -50,6 +51,8 @@ export class AIViewExtension extends ViewExtensionProvider<AIViewOptions> {
           config: imageToolbarAIEntryConfig(),
         })
       );
+
+
     if (context.scope === 'edgeless' || context.scope === 'page') {
       context.register([
         aiPanelWidget,
@@ -73,6 +76,7 @@ export class AIViewExtension extends ViewExtensionProvider<AIViewOptions> {
       ]);
     }
     if (context.scope === 'page') {
+      context.register(blockDiffWidget);
       context.register(getAIPageRootWatcher(framework));
     }
   }
