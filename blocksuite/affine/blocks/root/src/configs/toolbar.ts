@@ -9,6 +9,7 @@ import {
   promptDocTitle,
 } from '@blocksuite/affine-block-embed';
 import { updateBlockType } from '@blocksuite/affine-block-note';
+import type { HighlightType } from '@blocksuite/affine-components/highlight-dropdown-menu';
 import { toast } from '@blocksuite/affine-components/toast';
 import { EditorChevronDown } from '@blocksuite/affine-components/toolbar';
 import {
@@ -38,7 +39,6 @@ import type {
   ToolbarModuleConfig,
 } from '@blocksuite/affine-shared/services';
 import { ActionPlacement } from '@blocksuite/affine-shared/services';
-import type { AffineTextAttributes } from '@blocksuite/affine-shared/types';
 import { tableViewMeta } from '@blocksuite/data-view/view-presets';
 import {
   CopyIcon,
@@ -140,7 +140,7 @@ const highlightActionGroup = {
   id: 'c.highlight',
   when: ({ chain }) => isFormatSupported(chain).run()[0],
   content({ chain }) {
-    const updateHighlight = (styles: AffineTextAttributes) => {
+    const updateHighlight = (styles: HighlightType) => {
       const payload = { styles };
       chain
         .try(chain => [

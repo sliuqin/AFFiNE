@@ -35,27 +35,30 @@ export type IndentContext = {
   type: 'indent' | 'dedent';
 };
 
-export interface AffineTextAttributes {
+export type AffineTextStyleAttributes = {
   bold?: true | null;
   italic?: true | null;
   underline?: true | null;
   strike?: true | null;
   code?: true | null;
+  color?: string | null;
+  background?: string | null;
+};
+
+export type AffineTextAttributes = AffineTextStyleAttributes & {
   link?: string | null;
   reference?:
     | ({
         type: 'Subpage' | 'LinkedPage';
       } & ReferenceInfo)
     | null;
-  background?: string | null;
-  color?: string | null;
   latex?: string | null;
   footnote?: FootNote | null;
   mention?: {
     member: string;
     notification?: string;
   } | null;
-}
+};
 
 export type AffineInlineEditor = InlineEditor<AffineTextAttributes>;
 
