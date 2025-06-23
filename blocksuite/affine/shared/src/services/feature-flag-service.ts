@@ -22,6 +22,7 @@ export interface BlockSuiteFlags {
   enable_turbo_renderer: boolean;
   enable_dom_renderer: boolean;
   enable_web_container: boolean;
+  enable_comment: boolean;
 }
 
 export class FeatureFlagService extends StoreExtension {
@@ -48,6 +49,7 @@ export class FeatureFlagService extends StoreExtension {
     enable_turbo_renderer: false,
     enable_dom_renderer: false,
     enable_web_container: false,
+    enable_comment: false,
   });
 
   setFlag(key: keyof BlockSuiteFlags, value: boolean) {
