@@ -230,6 +230,7 @@ export async function createApp(
   app.use(cookieParser());
   app.useBodyParser('raw', { limit: 1 * OneMB });
   app.use(
+    '/graphql',
     graphqlUploadExpress({
       maxFileSize: 10 * OneMB,
       maxFiles: 5,

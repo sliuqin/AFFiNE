@@ -223,3 +223,69 @@ test('should preview link', async t => {
     }
   }
 });
+
+test('should handle webcontainer operations', async t => {
+  const assertAndSnapshot = assertAndSnapshotRaw.bind(null, t);
+
+  await t.context.app
+    .POST('/api/worker/web-container')
+    .set('Origin', 'http://localhost')
+    .set('Referer', 'http://localhost/test')
+    .expect(400);
+
+  await t.context.app
+    .POST('/api/worker/web-container')
+    .set('Origin', 'http://localhost')
+    .set('Referer', 'http://localhost/test')
+    .field('html', 'x'.repeat(1024 * 1024))
+    .expect(413);
+
+  {
+    const testHtml =
+      '<html><head><title>Test</title></head><body><h1>Hello WebContainer</h1></body></html>';
+
+    const createResponse = await t.context.app
+      .POST('/api/worker/web-container')
+      .set('Origin', 'http://localhost')
+      .set('Referer', 'http://localhost/test')
+      .field('html', testHtml)
+      .expect(200);
+
+    t.truthy(createResponse.body.url);
+    t.true(createResponse.body.url.includes('/api/worker/web-container/'));
+    t.true(createResponse.body.url.includes('signature='));
+    t.true(createResponse.body.url.includes('timestamp='));
+
+    const url = new URL(createResponse.body.url);
+    const getResponse = await t.context.app
+      .GET(url.pathname + url.search)
+      .set('Referer', 'http://localhost/test')
+      .expect(200);
+
+    t.is(getResponse.text, testHtml);
+    t.is(getResponse.headers['content-type'], 'text/html; charset=utf-8');
+    t.is(getResponse.headers['x-frame-options'], 'SAMEORIGIN');
+    t.is(getResponse.headers['x-content-type-options'], 'nosniff');
+  }
+
+  await assertAndSnapshot(
+    '/api/worker/web-container/somehash?signature=invalid&timestamp=123456789',
+    'should return 400 for webContainer with invalid signature',
+    { status: 400 }
+  );
+
+  await assertAndSnapshot(
+    '/api/worker/web-container/somehash?signature=valid&timestamp=123456789',
+    'should return 400 for webContainer with missing referer',
+    { status: 400, origin: 'http://localhost' }
+  );
+
+  {
+    const expiredTimestamp = Date.now() - 7 * 60 * 60 * 1000; // 7 hours ago
+    await assertAndSnapshot(
+      `/api/worker/web-container/somehash?signature=valid&timestamp=${expiredTimestamp}`,
+      'should return 400 for webContainer with expired timestamp',
+      { status: 400 }
+    );
+  }
+});

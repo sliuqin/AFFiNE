@@ -40,6 +40,7 @@ export async function run() {
   app.use(serverTimingAndCache);
 
   app.use(
+    '/graphql',
     graphqlUploadExpress({
       maxFileSize: 100 * OneMB,
       maxFiles: 32,

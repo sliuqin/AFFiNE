@@ -15,3 +15,7 @@ export type LinkPreviewResponse = {
   videos?: string[];
   favicons?: string[];
 };
+
+export const MAX_BODY_SIZE = 1024 * 1024;
+export const SIGNATURE_VALID_DURATION = 6 * 60 * 60 * 1000; // 6 hours
+export const WEB_CONTAINER_ENDPOINT = '/web-container';

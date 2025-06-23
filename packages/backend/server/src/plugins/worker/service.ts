@@ -6,6 +6,7 @@ import { fixUrl, OriginRules } from './utils';
 @Injectable()
 export class WorkerService {
   allowedOrigins: OriginRules = [this.url.origin];
+  webContainerSecret: string = 'default-web-container-secret';
 
   constructor(
     private readonly config: Config,
@@ -20,6 +21,7 @@ export class WorkerService {
         .filter(v => !!v),
       this.url.origin,
     ];
+    this.webContainerSecret = this.config.worker.webContainerSecret;
   }
 
   @OnEvent('config.changed')

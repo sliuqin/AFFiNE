@@ -1,3 +1,5 @@
+import 'multer';
+
 import {
   Controller,
   Get,
@@ -6,23 +8,40 @@ import {
   Post,
   Req,
   Res,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request, Response } from 'express';
 import { HTMLRewriter } from 'htmlrewriter';
 
-import { BadRequest, Cache, URLHelper, UseNamedGuard } from '../../base';
+import {
+  BadRequest,
+  Cache,
+  URLHelper,
+  UseNamedGuard,
+  UserFriendlyError,
+} from '../../base';
 import { Public } from '../../core/auth';
 import { WorkerService } from './service';
-import type { LinkPreviewRequest, LinkPreviewResponse } from './types';
+import {
+  type LinkPreviewRequest,
+  type LinkPreviewResponse,
+  SIGNATURE_VALID_DURATION,
+  WEB_CONTAINER_ENDPOINT,
+} from './types';
 import {
   appendUrl,
   cloneHeader,
   fixUrl,
+  getContentHash,
   getCorsHeaders,
   isOriginAllowed,
   isRefererAllowed,
+  parseHtmlContent,
   parseJson,
   reduceUrls,
+  sha256,
+  webContainerUrl,
 } from './utils';
 import { decodeWithCharset } from './utils/encoding';
 
@@ -317,6 +336,137 @@ export class WorkerController {
         error,
       });
       throw new BadRequest('Error fetching URL');
+    }
+  }
+
+  @Post(WEB_CONTAINER_ENDPOINT)
+  @UseInterceptors(FileInterceptor('html'))
+  async createWebContainer(
+    @Req() request: Request,
+    @Res() resp: Response
+  ): Promise<Response> {
+    const origin = request.headers.origin;
+    const referer = request.headers.referer;
+
+    try {
+      if (
+        (origin && !isOriginAllowed(origin, this.allowedOrigin)) ||
+        !referer ||
+        !isRefererAllowed(referer, this.allowedOrigin)
+      ) {
+        this.logger.error(
+          'Invalid Origin or Referer for web container creation',
+          { origin, referer }
+        );
+        throw new BadRequest('Invalid header');
+      }
+
+      this.logger.debug('Received create web container request', {
+        origin,
+        referer,
+      });
+
+      const htmlContent = parseHtmlContent(request.body);
+      const contentHash = await sha256(htmlContent);
+
+      const cachedUrl = `web-container:${contentHash}`;
+      await this.cache.set(cachedUrl, htmlContent, {
+        ttl: SIGNATURE_VALID_DURATION,
+      });
+
+      const containerUrl = await webContainerUrl(
+        this.url,
+        referer,
+        contentHash,
+        this.service.webContainerSecret
+      );
+
+      this.logger.debug('Web container created successfully', {
+        origin,
+        contentHash,
+        htmlSize: htmlContent.length,
+      });
+
+      const response = JSON.stringify({ url: containerUrl });
+      return resp
+        .status(200)
+        .header({
+          'content-type': 'application/json;charset=UTF-8',
+          ...getCorsHeaders(origin),
+        })
+        .send(response);
+    } catch (error) {
+      if (error instanceof UserFriendlyError) {
+        throw error;
+      }
+
+      this.logger.error('Error creating web container', {
+        origin,
+        error,
+      });
+      throw new BadRequest('Failed to create web container');
+    }
+  }
+
+  @Get(`${WEB_CONTAINER_ENDPOINT}/:contentHash`)
+  async getWebContainer(
+    @Req() request: Request,
+    @Res() resp: Response
+  ): Promise<Response> {
+    const referer = request.headers.referer;
+    const url = new URL(request.url, this.url.baseUrl);
+
+    try {
+      if (!referer || !isRefererAllowed(referer, this.allowedOrigin)) {
+        this.logger.error(
+          'Invalid or missing referer for web container access',
+          {
+            referer,
+          }
+        );
+        throw new BadRequest('Invalid or missing referer');
+      }
+
+      const contentHash = await getContentHash(
+        this.service.webContainerSecret,
+        url,
+        referer
+      );
+
+      const cachedUrl = `web-container:${contentHash}`;
+      const cachedContent = await this.cache.get<string>(cachedUrl);
+
+      if (!cachedContent) {
+        this.logger.error('Web container content not found in cache', {
+          contentHash,
+        });
+        throw new BadRequest('Content not found or expired');
+      }
+
+      this.logger.debug('Web container content served successfully', {
+        contentHash,
+        contentSize: cachedContent.length,
+        referer,
+      });
+
+      return resp
+        .status(200)
+        .header({
+          'Content-Type': 'text/html;charset=UTF-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'X-Frame-Options': 'SAMEORIGIN',
+          'X-Content-Type-Options': 'nosniff',
+        })
+        .send(cachedContent);
+    } catch (error) {
+      if (error instanceof UserFriendlyError) {
+        throw error;
+      }
+
+      this.logger.error('Error serving web container content', {
+        error,
+      });
+      return resp.status(404).send();
     }
   }
 }

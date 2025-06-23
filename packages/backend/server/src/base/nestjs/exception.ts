@@ -1,6 +1,7 @@
 import { ApolloServerErrorCode } from '@apollo/server/errors';
 import {
   ArgumentsHost,
+  BadRequestException,
   Catch,
   Logger,
   NotFoundException,
@@ -17,6 +18,7 @@ import { Socket } from 'socket.io';
 import { ZodError } from 'zod';
 
 import {
+  BadRequest,
   GraphqlBadRequest,
   HttpRequestError,
   InternalServerError,
@@ -59,6 +61,13 @@ export function mapAnyError(error: any): UserFriendlyError {
     return new ValidationError({
       errors: error.message,
     });
+  } else if (
+    error instanceof BadRequestException &&
+    (error.message.includes('too long') || error.message.includes('too large'))
+  ) {
+    const e = new BadRequest(error.message);
+    e.status = 413; // Payload Too Large
+    return e;
   } else if (
     error instanceof HttpError &&
     error.status >= 400 &&

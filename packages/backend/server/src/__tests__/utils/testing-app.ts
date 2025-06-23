@@ -54,6 +54,7 @@ export async function createTestingApp(
   app.useBodyParser('raw', { limit: 1 * OneMB });
   app.useGlobalFilters(new GlobalExceptionFilter(app.getHttpAdapter()));
   app.use(
+    '/graphql',
     graphqlUploadExpress({
       maxFileSize: 10 * OneMB,
       maxFiles: 5,
