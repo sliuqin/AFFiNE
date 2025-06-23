@@ -959,7 +959,6 @@ __metadata:
     "@types/jsonwebtoken": "npm:^9.0.9"
     "@types/lodash-es": "npm:^4.17.12"
     "@types/mixpanel": "npm:^2.14.9"
-    "@types/multer": "npm:^1"
     "@types/mustache": "npm:^4.2.5"
     "@types/node": "npm:^22.0.0"
     "@types/nodemailer": "npm:^6.4.17"
