@@ -12,6 +12,7 @@ import {
   listBlobs,
   setBlob,
   TestingApp,
+  uploadBlob,
 } from '../utils';
 
 const OneMB = 1024 * 1024;
@@ -60,6 +61,50 @@ test('should set blobs', async t => {
     .buffer();
 
   t.deepEqual(response2.body, buffer2, 'failed to get blob');
+});
+
+test('should upload blobs', async t => {
+  await app.signupV1('u1@affine.pro');
+
+  const workspace = await createWorkspace(app);
+  const buffer1 = Buffer.from([0, 0]);
+  const url1 = await uploadBlob(app, workspace.id, buffer1);
+
+  // http://localhost:3010/api/workspaces/41285238-16c0-4b36-acfd-5ae1094f2d99/blobs/UP_USER_bea4008d-2b34-4e4d-a4cf-aea54afcaec4_50434cee-d77b-44fd-a32a-94d6bdd617c3
+  t.regex(
+    url1,
+    /^http:\/\/localhost:\d+\/api\/workspaces\/[a-z0-9-]+\/blobs\/UP_USER_[a-z0-9-_]+$/
+  );
+
+  const response1 = await app.GET(new URL(url1).pathname).buffer();
+
+  t.deepEqual(response1.body, buffer1, 'failed to get blob');
+
+  const buffer2 = Buffer.from([0, 1]);
+  const url2 = await uploadBlob(app, workspace.id, buffer2);
+
+  t.regex(
+    url2,
+    /^http:\/\/localhost:\d+\/api\/workspaces\/[a-z0-9-]+\/blobs\/UP_USER_[a-z0-9-_]+$/
+  );
+
+  const response2 = await app.GET(new URL(url2).pathname).buffer();
+
+  t.deepEqual(response2.body, buffer2, 'failed to get blob');
+});
+
+test('should upload blob failed when user is anonymous', async t => {
+  await app.signupV1('u1@affine.pro');
+
+  const workspace = await createWorkspace(app);
+
+  await app.logout();
+
+  const buffer = Buffer.from([0, 0]);
+
+  await t.throwsAsync(uploadBlob(app, workspace.id, buffer), {
+    message: 'You must sign in first to access this resource.',
+  });
 });
 
 test('should list blobs', async t => {

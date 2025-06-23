@@ -84,3 +84,35 @@ export async function setBlob(
   }
   return res.body.data.setBlob;
 }
+
+export async function uploadBlob(
+  app: TestingApp,
+  workspaceId: string,
+  buffer: Buffer
+): Promise<string> {
+  const res = await app
+    .POST('/graphql')
+    .set({ 'x-request-id': 'test', 'x-operation-name': 'test' })
+    .field(
+      'operations',
+      JSON.stringify({
+        name: 'uploadBlob',
+        query: `mutation uploadBlob($blob: Upload!) {
+              uploadBlob(workspaceId: "${workspaceId}", blob: $blob)
+            }`,
+        variables: { blob: null },
+      })
+    )
+    .field('map', JSON.stringify({ '0': ['variables.blob'] }))
+    .attach('0', buffer)
+    .expect(200);
+
+  if (res.body.errors?.length) {
+    if (TEST_LOG_LEVEL !== 'fatal') {
+      // print the error stack when log level is not fatal, for better debugging
+      console.error('%o', res.body);
+    }
+    throw new Error(res.body.errors[0].message);
+  }
+  return res.body.data.uploadBlob;
+}

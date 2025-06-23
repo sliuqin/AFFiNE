@@ -1,0 +1,3 @@
+mutation uploadBlob($workspaceId: String!, $blob: Upload!) {
+  uploadBlob(workspaceId: $workspaceId, blob: $blob)
+}

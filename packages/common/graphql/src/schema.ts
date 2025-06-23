@@ -1355,6 +1355,8 @@ export interface Mutation {
   updateWorkspaceEmbeddingIgnoredDocs: Scalars['Int']['output'];
   /** Upload user avatar */
   uploadAvatar: UserType;
+  /** Upload a blob to the workspace, return the url of the blob */
+  uploadBlob: Scalars['String']['output'];
   /** validate app configuration */
   validateAppConfig: Array<AppConfigValidateResult>;
   verifyEmail: Scalars['Boolean']['output'];
@@ -1733,6 +1735,11 @@ export interface MutationUpdateWorkspaceEmbeddingIgnoredDocsArgs {
 
 export interface MutationUploadAvatarArgs {
   avatar: Scalars['Upload']['input'];
+}
+
+export interface MutationUploadBlobArgs {
+  blob: Scalars['Upload']['input'];
+  workspaceId: Scalars['String']['input'];
 }
 
 export interface MutationValidateAppConfigArgs {
@@ -3037,6 +3044,16 @@ export type SetBlobMutationVariables = Exact<{
 }>;
 
 export type SetBlobMutation = { __typename?: 'Mutation'; setBlob: string };
+
+export type UploadBlobMutationVariables = Exact<{
+  workspaceId: Scalars['String']['input'];
+  blob: Scalars['Upload']['input'];
+}>;
+
+export type UploadBlobMutation = {
+  __typename?: 'Mutation';
+  uploadBlob: string;
+};
 
 export type CancelSubscriptionMutationVariables = Exact<{
   plan?: InputMaybe<SubscriptionPlan>;
@@ -5515,6 +5532,11 @@ export type Mutations =
       name: 'setBlobMutation';
       variables: SetBlobMutationVariables;
       response: SetBlobMutation;
+    }
+  | {
+      name: 'uploadBlobMutation';
+      variables: UploadBlobMutationVariables;
+      response: UploadBlobMutation;
     }
   | {
       name: 'cancelSubscriptionMutation';

@@ -1222,6 +1222,9 @@ type Mutation {
   """Upload user avatar"""
   uploadAvatar(avatar: Upload!): UserType!
 
+  """Upload a blob to the workspace, return the url of the blob"""
+  uploadBlob(blob: Upload!, workspaceId: String!): String!
+
   """validate app configuration"""
   validateAppConfig(updates: [UpdateAppConfigInput!]!): [AppConfigValidateResult!]!
   verifyEmail(token: String!): Boolean!

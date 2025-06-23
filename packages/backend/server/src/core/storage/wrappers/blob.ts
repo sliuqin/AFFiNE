@@ -125,7 +125,11 @@ export class WorkspaceBlobStorage {
     if (!avatarKey) {
       return undefined;
     }
-    return this.url.link(`/api/workspaces/${workspaceId}/blobs/${avatarKey}`);
+    return this.getBlobUrl(workspaceId, avatarKey);
+  }
+
+  getBlobUrl(workspaceId: string, blobKey: string) {
+    return this.url.link(`/api/workspaces/${workspaceId}/blobs/${blobKey}`);
   }
 
   private trySyncBlobsMeta(workspaceId: string, blobs: ListObjectsMetadata[]) {

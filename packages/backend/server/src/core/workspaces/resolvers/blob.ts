@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import { Logger, UseGuards } from '@nestjs/common';
 import {
   Args,
@@ -108,6 +110,37 @@ export class WorkspaceBlobResolver {
 
     await this.storage.put(workspaceId, blob.filename, buffer);
     return blob.filename;
+  }
+
+  @Mutation(() => String, {
+    description: 'Upload a blob to the workspace, return the url of the blob',
+  })
+  async uploadBlob(
+    @CurrentUser() user: CurrentUser,
+    @Args('workspaceId') workspaceId: string,
+    @Args({ name: 'blob', type: () => GraphQLUpload })
+    blob: FileUpload
+  ) {
+    await this.ac
+      .user(user.id)
+      .workspace(workspaceId)
+      .assert('Workspace.Blobs.Write');
+
+    const checkExceeded =
+      await this.quota.getWorkspaceQuotaCalculator(workspaceId);
+
+    let result = checkExceeded(0);
+    if (result?.blobQuotaExceeded) {
+      throw new BlobQuotaExceeded();
+    } else if (result?.storageQuotaExceeded) {
+      throw new StorageQuotaExceeded();
+    }
+
+    const buffer = await readBuffer(blob.createReadStream(), checkExceeded);
+
+    const key = `UP_USER_${user.id}_${randomUUID()}`;
+    await this.storage.put(workspaceId, key, buffer);
+    return this.storage.getBlobUrl(workspaceId, key);
   }
 
   @Mutation(() => Boolean)

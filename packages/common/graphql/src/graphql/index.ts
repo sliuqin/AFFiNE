@@ -300,6 +300,15 @@ export const setBlobMutation = {
   file: true,
 };
 
+export const uploadBlobMutation = {
+  id: 'uploadBlobMutation' as const,
+  op: 'uploadBlob',
+  query: `mutation uploadBlob($workspaceId: String!, $blob: Upload!) {
+  uploadBlob(workspaceId: $workspaceId, blob: $blob)
+}`,
+  file: true,
+};
+
 export const cancelSubscriptionMutation = {
   id: 'cancelSubscriptionMutation' as const,
   op: 'cancelSubscription',
