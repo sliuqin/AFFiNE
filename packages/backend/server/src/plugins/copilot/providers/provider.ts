@@ -10,9 +10,12 @@ import {
   OnEvent,
 } from '../../../base';
 import { AccessController } from '../../../core/permission';
+import { IndexerService } from '../../indexer';
 import { CopilotContextService } from '../context';
 import {
+  buildDocKeywordSearchGetter,
   buildDocSearchGetter,
+  createDocKeywordSearchTool,
   createDocSemanticSearchTool,
   createExaCrawlTool,
   createExaSearchTool,
@@ -33,6 +36,7 @@ import {
   ModelInputType,
   type PromptMessage,
   PromptMessageSchema,
+  StreamObject,
 } from './types';
 
 @Injectable()
@@ -124,6 +128,7 @@ export abstract class CopilotProvider<C = any> {
   ): Promise<ToolSet> {
     const tools: ToolSet = {};
     if (options?.tools?.length) {
+      this.logger.debug(`getTools: ${JSON.stringify(options.tools)}`);
       for (const tool of options.tools) {
         const toolDef = this.getProviderSpecificTools(tool, model);
         if (toolDef) {
@@ -140,6 +145,24 @@ export abstract class CopilotProvider<C = any> {
             tools.doc_semantic_search = createDocSemanticSearchTool(
               searchDocs.bind(null, options)
             );
+            break;
+          }
+          case 'docKeywordSearch': {
+            if (this.AFFiNEConfig.indexer.enabled) {
+              const ac = this.moduleRef.get(AccessController, {
+                strict: false,
+              });
+              const indexerService = this.moduleRef.get(IndexerService, {
+                strict: false,
+              });
+              const searchDocs = buildDocKeywordSearchGetter(
+                ac,
+                indexerService
+              );
+              tools.doc_keyword_search = createDocKeywordSearchTool(
+                searchDocs.bind(null, options)
+              );
+            }
             break;
           }
           case 'webSearch': {
@@ -224,6 +247,17 @@ export abstract class CopilotProvider<C = any> {
     messages: PromptMessage[],
     options?: CopilotChatOptions
   ): AsyncIterable<string>;
+
+  streamObject(
+    _model: ModelConditions,
+    _messages: PromptMessage[],
+    _options?: CopilotChatOptions
+  ): AsyncIterable<StreamObject> {
+    throw new CopilotProviderNotSupported({
+      provider: this.type,
+      kind: 'object',
+    });
+  }
 
   structure(
     _cond: ModelConditions,
