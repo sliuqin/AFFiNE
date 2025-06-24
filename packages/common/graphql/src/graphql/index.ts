@@ -381,11 +381,6 @@ export const createCommentMutation = {
       content
       createdAt
       updatedAt
-      user {
-        id
-        name
-        avatarUrl
-      }
     }
   }
 }`,
