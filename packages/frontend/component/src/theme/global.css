@@ -306,3 +306,15 @@ math {
     'STIX Two Math' /* mac */,
     math;
 }
+
+/* AI Block Diff */
+.ai-block-diff-deleted {
+  background-color: var(--aI-applyDeleteHighlight, #ffeaea) !important;
+  border-radius: 4px !important;
+  padding: 8px 0px !important;
+  margin-bottom: 10px !important;
+}
+
+.ai-block-diff-deleted .affine-block-component {
+  margin: 0 !important;
+}
