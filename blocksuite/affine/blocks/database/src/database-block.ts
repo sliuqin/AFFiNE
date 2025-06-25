@@ -45,6 +45,7 @@ import { autoUpdate } from '@floating-ui/dom';
 import { computed, signal } from '@preact/signals-core';
 import { html, nothing } from 'lit';
 
+import { repeat } from 'lit/directives/repeat.js';
 import { popSideDetail } from './components/layout.js';
 import { DatabaseConfigExtension } from './config.js';
 import { EditorHostKey } from './context/host-context.js';
@@ -428,9 +429,15 @@ export class DatabaseBlockComponent extends CaptionedBlockComponent<DatabaseBloc
       })
   );
   override renderBlock() {
+    const widgets = html`${repeat(
+      Object.entries(this.widgets),
+      ([id]) => id,
+      ([_, widget]) => widget
+    )}`;
+
     return html`
       <div contenteditable="false" class="${databaseContentStyles}">
-        ${this.dataViewRootLogic.value.render()}
+        ${this.dataViewRootLogic.value.render()} ${widgets}
       </div>
     `;
   }

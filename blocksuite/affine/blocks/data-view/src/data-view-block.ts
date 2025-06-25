@@ -42,6 +42,7 @@ import { computed, signal } from '@preact/signals-core';
 import { css, nothing, unsafeCSS } from 'lit';
 import { html } from 'lit/static-html.js';
 
+import { repeat } from 'lit/directives/repeat.js';
 import { BlockQueryDataSource } from './data-source.js';
 import type { DataViewBlockModel } from './data-view-model.js';
 
@@ -303,9 +304,16 @@ export class DataViewBlockComponent extends CaptionedBlockComponent<DataViewBloc
     },
   });
   override renderBlock() {
+    const widgets = html`${repeat(
+      Object.entries(this.widgets),
+      ([id]) => id,
+      ([_, widget]) => widget
+    )}`;
+
     return html`
       <div contenteditable="false" style="position: relative">
         ${this.dataViewRootLogic.render()}
+        ${widgets}
       </div>
     `;
   }
