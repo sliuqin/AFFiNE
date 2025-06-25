@@ -92,6 +92,7 @@ jobs:
       - name: Tag Image
         run: |
           docker buildx imagetools create --tag ghcr.io/toeverything/affine:${{needs.prepare.outputs.BUILD_TYPE}} ghcr.io/toeverything/affine:${{needs.prepare.outputs.BUILD_TYPE}}-${{needs.prepare.outputs.GIT_SHORT_HASH}}
+          docker buildx imagetools create --tag ghcr.io/toeverything/affine:${{needs.prepare.outputs.APP_VERSION}} ghcr.io/toeverything/affine:${{needs.prepare.outputs.BUILD_TYPE}}-${{needs.prepare.outputs.GIT_SHORT_HASH}}
 
   desktop:
     name: Release Desktop

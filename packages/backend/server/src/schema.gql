@@ -624,6 +624,8 @@ enum ErrorNames {
   CAN_NOT_BATCH_GRANT_DOC_OWNER_PERMISSIONS
   CAN_NOT_REVOKE_YOURSELF
   CAPTCHA_VERIFICATION_FAILED
+  COMMENT_ATTACHMENT_NOT_FOUND
+  COMMENT_ATTACHMENT_QUOTA_EXCEEDED
   COMMENT_NOT_FOUND
   COPILOT_ACTION_TAKEN
   COPILOT_CONTEXT_FILE_NOT_SUPPORTED
@@ -1312,6 +1314,9 @@ type Mutation {
 
   """Upload user avatar"""
   uploadAvatar(avatar: Upload!): UserType!
+
+  """Upload a comment attachment and return the access url"""
+  uploadCommentAttachment(attachment: Upload!, docId: String!, workspaceId: String!): String!
 
   """validate app configuration"""
   validateAppConfig(updates: [UpdateAppConfigInput!]!): [AppConfigValidateResult!]!

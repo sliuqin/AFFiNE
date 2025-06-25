@@ -1131,3 +1131,110 @@ e2e('should list comments and changes work', async t => {
 });
 
 // #endregion
+
+// #region comment attachment
+
+e2e('should upload comment attachment work', async t => {
+  const docId = randomUUID();
+
+  await app.login(owner);
+
+  const buffer = Buffer.from('test');
+
+  const res = await app
+    .POST('/graphql')
+    .field(
+      'operations',
+      JSON.stringify({
+        name: 'uploadCommentAttachment',
+        query: `mutation uploadCommentAttachment($attachment: Upload!) {
+              uploadCommentAttachment(workspaceId: "${workspace.id}", docId: "${docId}", attachment: $attachment)
+            }`,
+        variables: { attachment: null },
+      })
+    )
+    .field('map', JSON.stringify({ '0': ['variables.attachment'] }))
+    .attach(
+      '0',
+      buffer,
+      `attachment-${Math.random().toString(16).substring(2, 10)}.txt`
+    )
+    .expect(200);
+
+  t.regex(
+    res.body.data.uploadCommentAttachment,
+    /^http:\/\/localhost:3010\/api\/workspaces\/[a-f0-9-]+\/docs\/[a-f0-9-]+\/comment-attachments\/[a-f0-9-]+$/
+  );
+});
+
+e2e(
+  'should upload comment attachment failed when user has no permission',
+  async t => {
+    const docId = randomUUID();
+    await app.login(other);
+
+    const buffer = Buffer.from('test');
+
+    const res = await app
+      .POST('/graphql')
+      .field(
+        'operations',
+        JSON.stringify({
+          name: 'uploadCommentAttachment',
+          query: `mutation uploadCommentAttachment($attachment: Upload!) {
+              uploadCommentAttachment(workspaceId: "${workspace.id}", docId: "${docId}", attachment: $attachment)
+            }`,
+          variables: { attachment: null },
+        })
+      )
+      .field('map', JSON.stringify({ '0': ['variables.attachment'] }))
+      .attach(
+        '0',
+        buffer,
+        `attachment-${Math.random().toString(16).substring(2, 10)}.txt`
+      )
+      .expect(200);
+
+    t.regex(
+      res.body.errors[0].message,
+      /You do not have permission to perform Doc\.Comments\.Create action on doc/
+    );
+  }
+);
+
+e2e(
+  'should upload comment attachment failed when attachment size exceeds the limit',
+  async t => {
+    const docId = randomUUID();
+    await app.login(owner);
+
+    const buffer = Buffer.alloc(10 * 1024 * 1024 + 1);
+
+    const res = await app
+      .POST('/graphql')
+      .field(
+        'operations',
+        JSON.stringify({
+          name: 'uploadCommentAttachment',
+          query: `mutation uploadCommentAttachment($attachment: Upload!) {
+              uploadCommentAttachment(workspaceId: "${workspace.id}", docId: "${docId}", attachment: $attachment)
+            }`,
+          variables: { attachment: null },
+        })
+      )
+      .field('map', JSON.stringify({ '0': ['variables.attachment'] }))
+      .attach(
+        '0',
+        buffer,
+        `attachment-${Math.random().toString(16).substring(2, 10)}.txt`
+      )
+      .expect(200);
+
+    t.regex(
+      res.body.errors[0].message,
+      /You have exceeded the comment attachment size quota/
+    );
+  }
+);
+
+// #endregion

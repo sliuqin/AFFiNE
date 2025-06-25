@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import {
   Args,
   Mutation,
@@ -5,8 +7,15 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 
-import { CommentNotFound, ReplyNotFound } from '../../base';
+import {
+  CommentAttachmentQuotaExceeded,
+  CommentNotFound,
+  type FileUpload,
+  readableToBuffer,
+  ReplyNotFound,
+} from '../../base';
 import {
   decodeWithJson,
   paginateWithCustomCursor,
@@ -14,6 +23,7 @@ import {
 } from '../../base/graphql';
 import { CurrentUser } from '../auth/session';
 import { AccessController, DocAction } from '../permission';
+import { CommentAttachmentStorage } from '../storage';
 import { UserType } from '../user';
 import { WorkspaceType } from '../workspaces';
 import { CommentService } from './service';
@@ -39,7 +49,8 @@ export interface CommentCursor {
 export class CommentResolver {
   constructor(
     private readonly service: CommentService,
-    private readonly ac: AccessController
+    private readonly ac: AccessController,
+    private readonly commentAttachmentStorage: CommentAttachmentStorage
   ) {}
 
   @Mutation(() => CommentObjectType)
@@ -293,6 +304,40 @@ export class CommentResolver {
       // not support to get previous page
       false
     );
+  }
+
+  @Mutation(() => String, {
+    description: 'Upload a comment attachment and return the access url',
+  })
+  async uploadCommentAttachment(
+    @CurrentUser() me: UserType,
+    @Args('workspaceId') workspaceId: string,
+    @Args('docId') docId: string,
+    @Args({ name: 'attachment', type: () => GraphQLUpload })
+    attachment: FileUpload
+  ) {
+    await this.assertPermission(
+      me,
+      { workspaceId, docId },
+      'Doc.Comments.Create'
+    );
+
+    // TODO(@fengmk2): should check total attachment quota in the future version
+    const buffer = await readableToBuffer(attachment.createReadStream());
+    // max attachment size is 10MB
+    if (buffer.length > 10 * 1024 * 1024) {
+      throw new CommentAttachmentQuotaExceeded();
+    }
+
+    const key = randomUUID();
+    await this.commentAttachmentStorage.put(
+      workspaceId,
+      docId,
+      key,
+      attachment.filename ?? key,
+      buffer
+    );
+    return this.commentAttachmentStorage.getUrl(workspaceId, docId, key);
   }
 
   private async assertPermission(

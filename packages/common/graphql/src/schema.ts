@@ -788,6 +788,8 @@ export enum ErrorNames {
   CAN_NOT_BATCH_GRANT_DOC_OWNER_PERMISSIONS = 'CAN_NOT_BATCH_GRANT_DOC_OWNER_PERMISSIONS',
   CAN_NOT_REVOKE_YOURSELF = 'CAN_NOT_REVOKE_YOURSELF',
   CAPTCHA_VERIFICATION_FAILED = 'CAPTCHA_VERIFICATION_FAILED',
+  COMMENT_ATTACHMENT_NOT_FOUND = 'COMMENT_ATTACHMENT_NOT_FOUND',
+  COMMENT_ATTACHMENT_QUOTA_EXCEEDED = 'COMMENT_ATTACHMENT_QUOTA_EXCEEDED',
   COMMENT_NOT_FOUND = 'COMMENT_NOT_FOUND',
   COPILOT_ACTION_TAKEN = 'COPILOT_ACTION_TAKEN',
   COPILOT_CONTEXT_FILE_NOT_SUPPORTED = 'COPILOT_CONTEXT_FILE_NOT_SUPPORTED',
@@ -1436,6 +1438,8 @@ export interface Mutation {
   updateWorkspaceEmbeddingIgnoredDocs: Scalars['Int']['output'];
   /** Upload user avatar */
   uploadAvatar: UserType;
+  /** Upload a comment attachment and return the access url */
+  uploadCommentAttachment: Scalars['String']['output'];
   /** validate app configuration */
   validateAppConfig: Array<AppConfigValidateResult>;
   verifyEmail: Scalars['Boolean']['output'];
@@ -1842,6 +1846,12 @@ export interface MutationUpdateWorkspaceEmbeddingIgnoredDocsArgs {
 
 export interface MutationUploadAvatarArgs {
   avatar: Scalars['Upload']['input'];
+}
+
+export interface MutationUploadCommentAttachmentArgs {
+  attachment: Scalars['Upload']['input'];
+  docId: Scalars['String']['input'];
+  workspaceId: Scalars['String']['input'];
 }
 
 export interface MutationValidateAppConfigArgs {
@@ -3297,12 +3307,6 @@ export type CreateCommentMutation = {
       content: any;
       createdAt: string;
       updatedAt: string;
-      user: {
-        __typename?: 'PublicUserType';
-        id: string;
-        name: string;
-        avatarUrl: string | null;
-      };
     }>;
   };
 };
@@ -3428,6 +3432,17 @@ export type UpdateCommentMutationVariables = Exact<{
 export type UpdateCommentMutation = {
   __typename?: 'Mutation';
   updateComment: boolean;
+};
+
+export type UploadCommentAttachmentMutationVariables = Exact<{
+  workspaceId: Scalars['String']['input'];
+  docId: Scalars['String']['input'];
+  attachment: Scalars['Upload']['input'];
+}>;
+
+export type UploadCommentAttachmentMutation = {
+  __typename?: 'Mutation';
+  uploadCommentAttachment: string;
 };
 
 export type AddContextCategoryMutationVariables = Exact<{
@@ -5930,6 +5945,11 @@ export type Mutations =
       name: 'updateCommentMutation';
       variables: UpdateCommentMutationVariables;
       response: UpdateCommentMutation;
+    }
+  | {
+      name: 'uploadCommentAttachmentMutation';
+      variables: UploadCommentAttachmentMutationVariables;
+      response: UploadCommentAttachmentMutation;
     }
   | {
       name: 'addContextCategoryMutation';

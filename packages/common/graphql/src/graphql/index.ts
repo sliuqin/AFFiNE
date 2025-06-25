@@ -381,11 +381,6 @@ export const createCommentMutation = {
       content
       createdAt
       updatedAt
-      user {
-        id
-        name
-        avatarUrl
-      }
     }
   }
 }`,
@@ -493,6 +488,19 @@ export const updateCommentMutation = {
   query: `mutation updateComment($input: CommentUpdateInput!) {
   updateComment(input: $input)
 }`,
+};
+
+export const uploadCommentAttachmentMutation = {
+  id: 'uploadCommentAttachmentMutation' as const,
+  op: 'uploadCommentAttachment',
+  query: `mutation uploadCommentAttachment($workspaceId: String!, $docId: String!, $attachment: Upload!) {
+  uploadCommentAttachment(
+    workspaceId: $workspaceId
+    docId: $docId
+    attachment: $attachment
+  )
+}`,
+  file: true,
 };
 
 export const addContextCategoryMutation = {
