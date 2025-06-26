@@ -118,6 +118,7 @@ export class DocCommentEntity
     this.comments$.setValue([...currentComments, comment]);
     this.commentAdded$.next(comment.id);
     this.dismissDraftComment(id);
+    this.revalidate();
   }
 
   async deleteComment(id: string): Promise<void> {
@@ -125,6 +126,7 @@ export class DocCommentEntity
     const currentComments = this.comments$.value;
     this.comments$.setValue(currentComments.filter(c => c.id !== id));
     this.commentDeleted$.next(id);
+    this.revalidate();
   }
 
   async deleteReply(id: string): Promise<void> {
@@ -139,6 +141,7 @@ export class DocCommentEntity
         : comment
     );
     this.comments$.setValue(updatedComments);
+    this.revalidate();
   }
 
   async updateComment(id: string, content: DocCommentContent): Promise<void> {
@@ -148,6 +151,7 @@ export class DocCommentEntity
       comment.id === id ? { ...comment, content } : comment
     );
     this.comments$.setValue(updatedComments);
+    this.revalidate();
   }
 
   async updateReply(id: string, content: DocCommentContent): Promise<void> {
@@ -157,6 +161,7 @@ export class DocCommentEntity
       comment.id === id ? { ...comment, content } : comment
     );
     this.comments$.setValue(updatedComments);
+    this.revalidate();
   }
 
   async resolveComment(id: CommentId): Promise<void> {
@@ -171,6 +176,7 @@ export class DocCommentEntity
       this.comments$.setValue(updatedComments);
 
       this.commentResolved$.next(id);
+      this.revalidate();
     } catch (error) {
       console.error('Failed to resolve comment:', error);
       throw error;

@@ -93,6 +93,7 @@ const CommentItem = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
+  const [pendingReplyId, setPendingReplyId] = useState<string | null>(null);
   const snapshotHelper = useService(SnapshotHelper);
   const [replySnapshot, setReplySnapshot] = useState<DocSnapshot | null>(null);
 
@@ -113,32 +114,52 @@ const CommentItem = ({
 
   const handleStartReply = useAsyncCallback(async () => {
     if (isReplying) {
+      // Cancel existing reply
+      if (pendingReplyId) {
+        entity.dismissDraftComment(pendingReplyId);
+        setPendingReplyId(null);
+      }
       setIsReplying(false);
+      setReplySnapshot(null);
       return;
     }
     setIsReplying(true);
-    const snapshot = await snapshotHelper.createEmptySnapshot();
-    if (snapshot) {
-      setReplySnapshot(snapshot);
-    }
-  }, [isReplying, snapshotHelper]);
 
-  const handleCreateReply = useAsyncCallback(
-    async (snapshot: DocSnapshot) => {
-      // HACK: use private store, should be fixed later by exposing a public method
-      // @ts-expect-error - store is private
-      await entity.store.createReply(comment.id, {
-        content: {
-          snapshot,
-          preview: 'New reply', // TODO: generate preview
-        },
-      });
-      entity.revalidate();
-      setIsReplying(false);
-      setReplySnapshot(null);
-    },
-    [entity, comment.id]
-  );
+    await entity.addReply(comment.id);
+    const pendingComments = entity.pendingComments$.value;
+    const newPendingReply = Array.from(pendingComments.entries()).find(
+      ([_, pc]) => pc.commentId === comment.id // This is a reply to this comment
+    );
+    if (newPendingReply) {
+      setPendingReplyId(newPendingReply[0]);
+      const snapshot = snapshotHelper.getSnapshot(newPendingReply[1].doc);
+      if (snapshot) {
+        setReplySnapshot(snapshot);
+      }
+    }
+  }, [isReplying, entity, comment.id, snapshotHelper, pendingReplyId]);
+
+  const handleCommitReply = useAsyncCallback(async () => {
+    if (!pendingReplyId) return;
+
+    await entity.commitComment(pendingReplyId);
+    setIsReplying(false);
+    setReplySnapshot(null);
+    setPendingReplyId(null);
+  }, [entity, pendingReplyId]);
+
+  const handleCancelReply = useCallback(() => {
+    if (!pendingReplyId) return;
+
+    entity.dismissDraftComment(pendingReplyId);
+    setIsReplying(false);
+    setReplySnapshot(null);
+    setPendingReplyId(null);
+  }, [entity, pendingReplyId]);
+
+  const handleReplyChange = useCallback((snapshot: DocSnapshot) => {
+    setReplySnapshot(snapshot);
+  }, []);
 
   if (isEditing) {
     return (
@@ -172,10 +193,16 @@ const CommentItem = ({
       </div>
 
       {isReplying && replySnapshot && (
-        <CommentEditor
-          defaultSnapshot={replySnapshot}
-          onChange={handleCreateReply}
-        />
+        <div>
+          <CommentEditor
+            defaultSnapshot={replySnapshot}
+            onChange={handleReplyChange}
+          />
+          <div>
+            <Button onClick={handleCommitReply}>Submit Reply</Button>
+            <Button onClick={handleCancelReply}>Cancel</Button>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -199,59 +226,68 @@ const CommentList = ({ entity }: { entity: DocCommentEntity }) => {
 };
 
 const CommentInput = ({ entity }: { entity: DocCommentEntity }) => {
-  const [initialSnapshot, setInitialSnapshot] = useState<DocSnapshot | null>(
-    null
-  );
-  const [currentSnapshot, setCurrentSnapshot] = useState<DocSnapshot | null>(
+  const [pendingCommentId, setPendingCommentId] = useState<string | null>(null);
+  const [pendingSnapshot, setPendingSnapshot] = useState<DocSnapshot | null>(
     null
   );
   const snapshotHelper = useService(SnapshotHelper);
 
-  const resetEditor = useCallback(() => {
-    snapshotHelper
-      .createEmptySnapshot()
-      .then(s => {
-        if (s) {
-          setInitialSnapshot(s);
-          setCurrentSnapshot(s);
-        }
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  }, [snapshotHelper]);
+  const handleStartComment = useAsyncCallback(async () => {
+    if (pendingCommentId) return; // Already has a pending comment
 
-  useEffect(() => {
-    resetEditor();
-  }, [resetEditor]);
+    await entity.addComment();
+    const newPendingComments = entity.pendingComments$.value;
+    const newPendingComment = Array.from(newPendingComments.values()).find(
+      comment => !comment.commentId // Not a reply
+    );
+    if (newPendingComment) {
+      setPendingCommentId(newPendingComment.id);
+      // Get initial snapshot from the store
+      const snapshot = snapshotHelper.getSnapshot(newPendingComment.doc);
+      if (snapshot) {
+        setPendingSnapshot(snapshot);
+      }
+    }
+  }, [entity, pendingCommentId, snapshotHelper]);
 
   const handleCommit = useAsyncCallback(async () => {
-    if (!currentSnapshot) {
-      return;
-    }
-    // HACK: use private store, should be fixed later
-    // @ts-expect-error - store is private
-    await entity.store.createComment({
-      content: {
-        snapshot: currentSnapshot,
-        preview: 'New comment', // todo: get preview from selections
-      },
-    });
-    entity.revalidate();
-    resetEditor();
-  }, [entity, currentSnapshot, resetEditor]);
+    if (!pendingCommentId) return;
 
-  if (!initialSnapshot) {
-    return null;
+    await entity.commitComment(pendingCommentId);
+    setPendingCommentId(null);
+    setPendingSnapshot(null);
+  }, [entity, pendingCommentId]);
+
+  const handleCancel = useCallback(() => {
+    if (!pendingCommentId) return;
+
+    entity.dismissDraftComment(pendingCommentId);
+    setPendingCommentId(null);
+    setPendingSnapshot(null);
+  }, [entity, pendingCommentId]);
+
+  const handleEditorChange = useCallback((snapshot: DocSnapshot) => {
+    setPendingSnapshot(snapshot);
+  }, []);
+
+  if (!pendingCommentId || !pendingSnapshot) {
+    return (
+      <div>
+        <Button onClick={handleStartComment}>Add Comment</Button>
+      </div>
+    );
   }
 
   return (
     <div>
       <CommentEditor
-        defaultSnapshot={initialSnapshot}
-        onChange={setCurrentSnapshot}
+        defaultSnapshot={pendingSnapshot}
+        onChange={handleEditorChange}
       />
-      <Button onClick={handleCommit}>Submit</Button>
+      <div>
+        <Button onClick={handleCommit}>Submit</Button>
+        <Button onClick={handleCancel}>Cancel</Button>
+      </div>
     </div>
   );
 };
