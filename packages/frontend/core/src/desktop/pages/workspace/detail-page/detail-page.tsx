@@ -380,13 +380,15 @@ const DetailPageImpl = memo(function DetailPageImpl() {
         </ViewSidebarTab>
       )}
 
-      <ViewSidebarTab tabId="comment" icon={<CommentIcon />}>
-        <Scrollable.Root className={styles.sidebarScrollArea}>
-          <Scrollable.Viewport>
-            <CommentSidebar />
-          </Scrollable.Viewport>
-        </Scrollable.Root>
-      </ViewSidebarTab>
+      {workspace.flavour !== 'local' && (
+        <ViewSidebarTab tabId="comment" icon={<CommentIcon />}>
+          <Scrollable.Root className={styles.sidebarScrollArea}>
+            <Scrollable.Viewport>
+              <CommentSidebar />
+            </Scrollable.Viewport>
+          </Scrollable.Root>
+        </ViewSidebarTab>
+      )}
 
       <GlobalPageHistoryModal />
       {/* FIXME: wait for better ai, <PageAIOnboarding /> */}
