@@ -66,7 +66,6 @@ export class CommentResolver {
     });
     return {
       ...comment,
-      content: comment.content as object,
       user: {
         id: me.id,
         name: me.name,
@@ -145,7 +144,6 @@ export class CommentResolver {
     });
     return {
       ...reply,
-      content: reply.content as object,
       user: {
         id: me.id,
         name: me.name,

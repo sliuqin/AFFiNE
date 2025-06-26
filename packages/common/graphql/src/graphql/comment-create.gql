@@ -3,13 +3,13 @@ mutation createComment($input: CommentCreateInput!) {
     id
     content
     resolved
+    createdAt
+    updatedAt
     user {
       id
       name
       avatarUrl
     }
-    createdAt
-    updatedAt
     replies {
       commentId
       id

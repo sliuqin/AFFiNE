@@ -3,12 +3,12 @@ mutation createReply($input: ReplyCreateInput!) {
     commentId
     id
     content
+    createdAt
+    updatedAt
     user {
       id
       name
       avatarUrl
     }
-    createdAt
-    updatedAt
   }
 }

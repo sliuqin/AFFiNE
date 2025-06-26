@@ -87,15 +87,15 @@ export class CommentModel extends BaseModel {
    */
   async create(input: CommentCreate) {
     const data = CommentCreateSchema.parse(input);
-    return await this.db.comment.create({
+    return (await this.db.comment.create({
       data,
-    });
+    })) as Comment;
   }
 
   async get(id: string) {
-    return await this.db.comment.findUnique({
+    return (await this.db.comment.findUnique({
       where: { id, deletedAt: null },
-    });
+    })) as Comment | null;
   }
 
   /**
@@ -291,19 +291,19 @@ export class CommentModel extends BaseModel {
       throw new CommentNotFound();
     }
 
-    return await this.db.reply.create({
+    return (await this.db.reply.create({
       data: {
         ...data,
         workspaceId: comment.workspaceId,
         docId: comment.docId,
       },
-    });
+    })) as Reply;
   }
 
   async getReply(id: string) {
-    return await this.db.reply.findUnique({
+    return (await this.db.reply.findUnique({
       where: { id, deletedAt: null },
-    });
+    })) as Reply | null;
   }
 
   /**

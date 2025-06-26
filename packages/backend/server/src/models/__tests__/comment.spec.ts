@@ -60,6 +60,10 @@ test('should create a comment', async t => {
   t.is(comment.createdAt.getTime(), comment.updatedAt.getTime());
   t.is(comment.deletedAt, null);
   t.is(comment.resolved, false);
+  t.deepEqual(comment.content, {
+    type: 'paragraph',
+    content: [{ type: 'text', text: 'test' }],
+  });
 });
 
 test('should get a comment', async t => {
@@ -76,6 +80,10 @@ test('should get a comment', async t => {
 
   const comment2 = await models.comment.get(comment1.id);
   t.deepEqual(comment2, comment1);
+  t.deepEqual(comment2?.content, {
+    type: 'paragraph',
+    content: [{ type: 'text', text: 'test' }],
+  });
 });
 
 test('should update a comment', async t => {
