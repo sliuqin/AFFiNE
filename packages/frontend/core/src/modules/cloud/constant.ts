@@ -63,7 +63,9 @@ export const BUILD_IN_SERVERS: (ServerMetadata & { config: ServerConfig })[] =
         ? [
             {
               id: 'affine-cloud',
-              baseUrl: 'https://app.affine.pro',
+              baseUrl: !BUILD_CONFIG.isIOS
+                ? 'https://app.affine.pro'
+                : 'https://apple.getaffineapp.com',
               config: {
                 serverName: 'Affine Cloud',
                 features: [
@@ -91,7 +93,9 @@ export const BUILD_IN_SERVERS: (ServerMetadata & { config: ServerConfig })[] =
           ? [
               {
                 id: 'affine-cloud',
-                baseUrl: 'https://insider.affine.pro',
+                baseUrl: !BUILD_CONFIG.isIOS
+                  ? 'https://insider.affine.pro'
+                  : 'https://apple.getaffineapp.com',
                 config: {
                   serverName: 'Affine Cloud',
                   features: [
