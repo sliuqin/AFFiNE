@@ -1,5 +1,6 @@
 import { Button, IconButton, Menu } from '@affine/component';
 import { type DocCommentEntity } from '@affine/core/modules/comment/entities/doc-comment';
+import { CommentPanelService } from '@affine/core/modules/comment/services/comment-panel-service';
 import { DocCommentManagerService } from '@affine/core/modules/comment/services/doc-comment-manager';
 import { SnapshotHelper } from '@affine/core/modules/comment/services/snapshot-helper';
 import type {
@@ -7,9 +8,11 @@ import type {
   DocCommentReply,
 } from '@affine/core/modules/comment/types';
 import { DocService } from '@affine/core/modules/doc';
+import { WorkbenchService } from '@affine/core/modules/workbench';
 import type { DocSnapshot } from '@blocksuite/affine/store';
 import { FilterIcon } from '@blocksuite/icons/rc';
 import {
+  LiveData,
   useLiveData,
   useService,
   useServiceOptional,
@@ -74,7 +77,7 @@ const ReplyItem = ({
     <div className={styles.replyItem}>
       <div>{'removed' in reply.user ? 'Removed User' : reply.user.name}</div>
       <CommentEditor
-        preview
+        readonly
         defaultSnapshot={reply.content.snapshot}
         onChange={() => {}}
       />
@@ -94,8 +97,14 @@ const CommentItem = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [pendingReplyId, setPendingReplyId] = useState<string | null>(null);
-  const snapshotHelper = useService(SnapshotHelper);
-  const [replySnapshot, setReplySnapshot] = useState<DocSnapshot | null>(null);
+  const workbench = useService(WorkbenchService);
+
+  const pendingReply = useLiveData(
+    LiveData.computed(get => {
+      const pendingComments = get(entity.pendingComments$);
+      return pendingReplyId ? pendingComments.get(pendingReplyId) : null;
+    })
+  );
 
   const handleDelete = useAsyncCallback(async () => {
     await entity.deleteComment(comment.id);
@@ -120,31 +129,19 @@ const CommentItem = ({
         setPendingReplyId(null);
       }
       setIsReplying(false);
-      setReplySnapshot(null);
       return;
     }
     setIsReplying(true);
 
-    await entity.addReply(comment.id);
-    const pendingComments = entity.pendingComments$.value;
-    const newPendingReply = Array.from(pendingComments.entries()).find(
-      ([_, pc]) => pc.commentId === comment.id // This is a reply to this comment
-    );
-    if (newPendingReply) {
-      setPendingReplyId(newPendingReply[0]);
-      const snapshot = snapshotHelper.getSnapshot(newPendingReply[1].doc);
-      if (snapshot) {
-        setReplySnapshot(snapshot);
-      }
-    }
-  }, [isReplying, entity, comment.id, snapshotHelper, pendingReplyId]);
+    const replyId = await entity.addReply(comment.id);
+    setPendingReplyId(replyId);
+  }, [isReplying, entity, comment.id, pendingReplyId]);
 
   const handleCommitReply = useAsyncCallback(async () => {
     if (!pendingReplyId) return;
 
-    await entity.commitComment(pendingReplyId);
+    await entity.commitReply(pendingReplyId);
     setIsReplying(false);
-    setReplySnapshot(null);
     setPendingReplyId(null);
   }, [entity, pendingReplyId]);
 
@@ -153,13 +150,28 @@ const CommentItem = ({
 
     entity.dismissDraftComment(pendingReplyId);
     setIsReplying(false);
-    setReplySnapshot(null);
     setPendingReplyId(null);
   }, [entity, pendingReplyId]);
 
-  const handleReplyChange = useCallback((snapshot: DocSnapshot) => {
-    setReplySnapshot(snapshot);
-  }, []);
+  const handleMouseEnter = useCallback(() => {
+    entity.highlightComment(comment.id);
+  }, [entity, comment.id]);
+
+  const handleMouseLeave = useCallback(() => {
+    entity.highlightComment(null);
+  }, [entity]);
+
+  const handleClickPreview = useCallback(() => {
+    // todo: support handling focus the comment id
+    workbench.workbench.openDoc(
+      {
+        docId: entity.props.docId,
+      },
+      {
+        show: true,
+      }
+    );
+  }, [entity.props.docId, workbench.workbench]);
 
   if (isEditing) {
     return (
@@ -172,14 +184,15 @@ const CommentItem = ({
 
   return (
     <div className={styles.commentItem}>
-      <div>
+      <div
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClickPreview}
+      >
         {'removed' in comment.user ? 'Removed User' : comment.user.name}
+        <pre>{comment.content.preview}</pre>
       </div>
-      <CommentEditor
-        preview
-        defaultSnapshot={comment.content.snapshot}
-        onChange={() => {}}
-      />
+      <CommentEditor readonly defaultSnapshot={comment.content.snapshot} />
       <Button onClick={() => setIsEditing(true)}>Edit</Button>
       <Button onClick={handleDelete}>Delete</Button>
       <Button onClick={handleStartReply}>Reply</Button>
@@ -192,12 +205,9 @@ const CommentItem = ({
           ))}
       </div>
 
-      {isReplying && replySnapshot && (
+      {isReplying && pendingReply && (
         <div>
-          <CommentEditor
-            defaultSnapshot={replySnapshot}
-            onChange={handleReplyChange}
-          />
+          <CommentEditor autoFocus doc={pendingReply.doc} />
           <div>
             <Button onClick={handleCommitReply}>Submit Reply</Button>
             <Button onClick={handleCancelReply}>Cancel</Button>
@@ -227,35 +237,32 @@ const CommentList = ({ entity }: { entity: DocCommentEntity }) => {
 
 const CommentInput = ({ entity }: { entity: DocCommentEntity }) => {
   const [pendingCommentId, setPendingCommentId] = useState<string | null>(null);
-  const [pendingSnapshot, setPendingSnapshot] = useState<DocSnapshot | null>(
-    null
-  );
   const snapshotHelper = useService(SnapshotHelper);
+  const pendingComments = useLiveData(entity.pendingComments$);
 
-  const handleStartComment = useAsyncCallback(async () => {
-    if (pendingCommentId) return; // Already has a pending comment
-
-    await entity.addComment();
-    const newPendingComments = entity.pendingComments$.value;
-    const newPendingComment = Array.from(newPendingComments.values()).find(
-      comment => !comment.commentId // Not a reply
+  const newPendingComment = useMemo(() => {
+    return Array.from(pendingComments.values()).find(
+      comment => comment.id === pendingCommentId
     );
-    if (newPendingComment) {
+  }, [pendingComments, pendingCommentId]);
+
+  const pendingPreview = newPendingComment?.preview;
+
+  // Watch for new pending comments (not replies) and automatically show them
+  useEffect(() => {
+    const newPendingComment = Array.from(pendingComments.values()).find(
+      comment => !comment.commentId && !pendingCommentId // Not a reply and not already showing one
+    );
+
+    if (newPendingComment && !pendingCommentId) {
       setPendingCommentId(newPendingComment.id);
-      // Get initial snapshot from the store
-      const snapshot = snapshotHelper.getSnapshot(newPendingComment.doc);
-      if (snapshot) {
-        setPendingSnapshot(snapshot);
-      }
     }
-  }, [entity, pendingCommentId, snapshotHelper]);
+  }, [pendingComments, pendingCommentId, snapshotHelper]);
 
   const handleCommit = useAsyncCallback(async () => {
     if (!pendingCommentId) return;
-
     await entity.commitComment(pendingCommentId);
     setPendingCommentId(null);
-    setPendingSnapshot(null);
   }, [entity, pendingCommentId]);
 
   const handleCancel = useCallback(() => {
@@ -263,27 +270,20 @@ const CommentInput = ({ entity }: { entity: DocCommentEntity }) => {
 
     entity.dismissDraftComment(pendingCommentId);
     setPendingCommentId(null);
-    setPendingSnapshot(null);
   }, [entity, pendingCommentId]);
 
-  const handleEditorChange = useCallback((snapshot: DocSnapshot) => {
-    setPendingSnapshot(snapshot);
-  }, []);
-
-  if (!pendingCommentId || !pendingSnapshot) {
-    return (
-      <div>
-        <Button onClick={handleStartComment}>Add Comment</Button>
-      </div>
-    );
+  if (!newPendingComment) {
+    return <div>Start commenting by selecting text & comment</div>;
   }
 
   return (
     <div>
-      <CommentEditor
-        defaultSnapshot={pendingSnapshot}
-        onChange={handleEditorChange}
-      />
+      {pendingPreview && (
+        <div className={styles.pendingPreview}>
+          <strong>Commenting on:</strong> {pendingPreview}
+        </div>
+      )}
+      <CommentEditor autoFocus doc={newPendingComment.doc} />
       <div>
         <Button onClick={handleCommit}>Submit</Button>
         <Button onClick={handleCancel}>Cancel</Button>
@@ -294,7 +294,9 @@ const CommentInput = ({ entity }: { entity: DocCommentEntity }) => {
 
 const useCommentEntity = (docId: string | undefined) => {
   const docCommentManager = useService(DocCommentManagerService);
+  const commentPanelService = useService(CommentPanelService);
   const [entity, setEntity] = useState<DocCommentEntity | null>(null);
+
   useEffect(() => {
     if (!docId) {
       return;
@@ -304,10 +306,18 @@ const useCommentEntity = (docId: string | undefined) => {
     setEntity(entityRef.obj);
     entityRef.obj.start();
     entityRef.obj.revalidate();
+
+    // Set up pending comment watching to auto-open sidebar
+    const unwatchPending = commentPanelService.watchForPendingComments(
+      entityRef.obj
+    );
+
     return () => {
+      unwatchPending();
       entityRef.release();
     };
-  }, [docCommentManager, docId]);
+  }, [docCommentManager, commentPanelService, docId]);
+
   return entity;
 };
 

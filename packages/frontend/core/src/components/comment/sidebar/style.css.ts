@@ -37,3 +37,13 @@ export const repliesContainer = style({
   marginLeft: '20px',
   paddingTop: '8px',
 });
+
+export const pendingPreview = style({
+  padding: '8px',
+  backgroundColor: '#f8f9fa',
+  borderRadius: '4px',
+  marginBottom: '8px',
+  fontSize: '14px',
+  color: '#666',
+  border: '1px solid #e9ecef',
+});

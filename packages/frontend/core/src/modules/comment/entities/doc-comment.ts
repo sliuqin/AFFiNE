@@ -1,5 +1,5 @@
 import type { CommentChangeAction } from '@affine/graphql';
-import type { DocSnapshot } from '@blocksuite/affine/store';
+import type { BaseSelection } from '@blocksuite/affine/store';
 import {
   effect,
   Entity,
@@ -14,7 +14,6 @@ import { catchError, of, Subject, switchMap, tap, timer } from 'rxjs';
 import type { SnapshotHelper } from '../services/snapshot-helper';
 import type {
   CommentId,
-  CommentProvider,
   DocComment,
   DocCommentChangeListResult,
   DocCommentContent,
@@ -23,12 +22,11 @@ import type {
 } from '../types';
 import { DocCommentStore } from './doc-comment-store';
 
-export class DocCommentEntity
-  extends Entity<{
-    docId: string;
-  }>
-  implements CommentProvider
-{
+type DisposeCallback = () => void;
+
+export class DocCommentEntity extends Entity<{
+  docId: string;
+}> {
   constructor(private readonly snapshotHelper: SnapshotHelper) {
     super();
   }
@@ -44,15 +42,21 @@ export class DocCommentEntity
     new Map()
   );
 
-  private readonly commentAdded$ = new Subject<CommentId>();
+  private readonly commentAdded$ = new Subject<{
+    id: CommentId;
+    selections: BaseSelection[];
+  }>();
   private readonly commentResolved$ = new Subject<CommentId>();
   private readonly commentDeleted$ = new Subject<CommentId>();
   private readonly commentHighlighted$ = new Subject<CommentId | null>();
 
-  private pollingDisposable?: Disposable;
+  private pollingDisposable?: DisposeCallback;
   private startCursor?: string;
 
-  async addComment(selections?: Selection[]): Promise<void> {
+  async addComment(
+    selections?: BaseSelection[],
+    preview?: string
+  ): Promise<string> {
     // todo: may need to properly bind the doc to the editor
     const doc = await this.snapshotHelper.createStore();
     if (!doc) {
@@ -63,15 +67,17 @@ export class DocCommentEntity
     const pendingComment: PendingComment = {
       id,
       doc,
+      preview,
       selections,
     };
 
     this.pendingComments$.setValue(
       new Map([...existing, [id, pendingComment]])
     );
+    return id;
   }
 
-  async addReply(commentId: string): Promise<void> {
+  async addReply(commentId: string): Promise<string> {
     const doc = await this.snapshotHelper.createStore();
     if (!doc) {
       throw new Error('Failed to create doc');
@@ -87,6 +93,7 @@ export class DocCommentEntity
     this.pendingComments$.setValue(
       new Map([...existing, [id, pendingComment]])
     );
+    return id;
   }
 
   dismissDraftComment(id: string): void {
@@ -103,7 +110,7 @@ export class DocCommentEntity
       console.warn('Pending comment not found:', id);
       return;
     }
-    const { doc } = pendingComment;
+    const { doc, preview } = pendingComment;
     const snapshot = this.snapshotHelper.getSnapshot(doc);
     if (!snapshot) {
       throw new Error('Failed to get snapshot');
@@ -111,12 +118,48 @@ export class DocCommentEntity
     const comment = await this.store.createComment({
       content: {
         snapshot,
-        preview: 'New comment', // todo: get preview from selections
+        preview,
       },
     });
     const currentComments = this.comments$.value;
     this.comments$.setValue([...currentComments, comment]);
-    this.commentAdded$.next(comment.id);
+    this.commentAdded$.next({
+      id: comment.id,
+      selections: pendingComment.selections || [],
+    });
+    this.dismissDraftComment(id);
+    this.revalidate();
+  }
+
+  async commitReply(id: string): Promise<void> {
+    const existing = this.pendingComments$.value;
+    const pendingReply = existing.get(id);
+    if (!pendingReply) {
+      console.warn('Pending reply not found:', id);
+      return;
+    }
+    const { doc } = pendingReply;
+    const snapshot = this.snapshotHelper.getSnapshot(doc);
+    if (!snapshot) {
+      throw new Error('Failed to get snapshot');
+    }
+
+    if (!pendingReply.commentId) {
+      throw new Error('Pending reply has no commentId');
+    }
+
+    const reply = await this.store.createReply(pendingReply.commentId, {
+      content: {
+        snapshot,
+      },
+    });
+    const currentComments = this.comments$.value;
+    const updatedComments = currentComments.map(comment =>
+      comment.id === pendingReply.commentId
+        ? { ...comment, replies: [...(comment.replies || []), reply] }
+        : comment
+    );
+    this.comments$.setValue(updatedComments);
     this.dismissDraftComment(id);
     this.revalidate();
   }
@@ -191,32 +234,30 @@ export class DocCommentEntity
     return this.comments$.value.map(comment => comment.id);
   }
 
-  onCommentAdded(callback: (id: CommentId) => void): Disposable {
-    const subscription = this.commentAdded$.subscribe(callback);
-    return {
-      [Symbol.dispose]: () => subscription.unsubscribe(),
-    };
+  onCommentAdded(
+    callback: (id: CommentId, selections: BaseSelection[]) => void
+  ): DisposeCallback {
+    const subscription = this.commentAdded$.subscribe(({ id, selections }) =>
+      callback(id, selections)
+    );
+    return () => subscription.unsubscribe();
   }
 
-  onCommentResolved(callback: (id: CommentId) => void): Disposable {
+  onCommentResolved(callback: (id: CommentId) => void): DisposeCallback {
     const subscription = this.commentResolved$.subscribe(callback);
-    return {
-      [Symbol.dispose]: () => subscription.unsubscribe(),
-    };
+    return () => subscription.unsubscribe();
   }
 
-  onCommentDeleted(callback: (id: CommentId) => void): Disposable {
+  onCommentDeleted(callback: (id: CommentId) => void): DisposeCallback {
     const subscription = this.commentDeleted$.subscribe(callback);
-    return {
-      [Symbol.dispose]: () => subscription.unsubscribe(),
-    };
+    return () => subscription.unsubscribe();
   }
 
-  onCommentHighlighted(callback: (id: CommentId | null) => void): Disposable {
+  onCommentHighlighted(
+    callback: (id: CommentId | null) => void
+  ): DisposeCallback {
     const subscription = this.commentHighlighted$.subscribe(callback);
-    return {
-      [Symbol.dispose]: () => subscription.unsubscribe(),
-    };
+    return () => subscription.unsubscribe();
   }
 
   // Start polling comments every 30s
@@ -225,7 +266,7 @@ export class DocCommentEntity
   // 3. loop. when doc is not loaded, skip
   start(): void {
     if (this.pollingDisposable) {
-      this.pollingDisposable[Symbol.dispose]();
+      this.pollingDisposable();
     }
 
     // Initial load
@@ -287,14 +328,12 @@ export class DocCommentEntity
     );
 
     const subscription = polling$.subscribe();
-    this.pollingDisposable = {
-      [Symbol.dispose]: () => subscription.unsubscribe(),
-    };
+    this.pollingDisposable = () => subscription.unsubscribe();
   }
 
   stop(): void {
     if (this.pollingDisposable) {
-      this.pollingDisposable[Symbol.dispose]();
+      this.pollingDisposable();
     }
   }
 
@@ -443,18 +482,6 @@ export class DocCommentEntity
       );
     })
   );
-
-  async createCommentFromSnapshot(snapshot: DocSnapshot) {
-    const comment = await this.store.createComment({
-      content: {
-        snapshot,
-        preview: 'New comment', // todo: get preview from selections
-      },
-    });
-    const currentComments = this.comments$.value;
-    this.comments$.setValue([...currentComments, comment]);
-    this.commentAdded$.next(comment.id);
-  }
 
   override dispose(): void {
     this.stop();

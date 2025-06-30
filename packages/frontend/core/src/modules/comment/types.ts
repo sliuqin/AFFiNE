@@ -1,5 +1,9 @@
 import type { CommentChangeAction } from '@affine/graphql';
-import type { DocSnapshot, Store } from '@blocksuite/affine/store';
+import type {
+  BaseSelection,
+  DocSnapshot,
+  Store,
+} from '@blocksuite/affine/store';
 
 import type { PublicUserInfo } from '../cloud';
 
@@ -34,8 +38,9 @@ export interface DocComment extends BaseComment {
 export type PendingComment = {
   id: string;
   doc: Store;
-  selections?: Selection[];
-  commentId?: string; // only for replies
+  preview?: string;
+  selections?: BaseSelection[];
+  commentId?: string; // only for replies, points to the parent comment
 };
 
 export type DocCommentReply = BaseComment;

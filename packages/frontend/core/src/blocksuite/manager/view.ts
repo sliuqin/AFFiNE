@@ -2,6 +2,7 @@ import type { ReactToLit } from '@affine/component';
 import { AIViewExtension } from '@affine/core/blocksuite/view-extensions/ai';
 import { CloudViewExtension } from '@affine/core/blocksuite/view-extensions/cloud';
 import { CodeBlockPreviewViewExtension } from '@affine/core/blocksuite/view-extensions/code-block-preview';
+import { CommentViewExtension } from '@affine/core/blocksuite/view-extensions/comment';
 import { AffineDatabaseViewExtension } from '@affine/core/blocksuite/view-extensions/database';
 import {
   EdgelessBlockHeaderConfigViewExtension,
@@ -41,14 +42,6 @@ import { LinkedDocViewExtension } from '@blocksuite/affine/widgets/linked-doc/vi
 import type { FrameworkProvider } from '@toeverything/infra';
 import type { TemplateResult } from 'lit';
 
-class FakeCommentViewExtension extends ViewExtensionProvider {
-  override name = 'affine-fake-comment-view-extension';
-
-  override setup(_context: ViewExtensionContext) {
-    // todo
-  }
-}
-
 type Configure = {
   init: () => Configure;
 
@@ -68,7 +61,10 @@ type Configure = {
   electron: (framework?: FrameworkProvider) => Configure;
   linkPreview: (framework?: FrameworkProvider) => Configure;
   codeBlockHtmlPreview: (framework?: FrameworkProvider) => Configure;
-  comment: (framework?: FrameworkProvider) => Configure;
+  comment: (
+    enableComment?: boolean,
+    framework?: FrameworkProvider
+  ) => Configure;
 
   value: ViewExtensionManager;
 };
@@ -103,6 +99,7 @@ class ViewProvider {
       ElectronViewExtension,
       AffineLinkPreviewExtension,
       AffineDatabaseViewExtension,
+      CommentViewExtension,
     ]);
   }
 
@@ -151,7 +148,8 @@ class ViewProvider {
       .ai()
       .electron()
       .linkPreview()
-      .codeBlockHtmlPreview();
+      .codeBlockHtmlPreview()
+      .comment();
 
     return this.config;
   };
@@ -338,8 +336,14 @@ class ViewProvider {
     return this.config;
   };
 
-  private readonly _configureComment = (framework?: FrameworkProvider) => {
-    this._manager.configure(FakeCommentViewExtension, { framework });
+  private readonly _configureComment = (
+    enableComment?: boolean,
+    framework?: FrameworkProvider
+  ) => {
+    this._manager.configure(CommentViewExtension, {
+      enableComment,
+      framework,
+    });
     return this.config;
   };
 }

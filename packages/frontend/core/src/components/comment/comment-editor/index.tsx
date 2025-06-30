@@ -1,12 +1,21 @@
 import { useConfirmModal, useLitPortalFactory } from '@affine/component';
-import { LitDocEditor } from '@affine/core/blocksuite/editors';
+import { LitDocEditor, PageEditor } from '@affine/core/blocksuite/editors';
 import { getViewManager } from '@affine/core/blocksuite/manager/view';
 import { SnapshotHelper } from '@affine/core/modules/comment/services/snapshot-helper';
 import { ViewportElementExtension } from '@blocksuite/affine/shared/services';
-import type { DocSnapshot, Store } from '@blocksuite/affine/store';
+import { type DocSnapshot, Store } from '@blocksuite/affine/store';
 import { useFramework, useService } from '@toeverything/infra';
 import clsx from 'clsx';
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  forwardRef,
+  Fragment,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import * as styles from './style.css';
 
@@ -50,55 +59,104 @@ const usePatchSpecs = (readonly: boolean) => {
 };
 
 interface CommentEditorProps {
-  preview?: boolean;
-  defaultSnapshot: DocSnapshot;
+  readonly?: boolean;
+  doc?: Store;
+  defaultSnapshot?: DocSnapshot;
   // for performance, we only update the snapshot when the editor blurs
-  onChange: (snapshot: DocSnapshot) => void;
+  onChange?: (snapshot: DocSnapshot) => void;
+  autoFocus?: boolean;
+}
+
+export interface CommentEditorRef {
+  getSnapshot: () => DocSnapshot | null | undefined;
 }
 
 // todo: get rid of circular data changes
-const useSnapshotDoc = (defaultSnapshot: DocSnapshot) => {
+const useSnapshotDoc = (defaultSnapshotOrDoc: DocSnapshot | Store) => {
   const snapshotHelper = useService(SnapshotHelper);
-  const [doc, setDoc] = useState<Store | undefined>(undefined);
+  const [doc, setDoc] = useState<Store | undefined>(
+    defaultSnapshotOrDoc instanceof Store ? defaultSnapshotOrDoc : undefined
+  );
 
   useEffect(() => {
+    if (defaultSnapshotOrDoc instanceof Store) {
+      return;
+    }
+
     snapshotHelper
-      .createStore(defaultSnapshot)
+      .createStore(defaultSnapshotOrDoc)
       .then(d => {
         setDoc(d);
       })
       .catch(e => {
         console.error(e);
       });
-  }, [defaultSnapshot, snapshotHelper]);
+  }, [defaultSnapshotOrDoc, snapshotHelper]);
 
   return doc;
 };
 
-export const CommentEditor = ({
-  preview,
-  defaultSnapshot,
-  onChange,
-}: CommentEditorProps) => {
-  const [specs, portals] = usePatchSpecs(!!preview);
-  const doc = useSnapshotDoc(defaultSnapshot);
-  const snapshotHelper = useService(SnapshotHelper);
-  const handleCommitChange = useCallback(() => {
-    if (!doc) {
+export const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(
+  function CommentEditor(
+    { readonly, defaultSnapshot, doc: userDoc, onChange, autoFocus },
+    ref
+  ) {
+    const defaultSnapshotOrDoc = defaultSnapshot ?? userDoc;
+    if (!defaultSnapshotOrDoc) {
+      throw new Error('Either defaultSnapshot or doc must be provided');
+    }
+    const [specs, portals] = usePatchSpecs(!!readonly);
+    const doc = useSnapshotDoc(defaultSnapshotOrDoc);
+    const snapshotHelper = useService(SnapshotHelper);
+    const editorRef = useRef<PageEditor>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        getSnapshot: () => {
+          if (!doc) {
+            return null;
+          }
+          return snapshotHelper.getSnapshot(doc);
+        },
+      }),
+      [doc, snapshotHelper]
+    );
+
+    const handleCommitChange = useCallback(() => {
+      if (!doc) {
+        return;
+      }
+      const snapshot = snapshotHelper.getSnapshot(doc);
+      if (snapshot) {
+        onChange?.(snapshot);
+      }
+    }, [doc, onChange, snapshotHelper]);
+
+    useEffect(() => {
+      if (autoFocus && editorRef.current && doc) {
+        // Focus the editor after a brief delay to ensure it's fully rendered
+        const timeoutId = setTimeout(() => {
+          editorRef.current?.focus();
+        }, 100);
+
+        return () => clearTimeout(timeoutId);
+      }
       return;
-    }
-    const snapshot = snapshotHelper.getSnapshot(doc);
-    if (snapshot) {
-      console.log('snapshot', snapshot);
-      onChange(snapshot);
-    }
-  }, [doc, onChange, snapshotHelper]);
-  return (
-    <div className={clsx(styles.container, 'comment-editor-viewport')}>
-      {doc && (
-        <LitDocEditor specs={specs} doc={doc} onBlur={handleCommitChange} />
-      )}
-      {portals}
-    </div>
-  );
-};
+    }, [autoFocus, doc]);
+
+    return (
+      <div className={clsx(styles.container, 'comment-editor-viewport')}>
+        {doc && (
+          <LitDocEditor
+            ref={editorRef}
+            specs={specs}
+            doc={doc}
+            onBlur={handleCommitChange}
+          />
+        )}
+        {portals}
+      </div>
+    );
+  }
+);

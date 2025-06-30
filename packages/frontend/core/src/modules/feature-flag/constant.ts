@@ -274,6 +274,14 @@ export const AFFINE_FLAGS = {
     configurable: isCanaryBuild,
     defaultState: false,
   },
+  enable_comment: {
+    category: 'blocksuite',
+    bsFlag: 'enable_comment',
+    displayName: 'Enable Comment',
+    description: 'Enable comment',
+    configurable: isCanaryBuild,
+    defaultState: true,
+  },
 } satisfies { [key in string]: FlagInfo };
 
 // oxlint-disable-next-line no-redeclare
