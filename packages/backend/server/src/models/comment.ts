@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Comment as CommentType,
-  Reply as ReplyType,
-  // Prisma,
-} from '@prisma/client';
+import { Comment as CommentType, Reply as ReplyType } from '@prisma/client';
 import { z } from 'zod';
 
 import { CommentNotFound } from '../base';
@@ -106,7 +102,7 @@ export class CommentModel extends BaseModel {
   async update(input: CommentUpdate) {
     const data = CommentUpdateSchema.parse(input);
     return await this.db.comment.update({
-      where: { id: data.id },
+      where: { id: data.id, deletedAt: null },
       data: {
         content: data.content,
       },
@@ -120,7 +116,7 @@ export class CommentModel extends BaseModel {
    */
   async delete(id: string) {
     await this.db.comment.update({
-      where: { id },
+      where: { id, deletedAt: null },
       data: { deletedAt: new Date() },
     });
     this.logger.log(`Comment ${id} deleted`);
@@ -134,7 +130,7 @@ export class CommentModel extends BaseModel {
   async resolve(input: CommentResolve) {
     const data = CommentResolveSchema.parse(input);
     return await this.db.comment.update({
-      where: { id: data.id },
+      where: { id: data.id, deletedAt: null },
       data: { resolved: data.resolved },
     });
   }
@@ -284,9 +280,7 @@ export class CommentModel extends BaseModel {
   async createReply(input: ReplyCreate) {
     const data = ReplyCreateSchema.parse(input);
     // find comment
-    const comment = await this.db.comment.findUnique({
-      where: { id: data.commentId },
-    });
+    const comment = await this.get(data.commentId);
     if (!comment) {
       throw new CommentNotFound();
     }
@@ -314,7 +308,7 @@ export class CommentModel extends BaseModel {
   async updateReply(input: ReplyUpdate) {
     const data = ReplyUpdateSchema.parse(input);
     return await this.db.reply.update({
-      where: { id: data.id },
+      where: { id: data.id, deletedAt: null },
       data: { content: data.content },
     });
   }
@@ -326,7 +320,7 @@ export class CommentModel extends BaseModel {
    */
   async deleteReply(id: string) {
     await this.db.reply.update({
-      where: { id },
+      where: { id, deletedAt: null },
       data: { deletedAt: new Date() },
     });
     this.logger.log(`Reply ${id} deleted`);

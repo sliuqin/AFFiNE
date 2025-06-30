@@ -129,7 +129,9 @@ test('should delete a comment', async t => {
   });
 
   await models.comment.delete(comment.id);
+
   const comment2 = await models.comment.get(comment.id);
+
   t.is(comment2, null);
 });
 
@@ -160,6 +162,7 @@ test('should resolve a comment', async t => {
     id: comment.id,
     resolved: false,
   });
+
   t.is(comment4.resolved, false);
 
   const comment5 = await models.comment.get(comment.id);
@@ -217,6 +220,35 @@ test('should create and get a reply', async t => {
 
   const reply2 = await models.comment.getReply(reply.id);
   t.deepEqual(reply2, reply);
+});
+
+test('should throw error reply on a deleted comment', async t => {
+  const docId = randomUUID();
+  const comment = await models.comment.create({
+    content: {
+      type: 'paragraph',
+      content: [{ type: 'text', text: 'test' }],
+    },
+    workspaceId: workspace.id,
+    docId,
+    userId: owner.id,
+  });
+
+  await models.comment.delete(comment.id);
+
+  await t.throwsAsync(
+    models.comment.createReply({
+      userId: owner.id,
+      content: {
+        type: 'paragraph',
+        content: [{ type: 'text', text: 'test reply' }],
+      },
+      commentId: comment.id,
+    }),
+    {
+      message: /Comment not found/,
+    }
+  );
 });
 
 test('should update a reply', async t => {

@@ -108,13 +108,13 @@ export class CommentAttachmentStorage {
   async onWorkspaceDeleted({ id }: Events['workspace.deleted']) {
     const attachments = await this.models.commentAttachment.list(id);
 
-    attachments.forEach(attachment => {
+    for (const attachment of attachments) {
       this.event.emit('comment.attachment.delete', {
         workspaceId: id,
         docId: attachment.docId,
         key: attachment.key,
       });
-    });
+    }
   }
 
   @OnEvent('comment.attachment.delete')

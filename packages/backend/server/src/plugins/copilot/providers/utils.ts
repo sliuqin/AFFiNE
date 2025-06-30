@@ -11,6 +11,7 @@ import {
 import { ZodType } from 'zod';
 
 import {
+  createDocEditTool,
   createDocKeywordSearchTool,
   createDocSemanticSearchTool,
   createExaCrawlTool,
@@ -382,6 +383,7 @@ export class CitationParser {
 }
 
 export interface CustomAITools extends ToolSet {
+  doc_edit: ReturnType<typeof createDocEditTool>;
   doc_semantic_search: ReturnType<typeof createDocSemanticSearchTool>;
   doc_keyword_search: ReturnType<typeof createDocKeywordSearchTool>;
   web_search_exa: ReturnType<typeof createExaSearchTool>;
@@ -390,19 +392,19 @@ export interface CustomAITools extends ToolSet {
 
 type ChunkType = TextStreamPart<CustomAITools>['type'];
 
-export function parseUnknownError(error: unknown) {
+export function toError(error: unknown): Error {
   if (typeof error === 'string') {
-    throw new Error(error);
+    return new Error(error);
   } else if (error instanceof Error) {
-    throw error;
+    return error;
   } else if (
     typeof error === 'object' &&
     error !== null &&
     'message' in error
   ) {
-    throw new Error(String(error.message));
+    return new Error(String(error.message));
   } else {
-    throw new Error(JSON.stringify(error));
+    return new Error(JSON.stringify(error));
   }
 }
 
@@ -459,6 +461,12 @@ export class TextStreamParser {
         );
         result = this.addPrefix(result);
         switch (chunk.toolName) {
+          case 'doc_edit': {
+            if (chunk.result && typeof chunk.result === 'object') {
+              result += `\n${chunk.result.result}\n`;
+            }
+            break;
+          }
           case 'doc_semantic_search': {
             if (Array.isArray(chunk.result)) {
               result += `\nFound ${chunk.result.length} document${chunk.result.length !== 1 ? 's' : ''} related to “${chunk.args.query}”.\n`;
@@ -483,8 +491,7 @@ export class TextStreamParser {
         break;
       }
       case 'error': {
-        parseUnknownError(chunk.error);
-        break;
+        throw toError(chunk.error);
       }
     }
     this.lastType = chunk.type;
@@ -550,8 +557,7 @@ export class StreamObjectParser {
         return chunk;
       }
       case 'error': {
-        parseUnknownError(chunk.error);
-        return null;
+        throw toError(chunk.error);
       }
       default: {
         return null;

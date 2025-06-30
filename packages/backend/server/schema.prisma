@@ -908,6 +908,7 @@ model Reply {
   @@index([userId])
   @@map("replies")
 }
+
 model CommentAttachment {
   // NOTE: manually set this column type to identity in migration file
   sid         Int       @unique @default(autoincrement())
