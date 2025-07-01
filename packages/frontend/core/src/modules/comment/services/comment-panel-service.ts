@@ -1,4 +1,4 @@
-import { WorkbenchService } from '@affine/core/modules/workbench';
+import { type WorkbenchService } from '@affine/core/modules/workbench';
 import { Service } from '@toeverything/infra';
 
 import type { DocCommentEntity } from '../entities/doc-comment';
@@ -8,7 +8,7 @@ export class CommentPanelService extends Service {
     super();
   }
 
-  private activePendingWatchers = new Set<() => void>();
+  private readonly activePendingWatchers = new Set<() => void>();
 
   /**
    * Watch for pending comments on a doc comment entity and open the sidebar automatically

@@ -1,5 +1,5 @@
 import { useConfirmModal, useLitPortalFactory } from '@affine/component';
-import { LitDocEditor, PageEditor } from '@affine/core/blocksuite/editors';
+import { LitDocEditor, type PageEditor } from '@affine/core/blocksuite/editors';
 import { getViewManager } from '@affine/core/blocksuite/manager/view';
 import { SnapshotHelper } from '@affine/core/modules/comment/services/snapshot-helper';
 import { ViewportElementExtension } from '@blocksuite/affine/shared/services';
@@ -72,7 +72,10 @@ export interface CommentEditorRef {
 }
 
 // todo: get rid of circular data changes
-const useSnapshotDoc = (defaultSnapshotOrDoc: DocSnapshot | Store) => {
+const useSnapshotDoc = (
+  defaultSnapshotOrDoc: DocSnapshot | Store,
+  readonly?: boolean
+) => {
   const snapshotHelper = useService(SnapshotHelper);
   const [doc, setDoc] = useState<Store | undefined>(
     defaultSnapshotOrDoc instanceof Store ? defaultSnapshotOrDoc : undefined
@@ -86,12 +89,15 @@ const useSnapshotDoc = (defaultSnapshotOrDoc: DocSnapshot | Store) => {
     snapshotHelper
       .createStore(defaultSnapshotOrDoc)
       .then(d => {
-        setDoc(d);
+        if (d) {
+          setDoc(d);
+          d.readonly = readonly ?? false;
+        }
       })
       .catch(e => {
         console.error(e);
       });
-  }, [defaultSnapshotOrDoc, snapshotHelper]);
+  }, [defaultSnapshotOrDoc, readonly, snapshotHelper]);
 
   return doc;
 };
@@ -106,7 +112,7 @@ export const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(
       throw new Error('Either defaultSnapshot or doc must be provided');
     }
     const [specs, portals] = usePatchSpecs(!!readonly);
-    const doc = useSnapshotDoc(defaultSnapshotOrDoc);
+    const doc = useSnapshotDoc(defaultSnapshotOrDoc, readonly);
     const snapshotHelper = useService(SnapshotHelper);
     const editorRef = useRef<PageEditor>(null);
 
@@ -146,7 +152,10 @@ export const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(
     }, [autoFocus, doc]);
 
     return (
-      <div className={clsx(styles.container, 'comment-editor-viewport')}>
+      <div
+        data-readonly={!!readonly}
+        className={clsx(styles.container, 'comment-editor-viewport')}
+      >
         {doc && (
           <LitDocEditor
             ref={editorRef}

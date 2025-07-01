@@ -30,11 +30,7 @@ import type {
   PeekOptions,
   PeekViewService as BSPeekViewService,
 } from '@blocksuite/affine/components/peek';
-import {
-  type ViewExtensionContext,
-  ViewExtensionManager,
-  ViewExtensionProvider,
-} from '@blocksuite/affine/ext-loader';
+import { ViewExtensionManager } from '@blocksuite/affine/ext-loader';
 import { getInternalViewExtensions } from '@blocksuite/affine/extensions/view';
 import { FoundationViewExtension } from '@blocksuite/affine/foundation/view';
 import { AffineCanvasTextFonts } from '@blocksuite/affine/shared/services';

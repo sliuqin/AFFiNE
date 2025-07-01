@@ -8213,6 +8213,10 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.migration-all-docs-notification.button"](): string;
     /**
+      * `Comments`
+      */
+    ["com.affine.comment.comments"](): string;
+    /**
       * `An internal error occurred.`
       */
     ["error.INTERNAL_SERVER_ERROR"](): string;

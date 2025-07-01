@@ -4,8 +4,7 @@ import type { CommentProvider } from '@blocksuite/affine/shared/services';
 import { CommentProviderIdentifier } from '@blocksuite/affine/shared/services';
 import type { BlockStdScope } from '@blocksuite/affine/std';
 import { StdIdentifier } from '@blocksuite/affine/std';
-import type { BaseSelection } from '@blocksuite/affine/store';
-import { type ExtensionType } from '@blocksuite/affine/store';
+import type { BaseSelection, ExtensionType } from '@blocksuite/affine/store';
 import { type Container } from '@blocksuite/global/di';
 import { BlockSelection, TextSelection } from '@blocksuite/std';
 import type { FrameworkProvider } from '@toeverything/infra';
@@ -88,7 +87,7 @@ function extractTextFromSelection(
 
     // Trim and limit length for preview
     const trimmed = quote.trim();
-    return trimmed.length > 100 ? trimmed.substring(0, 100) + '...' : trimmed;
+    return trimmed.length > 200 ? trimmed.substring(0, 200) + '...' : trimmed;
   } catch (error) {
     console.warn('Failed to extract text from selection:', error);
     return null;
@@ -131,6 +130,9 @@ class AffineCommentService implements CommentProvider {
   }
 
   highlightComment(id: string | null): void {
+    const workbench = this.framework.get(WorkbenchService).workbench;
+    workbench.setSidebarOpen(true);
+    workbench.activeView$.value.activeSidebarTab('comment');
     this.commentEntity.highlightComment(id);
   }
 

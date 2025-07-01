@@ -4,9 +4,13 @@ import { globalStyle, style } from '@vanilla-extract/css';
 export const container = style({
   width: '100%',
   height: '100%',
-  border: `1px solid ${cssVarV2('layer/insideBorder/border')}`,
+  border: `1px solid transparent`,
   selectors: {
-    '&:focus-within': {
+    '&[data-readonly="false"]': {
+      borderColor: cssVarV2('layer/insideBorder/border'),
+      borderRadius: 16,
+    },
+    '&[data-readonly="false"]:focus-within': {
       borderColor: cssVarV2('layer/insideBorder/primaryBorder'),
     },
   },

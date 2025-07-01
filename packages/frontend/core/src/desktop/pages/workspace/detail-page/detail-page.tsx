@@ -386,6 +386,7 @@ const DetailPageImpl = memo(function DetailPageImpl() {
             <Scrollable.Viewport>
               <CommentSidebar />
             </Scrollable.Viewport>
+            <Scrollable.Scrollbar />
           </Scrollable.Root>
         </ViewSidebarTab>
       )}

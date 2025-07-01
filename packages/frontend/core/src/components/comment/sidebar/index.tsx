@@ -1,14 +1,14 @@
-import { Button, IconButton, Menu } from '@affine/component';
+import { Avatar, Button, IconButton, Menu } from '@affine/component';
 import { type DocCommentEntity } from '@affine/core/modules/comment/entities/doc-comment';
 import { CommentPanelService } from '@affine/core/modules/comment/services/comment-panel-service';
 import { DocCommentManagerService } from '@affine/core/modules/comment/services/doc-comment-manager';
-import { SnapshotHelper } from '@affine/core/modules/comment/services/snapshot-helper';
 import type {
   DocComment,
   DocCommentReply,
 } from '@affine/core/modules/comment/types';
 import { DocService } from '@affine/core/modules/doc';
 import { WorkbenchService } from '@affine/core/modules/workbench';
+import { i18nTime, useI18n } from '@affine/i18n';
 import type { DocSnapshot } from '@blocksuite/affine/store';
 import { FilterIcon } from '@blocksuite/icons/rc';
 import {
@@ -17,7 +17,7 @@ import {
   useService,
   useServiceOptional,
 } from '@toeverything/infra';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useAsyncCallback } from '../../hooks/affine-async-hooks';
 import { CommentEditor } from '../comment-editor';
@@ -28,15 +28,6 @@ const SortFilterButton = () => {
     <Menu rootOptions={{ modal: false }} items={[]}>
       <IconButton icon={<FilterIcon />} />
     </Menu>
-  );
-};
-
-const Header = () => {
-  return (
-    <div className={styles.header}>
-      <div className={styles.headerTitle}>Comments</div>
-      <SortFilterButton />
-    </div>
   );
 };
 
@@ -98,6 +89,7 @@ const CommentItem = ({
   const [isReplying, setIsReplying] = useState(false);
   const [pendingReplyId, setPendingReplyId] = useState<string | null>(null);
   const workbench = useService(WorkbenchService);
+  const highlighting = useLiveData(entity.commentHighlighted$) === comment.id;
 
   const pendingReply = useLiveData(
     LiveData.computed(get => {
@@ -105,6 +97,8 @@ const CommentItem = ({
       return pendingReplyId ? pendingComments.get(pendingReplyId) : null;
     })
   );
+
+  const commentRef = useRef<HTMLDivElement>(null);
 
   const handleDelete = useAsyncCallback(async () => {
     await entity.deleteComment(comment.id);
@@ -153,15 +147,8 @@ const CommentItem = ({
     setPendingReplyId(null);
   }, [entity, pendingReplyId]);
 
-  const handleMouseEnter = useCallback(() => {
-    entity.highlightComment(comment.id);
-  }, [entity, comment.id]);
-
-  const handleMouseLeave = useCallback(() => {
-    entity.highlightComment(null);
-  }, [entity]);
-
   const handleClickPreview = useCallback(() => {
+    entity.highlightComment(comment.id);
     // todo: support handling focus the comment id
     workbench.workbench.openDoc(
       {
@@ -171,7 +158,21 @@ const CommentItem = ({
         show: true,
       }
     );
-  }, [entity.props.docId, workbench.workbench]);
+  }, [comment.id, entity, workbench.workbench]);
+
+  useEffect(() => {
+    const subscription = entity.commentHighlighted$
+      .distinctUntilChanged()
+      .subscribe(id => {
+        if (id === comment.id && commentRef.current) {
+          commentRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [comment.id, entity.commentHighlighted$]);
 
   if (isEditing) {
     return (
@@ -183,19 +184,28 @@ const CommentItem = ({
   }
 
   return (
-    <div className={styles.commentItem}>
-      <div
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onClick={handleClickPreview}
-      >
-        {'removed' in comment.user ? 'Removed User' : comment.user.name}
-        <pre>{comment.content.preview}</pre>
+    <div
+      onClick={handleClickPreview}
+      data-comment-id={comment.id}
+      data-highlighting={highlighting}
+      className={styles.commentItem}
+      ref={commentRef}
+    >
+      <div className={styles.previewContainer}>{comment.content.preview}</div>
+      <div className={styles.commentEditorContainer}>
+        <div className={styles.userContainer}>
+          <Avatar url={comment.user.avatarUrl} size={24} />
+          <div className={styles.userName}>{comment.user.name}</div>
+          <div className={styles.time}>
+            {i18nTime(comment.createdAt, {
+              absolute: { accuracy: 'minute' },
+            })}
+          </div>
+        </div>
+        <div style={{ margin: '-10px 0 -10px 34px' }}>
+          <CommentEditor readonly defaultSnapshot={comment.content.snapshot} />
+        </div>
       </div>
-      <CommentEditor readonly defaultSnapshot={comment.content.snapshot} />
-      <Button onClick={() => setIsEditing(true)}>Edit</Button>
-      <Button onClick={handleDelete}>Delete</Button>
-      <Button onClick={handleStartReply}>Reply</Button>
 
       <div className={styles.repliesContainer}>
         {comment.replies
@@ -204,6 +214,14 @@ const CommentItem = ({
             <ReplyItem key={reply.id} reply={reply} entity={entity} />
           ))}
       </div>
+
+      {highlighting && (
+        <div>
+          <Button onClick={() => setIsEditing(true)}>Edit</Button>
+          <Button onClick={handleDelete}>Delete</Button>
+          <Button onClick={handleStartReply}>Reply</Button>
+        </div>
+      )}
 
       {isReplying && pendingReply && (
         <div>
@@ -220,68 +238,60 @@ const CommentItem = ({
 
 const CommentList = ({ entity }: { entity: DocCommentEntity }) => {
   const comments = useLiveData(entity.comments$);
+  const t = useI18n();
 
   // Sort comments by created date (newest first)
   const sortedComments = useMemo(() => {
     return comments.toSorted((a, b) => b.createdAt - a.createdAt);
   }, [comments]);
 
+  const newPendingComment = useLiveData(entity.pendingComment$);
+
   return (
-    <div>
-      {sortedComments.map(comment => (
-        <CommentItem key={comment.id} comment={comment} entity={entity} />
-      ))}
-    </div>
+    <>
+      <div className={styles.header}>
+        <div className={styles.headerTitle}>
+          {t['com.affine.comment.comments']()}
+        </div>
+        {sortedComments.length > 0 && <SortFilterButton />}
+      </div>
+      {sortedComments.length === 0 && !newPendingComment && (
+        <div className={styles.empty}>
+          {t['com.affine.comment.no-comments']()}
+        </div>
+      )}
+      <div className={styles.commentList}>
+        {sortedComments.map(comment => (
+          <CommentItem key={comment.id} comment={comment} entity={entity} />
+        ))}
+      </div>
+    </>
   );
 };
 
 const CommentInput = ({ entity }: { entity: DocCommentEntity }) => {
-  const [pendingCommentId, setPendingCommentId] = useState<string | null>(null);
-  const snapshotHelper = useService(SnapshotHelper);
-  const pendingComments = useLiveData(entity.pendingComments$);
-
-  const newPendingComment = useMemo(() => {
-    return Array.from(pendingComments.values()).find(
-      comment => comment.id === pendingCommentId
-    );
-  }, [pendingComments, pendingCommentId]);
-
+  const newPendingComment = useLiveData(entity.pendingComment$);
   const pendingPreview = newPendingComment?.preview;
 
-  // Watch for new pending comments (not replies) and automatically show them
-  useEffect(() => {
-    const newPendingComment = Array.from(pendingComments.values()).find(
-      comment => !comment.commentId && !pendingCommentId // Not a reply and not already showing one
-    );
-
-    if (newPendingComment && !pendingCommentId) {
-      setPendingCommentId(newPendingComment.id);
-    }
-  }, [pendingComments, pendingCommentId, snapshotHelper]);
-
   const handleCommit = useAsyncCallback(async () => {
-    if (!pendingCommentId) return;
-    await entity.commitComment(pendingCommentId);
-    setPendingCommentId(null);
-  }, [entity, pendingCommentId]);
+    if (!newPendingComment?.id) return;
+    await entity.commitComment(newPendingComment.id);
+  }, [entity, newPendingComment]);
 
   const handleCancel = useCallback(() => {
-    if (!pendingCommentId) return;
+    if (!newPendingComment?.id) return;
 
-    entity.dismissDraftComment(pendingCommentId);
-    setPendingCommentId(null);
-  }, [entity, pendingCommentId]);
+    entity.dismissDraftComment(newPendingComment.id);
+  }, [entity, newPendingComment]);
 
   if (!newPendingComment) {
-    return <div>Start commenting by selecting text & comment</div>;
+    return null;
   }
 
   return (
-    <div>
+    <div className={styles.pendingComment}>
       {pendingPreview && (
-        <div className={styles.pendingPreview}>
-          <strong>Commenting on:</strong> {pendingPreview}
-        </div>
+        <div className={styles.previewContainer}>{pendingPreview}</div>
       )}
       <CommentEditor autoFocus doc={newPendingComment.doc} />
       <div>
@@ -325,13 +335,38 @@ export const CommentSidebar = () => {
   const doc = useServiceOptional(DocService)?.doc;
   const entity = useCommentEntity(doc?.id);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    // dismiss the highlight when ESC is pressed
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        entity?.highlightComment(null);
+      }
+    };
+    const handleContainerClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('[data-comment-id]')) {
+        entity?.highlightComment(null);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    container?.addEventListener('click', handleContainerClick);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      container?.removeEventListener('click', handleContainerClick);
+      entity?.highlightComment(null);
+    };
+  }, [entity]);
+
   if (!entity) {
     return null;
   }
 
   return (
-    <div className={styles.container}>
-      <Header />
+    <div className={styles.container} ref={containerRef}>
       <CommentList entity={entity} />
       <CommentInput entity={entity} />
     </div>

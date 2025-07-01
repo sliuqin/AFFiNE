@@ -42,13 +42,21 @@ export class DocCommentEntity extends Entity<{
     new Map()
   );
 
+  // the last pending comment is the latest comment that is not yet committed to the server
+  readonly pendingComment$ = LiveData.computed(get => {
+    const pendingComments = get(this.pendingComments$);
+    return Array.from(pendingComments.values()).findLast(
+      comment => !comment.commentId
+    );
+  });
+
   private readonly commentAdded$ = new Subject<{
     id: CommentId;
     selections: BaseSelection[];
   }>();
   private readonly commentResolved$ = new Subject<CommentId>();
   private readonly commentDeleted$ = new Subject<CommentId>();
-  private readonly commentHighlighted$ = new Subject<CommentId | null>();
+  readonly commentHighlighted$ = new LiveData<CommentId | null>(null);
 
   private pollingDisposable?: DisposeCallback;
   private startCursor?: string;

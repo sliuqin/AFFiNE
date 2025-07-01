@@ -1,11 +1,9 @@
-import type { CommentChangeAction } from '@affine/graphql';
+import type { CommentChangeAction, PublicUserType } from '@affine/graphql';
 import type {
   BaseSelection,
   DocSnapshot,
   Store,
 } from '@blocksuite/affine/store';
-
-import type { PublicUserInfo } from '../cloud';
 
 export type CommentId = string;
 
@@ -27,7 +25,7 @@ export interface BaseComment {
   content: DocCommentContent;
   createdAt: number;
   updatedAt: number;
-  user: PublicUserInfo;
+  user: PublicUserType;
 }
 
 export interface DocComment extends BaseComment {
