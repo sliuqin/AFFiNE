@@ -190,17 +190,19 @@ const CommentItem = ({
   }, [entity, pendingReply]);
 
   const handleClickPreview = useCallback(() => {
-    entity.highlightComment(comment.id);
     // todo: support handling focus the comment id
     workbench.workbench.openDoc(
       {
         docId: entity.props.docId,
         mode: comment.content.mode,
+        commentId: comment.id,
+        refreshKey: 'comment-' + Date.now(),
       },
       {
         show: true,
       }
     );
+    entity.highlightComment(comment.id);
   }, [comment.id, comment.content.mode, entity, workbench.workbench]);
 
   useEffect(() => {
