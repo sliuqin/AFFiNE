@@ -7,14 +7,10 @@
 
 import Foundation
 
-enum CellType: String, Codable, CaseIterable {
+public enum CellType: String, Codable, CaseIterable {
   case userMessage
   case assistantMessage
   case systemMessage
-  case attachment
-  case contextReference
-  case workflowStatus
-  case transcription
   case loading
   case error
 }

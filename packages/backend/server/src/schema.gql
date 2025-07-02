@@ -125,6 +125,13 @@ type CommentChangeObjectTypeEdge {
 input CommentCreateInput {
   content: JSONObject!
   docId: ID!
+  docMode: DocMode!
+  docTitle: String!
+
+  """
+  The mention user ids, if not provided, the comment will not be mentioned
+  """
+  mentions: [String!]
   workspaceId: ID!
 }
 
@@ -391,6 +398,7 @@ type CopilotSessionType {
   parentSessionId: ID
   pinned: Boolean!
   promptName: String!
+  title: String
 }
 
 type CopilotWorkspaceConfig {
@@ -1581,6 +1589,13 @@ input RemoveContextFileInput {
 input ReplyCreateInput {
   commentId: ID!
   content: JSONObject!
+  docMode: DocMode!
+  docTitle: String!
+
+  """
+  The mention user ids, if not provided, the comment reply will not be mentioned
+  """
+  mentions: [String!]
 }
 
 type ReplyObjectType {
@@ -1718,6 +1733,9 @@ enum SearchTable {
 }
 
 type ServerConfigType {
+  """Whether allow guest users to create demo workspaces."""
+  allowGuestDemoWorkspace: Boolean!
+
   """fetch latest available upgradable release of server"""
   availableUpgrade: ReleaseVersionType
 
@@ -1929,6 +1947,9 @@ input UpdateUserInput {
 }
 
 input UpdateUserSettingsInput {
+  """Receive comment email"""
+  receiveCommentEmail: Boolean
+
   """Receive invitation email"""
   receiveInvitationEmail: Boolean
 
@@ -1989,6 +2010,9 @@ type UserQuotaUsageType {
 }
 
 type UserSettingsType {
+  """Receive comment email"""
+  receiveCommentEmail: Boolean!
+
   """Receive invitation email"""
   receiveInvitationEmail: Boolean!
 

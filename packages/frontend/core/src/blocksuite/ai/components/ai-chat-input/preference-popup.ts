@@ -26,6 +26,9 @@ export class ChatInputPreference extends SignalWatcher(
       color: var(--affine-v2-icon-primary);
       transition: all 0.23s ease;
       border-radius: 4px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
     }
     .chat-input-preference-trigger:hover {
       background-color: var(--affine-v2-layer-background-hoverOverlay);
@@ -47,7 +50,7 @@ export class ChatInputPreference extends SignalWatcher(
   `;
 
   @property({ attribute: false })
-  accessor session!: CopilotSessionType | undefined;
+  accessor session!: CopilotSessionType | null | undefined;
 
   @property({ attribute: false })
   accessor onModelChange: ((modelId: string) => void) | undefined;
