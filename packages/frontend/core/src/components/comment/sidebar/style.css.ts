@@ -131,16 +131,22 @@ export const previewContainer = style({
 });
 
 export const commentActions = style({
-  display: 'none',
+  display: 'flex',
+  opacity: 0,
   gap: '8px',
   marginTop: '8px',
   position: 'absolute',
   right: 12,
   top: 4,
   zIndex: 1,
+  pointerEvents: 'none',
   selectors: {
     [`${commentItem}:hover &`]: {
-      display: 'flex',
+      opacity: 1,
+      pointerEvents: 'auto',
+    },
+    '&[data-menu-open="true"]': {
+      opacity: 1,
     },
   },
 });

@@ -8217,6 +8217,46 @@ export function useAFFiNEI18N(): {
       */
     ["com.affine.comment.comments"](): string;
     /**
+      * `No comments yet`
+      */
+    ["com.affine.comment.no-comments"](): string;
+    /**
+      * `Delete the thread?`
+      */
+    ["com.affine.comment.delete.confirm.title"](): string;
+    /**
+      * `All comments will also be deleted, and this action cannot be undone.`
+      */
+    ["com.affine.comment.delete.confirm.description"](): string;
+    /**
+      * `Delete this reply?`
+      */
+    ["com.affine.comment.reply.delete.confirm.title"](): string;
+    /**
+      * `Delete this reply? This action cannot be undone.`
+      */
+    ["com.affine.comment.reply.delete.confirm.description"](): string;
+    /**
+      * `Show resolved comments`
+      */
+    ["com.affine.comment.filter.show-resolved"](): string;
+    /**
+      * `Only my replies and mentions`
+      */
+    ["com.affine.comment.filter.only-my-replies"](): string;
+    /**
+      * `Only current mode`
+      */
+    ["com.affine.comment.filter.only-current-mode"](): string;
+    /**
+      * `Reply`
+      */
+    ["com.affine.comment.reply"](): string;
+    /**
+      * `Copy link`
+      */
+    ["com.affine.comment.copy-link"](): string;
+    /**
       * `An internal error occurred.`
       */
     ["error.INTERNAL_SERVER_ERROR"](): string;

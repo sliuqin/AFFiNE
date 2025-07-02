@@ -10,6 +10,7 @@ import clsx from 'clsx';
 import {
   forwardRef,
   Fragment,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -178,8 +179,19 @@ export const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(
       return;
     }, [doc, onChange, snapshotHelper]);
 
+    const handleClickEditor = useCallback(
+      (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (editorRef.current) {
+          editorRef.current.focus();
+        }
+      },
+      [editorRef]
+    );
+
     return (
       <div
+        onClick={handleClickEditor}
         data-readonly={!!readonly}
         className={clsx(styles.container, 'comment-editor-viewport')}
       >

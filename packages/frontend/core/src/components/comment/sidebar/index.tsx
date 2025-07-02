@@ -4,18 +4,22 @@ import {
   Loading,
   Menu,
   MenuItem,
+  notify,
   useConfirmModal,
 } from '@affine/component';
+import { ServerService } from '@affine/core/modules/cloud';
 import { AuthService } from '@affine/core/modules/cloud/services/auth';
 import { type DocCommentEntity } from '@affine/core/modules/comment/entities/doc-comment';
 import { CommentPanelService } from '@affine/core/modules/comment/services/comment-panel-service';
 import { DocCommentManagerService } from '@affine/core/modules/comment/services/doc-comment-manager';
 import type { DocComment } from '@affine/core/modules/comment/types';
 import { DocService } from '@affine/core/modules/doc';
+import { toDocSearchParams } from '@affine/core/modules/navigation';
 import { WorkbenchService } from '@affine/core/modules/workbench';
+import { copyTextToClipboard } from '@affine/core/utils/clipboard';
 import { i18nTime, useI18n } from '@affine/i18n';
 import type { DocSnapshot } from '@blocksuite/affine/store';
-import { DeleteIcon, DoneIcon, FilterIcon } from '@blocksuite/icons/rc';
+import { DoneIcon, FilterIcon, MoreHorizontalIcon } from '@blocksuite/icons/rc';
 import {
   useLiveData,
   useService,
@@ -119,6 +123,7 @@ const CommentItem = ({
   entity: DocCommentEntity;
 }) => {
   const workbench = useService(WorkbenchService);
+  const serverService = useService(ServerService);
   const highlighting = useLiveData(entity.commentHighlighted$) === comment.id;
   const t = useI18n();
   const { openConfirmModal } = useConfirmModal();
@@ -172,6 +177,46 @@ const CommentItem = ({
     [entity, comment.id, comment.resolved]
   );
 
+  const handleReply = useAsyncCallback(
+    async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!comment.resolved) {
+        await entity.addReply(comment.id);
+        entity.highlightComment(comment.id);
+      }
+    },
+    [entity, comment.id, comment.resolved]
+  );
+
+  const handleCopyLink = useAsyncCallback(
+    async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      // Create a URL with the comment ID
+
+      const search = toDocSearchParams({
+        mode: comment.content.mode,
+        commentId: comment.id,
+      });
+
+      const url = new URL(
+        workbench.workbench.basename$.value + '/' + entity.props.docId,
+        serverService.server.baseUrl
+      );
+
+      if (search?.size) url.search = search.toString();
+      await copyTextToClipboard(url.toString());
+      notify.success({ title: t['Copied link to clipboard']() });
+    },
+    [
+      comment.content.mode,
+      comment.id,
+      entity.props.docId,
+      serverService.server.baseUrl,
+      t,
+      workbench.workbench.basename$.value,
+    ]
+  );
+
   const handleCommitReply = useAsyncCallback(async () => {
     if (!pendingReply?.id) return;
 
@@ -190,7 +235,6 @@ const CommentItem = ({
   }, [entity, pendingReply]);
 
   const handleClickPreview = useCallback(() => {
-    // todo: support handling focus the comment id
     workbench.workbench.openDoc(
       {
         docId: entity.props.docId,
@@ -248,28 +292,58 @@ const CommentItem = ({
     }
   }, [comment.resolved, isReplyingToThisComment, pendingReply, entity]);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <div
       onClick={handleClickPreview}
       data-comment-id={comment.id}
       data-resolved={comment.resolved}
-      data-highlighting={highlighting}
+      data-highlighting={highlighting || menuOpen}
       className={styles.commentItem}
       ref={commentRef}
     >
-      <div className={styles.commentActions}>
+      <div className={styles.commentActions} data-menu-open={menuOpen}>
         <IconButton
           variant="solid"
           onClick={handleResolve}
           icon={<DoneIcon />}
           disabled={isMutating}
         />
-        <IconButton
-          variant="solid"
-          onClick={handleDelete}
-          icon={<DeleteIcon />}
-          disabled={isMutating}
-        />
+        <Menu
+          rootOptions={{
+            open: menuOpen,
+            onOpenChange: v => {
+              setMenuOpen(v);
+            },
+          }}
+          items={
+            <>
+              <MenuItem
+                onClick={handleReply}
+                disabled={isMutating || comment.resolved}
+              >
+                {t['com.affine.comment.reply']()}
+              </MenuItem>
+              <MenuItem onClick={handleCopyLink} disabled={isMutating}>
+                {t['com.affine.comment.copy-link']()}
+              </MenuItem>
+              <MenuItem
+                onClick={handleDelete}
+                disabled={isMutating}
+                style={{ color: 'var(--affine-error-color)' }}
+              >
+                {t['Delete']()}
+              </MenuItem>
+            </>
+          }
+        >
+          <IconButton
+            variant="solid"
+            icon={<MoreHorizontalIcon />}
+            disabled={isMutating}
+          />
+        </Menu>
       </div>
       <div className={styles.previewContainer}>{comment.content.preview}</div>
 
