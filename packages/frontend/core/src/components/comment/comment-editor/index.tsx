@@ -4,12 +4,12 @@ import { getViewManager } from '@affine/core/blocksuite/manager/view';
 import { SnapshotHelper } from '@affine/core/modules/comment/services/snapshot-helper';
 import { ViewportElementExtension } from '@blocksuite/affine/shared/services';
 import { type DocSnapshot, Store } from '@blocksuite/affine/store';
+import { ArrowUpBigIcon } from '@blocksuite/icons/rc';
 import { useFramework, useService } from '@toeverything/infra';
 import clsx from 'clsx';
 import {
   forwardRef,
   Fragment,
-  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -64,6 +64,8 @@ interface CommentEditorProps {
   defaultSnapshot?: DocSnapshot;
   // for performance, we only update the snapshot when the editor blurs
   onChange?: (snapshot: DocSnapshot) => void;
+  onCommit?: () => void;
+  onCancel?: () => void;
   autoFocus?: boolean;
 }
 
@@ -104,7 +106,7 @@ const useSnapshotDoc = (
 
 export const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(
   function CommentEditor(
-    { readonly, defaultSnapshot, doc: userDoc, onChange, autoFocus },
+    { readonly, defaultSnapshot, doc: userDoc, onChange, onCommit, autoFocus },
     ref
   ) {
     const defaultSnapshotOrDoc = defaultSnapshot ?? userDoc;
@@ -129,42 +131,67 @@ export const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(
       [doc, snapshotHelper]
     );
 
-    const handleCommitChange = useCallback(() => {
-      if (!doc) {
-        return;
+    useEffect(() => {
+      let cancel = false;
+      if (autoFocus && editorRef.current && doc) {
+        // fixme: the following does not work
+        // Wait for editor to be fully loaded before focusing
+        editorRef.current.updateComplete
+          .then(async () => {
+            if (cancel) return;
+            const richText = editorRef.current?.querySelector('rich-text');
+            if (!richText) return;
+
+            // Wait for rich text component to be fully loaded
+            await richText.updateComplete;
+
+            // Finally focus the inline editor
+            const inlineEditor = richText.inlineEditor;
+            richText.focus();
+
+            richText.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
+
+            inlineEditor?.focusEnd();
+          })
+          .catch(console.error);
       }
-      const snapshot = snapshotHelper.getSnapshot(doc);
-      if (snapshot) {
-        onChange?.(snapshot);
-      }
-    }, [doc, onChange, snapshotHelper]);
+      return () => {
+        cancel = true;
+      };
+    }, [autoFocus, doc]);
 
     useEffect(() => {
-      if (autoFocus && editorRef.current && doc) {
-        // Focus the editor after a brief delay to ensure it's fully rendered
-        const timeoutId = setTimeout(() => {
-          editorRef.current?.focus();
-        }, 100);
-
-        return () => clearTimeout(timeoutId);
+      if (doc && onChange) {
+        const subscription = doc.slots.yBlockUpdated.subscribe(() => {
+          const snapshot = snapshotHelper.getSnapshot(doc);
+          if (snapshot) {
+            onChange?.(snapshot);
+          }
+        });
+        return () => {
+          subscription?.unsubscribe();
+        };
       }
       return;
-    }, [autoFocus, doc]);
+    }, [doc, onChange, snapshotHelper]);
 
     return (
       <div
         data-readonly={!!readonly}
         className={clsx(styles.container, 'comment-editor-viewport')}
       >
-        {doc && (
-          <LitDocEditor
-            ref={editorRef}
-            specs={specs}
-            doc={doc}
-            onBlur={handleCommitChange}
-          />
-        )}
+        {doc && <LitDocEditor ref={editorRef} specs={specs} doc={doc} />}
         {portals}
+        {!readonly && (
+          <div className={styles.footer}>
+            <button onClick={onCommit} className={styles.commitButton}>
+              <ArrowUpBigIcon />
+            </button>
+          </div>
+        )}
       </div>
     );
   }

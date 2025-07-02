@@ -7,6 +7,7 @@ import {
 import {
   type DocSnapshot,
   type Store,
+  Text,
   Transformer,
 } from '@blocksuite/affine/store';
 import { Service } from '@toeverything/infra';
@@ -34,8 +35,7 @@ export class SnapshotHelper extends Service {
     );
   }
 
-  // todo: cache the transformer?
-  getTransformer() {
+  getTempWorkspace() {
     const collection = new WorkspaceImpl({
       rootDoc: new YDoc({ guid: 'markdownToDoc' }),
       blobSource: {
@@ -58,6 +58,12 @@ export class SnapshotHelper extends Service {
       },
     });
     collection.meta.initialize();
+    return collection;
+  }
+
+  // todo: cache the transformer?
+  getTransformer() {
+    const collection = this.getTempWorkspace();
     const schema = getAFFiNEWorkspaceSchema();
     const imageProxyUrl = new URL(
       BUILD_CONFIG.imageProxyUrl,
@@ -81,7 +87,7 @@ export class SnapshotHelper extends Service {
     return transformer;
   }
 
-  private getMarkdownAdapter() {
+  getMarkdownAdapter() {
     const transformer = this.getTransformer();
     const extensions = getStoreManager().config.init().value.get('store');
     const container = new Container();
@@ -109,14 +115,35 @@ export class SnapshotHelper extends Service {
       }
       return await transformer.snapshotToDoc(snapshot);
     } else {
-      const mdAdapter = this.getMarkdownAdapter();
-      if (!mdAdapter) {
-        throw new Error('Markdown adapter not found');
+      // Create a document with proper default structure instead of using empty markdown
+      const collection = this.getTempWorkspace();
+      if (!collection) {
+        throw new Error('Temp workspace not found');
       }
-      const doc = await mdAdapter.toDoc({
-        file: '',
+
+      // Create a temporary doc with proper structure
+      const doc = collection.createDoc();
+      const store = doc.getStore();
+      doc.load(() => {
+        // Add root page block with empty title
+        const rootId = store.addBlock('affine:page', {
+          title: new Text(''),
+        });
+
+        // Add surface block
+        store.addBlock('affine:surface', {}, rootId);
+
+        // Add note block
+        const noteId = store.addBlock('affine:note', {}, rootId);
+
+        // Add default paragraph block
+        store.addBlock('affine:paragraph', {}, noteId);
       });
-      return doc;
+
+      // Reset history to prevent initial creation operations from being undone
+      store.resetHistory();
+
+      return store;
     }
   }
 

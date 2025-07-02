@@ -1,18 +1,21 @@
-import { Avatar, Button, IconButton, Menu } from '@affine/component';
+import {
+  Avatar,
+  IconButton,
+  Loading,
+  Menu,
+  useConfirmModal,
+} from '@affine/component';
+import { AuthService } from '@affine/core/modules/cloud/services/auth';
 import { type DocCommentEntity } from '@affine/core/modules/comment/entities/doc-comment';
 import { CommentPanelService } from '@affine/core/modules/comment/services/comment-panel-service';
 import { DocCommentManagerService } from '@affine/core/modules/comment/services/doc-comment-manager';
-import type {
-  DocComment,
-  DocCommentReply,
-} from '@affine/core/modules/comment/types';
+import type { DocComment } from '@affine/core/modules/comment/types';
 import { DocService } from '@affine/core/modules/doc';
 import { WorkbenchService } from '@affine/core/modules/workbench';
 import { i18nTime, useI18n } from '@affine/i18n';
 import type { DocSnapshot } from '@blocksuite/affine/store';
-import { FilterIcon } from '@blocksuite/icons/rc';
+import { DeleteIcon, DoneIcon, FilterIcon } from '@blocksuite/icons/rc';
 import {
-  LiveData,
   useLiveData,
   useService,
   useServiceOptional,
@@ -31,49 +34,31 @@ const SortFilterButton = () => {
   );
 };
 
-const ReplyItem = ({
-  reply,
-  entity,
+const ReadonlyCommentRenderer = ({
+  avatarUrl,
+  name,
+  time,
+  snapshot,
 }: {
-  reply: DocCommentReply;
-  entity: DocCommentEntity;
+  avatarUrl: string | null;
+  name: string;
+  time: number;
+  snapshot: DocSnapshot;
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleDelete = useAsyncCallback(async () => {
-    await entity.deleteReply(reply.id);
-  }, [entity, reply.id]);
-
-  const handleUpdate = useAsyncCallback(
-    async (snapshot: DocSnapshot) => {
-      await entity.updateReply(reply.id, {
-        snapshot,
-        preview: 'Updated reply', // TODO: generate preview
-      });
-      setIsEditing(false);
-    },
-    [entity, reply.id]
-  );
-
-  if (isEditing) {
-    return (
-      <CommentEditor
-        defaultSnapshot={reply.content.snapshot}
-        onChange={handleUpdate}
-      />
-    );
-  }
-
   return (
-    <div className={styles.replyItem}>
-      <div>{'removed' in reply.user ? 'Removed User' : reply.user.name}</div>
-      <CommentEditor
-        readonly
-        defaultSnapshot={reply.content.snapshot}
-        onChange={() => {}}
-      />
-      <Button onClick={() => setIsEditing(true)}>Edit</Button>
-      <Button onClick={handleDelete}>Delete</Button>
+    <div data-time={time} className={styles.readonlyCommentContainer}>
+      <div className={styles.userContainer}>
+        <Avatar url={avatarUrl} size={24} />
+        <div className={styles.userName}>{name}</div>
+        <div className={styles.time}>
+          {i18nTime(time, {
+            absolute: { accuracy: 'minute' },
+          })}
+        </div>
+      </div>
+      <div style={{ marginLeft: '34px' }}>
+        <CommentEditor readonly defaultSnapshot={snapshot} />
+      </div>
     </div>
   );
 };
@@ -85,67 +70,58 @@ const CommentItem = ({
   comment: DocComment;
   entity: DocCommentEntity;
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isReplying, setIsReplying] = useState(false);
-  const [pendingReplyId, setPendingReplyId] = useState<string | null>(null);
   const workbench = useService(WorkbenchService);
   const highlighting = useLiveData(entity.commentHighlighted$) === comment.id;
+  const t = useI18n();
+  const { openConfirmModal } = useConfirmModal();
 
-  const pendingReply = useLiveData(
-    LiveData.computed(get => {
-      const pendingComments = get(entity.pendingComments$);
-      return pendingReplyId ? pendingComments.get(pendingReplyId) : null;
-    })
-  );
+  const session = useService(AuthService).session;
+  const account = useLiveData(session.account$);
+
+  const pendingReply = useLiveData(entity.pendingReply$);
+  // Check if the pending reply belongs to this comment
+  const isReplyingToThisComment = pendingReply?.commentId === comment.id;
 
   const commentRef = useRef<HTMLDivElement>(null);
 
-  const handleDelete = useAsyncCallback(async () => {
-    await entity.deleteComment(comment.id);
-  }, [entity, comment.id]);
-
-  const handleUpdate = useAsyncCallback(
-    async (snapshot: DocSnapshot) => {
-      await entity.updateComment(comment.id, {
-        snapshot,
-        preview: 'Updated comment', // TODO: generate preview
+  const handleDelete = useAsyncCallback(
+    async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      openConfirmModal({
+        title: t['com.affine.comment.delete.confirm.title'](),
+        description: t['com.affine.comment.delete.confirm.description'](),
+        confirmText: t['Delete'](),
+        cancelText: t['Cancel'](),
+        confirmButtonOptions: {
+          variant: 'error',
+        },
+        onConfirm: async () => {
+          await entity.deleteComment(comment.id);
+        },
       });
-      setIsEditing(false);
+    },
+    [entity, comment.id, openConfirmModal, t]
+  );
+
+  const handleResolve = useAsyncCallback(
+    async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      await entity.resolveComment(comment.id);
     },
     [entity, comment.id]
   );
 
-  const handleStartReply = useAsyncCallback(async () => {
-    if (isReplying) {
-      // Cancel existing reply
-      if (pendingReplyId) {
-        entity.dismissDraftComment(pendingReplyId);
-        setPendingReplyId(null);
-      }
-      setIsReplying(false);
-      return;
-    }
-    setIsReplying(true);
-
-    const replyId = await entity.addReply(comment.id);
-    setPendingReplyId(replyId);
-  }, [isReplying, entity, comment.id, pendingReplyId]);
-
   const handleCommitReply = useAsyncCallback(async () => {
-    if (!pendingReplyId) return;
+    if (!pendingReply?.id) return;
 
-    await entity.commitReply(pendingReplyId);
-    setIsReplying(false);
-    setPendingReplyId(null);
-  }, [entity, pendingReplyId]);
+    await entity.commitReply(pendingReply.id);
+  }, [entity, pendingReply]);
 
   const handleCancelReply = useCallback(() => {
-    if (!pendingReplyId) return;
+    if (!pendingReply?.id) return;
 
-    entity.dismissDraftComment(pendingReplyId);
-    setIsReplying(false);
-    setPendingReplyId(null);
-  }, [entity, pendingReplyId]);
+    entity.dismissDraftReply();
+  }, [entity, pendingReply]);
 
   const handleClickPreview = useCallback(() => {
     entity.highlightComment(comment.id);
@@ -166,22 +142,34 @@ const CommentItem = ({
       .subscribe(id => {
         if (id === comment.id && commentRef.current) {
           commentRef.current.scrollIntoView({ behavior: 'smooth' });
+
+          // Auto-start reply when comment becomes highlighted
+          if (!isReplyingToThisComment) {
+            entity.addReply(comment.id).catch(() => {
+              // Handle error if adding reply fails
+              console.error('Failed to add reply');
+            });
+          }
+        } else if (
+          id !== comment.id &&
+          isReplyingToThisComment &&
+          pendingReply
+        ) {
+          // Cancel reply when comment is no longer highlighted
+          entity.dismissDraftReply();
         }
       });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [comment.id, entity.commentHighlighted$]);
-
-  if (isEditing) {
-    return (
-      <CommentEditor
-        defaultSnapshot={comment.content.snapshot}
-        onChange={handleUpdate}
-      />
-    );
-  }
+  }, [
+    comment.id,
+    entity.commentHighlighted$,
+    isReplyingToThisComment,
+    pendingReply,
+    entity,
+  ]);
 
   return (
     <div
@@ -191,45 +179,53 @@ const CommentItem = ({
       className={styles.commentItem}
       ref={commentRef}
     >
-      <div className={styles.previewContainer}>{comment.content.preview}</div>
-      <div className={styles.commentEditorContainer}>
-        <div className={styles.userContainer}>
-          <Avatar url={comment.user.avatarUrl} size={24} />
-          <div className={styles.userName}>{comment.user.name}</div>
-          <div className={styles.time}>
-            {i18nTime(comment.createdAt, {
-              absolute: { accuracy: 'minute' },
-            })}
-          </div>
-        </div>
-        <div style={{ margin: '-10px 0 -10px 34px' }}>
-          <CommentEditor readonly defaultSnapshot={comment.content.snapshot} />
-        </div>
+      <div className={styles.commentActions}>
+        <IconButton
+          variant="solid"
+          onClick={handleResolve}
+          icon={<DoneIcon />}
+        />
+        <IconButton
+          variant="solid"
+          onClick={handleDelete}
+          icon={<DeleteIcon />}
+        />
       </div>
+      <div className={styles.previewContainer}>{comment.content.preview}</div>
 
       <div className={styles.repliesContainer}>
+        <ReadonlyCommentRenderer
+          avatarUrl={comment.user.avatarUrl}
+          name={comment.user.name}
+          time={comment.createdAt}
+          snapshot={comment.content.snapshot}
+        />
+
+        {/* unlike comment, replies are sorted by createdAt in ascending order */}
         {comment.replies
           ?.toSorted((a, b) => a.createdAt - b.createdAt)
           .map(reply => (
-            <ReplyItem key={reply.id} reply={reply} entity={entity} />
+            <ReadonlyCommentRenderer
+              key={reply.id}
+              avatarUrl={reply.user.avatarUrl}
+              name={reply.user.name}
+              time={reply.createdAt}
+              snapshot={reply.content.snapshot}
+            />
           ))}
       </div>
 
-      {highlighting && (
-        <div>
-          <Button onClick={() => setIsEditing(true)}>Edit</Button>
-          <Button onClick={handleDelete}>Delete</Button>
-          <Button onClick={handleStartReply}>Reply</Button>
-        </div>
-      )}
-
-      {isReplying && pendingReply && (
-        <div>
-          <CommentEditor autoFocus doc={pendingReply.doc} />
-          <div>
-            <Button onClick={handleCommitReply}>Submit Reply</Button>
-            <Button onClick={handleCancelReply}>Cancel</Button>
+      {highlighting && isReplyingToThisComment && pendingReply && account && (
+        <div className={styles.commentInputContainer}>
+          <div className={styles.userContainer}>
+            <Avatar url={account.avatar} size={24} />
           </div>
+          <CommentEditor
+            autoFocus
+            doc={pendingReply.doc}
+            onCommit={handleCommitReply}
+            onCancel={handleCancelReply}
+          />
         </div>
       )}
     </div>
@@ -246,6 +242,7 @@ const CommentList = ({ entity }: { entity: DocCommentEntity }) => {
   }, [comments]);
 
   const newPendingComment = useLiveData(entity.pendingComment$);
+  const loading = useLiveData(entity.loading$);
 
   return (
     <>
@@ -255,9 +252,15 @@ const CommentList = ({ entity }: { entity: DocCommentEntity }) => {
         </div>
         {sortedComments.length > 0 && <SortFilterButton />}
       </div>
-      {sortedComments.length === 0 && !newPendingComment && (
+      <CommentInput entity={entity} />
+      {sortedComments.length === 0 && !newPendingComment && !loading && (
         <div className={styles.empty}>
           {t['com.affine.comment.no-comments']()}
+        </div>
+      )}
+      {loading && sortedComments.length === 0 && !newPendingComment && (
+        <div className={styles.loading}>
+          <Loading size={32} />
         </div>
       )}
       <div className={styles.commentList}>
@@ -269,6 +272,7 @@ const CommentList = ({ entity }: { entity: DocCommentEntity }) => {
   );
 };
 
+// handling pending comment
 const CommentInput = ({ entity }: { entity: DocCommentEntity }) => {
   const newPendingComment = useLiveData(entity.pendingComment$);
   const pendingPreview = newPendingComment?.preview;
@@ -281,10 +285,13 @@ const CommentInput = ({ entity }: { entity: DocCommentEntity }) => {
   const handleCancel = useCallback(() => {
     if (!newPendingComment?.id) return;
 
-    entity.dismissDraftComment(newPendingComment.id);
+    entity.dismissDraftComment();
   }, [entity, newPendingComment]);
 
-  if (!newPendingComment) {
+  const session = useService(AuthService).session;
+  const account = useLiveData(session.account$);
+
+  if (!newPendingComment || !account) {
     return null;
   }
 
@@ -293,10 +300,16 @@ const CommentInput = ({ entity }: { entity: DocCommentEntity }) => {
       {pendingPreview && (
         <div className={styles.previewContainer}>{pendingPreview}</div>
       )}
-      <CommentEditor autoFocus doc={newPendingComment.doc} />
-      <div>
-        <Button onClick={handleCommit}>Submit</Button>
-        <Button onClick={handleCancel}>Cancel</Button>
+      <div className={styles.commentInputContainer}>
+        <div className={styles.userContainer}>
+          <Avatar url={account.avatar} size={24} />
+        </div>
+        <CommentEditor
+          autoFocus
+          doc={newPendingComment.doc}
+          onCommit={handleCommit}
+          onCancel={handleCancel}
+        />
       </div>
     </div>
   );
@@ -368,7 +381,6 @@ export const CommentSidebar = () => {
   return (
     <div className={styles.container} ref={containerRef}>
       <CommentList entity={entity} />
-      <CommentInput entity={entity} />
     </div>
   );
 };

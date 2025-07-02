@@ -37,18 +37,11 @@ export class DocCommentEntity extends Entity<{
   loading$ = new LiveData<boolean>(false);
   comments$ = new LiveData<DocComment[]>([]);
 
-  // pending comment is a comment that is not yet committed to the server
-  readonly pendingComments$ = new LiveData<Map<string, PendingComment>>(
-    new Map()
-  );
+  // Only one pending comment at a time (for new comments)
+  readonly pendingComment$ = new LiveData<PendingComment | null>(null);
 
-  // the last pending comment is the latest comment that is not yet committed to the server
-  readonly pendingComment$ = LiveData.computed(get => {
-    const pendingComments = get(this.pendingComments$);
-    return Array.from(pendingComments.values()).findLast(
-      comment => !comment.commentId
-    );
-  });
+  // Only one pending reply at a time
+  readonly pendingReply$ = new LiveData<PendingComment | null>(null);
 
   private readonly commentAdded$ = new Subject<{
     id: CommentId;
@@ -71,7 +64,6 @@ export class DocCommentEntity extends Entity<{
       throw new Error('Failed to create doc');
     }
     const id = nanoid();
-    const existing = this.pendingComments$.value;
     const pendingComment: PendingComment = {
       id,
       doc,
@@ -79,9 +71,8 @@ export class DocCommentEntity extends Entity<{
       selections,
     };
 
-    this.pendingComments$.setValue(
-      new Map([...existing, [id, pendingComment]])
-    );
+    // Replace any existing pending comment (only one at a time)
+    this.pendingComment$.setValue(pendingComment);
     return id;
   }
 
@@ -91,30 +82,28 @@ export class DocCommentEntity extends Entity<{
       throw new Error('Failed to create doc');
     }
     const id = nanoid();
-    const existing = this.pendingComments$.value;
-    const pendingComment: PendingComment = {
+    const pendingReply: PendingComment = {
       id,
       doc,
       commentId,
     };
 
-    this.pendingComments$.setValue(
-      new Map([...existing, [id, pendingComment]])
-    );
+    // Replace any existing pending reply (only one at a time)
+    this.pendingReply$.setValue(pendingReply);
     return id;
   }
 
-  dismissDraftComment(id: string): void {
-    const existing = this.pendingComments$.value;
-    const newMap = new Map(existing);
-    newMap.delete(id);
-    this.pendingComments$.setValue(newMap);
+  dismissDraftComment(): void {
+    this.pendingComment$.setValue(null);
+  }
+
+  dismissDraftReply(): void {
+    this.pendingReply$.setValue(null);
   }
 
   async commitComment(id: string): Promise<void> {
-    const existing = this.pendingComments$.value;
-    const pendingComment = existing.get(id);
-    if (!pendingComment) {
+    const pendingComment = this.pendingComment$.value;
+    if (!pendingComment || pendingComment.id !== id) {
       console.warn('Pending comment not found:', id);
       return;
     }
@@ -135,14 +124,13 @@ export class DocCommentEntity extends Entity<{
       id: comment.id,
       selections: pendingComment.selections || [],
     });
-    this.dismissDraftComment(id);
+    this.pendingComment$.setValue(null);
     this.revalidate();
   }
 
   async commitReply(id: string): Promise<void> {
-    const existing = this.pendingComments$.value;
-    const pendingReply = existing.get(id);
-    if (!pendingReply) {
+    const pendingReply = this.pendingReply$.value;
+    if (!pendingReply || pendingReply.id !== id) {
       console.warn('Pending reply not found:', id);
       return;
     }
@@ -168,7 +156,7 @@ export class DocCommentEntity extends Entity<{
         : comment
     );
     this.comments$.setValue(updatedComments);
-    this.dismissDraftComment(id);
+    this.pendingReply$.setValue(null);
     this.revalidate();
   }
 

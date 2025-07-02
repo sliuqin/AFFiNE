@@ -14,23 +14,11 @@ export class CommentPanelService extends Service {
    * Watch for pending comments on a doc comment entity and open the sidebar automatically
    */
   watchForPendingComments(entity: DocCommentEntity): () => void {
-    let lastPendingCount = 0;
-
-    const subscription = entity.pendingComments$.subscribe(pendingComments => {
-      const currentCount = pendingComments.size;
-
-      // If we have a new pending comment (not reply)
-      if (currentCount > lastPendingCount) {
-        const newPendingComment = Array.from(pendingComments.values()).find(
-          comment => !comment.commentId // Not a reply
-        );
-
-        if (newPendingComment) {
-          this.openCommentPanel();
-        }
+    const subscription = entity.pendingComment$.subscribe(pendingComment => {
+      // If we have a new pending comment, open the comment panel
+      if (pendingComment) {
+        this.openCommentPanel();
       }
-
-      lastPendingCount = currentCount;
     });
 
     const dispose = () => {

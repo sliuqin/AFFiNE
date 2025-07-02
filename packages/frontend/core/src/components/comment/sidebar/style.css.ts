@@ -18,6 +18,7 @@ export const header = style({
   alignItems: 'center',
   padding: '0 16px',
   gap: '8px',
+  height: '32px',
 });
 
 export const headerTitle = style({
@@ -44,6 +45,9 @@ export const empty = style({
 export const commentItem = style({
   padding: '12px',
   position: 'relative',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '8px',
   ':hover': {
     backgroundColor: cssVarV2('layer/background/hoverOverlay'),
   },
@@ -64,16 +68,18 @@ export const commentItem = style({
   },
 });
 
-export const replyItem = style({
-  padding: '8px',
-  border: '1px solid #f0f0f0',
-  borderRadius: '4px',
-  marginTop: '8px',
+export const loading = style({
+  height: '100%',
+  flex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 });
 
 export const repliesContainer = style({
-  marginLeft: '20px',
-  paddingTop: '8px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '8px',
 });
 
 export const pendingComment = style({
@@ -121,7 +127,22 @@ export const previewContainer = style({
   },
 });
 
-export const commentEditorContainer = style({
+export const commentActions = style({
+  display: 'none',
+  gap: '8px',
+  marginTop: '8px',
+  position: 'absolute',
+  right: 12,
+  top: 4,
+  zIndex: 1,
+  selectors: {
+    [`${commentItem}:hover &`]: {
+      display: 'flex',
+    },
+  },
+});
+
+export const readonlyCommentContainer = style({
   display: 'flex',
   flexDirection: 'column',
   gap: '4px',
@@ -134,6 +155,13 @@ export const userContainer = style({
   justifyContent: 'flex-start',
   marginTop: '5px',
   gap: 10,
+});
+
+export const commentInputContainer = style({
+  display: 'flex',
+  alignItems: 'flex-start',
+  justifyContent: 'flex-start',
+  gap: '4px',
 });
 
 export const userName = style({
