@@ -1368,6 +1368,8 @@ type NotificationObjectTypeEdge {
 
 """Notification type"""
 enum NotificationType {
+  Comment
+  CommentMention
   Invitation
   InvitationAccepted
   InvitationBlocked
