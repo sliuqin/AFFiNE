@@ -1,4 +1,4 @@
-import type { CommentChangeAction } from '@affine/graphql';
+import { type CommentChangeAction, DocMode } from '@affine/graphql';
 import type { BaseSelection } from '@blocksuite/affine/store';
 import {
   effect,
@@ -11,6 +11,7 @@ import {
 import { nanoid } from 'nanoid';
 import { catchError, of, Subject, switchMap, tap, timer } from 'rxjs';
 
+import { type DocDisplayMetaService } from '../../doc-display-meta';
 import { GlobalContextService } from '../../global-context';
 import type { SnapshotHelper } from '../services/snapshot-helper';
 import type {
@@ -28,11 +29,19 @@ type DisposeCallback = () => void;
 export class DocCommentEntity extends Entity<{
   docId: string;
 }> {
-  constructor(private readonly snapshotHelper: SnapshotHelper) {
+  constructor(
+    private readonly snapshotHelper: SnapshotHelper,
+    private readonly docDisplayMetaService: DocDisplayMetaService
+  ) {
     super();
   }
   private readonly store = this.framework.createEntity(DocCommentStore, {
     docId: this.props.docId,
+    getDocMode: () =>
+      this.docMode$.value === 'edgeless' ? DocMode.edgeless : DocMode.page,
+    getDocTitle: () => {
+      return this.docDisplayMetaService.title$(this.props.docId).value;
+    },
   });
 
   loading$ = new LiveData<boolean>(false);

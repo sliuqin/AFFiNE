@@ -1,6 +1,7 @@
 import type { Framework } from '@toeverything/infra';
 
 import { DefaultServerService, WorkspaceServerService } from '../cloud';
+import { DocDisplayMetaService } from '../doc-display-meta';
 import { WorkbenchService } from '../workbench';
 import { WorkspaceScope, WorkspaceService } from '../workspace';
 import { DocCommentEntity } from './entities/doc-comment';
@@ -19,7 +20,7 @@ export function configureCommentModule(framework: Framework) {
       WorkspaceServerService,
       DefaultServerService,
     ])
-    .entity(DocCommentEntity, [SnapshotHelper])
+    .entity(DocCommentEntity, [SnapshotHelper, DocDisplayMetaService])
     .entity(DocCommentStore, [
       WorkspaceService,
       WorkspaceServerService,

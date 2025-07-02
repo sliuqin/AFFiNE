@@ -3,6 +3,7 @@ import {
   createReplyMutation,
   deleteCommentMutation,
   deleteReplyMutation,
+  type DocMode,
   listCommentChangesQuery,
   type ListCommentsQuery,
   listCommentsQuery,
@@ -61,6 +62,8 @@ const normalizeComment = (comment: GQLCommentType): DocComment => ({
 
 export class DocCommentStore extends Entity<{
   docId: string;
+  getDocMode: () => DocMode;
+  getDocTitle: () => string;
 }> {
   constructor(
     private readonly workspaceService: WorkspaceService,
@@ -171,6 +174,8 @@ export class DocCommentStore extends Entity<{
         input: {
           workspaceId: this.currentWorkspaceId,
           docId: this.props.docId,
+          docMode: this.props.getDocMode(),
+          docTitle: this.props.getDocTitle(),
           content: commentInput.content,
         },
       },
@@ -253,6 +258,8 @@ export class DocCommentStore extends Entity<{
         input: {
           commentId,
           content: replyInput.content,
+          docMode: this.props.getDocMode(),
+          docTitle: this.props.getDocTitle(),
         },
       },
     });
