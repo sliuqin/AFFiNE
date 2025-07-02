@@ -4,6 +4,7 @@ import {
   deleteCommentMutation,
   deleteReplyMutation,
   listCommentChangesQuery,
+  type ListCommentsQuery,
   listCommentsQuery,
   resolveCommentMutation,
   updateCommentMutation,
@@ -21,6 +22,42 @@ import type {
   DocCommentListResult,
   DocCommentReply,
 } from '../types';
+
+type GQLCommentType =
+  ListCommentsQuery['workspace']['comments']['edges'][number]['node'];
+type GQLReplyType = GQLCommentType['replies'][number];
+type GQLUserType = GQLCommentType['user'];
+
+// Helper functions for normalizing backend responses
+const normalizeUser = (user: GQLUserType) => ({
+  id: user.id,
+  name: user.name,
+  avatarUrl: user.avatarUrl,
+});
+
+const normalizeReply = (reply: GQLReplyType): DocCommentReply => ({
+  id: reply.id,
+  content: reply.content as DocCommentContent,
+  createdAt: new Date(reply.createdAt).getTime(),
+  updatedAt: new Date(reply.updatedAt).getTime(),
+  user: normalizeUser(reply.user),
+});
+
+const normalizeComment = (comment: GQLCommentType): DocComment => ({
+  id: comment.id,
+  content: comment.content as DocCommentContent,
+  resolved: comment.resolved,
+  createdAt: new Date(comment.createdAt).getTime(),
+  updatedAt: new Date(comment.updatedAt).getTime(),
+  user: comment.user
+    ? normalizeUser(comment.user)
+    : {
+        id: '',
+        name: '',
+        avatarUrl: '',
+      },
+  replies: comment.replies?.map(normalizeReply) ?? [],
+});
 
 export class DocCommentStore extends Entity<{
   docId: string;
@@ -78,29 +115,7 @@ export class DocCommentStore extends Entity<{
     }
 
     return {
-      comments: comments.edges.map(edge => ({
-        id: edge.node.id,
-        content: edge.node.content as DocCommentContent,
-        resolved: edge.node.resolved,
-        createdAt: new Date(edge.node.createdAt).getTime(),
-        updatedAt: new Date(edge.node.updatedAt).getTime(),
-        user: {
-          id: edge.node.user.id,
-          name: edge.node.user.name,
-          avatarUrl: edge.node.user.avatarUrl,
-        },
-        replies: edge.node.replies.map(reply => ({
-          id: reply.id,
-          content: reply.content as DocCommentContent,
-          createdAt: new Date(reply.createdAt).getTime(),
-          updatedAt: new Date(reply.updatedAt).getTime(),
-          user: {
-            id: reply.user.id,
-            name: reply.user.name,
-            avatarUrl: reply.user.avatarUrl,
-          },
-        })),
-      })),
+      comments: comments.edges.map(edge => normalizeComment(edge.node)),
       hasNextPage: comments.pageInfo.hasNextPage,
       startCursor: comments.pageInfo.startCursor || '',
       endCursor: comments.pageInfo.endCursor || '',
@@ -135,8 +150,9 @@ export class DocCommentStore extends Entity<{
     }
 
     return commentChanges.edges.map(edge => ({
+      id: edge.node.id,
       action: edge.node.action,
-      comment: edge.node.item as DocComment,
+      comment: normalizeComment(edge.node.item),
       commentId: edge.node.commentId || undefined,
     }));
   }
@@ -161,29 +177,7 @@ export class DocCommentStore extends Entity<{
     });
 
     const comment = response.createComment;
-    return {
-      id: comment.id,
-      content: comment.content as DocCommentContent,
-      resolved: comment.resolved,
-      createdAt: new Date(comment.createdAt).getTime(),
-      updatedAt: new Date(comment.updatedAt).getTime(),
-      user: {
-        id: comment.user.id,
-        name: comment.user.name,
-        avatarUrl: comment.user.avatarUrl,
-      },
-      replies: comment.replies.map(reply => ({
-        id: reply.id,
-        content: reply.content as DocCommentContent,
-        createdAt: new Date(reply.createdAt).getTime(),
-        updatedAt: new Date(reply.updatedAt).getTime(),
-        user: {
-          id: reply.user.id,
-          name: reply.user.name,
-          avatarUrl: reply.user.avatarUrl,
-        },
-      })),
-    };
+    return normalizeComment(comment);
   }
 
   async updateComment(
@@ -262,13 +256,7 @@ export class DocCommentStore extends Entity<{
         },
       },
     });
-    return {
-      id: response.createReply.id,
-      content: response.createReply.content as DocCommentContent,
-      createdAt: new Date(response.createReply.createdAt).getTime(),
-      updatedAt: new Date(response.createReply.updatedAt).getTime(),
-      user: response.createReply.user,
-    };
+    return normalizeReply(response.createReply);
   }
 
   async updateReply(

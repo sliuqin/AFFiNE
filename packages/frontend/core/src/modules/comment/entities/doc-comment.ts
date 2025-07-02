@@ -11,6 +11,7 @@ import {
 import { nanoid } from 'nanoid';
 import { catchError, of, Subject, switchMap, tap, timer } from 'rxjs';
 
+import { GlobalContextService } from '../../global-context';
 import type { SnapshotHelper } from '../services/snapshot-helper';
 import type {
   CommentId,
@@ -101,6 +102,10 @@ export class DocCommentEntity extends Entity<{
     this.pendingReply$.setValue(null);
   }
 
+  get docMode$() {
+    return this.framework.get(GlobalContextService).globalContext.docMode.$;
+  }
+
   async commitComment(id: string): Promise<void> {
     const pendingComment = this.pendingComment$.value;
     if (!pendingComment || pendingComment.id !== id) {
@@ -116,6 +121,7 @@ export class DocCommentEntity extends Entity<{
       content: {
         snapshot,
         preview,
+        mode: this.docMode$.value ?? 'page',
       },
     });
     const currentComments = this.comments$.value;
@@ -171,14 +177,12 @@ export class DocCommentEntity extends Entity<{
   async deleteReply(id: string): Promise<void> {
     await this.store.deleteReply(id);
     const currentComments = this.comments$.value;
-    const updatedComments = currentComments.map(comment =>
-      comment.id === id
-        ? {
-            ...comment,
-            replies: comment.replies?.filter(r => r.id !== id),
-          }
-        : comment
-    );
+    const updatedComments = currentComments.map(comment => {
+      return {
+        ...comment,
+        replies: comment.replies?.filter(r => r.id !== id),
+      };
+    });
     this.comments$.setValue(updatedComments);
     this.revalidate();
   }
@@ -203,14 +207,14 @@ export class DocCommentEntity extends Entity<{
     this.revalidate();
   }
 
-  async resolveComment(id: CommentId): Promise<void> {
+  async resolveComment(id: CommentId, resolved: boolean): Promise<void> {
     try {
-      await this.store.resolveComment(id);
+      await this.store.resolveComment(id, resolved);
 
       // Update local state
       const currentComments = this.comments$.value;
       const updatedComments = currentComments.map(comment =>
-        comment.id === id ? { ...comment, resolved: true } : comment
+        comment.id === id ? { ...comment, resolved } : comment
       );
       this.comments$.setValue(updatedComments);
 
@@ -342,7 +346,7 @@ export class DocCommentEntity extends Entity<{
     let commentsUpdated = false;
 
     for (const change of changes) {
-      const { action, comment, commentId } = change;
+      const { id, action, comment, commentId } = change;
 
       if (commentId) {
         // This is a reply change - handle separately
@@ -353,9 +357,7 @@ export class DocCommentEntity extends Entity<{
         switch (action) {
           case 'update': {
             // Update existing comment or add new comment if it doesn't exist
-            const updateIndex = currentComments.findIndex(
-              c => c.id === comment.id
-            );
+            const updateIndex = currentComments.findIndex(c => c.id === id);
             if (updateIndex !== -1) {
               // Update existing comment
               currentComments[updateIndex] = comment;
@@ -370,9 +372,7 @@ export class DocCommentEntity extends Entity<{
 
           case 'delete': {
             // Remove comment
-            const deleteIndex = currentComments.findIndex(
-              c => c.id === comment.id
-            );
+            const deleteIndex = currentComments.findIndex(c => c.id === id);
             if (deleteIndex !== -1) {
               currentComments.splice(deleteIndex, 1);
               commentsUpdated = true;

@@ -65,6 +65,9 @@ export const commentItem = style({
     '&[data-highlighting="true"]': {
       backgroundColor: cssVarV2('block/comment/hanelActive'),
     },
+    '&[data-resolved="true"]': {
+      opacity: 0.5,
+    },
   },
 });
 
@@ -162,6 +165,7 @@ export const commentInputContainer = style({
   alignItems: 'flex-start',
   justifyContent: 'flex-start',
   gap: '4px',
+  paddingLeft: '8px',
 });
 
 export const userName = style({
@@ -173,4 +177,5 @@ export const userName = style({
 export const time = style({
   fontSize: cssVar('fontSm'),
   color: cssVarV2('text/secondary'),
+  fontWeight: '500',
 });

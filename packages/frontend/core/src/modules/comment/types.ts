@@ -1,4 +1,5 @@
 import type { CommentChangeAction, PublicUserType } from '@affine/graphql';
+import type { DocMode } from '@blocksuite/affine/model';
 import type {
   BaseSelection,
   DocSnapshot,
@@ -7,21 +8,8 @@ import type {
 
 export type CommentId = string;
 
-export interface CommentProvider {
-  addComment: (selections: Selection[]) => Promise<void>;
-  resolveComment: (id: CommentId) => Promise<void>;
-  highlightComment: (id: CommentId | null) => void;
-  getComments: () => CommentId[];
-  onCommentAdded: (callback: (id: CommentId) => void) => Disposable;
-  onCommentResolved: (callback: (id: CommentId) => void) => Disposable;
-  onCommentDeleted: (callback: (id: CommentId) => void) => Disposable;
-  onCommentHighlighted: (
-    callback: (id: CommentId | null) => void
-  ) => Disposable;
-}
-
 export interface BaseComment {
-  id: string;
+  id: CommentId;
   content: DocCommentContent;
   createdAt: number;
   updatedAt: number;
@@ -34,17 +22,18 @@ export interface DocComment extends BaseComment {
 }
 
 export type PendingComment = {
-  id: string;
+  id: CommentId;
   doc: Store;
   preview?: string;
   selections?: BaseSelection[];
-  commentId?: string; // only for replies, points to the parent comment
+  commentId?: CommentId; // only for replies, points to the parent comment
 };
 
 export type DocCommentReply = BaseComment;
 
 export type DocCommentContent = {
   snapshot: DocSnapshot; // blocksuite snapshot
+  mode?: DocMode;
   preview?: string; // text preview of the target
 };
 
@@ -58,7 +47,8 @@ export interface DocCommentListResult {
 export interface DocCommentChange {
   action: CommentChangeAction;
   comment: DocComment;
-  commentId?: string; // a change with comment id is a reply
+  id: CommentId; // the id of the comment or reply
+  commentId?: CommentId; // a change with comment id is a reply
 }
 
 export type DocCommentChangeListResult = DocCommentChange[];

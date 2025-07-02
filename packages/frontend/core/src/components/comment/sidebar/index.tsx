@@ -3,6 +3,7 @@ import {
   IconButton,
   Loading,
   Menu,
+  MenuItem,
   useConfirmModal,
 } from '@affine/component';
 import { AuthService } from '@affine/core/modules/cloud/services/auth';
@@ -26,9 +27,56 @@ import { useAsyncCallback } from '../../hooks/affine-async-hooks';
 import { CommentEditor } from '../comment-editor';
 import * as styles from './style.css';
 
-const SortFilterButton = () => {
+interface CommentFilterState {
+  showResolvedComments: boolean;
+  onlyMyReplies: boolean;
+  onlyCurrentMode: boolean;
+}
+
+const SortFilterButton = ({
+  filterState,
+  onFilterChange,
+}: {
+  filterState: CommentFilterState;
+  onFilterChange: (key: keyof CommentFilterState, value: boolean) => void;
+}) => {
+  const t = useI18n();
+
   return (
-    <Menu rootOptions={{ modal: false }} items={[]}>
+    <Menu
+      rootOptions={{ modal: false }}
+      items={
+        <>
+          <MenuItem
+            checked={filterState.showResolvedComments}
+            onSelect={() =>
+              onFilterChange(
+                'showResolvedComments',
+                !filterState.showResolvedComments
+              )
+            }
+          >
+            {t['com.affine.comment.filter.show-resolved']()}
+          </MenuItem>
+          <MenuItem
+            checked={filterState.onlyMyReplies}
+            onSelect={() =>
+              onFilterChange('onlyMyReplies', !filterState.onlyMyReplies)
+            }
+          >
+            {t['com.affine.comment.filter.only-my-replies']()}
+          </MenuItem>
+          <MenuItem
+            checked={filterState.onlyCurrentMode}
+            onSelect={() =>
+              onFilterChange('onlyCurrentMode', !filterState.onlyCurrentMode)
+            }
+          >
+            {t['com.affine.comment.filter.only-current-mode']()}
+          </MenuItem>
+        </>
+      }
+    >
       <IconButton icon={<FilterIcon />} />
     </Menu>
   );
@@ -84,6 +132,9 @@ const CommentItem = ({
 
   const commentRef = useRef<HTMLDivElement>(null);
 
+  // Loading state for any async operation
+  const [isMutating, setIsMutating] = useState(false);
+
   const handleDelete = useAsyncCallback(
     async (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -96,7 +147,12 @@ const CommentItem = ({
           variant: 'error',
         },
         onConfirm: async () => {
-          await entity.deleteComment(comment.id);
+          setIsMutating(true);
+          try {
+            await entity.deleteComment(comment.id);
+          } finally {
+            setIsMutating(false);
+          }
         },
       });
     },
@@ -106,15 +162,25 @@ const CommentItem = ({
   const handleResolve = useAsyncCallback(
     async (e: React.MouseEvent) => {
       e.stopPropagation();
-      await entity.resolveComment(comment.id);
+      setIsMutating(true);
+      try {
+        await entity.resolveComment(comment.id, !comment.resolved);
+      } finally {
+        setIsMutating(false);
+      }
     },
-    [entity, comment.id]
+    [entity, comment.id, comment.resolved]
   );
 
   const handleCommitReply = useAsyncCallback(async () => {
     if (!pendingReply?.id) return;
 
-    await entity.commitReply(pendingReply.id);
+    setIsMutating(true);
+    try {
+      await entity.commitReply(pendingReply.id);
+    } finally {
+      setIsMutating(false);
+    }
   }, [entity, pendingReply]);
 
   const handleCancelReply = useCallback(() => {
@@ -129,12 +195,13 @@ const CommentItem = ({
     workbench.workbench.openDoc(
       {
         docId: entity.props.docId,
+        mode: comment.content.mode,
       },
       {
         show: true,
       }
     );
-  }, [comment.id, entity, workbench.workbench]);
+  }, [comment.id, comment.content.mode, entity, workbench.workbench]);
 
   useEffect(() => {
     const subscription = entity.commentHighlighted$
@@ -143,11 +210,11 @@ const CommentItem = ({
         if (id === comment.id && commentRef.current) {
           commentRef.current.scrollIntoView({ behavior: 'smooth' });
 
-          // Auto-start reply when comment becomes highlighted
-          if (!isReplyingToThisComment) {
+          // Auto-start reply when comment becomes highlighted, but only if not resolved
+          if (!isReplyingToThisComment && !comment.resolved) {
             entity.addReply(comment.id).catch(() => {
               // Handle error if adding reply fails
-              console.error('Failed to add reply');
+              console.error('Failed to add reply for comment:', comment.id);
             });
           }
         } else if (
@@ -165,16 +232,25 @@ const CommentItem = ({
     };
   }, [
     comment.id,
+    comment.resolved,
     entity.commentHighlighted$,
     isReplyingToThisComment,
     pendingReply,
     entity,
   ]);
 
+  // Clean up pending reply if comment becomes resolved
+  useEffect(() => {
+    if (comment.resolved && isReplyingToThisComment && pendingReply) {
+      entity.dismissDraftReply();
+    }
+  }, [comment.resolved, isReplyingToThisComment, pendingReply, entity]);
+
   return (
     <div
       onClick={handleClickPreview}
       data-comment-id={comment.id}
+      data-resolved={comment.resolved}
       data-highlighting={highlighting}
       className={styles.commentItem}
       ref={commentRef}
@@ -184,11 +260,13 @@ const CommentItem = ({
           variant="solid"
           onClick={handleResolve}
           icon={<DoneIcon />}
+          disabled={isMutating}
         />
         <IconButton
           variant="solid"
           onClick={handleDelete}
           icon={<DeleteIcon />}
+          disabled={isMutating}
         />
       </div>
       <div className={styles.previewContainer}>{comment.content.preview}</div>
@@ -215,31 +293,85 @@ const CommentItem = ({
           ))}
       </div>
 
-      {highlighting && isReplyingToThisComment && pendingReply && account && (
-        <div className={styles.commentInputContainer}>
-          <div className={styles.userContainer}>
-            <Avatar url={account.avatar} size={24} />
+      {highlighting &&
+        isReplyingToThisComment &&
+        pendingReply &&
+        account &&
+        !comment.resolved && (
+          <div className={styles.commentInputContainer}>
+            <div className={styles.userContainer}>
+              <Avatar url={account.avatar} size={24} />
+            </div>
+            <CommentEditor
+              autoFocus
+              doc={pendingReply.doc}
+              onCommit={isMutating ? undefined : handleCommitReply}
+              onCancel={isMutating ? undefined : handleCancelReply}
+            />
           </div>
-          <CommentEditor
-            autoFocus
-            doc={pendingReply.doc}
-            onCommit={handleCommitReply}
-            onCancel={handleCancelReply}
-          />
-        </div>
-      )}
+        )}
     </div>
   );
 };
 
 const CommentList = ({ entity }: { entity: DocCommentEntity }) => {
   const comments = useLiveData(entity.comments$);
+  const session = useService(AuthService).session;
+  const account = useLiveData(session.account$);
   const t = useI18n();
 
-  // Sort comments by created date (newest first)
-  const sortedComments = useMemo(() => {
-    return comments.toSorted((a, b) => b.createdAt - a.createdAt);
-  }, [comments]);
+  const docMode = useLiveData(entity.docMode$);
+
+  // Filter state management
+  const [filterState, setFilterState] = useState<CommentFilterState>({
+    showResolvedComments: false,
+    onlyMyReplies: false,
+    onlyCurrentMode: true,
+  });
+
+  const onFilterChange = useCallback(
+    (key: keyof CommentFilterState, value: boolean) => {
+      setFilterState(prev => ({ ...prev, [key]: value }));
+    },
+    []
+  );
+
+  // Filter and sort comments based on filter state
+  const filteredAndSortedComments = useMemo(() => {
+    let filteredComments = comments;
+
+    // Filter by resolved status
+    if (!filterState.showResolvedComments) {
+      filteredComments = filteredComments.filter(comment => !comment.resolved);
+    }
+
+    // Filter by only my replies and mentions
+    if (filterState.onlyMyReplies) {
+      filteredComments = filteredComments.filter(comment => {
+        return (
+          comment.user.id === account?.id ||
+          comment.replies?.some(reply => reply.user.id === account?.id)
+        );
+      });
+    }
+
+    // Filter by only current mode
+    if (filterState.onlyCurrentMode) {
+      filteredComments = filteredComments.filter(comment => {
+        return (
+          !comment.content.mode || !docMode || comment.content.mode === docMode
+        );
+      });
+    }
+    return filteredComments.toSorted((a, b) => b.createdAt - a.createdAt);
+  }, [
+    comments,
+    filterState.showResolvedComments,
+    filterState.onlyMyReplies,
+    filterState.onlyCurrentMode,
+    account?.id,
+    docMode,
+  ]);
 
   const newPendingComment = useLiveData(entity.pendingComment$);
   const loading = useLiveData(entity.loading$);
@@ -250,21 +382,30 @@ const CommentList = ({ entity }: { entity: DocCommentEntity }) => {
         <div className={styles.headerTitle}>
           {t['com.affine.comment.comments']()}
         </div>
-        {sortedComments.length > 0 && <SortFilterButton />}
+        {comments.length > 0 && (
+          <SortFilterButton
+            filterState={filterState}
+            onFilterChange={onFilterChange}
+          />
+        )}
       </div>
       <CommentInput entity={entity} />
-      {sortedComments.length === 0 && !newPendingComment && !loading && (
-        <div className={styles.empty}>
-          {t['com.affine.comment.no-comments']()}
-        </div>
-      )}
-      {loading && sortedComments.length === 0 && !newPendingComment && (
-        <div className={styles.loading}>
-          <Loading size={32} />
-        </div>
-      )}
+      {filteredAndSortedComments.length === 0 &&
+        !newPendingComment &&
+        !loading && (
+          <div className={styles.empty}>
+            {t['com.affine.comment.no-comments']()}
+          </div>
+        )}
+      {loading &&
+        filteredAndSortedComments.length === 0 &&
+        !newPendingComment && (
+          <div className={styles.loading}>
+            <Loading size={32} />
+          </div>
+        )}
       <div className={styles.commentList}>
-        {sortedComments.map(comment => (
+        {filteredAndSortedComments.map(comment => (
           <CommentItem key={comment.id} comment={comment} entity={entity} />
         ))}
       </div>
@@ -276,10 +417,16 @@ const CommentList = ({ entity }: { entity: DocCommentEntity }) => {
 const CommentInput = ({ entity }: { entity: DocCommentEntity }) => {
   const newPendingComment = useLiveData(entity.pendingComment$);
   const pendingPreview = newPendingComment?.preview;
+  const [isMutating, setIsMutating] = useState(false);
 
   const handleCommit = useAsyncCallback(async () => {
     if (!newPendingComment?.id) return;
-    await entity.commitComment(newPendingComment.id);
+    setIsMutating(true);
+    try {
+      await entity.commitComment(newPendingComment.id);
+    } finally {
+      setIsMutating(false);
+    }
   }, [entity, newPendingComment]);
 
   const handleCancel = useCallback(() => {
@@ -296,7 +443,7 @@ const CommentInput = ({ entity }: { entity: DocCommentEntity }) => {
   }
 
   return (
-    <div className={styles.pendingComment}>
+    <div className={styles.pendingComment} data-pending-comment>
       {pendingPreview && (
         <div className={styles.previewContainer}>{pendingPreview}</div>
       )}
@@ -307,8 +454,8 @@ const CommentInput = ({ entity }: { entity: DocCommentEntity }) => {
         <CommentEditor
           autoFocus
           doc={newPendingComment.doc}
-          onCommit={handleCommit}
-          onCancel={handleCancel}
+          onCommit={isMutating ? undefined : handleCommit}
+          onCancel={isMutating ? undefined : handleCancel}
         />
       </div>
     </div>
@@ -362,6 +509,13 @@ export const CommentSidebar = () => {
       const target = event.target as HTMLElement;
       if (!target.closest('[data-comment-id]')) {
         entity?.highlightComment(null);
+      }
+      // if creating a new comment, dismiss the comment input
+      if (
+        entity?.pendingComment$.value &&
+        !target.closest('[data-pending-comment]')
+      ) {
+        entity.dismissDraftComment();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
