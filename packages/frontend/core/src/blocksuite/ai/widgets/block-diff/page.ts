@@ -18,7 +18,11 @@ export const AFFINE_BLOCK_DIFF_WIDGET_FOR_PAGE =
 export class AffineBlockDiffWidgetForPage extends WidgetComponent {
   static override styles = css`
     .ai-block-diff-scroller-container {
-      margin: auto;
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 180px;
+      margin: 0;
       display: flex;
       gap: 4px;
       justify-content: center;

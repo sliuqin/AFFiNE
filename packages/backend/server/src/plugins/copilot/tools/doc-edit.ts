@@ -167,7 +167,7 @@ You should specify the following arguments before the others: [doc_id], [origin_
           },
         ]);
 
-        return { result };
+        return { result, content };
       } catch {
         return 'Failed to apply edit to the doc';
       }

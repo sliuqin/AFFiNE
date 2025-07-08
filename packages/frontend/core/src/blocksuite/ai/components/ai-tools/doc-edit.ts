@@ -11,7 +11,7 @@ import {
   PenIcon as EditIcon,
   PenIcon,
 } from '@blocksuite/icons/lit';
-import { css, html, nothing, type PropertyValues } from 'lit';
+import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 
 import type { BlockDiffService } from '../../services/block-diff';
@@ -37,6 +37,7 @@ interface DocEditToolResult {
   result:
     | {
         result: string;
+        content: string;
       }
     | ToolError
     | null;
@@ -197,9 +198,6 @@ export class DocEditTool extends WithDisposable(ShadowlessElement) {
   @state()
   accessor isCollapsed = false;
 
-  @state()
-  accessor originalMarkdown: string | undefined;
-
   private async _handleApply(markdown: string) {
     if (!this.host) {
       return;
@@ -259,11 +257,8 @@ export class DocEditTool extends WithDisposable(ShadowlessElement) {
     return this.renderRichText(removeMarkdownComments(text));
   }
 
-  renderBlockDiffs(originalMarkdown: string, changedMarkdown: string) {
-    const { patches, oldBlocks } = diffMarkdown(
-      originalMarkdown,
-      changedMarkdown
-    );
+  renderBlockDiffs(diffs: ReturnType<typeof diffMarkdown>) {
+    const { patches, oldBlocks } = diffs;
 
     const oldBlockMap = new Map(oldBlocks.map(b => [b.id, b]));
 
@@ -311,15 +306,18 @@ export class DocEditTool extends WithDisposable(ShadowlessElement) {
   }
 
   renderToolResult() {
-    if (this.data.type !== 'tool-result' || !this.originalMarkdown) {
+    if (this.data.type !== 'tool-result') {
       return nothing;
     }
 
     const result = this.data.result;
 
-    if (result && 'result' in result) {
-      const changedMarkdown = result.result;
+    if (result && 'result' in result && 'content' in result) {
+      const { result: changedMarkdown, content } = result;
       const { instructions, doc_id: docId } = this.data.args;
+
+      const diffs = diffMarkdown(content, changedMarkdown);
+
       return html`
         <div class="doc-edit-tool-result-wrapper">
           <div class="doc-edit-tool-result-title">${instructions}</div>
@@ -351,7 +349,7 @@ export class DocEditTool extends WithDisposable(ShadowlessElement) {
             </div>
             <div class="doc-edit-tool-result-card-content">
               <div class="doc-edit-tool-result-card-content-title">
-                ${this.renderBlockDiffs(this.originalMarkdown, changedMarkdown)}
+                ${this.renderBlockDiffs(diffs)}
               </div>
             </div>
             <div class="doc-edit-tool-result-card-footer">
@@ -385,21 +383,6 @@ export class DocEditTool extends WithDisposable(ShadowlessElement) {
         .icon=${EditIcon()}
       ></tool-call-failed>
     `;
-  }
-
-  protected override firstUpdated(_changedProperties: PropertyValues): void {
-    super.firstUpdated(_changedProperties);
-    if (!this.host) {
-      return;
-    }
-    this.blockDiffService
-      ?.getMarkdownFromDoc(this.host.store)
-      .then(markdown => {
-        this.originalMarkdown = markdown;
-      })
-      .catch(() => {
-        // TODO: handle error
-      });
   }
 
   protected override render() {

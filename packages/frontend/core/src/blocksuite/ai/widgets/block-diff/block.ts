@@ -31,8 +31,22 @@ export class AffineBlockDiffWidgetForBlock extends WidgetComponent {
       margin: 0;
       background: transparent;
     }
+    .ai-block-diff,
+    .ai-block-diff.delete,
+    .ai-block-diff.update,
+    .ai-block-diff.insert {
+      pointer-events: auto;
+    }
+    .diff-options {
+      visibility: hidden;
+    }
+    .ai-block-diff:hover .diff-options,
+    .ai-block-diff.delete:hover .diff-options,
+    .ai-block-diff.update:hover .diff-options,
+    .ai-block-diff.insert:hover .diff-options {
+      visibility: visible;
+    }
   `;
-
   private _setDeletedStyle(blockId: string) {
     const deleted = document.querySelector<HTMLDivElement>(
       `[data-block-id="${blockId}"]`
@@ -59,12 +73,11 @@ export class AffineBlockDiffWidgetForBlock extends WidgetComponent {
     }
 
     this._setDeletedStyle(blockId);
+    const diffId = `delete-${blockId}`;
 
-    return html`<div
-      class="ai-block-diff delete"
-      data-diff-id=${`delete-${blockId}`}
-    >
+    return html`<div class="ai-block-diff delete" data-diff-id=${diffId}>
       <ai-block-diff-options
+        class="diff-options"
         .onAccept=${() =>
           this.diffService.accept(
             { type: 'delete', payload: { id: blockId } },
@@ -79,12 +92,10 @@ export class AffineBlockDiffWidgetForBlock extends WidgetComponent {
   private _renderInsert(from: string, blocks: Block[]) {
     return blocks
       .map((block, offset) => {
+        const diffId = `insert-${block.id}-${offset}`;
         return this.diffService.isRejected('insert', `${from}:${offset}`)
           ? null
-          : html`<div
-              class="ai-block-diff insert"
-              data-diff-id=${`insert-${block.id}-${offset}`}
-            >
+          : html`<div class="ai-block-diff insert" data-diff-id=${diffId}>
               <chat-content-rich-text
                 .text=${block.content}
                 .host=${this.host}
@@ -92,6 +103,7 @@ export class AffineBlockDiffWidgetForBlock extends WidgetComponent {
                 .extensions=${this.userExtensions}
               ></chat-content-rich-text>
               <ai-block-diff-options
+                class="diff-options"
                 .onAccept=${() =>
                   this.diffService.accept(
                     {
@@ -115,9 +127,9 @@ export class AffineBlockDiffWidgetForBlock extends WidgetComponent {
     if (this.diffService.isRejected('update', blockId)) {
       return nothing;
     }
-
+    const diffId = `update-${blockId}`;
     return html`
-      <div class="ai-block-diff update" data-diff-id=${`update-${blockId}`}>
+      <div class="ai-block-diff update" data-diff-id=${diffId}>
         <chat-content-rich-text
           .text=${content}
           .host=${this.host}
@@ -125,6 +137,7 @@ export class AffineBlockDiffWidgetForBlock extends WidgetComponent {
           .extensions=${this.userExtensions}
         ></chat-content-rich-text>
         <ai-block-diff-options
+          class="diff-options"
           .onAccept=${() =>
             this.diffService.accept(
               {
