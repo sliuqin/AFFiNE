@@ -264,7 +264,7 @@ export class BlockDiffService extends Extension implements BlockDiffProvider {
         }
         for (const [offset, block] of blocks.entries()) {
           await applyPatchToDoc(doc, [
-            { op: 'insert', index: baseIndex + offset, block },
+            { op: 'insert', index: baseIndex + offset, after: from, block },
           ]);
         }
       }
@@ -301,7 +301,12 @@ export class BlockDiffService extends Extension implements BlockDiffProvider {
           baseIndex = this.getBlockIndexById(doc, payload.from) + 1;
         }
         await applyPatchToDoc(doc, [
-          { op: 'insert', index: baseIndex + payload.offset, block },
+          {
+            op: 'insert',
+            index: baseIndex + payload.offset,
+            after: payload.from,
+            block,
+          },
         ]);
         break;
       }

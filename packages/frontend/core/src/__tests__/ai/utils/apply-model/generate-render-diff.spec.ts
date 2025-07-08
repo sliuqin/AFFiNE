@@ -334,4 +334,58 @@ Inserted at tail.
       updates: {},
     });
   });
+
+  test('should handle interval insertions & deletions', () => {
+    const oldMd = `
+<!-- block_id=block-001 flavour=title -->
+# 1
+
+<!-- block_id=block-002 flavour=paragraph -->
+2
+
+<!-- block_id=block-003 flavour=paragraph -->
+3
+
+<!-- block_id=block-004 flavour=paragraph -->
+4
+
+<!-- block_id=block-005 flavour=paragraph -->
+5
+`;
+    const newMd = `
+<!-- block_id=block-001 flavour=title -->
+# 1
+
+<!-- block_id=block-002 flavour=paragraph -->
+2
+
+<!-- block_id=block-004 flavour=paragraph -->
+4
+
+<!-- block_id=block-006 flavour=paragraph -->
+6
+
+<!-- block_id=block-007 flavour=paragraph -->
+7
+`;
+    const diff = generateRenderDiff(oldMd, newMd);
+    expect(diff).toEqual({
+      deletes: ['block-003', 'block-005'],
+      inserts: {
+        'block-004': [
+          {
+            id: 'block-006',
+            type: 'paragraph',
+            content: '6',
+          },
+          {
+            id: 'block-007',
+            type: 'paragraph',
+            content: '7',
+          },
+        ],
+      },
+      updates: {},
+    });
+  });
 });

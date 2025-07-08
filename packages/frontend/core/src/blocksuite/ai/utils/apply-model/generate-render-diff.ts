@@ -22,50 +22,57 @@ export interface RenderDiffs {
  *
  *   <!-- block_id=004 flavour=paragraph -->
  *   This is the fourth paragraph
+ *
+ *   <!-- block_id=005 flavour=paragraph -->
+ *   This is the fifth paragraph
  * ```
  *
  * New markdown:
  * ```md
  *   <!-- block_id=001 flavour=paragraph -->
- *   This is the first paragraph
+ *   This is the 1st paragraph
  *
- *   <!-- block_id=003 flavour=paragraph -->
- *   This is the 3rd paragraph
+ *   <!-- block_id=002 flavour=paragraph -->
+ *   This is the second paragraph
  *
- *   <!-- block_id=005 flavour=paragraph -->
- *   New inserted paragraph 1
+ *   <!-- block_id=004 flavour=paragraph -->
+ *   This is the fourth paragraph
  *
  *   <!-- block_id=006 flavour=paragraph -->
+ *   New inserted paragraph 1
+ *
+ *   <!-- block_id=007 flavour=paragraph -->
  *   New inserted paragraph 2
  * ```
  *
  * The generated patches:
  * ```js
  *   [
- *     { op: 'insert', index: 2, block: { id: '005', ... } },
- *     { op: 'insert', index: 3, bthirdlock: { id: '006', ... } },
- *     { op: 'update', id: '003', content: 'This is the 3rd paragraph' },
- *     { op: 'delete', id: '002' },
- *     { op: 'delete', id: '004' }
+ *     { op: 'insert', index: 3, after: '004', block: { id: '006', ... } },
+ *     { op: 'insert', index: 4, after: '006', block: { id: '007', ... } },
+ *     { op: 'update', id: '001', content: 'This is the 1st paragraph' },
+ *     { op: 'delete', id: '003' },
+ *     { op: 'delete', id: '005' }
  *   ]
  * ```
  *
  * UI expected:
  * ```
- * This is the first paragraph
- * [DELETE DIFF] This is the second paragraph
- * This is the third paragraph
- * [DELETE DIFF] This is the fourth paragraph
+ * [UPDATE DIFF]This is the first paragraph
+ * This is the second paragraph
+ * [DELETE DIFF]This is the third paragraph
+ * This is the fourth paragraph
  * [INSERT DIFF] New inserted paragraph 1
  * [INSERT DIFF] New inserted paragraph 2
+ * [DELETE DIFF] This is the fifth paragraph
  * ```
  *
  * The resulting diffMap:
  * ```js
  *   {
- *     deletes: ['002', '004'],
- *     inserts: { 3: [block_005, block_006] },
- *     updates: {}
+ *     deletes: ['003', '005'],
+ *     inserts: { '004': [block_006, block_007] },
+ *     updates: { '001': 'This is the 1st paragraph' }
  *   }
  * ```
  */
@@ -73,29 +80,13 @@ export function generateRenderDiff(
   originalMarkdown: string,
   changedMarkdown: string
 ) {
-  const { patches, oldBlocks } = diffMarkdown(
-    originalMarkdown,
-    changedMarkdown
-  );
+  const { patches } = diffMarkdown(originalMarkdown, changedMarkdown);
 
   const diffMap: RenderDiffs = {
     deletes: [],
     inserts: {},
     updates: {},
   };
-
-  const indexToBlockId: Record<number, string> = {};
-  oldBlocks.forEach((block, idx) => {
-    indexToBlockId[idx] = block.id;
-  });
-
-  function getPrevBlock(index: number) {
-    let start = index - 1;
-    while (!indexToBlockId[start] && start >= 0) {
-      start--;
-    }
-    return indexToBlockId[start] || 'HEAD';
-  }
 
   const insertGroups: Record<string, Block[]> = {};
   let lastInsertKey: string | null = null;
@@ -107,7 +98,7 @@ export function generateRenderDiff(
         diffMap.deletes.push(patch.id);
         break;
       case 'insert': {
-        const prevBlockId = getPrevBlock(patch.index);
+        const prevBlockId = patch.after;
         if (
           lastInsertKey !== null &&
           lastInsertIndex !== null &&

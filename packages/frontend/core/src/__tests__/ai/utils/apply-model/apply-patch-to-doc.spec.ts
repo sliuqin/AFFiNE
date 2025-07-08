@@ -87,6 +87,7 @@ describe('applyPatchToDoc', () => {
       {
         op: 'insert',
         index: 2,
+        after: 'paragraph-1',
         block: {
           id: 'paragraph-3',
           type: 'affine:paragraph',
