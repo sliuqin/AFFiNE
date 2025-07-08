@@ -21,6 +21,7 @@ This is a new paragraph.
       {
         op: 'insert',
         index: 1,
+        after: 'block-001',
         block: {
           id: 'block-002',
           type: 'paragraph',
@@ -104,6 +105,7 @@ New paragraph.
       {
         op: 'insert',
         index: 2,
+        after: 'block-002',
         block: {
           id: 'block-004',
           type: 'paragraph',
@@ -138,6 +140,7 @@ Second inserted paragraph.
       {
         op: 'insert',
         index: 1,
+        after: 'block-001',
         block: {
           id: 'block-002',
           type: 'paragraph',
@@ -147,6 +150,7 @@ Second inserted paragraph.
       {
         op: 'insert',
         index: 2,
+        after: 'block-002',
         block: {
           id: 'block-003',
           type: 'paragraph',
@@ -213,6 +217,7 @@ This is a new paragraph inserted after deletion.
       {
         op: 'insert',
         index: 2,
+        after: 'block-003',
         block: {
           id: 'block-004',
           type: 'paragraph',
@@ -222,6 +227,74 @@ This is a new paragraph inserted after deletion.
       {
         op: 'delete',
         id: 'block-002',
+      },
+    ]);
+  });
+
+  test('should diff deletion followed by insertion at the same position', () => {
+    // A block is deleted and a new block is inserted at the end
+    const oldMd = `
+<!-- block_id=block-001 flavour=title -->
+# 1
+
+<!-- block_id=block-002 flavour=paragraph -->
+2
+
+<!-- block_id=block-003 flavour=paragraph -->
+3
+
+<!-- block_id=block-004 flavour=paragraph -->
+4
+
+<!-- block_id=block-005 flavour=paragraph -->
+5
+`;
+
+    const newMd = `
+<!-- block_id=block-001 flavour=title -->
+# 1
+
+<!-- block_id=block-002 flavour=paragraph -->
+2
+
+<!-- block_id=block-004 flavour=paragraph -->
+4
+
+<!-- block_id=block-006 flavour=paragraph -->
+6
+
+<!-- block_id=block-007 flavour=paragraph -->
+7
+`;
+    const { patches } = diffMarkdown(oldMd, newMd);
+    expect(patches).toEqual([
+      {
+        op: 'insert',
+        index: 3,
+        after: 'block-004',
+        block: {
+          id: 'block-006',
+          type: 'paragraph',
+          content: '6',
+        },
+      },
+      {
+        op: 'insert',
+        index: 4,
+        after: 'block-006',
+        block: {
+          id: 'block-007',
+          type: 'paragraph',
+          content: '7',
+        },
+      },
+      {
+        op: 'delete',
+        id: 'block-003',
+      },
+      {
+        op: 'delete',
+        id: 'block-005',
       },
     ]);
   });

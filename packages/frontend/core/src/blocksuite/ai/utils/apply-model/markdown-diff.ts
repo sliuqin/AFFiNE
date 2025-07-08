@@ -7,7 +7,7 @@ export type Block = {
 export type PatchOp =
   | { op: 'replace'; id: string; content: string }
   | { op: 'delete'; id: string }
-  | { op: 'insert'; index: number; block: Block };
+  | { op: 'insert'; index: number; after: string; block: Block };
 
 const BLOCK_MATCH_REGEXP = /^\s*<!--\s*block_id=(.*?)\s+flavour=(.*?)\s*-->/;
 
@@ -61,7 +61,6 @@ function diffBlockLists(oldBlocks: Block[], newBlocks: Block[]): PatchOp[] {
   // Mark old blocks that have been handled
   const handledOld = new Set<string>();
 
-  // First process newBlocks in order
   newBlocks.forEach((newBlock, newIdx) => {
     const old = oldMap.get(newBlock.id);
     if (old) {
@@ -74,9 +73,11 @@ function diffBlockLists(oldBlocks: Block[], newBlocks: Block[]): PatchOp[] {
         });
       }
     } else {
+      const after = newIdx > 0 ? newBlocks[newIdx - 1].id : 'HEAD';
       patch.push({
         op: 'insert',
         index: newIdx,
+        after,
         block: {
           id: newBlock.id,
           type: newBlock.type,
