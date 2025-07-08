@@ -7,7 +7,7 @@ COPY ./packages/frontend/apps/mobile/dist /app/static/mobile
 WORKDIR /app
 
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends openssl libjemalloc2 && \
+  apt-get install -y --no-install-recommends openssl libjemalloc2 procps && \
   rm -rf /var/lib/apt/lists/*
 
 # Enable jemalloc by preloading the library

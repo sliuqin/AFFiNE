@@ -30,6 +30,10 @@ resources:
   requests:
     cpu: '2'
     memory: 2Gi
+    ephemeral-storage: 2Gi
+  limits:
+    # allow create core dump file
+    ephemeral-storage: 2Gi
 
 probe:
   initialDelaySeconds: 20

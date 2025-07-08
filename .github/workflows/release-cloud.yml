@@ -64,3 +64,6 @@ jobs:
           AFFINE_INDEXER_SEARCH_PROVIDER: ${{ secrets.AFFINE_INDEXER_SEARCH_PROVIDER }}
           AFFINE_INDEXER_SEARCH_ENDPOINT: ${{ secrets.AFFINE_INDEXER_SEARCH_ENDPOINT }}
           AFFINE_INDEXER_SEARCH_API_KEY: ${{ secrets.AFFINE_INDEXER_SEARCH_API_KEY }}
+          EZM_SERVER: ${{ secrets.EZM_SERVER }}
+          EZM_APP_ID: ${{ secrets.EZM_APP_ID }}
+          EZM_APP_SECRET: ${{ secrets.EZM_APP_SECRET }}

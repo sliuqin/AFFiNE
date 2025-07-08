@@ -19,6 +19,9 @@ const {
   AFFINE_INDEXER_SEARCH_PROVIDER,
   AFFINE_INDEXER_SEARCH_ENDPOINT,
   AFFINE_INDEXER_SEARCH_API_KEY,
+  EZM_SERVER,
+  EZM_APP_ID,
+  EZM_APP_SECRET,
 } = process.env;
 
 const buildType = BUILD_TYPE || 'canary';
@@ -89,6 +92,14 @@ const createHelmCommand = ({ isDryRun }) => {
     `--set-string global.indexer.endpoint="${AFFINE_INDEXER_SEARCH_ENDPOINT}"`,
     `--set-string global.indexer.apiKey="${AFFINE_INDEXER_SEARCH_API_KEY}"`,
   ];
+  const ezmOptions =
+    EZM_SERVER && EZM_APP_ID && EZM_APP_SECRET
+      ? [
+          `--set-string global.ezm.server="${EZM_SERVER}"`,
+          `--set-string global.ezm.appId="${EZM_APP_ID}"`,
+          `--set-string global.ezm.appSecret="${EZM_APP_SECRET}"`,
+        ]
+      : [];
   const serviceAnnotations = [
     `--set-json   web.serviceAccount.annotations="{ \\"iam.gke.io/gcp-service-account\\": \\"${APP_IAM_ACCOUNT}\\" }"`,
     `--set-json   graphql.serviceAccount.annotations="{ \\"iam.gke.io/gcp-service-account\\": \\"${APP_IAM_ACCOUNT}\\" }"`,
@@ -144,6 +155,7 @@ const createHelmCommand = ({ isDryRun }) => {
     `--set-string global.version="${APP_VERSION}"`,
     ...redisAndPostgres,
     ...indexerOptions,
+    ...ezmOptions,
     `--set        web.replicaCount=${replica.web}`,
     `--set-string web.image.tag="${imageTag}"`,
     `--set        graphql.replicaCount=${replica.graphql}`,

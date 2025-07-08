@@ -32,6 +32,10 @@ global:
     endpoint: ''
     username: ''
     password: ''
+  ezm:
+    appId: ''
+    appSecret: ''
+    server: ''
   docService:
     name: 'affine-doc'
     port: 3020

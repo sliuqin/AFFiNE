@@ -76,6 +76,17 @@ spec:
               secretKeyRef:
                 name: indexer
                 key: indexer-apiKey
+          {{- if .Values.global.ezm.server }}
+          - name: EZM_SERVER
+            value: "{{ .Values.global.ezm.server }}"
+          - name: EZM_APP_ID
+            value: "{{ .Values.global.ezm.appId }}"
+          - name: EZM_APP_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: ezm
+                key: ezm-appSecret
+          {{- end }}
           - name: AFFINE_SERVER_PORT
             value: "{{ .Values.service.port }}"
           - name: AFFINE_SERVER_SUB_PATH
