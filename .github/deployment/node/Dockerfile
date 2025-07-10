@@ -7,10 +7,10 @@ COPY ./packages/frontend/apps/mobile/dist /app/static/mobile
 WORKDIR /app
 
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends openssl libjemalloc2 procps && \
+  apt-get install -y --no-install-recommends openssl libmimalloc-dev procps && \
   rm -rf /var/lib/apt/lists/*
 
-# Enable jemalloc by preloading the library
-ENV LD_PRELOAD=libjemalloc.so.2
+# Enable mimalloc by preloading the library
+ENV LD_PRELOAD=libmimalloc.so
 
 CMD ["node", "./dist/main.js"]
