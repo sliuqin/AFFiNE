@@ -1,0 +1,9 @@
+query listDocMetas($workspaceId: String!, $docIds: [String!]!) {
+  workspace(id: $workspaceId) {
+    docMetas(docIds: $docIds) {
+      id
+      title
+      summary
+    }
+  }
+}

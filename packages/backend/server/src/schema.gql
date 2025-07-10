@@ -532,6 +532,13 @@ type DocHistoryType {
   workspaceId: String!
 }
 
+type DocMetaType {
+  id: String!
+  summary: String
+  title: String
+  workspaceId: String!
+}
+
 """Doc mode"""
 enum DocMode {
   edgeless
@@ -2208,6 +2215,9 @@ type WorkspaceType {
 
   """Get get with given id"""
   doc(docId: String!): DocType!
+
+  """Get docs metas of a workspace"""
+  docMetas(docIds: [String!]!): [DocMetaType!]!
   docs(pagination: PaginationInput!): PaginatedDocType!
   embedding: CopilotWorkspaceConfig!
 

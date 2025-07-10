@@ -1277,6 +1277,20 @@ export const deleteWorkspaceMutation = {
 }`,
 };
 
+export const listDocMetasQuery = {
+  id: 'listDocMetasQuery' as const,
+  op: 'listDocMetas',
+  query: `query listDocMetas($workspaceId: String!, $docIds: [String!]!) {
+  workspace(id: $workspaceId) {
+    docMetas(docIds: $docIds) {
+      id
+      title
+      summary
+    }
+  }
+}`,
+};
+
 export const getDocRolePermissionsQuery = {
   id: 'getDocRolePermissionsQuery' as const,
   op: 'getDocRolePermissions',

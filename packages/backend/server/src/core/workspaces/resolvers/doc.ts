@@ -81,6 +81,20 @@ class DocType {
   title?: string | null;
 }
 
+@ObjectType()
+class DocMetaType {
+  @Field(() => String, { name: 'id' })
+  docId!: string;
+
+  @Field()
+  workspaceId!: string;
+
+  @Field(() => String, { nullable: true })
+  title!: string | null;
+
+  @Field(() => String, { nullable: true })
+  summary!: string | null;
+}
 @InputType()
 class GrantDocUserRolesInput {
   @Field(() => String)
@@ -315,6 +329,36 @@ export class WorkspaceDocResolver {
     };
   }
 
+  @ResolveField(() => [DocMetaType], {
+    description: 'Get docs metas of a workspace',
+    complexity: 2,
+  })
+  async docMetas(
+    @CurrentUser() me: CurrentUser,
+    @Parent() workspace: WorkspaceType,
+    @Args('docIds', { type: () => [String] }) docIds: string[]
+  ): Promise<DocMetaType[]> {
+    const rows = await this.models.doc.findMetas(
+      docIds.map(docId => ({ workspaceId: workspace.id, docId })),
+      {
+        select: {
+          title: true,
+          summary: true,
+        },
+      }
+    );
+    // return readable docs
+    const docs = await this.ac
+      .user(me.id)
+      .workspace(workspace.id)
+      .docs(
+        rows.filter(row => row !== null),
+        'Doc.Read'
+      );
+
+    return docs;
+  }
+
   @Mutation(() => DocType, {
     deprecationReason: 'use publishDoc instead',
   })
@@ -508,6 +552,7 @@ export class DocResolver {
       updatedBy: metadata.updatedByUser || null,
     };
   }
+
   @ResolveField(() => DocPermissions)
   async permissions(
     @CurrentUser() user: CurrentUser,

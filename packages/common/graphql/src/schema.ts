@@ -641,6 +641,14 @@ export interface DocHistoryType {
   workspaceId: Scalars['String']['output'];
 }
 
+export interface DocMetaType {
+  __typename?: 'DocMetaType';
+  id: Scalars['String']['output'];
+  summary: Maybe<Scalars['String']['output']>;
+  title: Maybe<Scalars['String']['output']>;
+  workspaceId: Scalars['String']['output'];
+}
+
 /** Doc mode */
 export enum DocMode {
   edgeless = 'edgeless',
@@ -2820,6 +2828,8 @@ export interface WorkspaceType {
   createdAt: Scalars['DateTime']['output'];
   /** Get get with given id */
   doc: DocType;
+  /** Get docs metas of a workspace */
+  docMetas: Array<DocMetaType>;
   docs: PaginatedDocType;
   embedding: CopilotWorkspaceConfig;
   /** Enable AI */
@@ -2895,6 +2905,10 @@ export interface WorkspaceTypeCommentsArgs {
 
 export interface WorkspaceTypeDocArgs {
   docId: Scalars['String']['input'];
+}
+
+export interface WorkspaceTypeDocMetasArgs {
+  docIds: Array<Scalars['String']['input']>;
 }
 
 export interface WorkspaceTypeDocsArgs {
@@ -4678,6 +4692,24 @@ export type DeleteWorkspaceMutation = {
   deleteWorkspace: boolean;
 };
 
+export type ListDocMetasQueryVariables = Exact<{
+  workspaceId: Scalars['String']['input'];
+  docIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+export type ListDocMetasQuery = {
+  __typename?: 'Query';
+  workspace: {
+    __typename?: 'WorkspaceType';
+    docMetas: Array<{
+      __typename?: 'DocMetaType';
+      id: string;
+      title: string | null;
+      summary: string | null;
+    }>;
+  };
+};
+
 export type GetDocRolePermissionsQueryVariables = Exact<{
   workspaceId: Scalars['String']['input'];
   docId: Scalars['String']['input'];
@@ -6229,6 +6261,11 @@ export type Queries =
       name: 'getWorkspaceEmbeddingIgnoredDocsQuery';
       variables: GetWorkspaceEmbeddingIgnoredDocsQueryVariables;
       response: GetWorkspaceEmbeddingIgnoredDocsQuery;
+    }
+  | {
+      name: 'listDocMetasQuery';
+      variables: ListDocMetasQueryVariables;
+      response: ListDocMetasQuery;
     }
   | {
       name: 'getDocRolePermissionsQuery';
