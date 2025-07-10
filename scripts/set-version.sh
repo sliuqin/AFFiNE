@@ -108,4 +108,5 @@ update_app_version_in_helm_charts ".github/helm/affine/charts/doc/Chart.yaml" "$
 
 update_app_stream_version "packages/frontend/apps/electron/resources/affine.metainfo.xml" "$new_version"
 
-update_ios_marketing_version "packages/frontend/apps/ios/App/App.xcodeproj/project.pbxproj" "$new_version"
+# Disable iOS version update temporarily, add it back when iOS version and affine version are unified
+# update_ios_marketing_version "packages/frontend/apps/ios/App/App.xcodeproj/project.pbxproj" "$new_version"
