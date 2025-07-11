@@ -13,16 +13,21 @@ export class MonitorService {
     this.logger.log(
       `memory usage: rss: ${memoryUsage.rss}, heapTotal: ${memoryUsage.heapTotal}, heapUsed: ${memoryUsage.heapUsed}, external: ${memoryUsage.external}, arrayBuffers: ${memoryUsage.arrayBuffers}`
     );
-    metrics.process.gauge('node_process_rss').record(memoryUsage.rss);
+    const attrs = {
+      flavor: env.FLAVOR,
+    };
+    metrics.process.gauge('node_process_rss').record(memoryUsage.rss, attrs);
     metrics.process
       .gauge('node_process_heap_total')
-      .record(memoryUsage.heapTotal);
+      .record(memoryUsage.heapTotal, attrs);
     metrics.process
       .gauge('node_process_heap_used')
-      .record(memoryUsage.heapUsed);
-    metrics.process.gauge('node_process_external').record(memoryUsage.external);
+      .record(memoryUsage.heapUsed, attrs);
+    metrics.process
+      .gauge('node_process_external')
+      .record(memoryUsage.external, attrs);
     metrics.process
       .gauge('node_process_array_buffers')
-      .record(memoryUsage.arrayBuffers);
+      .record(memoryUsage.arrayBuffers, attrs);
   }
 }
