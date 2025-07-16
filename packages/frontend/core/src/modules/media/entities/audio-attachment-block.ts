@@ -135,14 +135,11 @@ export class AudioAttachmentBlock extends Entity<AttachmentBlockModel> {
         if (!buffer) {
           throw new Error('No audio buffer available');
         }
-        const slices = await encodeAudioBlobToOpusSlices(buffer, 64000);
-        const files = slices.map((slice, index) => {
-          const blob = new Blob([slice], { type: 'audio/opus' });
-          return new File([blob], this.props.props.name + `-${index}.opus`, {
-            type: 'audio/opus',
-          });
-        });
-        return files;
+        return [
+          new File([buffer], this.props.props.name + '.mp3', {
+            type: 'audio/mpeg',
+          }),
+        ];
       },
     });
 
