@@ -287,7 +287,6 @@ export class AffineReference extends WithDisposable(ShadowlessElement) {
       class="affine-reference"
       style=${styleMap(style)}
       @click=${(event: MouseEvent) => this.open({ event })}
-      @auxclick=${(event: MouseEvent) => this.open({ event })}
       >${content}<v-text .str=${ZERO_WIDTH_FOR_EMBED_NODE}></v-text
     ></span>`;
   }
