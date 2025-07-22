@@ -45,6 +45,9 @@ const DEFAULT_CHAT_CONTEXT_VALUE: ChatContextValue = {
   status: 'idle',
   error: null,
   markdown: '',
+  attachments: [],
+  snapshot: null,
+  markdownFile: null,
 };
 
 export class AIChatContent extends SignalWatcher(

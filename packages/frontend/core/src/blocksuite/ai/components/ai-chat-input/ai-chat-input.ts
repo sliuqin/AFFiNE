@@ -338,7 +338,13 @@ export class AIChatInput extends SignalWatcher(
   accessor addImages!: (images: File[]) => void;
 
   @property({ attribute: false })
-  accessor addChip!: (chip: ChatChip) => Promise<void>;
+  accessor addChip!: (chip: ChatChip, silent?: boolean) => Promise<void>;
+
+  @property({ attribute: false })
+  accessor removeSelectedContextChips!: () => Promise<void>;
+
+  @property({ attribute: false })
+  accessor waitForSelectedContextChipsFinished!: () => Promise<void>;
 
   @property({ attribute: false })
   accessor networkSearchConfig!: AINetworkSearchConfig;
@@ -603,9 +609,47 @@ export class AIChatInput extends SignalWatcher(
     this.modelId = modelId;
   };
 
+  private readonly addSelectedContextChips = async () => {
+    const { snapshot, markdownFile, attachments } = this.chatContextValue;
+    await this.removeSelectedContextChips();
+    for (const attachment of attachments) {
+      await this.addChip(
+        {
+          file: attachment,
+          state: 'processing',
+          isSelectedContext: true,
+        },
+        true
+      );
+      if (snapshot) {
+        await this.addChip(
+          {
+            file: snapshot,
+            state: 'processing',
+            isSelectedContext: true,
+          },
+          true
+        );
+      }
+      if (markdownFile) {
+        await this.addChip(
+          {
+            file: markdownFile,
+            state: 'processing',
+            isSelectedContext: true,
+          },
+          true
+        );
+      }
+    }
+    await this.waitForSelectedContextChipsFinished();
+  };
+
   send = async (text: string) => {
     try {
       const { status, markdown, images } = this.chatContextValue;
+      await this.addSelectedContextChips();
+
       if (status === 'loading' || status === 'transmitting') return;
       if (!text) return;
       if (!AIProvider.actions.chat) return;
@@ -620,13 +664,13 @@ export class AIChatInput extends SignalWatcher(
         abortController,
       });
 
-      const attachments = await Promise.all(
+      const imageAttachments = await Promise.all(
         images?.map(image => readBlobAsURL(image))
       );
       const userInput = (markdown ? `${markdown}\n` : '') + text;
 
       // optimistic update messages
-      await this._preUpdateMessages(userInput, attachments);
+      await this._preUpdateMessages(userInput, imageAttachments);
 
       const sessionId = (await this.createSession())?.sessionId;
       let contexts = await this._getMatchedContexts();

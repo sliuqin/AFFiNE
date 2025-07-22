@@ -32,6 +32,7 @@ import {
   isCollectionChip,
   isDocChip,
   isFileChip,
+  isSelectedContextChip,
   isTagChip,
   omitChip,
 } from '../ai-chat-chips';
@@ -157,6 +158,8 @@ export class AIChatComposer extends SignalWatcher(
         .session=${this.session}
         .chips=${this.chips}
         .addChip=${this.addChip}
+        .removeSelectedContextChips=${this.removeSelectedContextChips} 
+        .waitForSelectedContextChipsFinished=${this.waitForSelectedContextChipsFinished}
         .addImages=${this.addImages}
         .createSession=${this.createSession}
         .chatContextValue=${this.chatContextValue}
@@ -329,12 +332,17 @@ export class AIChatComposer extends SignalWatcher(
     ]);
   };
 
-  private readonly addChip = async (chip: ChatChip) => {
+  private readonly addChip = async (
+    chip: ChatChip,
+    silent: boolean = false
+  ) => {
     this.isChipsCollapsed = false;
     // if already exists
     const index = findChipIndex(this.chips, chip);
     if (index !== -1) {
-      this.notificationService.toast('chip already exists');
+      if (!silent) {
+        this.notificationService.toast('chip already exists');
+      }
       return;
     }
     this.updateChips([...this.chips, chip]);
@@ -346,6 +354,15 @@ export class AIChatComposer extends SignalWatcher(
     const chips = omitChip(this.chips, chip);
     this.updateChips(chips);
     await this.removeFromContext(chip);
+  };
+
+  private readonly removeSelectedContextChips = async () => {
+    const selectedContextChips = this.chips.filter(c =>
+      isSelectedContextChip(c)
+    );
+    for (const chip of selectedContextChips) {
+      await this.removeChip(chip);
+    }
   };
 
   private readonly addToContext = async (chip: ChatChip) => {
@@ -638,5 +655,28 @@ export class AIChatComposer extends SignalWatcher(
       await this.pollContextDocsAndFiles();
     }
     await this.pollEmbeddingStatus();
+  };
+
+  private readonly waitForSelectedContextChipsFinished = async (
+    timeout = 10000,
+    interval = 500
+  ): Promise<void> => {
+    const start = Date.now();
+    return new Promise((resolve, reject) => {
+      const check = () => {
+        const selectedChips = this.chips.filter(c => isSelectedContextChip(c));
+        const allFinished = selectedChips.every(c => c.state === 'finished');
+        if (allFinished) {
+          resolve();
+        } else if (Date.now() - start >= timeout) {
+          reject(
+            new Error('Timeout waiting for selected context chips to finish')
+          );
+        } else {
+          setTimeout(check, interval);
+        }
+      };
+      check();
+    });
   };
 }

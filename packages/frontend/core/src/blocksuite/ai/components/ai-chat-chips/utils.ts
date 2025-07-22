@@ -8,6 +8,7 @@ import type {
   CollectionChip,
   DocChip,
   FileChip,
+  SelectedContextChip,
   TagChip,
 } from './type';
 
@@ -60,6 +61,12 @@ export function isTagChip(chip: ChatChip): chip is TagChip {
 
 export function isCollectionChip(chip: ChatChip): chip is CollectionChip {
   return 'collectionId' in chip;
+}
+
+export function isSelectedContextChip(
+  chip: ChatChip
+): chip is SelectedContextChip {
+  return 'isSelectedContext' in chip && chip.isSelectedContext;
 }
 
 export function getChipKey(chip: ChatChip) {

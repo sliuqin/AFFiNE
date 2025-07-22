@@ -1,6 +1,5 @@
 import { WorkspaceImpl } from '@affine/core/modules/workspace/impls/workspace';
 import {
-  AttachmentBlockModel,
   DatabaseBlockModel,
   ImageBlockModel,
   NoteBlockModel,
@@ -32,6 +31,7 @@ import { Doc as YDoc } from 'yjs';
 
 import { getStoreManager } from '../../manager/store';
 import type { ChatContextValue } from '../components/ai-chat-content';
+import { isAttachment } from './attachment';
 import {
   getSelectedAttachmentsAsBlobs,
   getSelectedImagesAsBlobs,
@@ -63,8 +63,6 @@ async function extractEdgelessSelected(
   const attachments: ChatContextValue['attachments'] = [];
 
   if (selectedElements.length) {
-    console.log('selectedElements', selectedElements);
-
     const transformer = host.store.getTransformer();
     const markdownAdapter = new MarkdownAdapter(
       transformer,
@@ -76,6 +74,8 @@ async function extractEdgelessSelected(
     });
     collection.meta.initialize();
 
+    let needSnapshot = false;
+    let needMarkdown = false;
     try {
       const fragmentDoc = collection.createDoc();
       const fragment = fragmentDoc.getStore();
@@ -85,19 +85,13 @@ async function extractEdgelessSelected(
       const surfaceId = fragment.addBlock('affine:surface', {}, rootId);
       const noteId = fragment.addBlock('affine:note', {}, rootId);
       for (const element of selectedElements) {
-        if (element instanceof GfxBlockElementModel) {
-          const props = getBlockProps(element);
-          fragment.addBlock(element.flavour, props, surfaceId);
-        }
-
         if (element instanceof NoteBlockModel) {
+          needMarkdown = true;
           for (const child of element.children) {
             const props = getBlockProps(child);
             fragment.addBlock(child.flavour, props, noteId);
           }
-        }
-
-        if (element instanceof AttachmentBlockModel) {
+        } else if (isAttachment(element)) {
           const { name, sourceId } = element.props;
           if (name && sourceId) {
             const blob = await host.store.blobSync.get(sourceId);
@@ -105,11 +99,19 @@ async function extractEdgelessSelected(
               attachments.push(new File([blob], name));
             }
           }
+        } else if (element instanceof GfxBlockElementModel) {
+          const props = getBlockProps(element);
+          needSnapshot = true;
+          fragment.addBlock(element.flavour, props, surfaceId);
         }
       }
 
-      snapshot = transformer.docToSnapshot(fragment) ?? null;
-      markdown = (await markdownAdapter.fromDoc(fragment))?.file ?? '';
+      if (needSnapshot) {
+        snapshot = transformer.docToSnapshot(fragment) ?? null;
+      }
+      if (needMarkdown) {
+        markdown = (await markdownAdapter.fromDoc(fragment))?.file ?? '';
+      }
     } finally {
       collection.dispose();
     }
@@ -125,8 +127,10 @@ async function extractEdgelessSelected(
 
   return {
     images: [new File([blob], 'selected.png')],
-    snapshot: snapshot ?? undefined,
-    markdown: markdown.length ? markdown : undefined,
+    snapshot: snapshot
+      ? new File([JSON.stringify(snapshot)], 'selected.json')
+      : null,
+    markdownFile: markdown.length ? new File([markdown], 'selected.md') : null,
     attachments,
   };
 }

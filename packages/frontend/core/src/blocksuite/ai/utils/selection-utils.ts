@@ -6,11 +6,7 @@ import {
   getSurfaceBlock,
   type SurfaceBlockComponent,
 } from '@blocksuite/affine/blocks/surface';
-import {
-  AttachmentBlockModel,
-  DatabaseBlockModel,
-  ImageBlockModel,
-} from '@blocksuite/affine/model';
+import { DatabaseBlockModel, ImageBlockModel } from '@blocksuite/affine/model';
 import {
   getBlockSelectionsCommand,
   getImageSelectionsCommand,
@@ -33,6 +29,7 @@ import {
 
 import { getContentFromSlice } from '../../utils';
 import type { CopilotTool } from '../tool/copilot-tool';
+import { isAttachment } from './attachment';
 import { getEdgelessCopilotWidget } from './get-edgeless-copilot-widget';
 
 export async function selectedToCanvas(host: EditorHost) {
@@ -245,7 +242,7 @@ export const getSelectedAttachmentsAsBlobs = async (host: EditorHost) => {
   const attachments: { sourceId: string; name: string }[] = [];
 
   for (const block of blocks) {
-    if (block.model instanceof AttachmentBlockModel) {
+    if (isAttachment(block.model)) {
       const { sourceId, name } = block.model.props;
       if (sourceId && name) {
         attachments.push({ sourceId, name });

@@ -26,5 +26,8 @@ export type AIChatInputContext = {
   quote?: string;
   markdown?: string;
   images: File[];
+  attachments: File[];
+  snapshot: File | null;
+  markdownFile: File | null;
   abortController: AbortController | null;
 };
