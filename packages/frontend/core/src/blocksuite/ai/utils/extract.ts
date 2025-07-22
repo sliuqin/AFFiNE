@@ -33,6 +33,7 @@ import { Doc as YDoc } from 'yjs';
 import { getStoreManager } from '../../manager/store';
 import type { ChatContextValue } from '../components/ai-chat-content';
 import {
+  getSelectedAttachmentsAsBlobs,
   getSelectedImagesAsBlobs,
   getSelectedTextContent,
   selectedToCanvas,
@@ -135,6 +136,7 @@ async function extractPageSelected(
 ): Promise<Partial<ChatContextValue> | null> {
   const text = await getSelectedTextContent(host, 'plain-text');
   const images = await getSelectedImagesAsBlobs(host);
+  const attachments = await getSelectedAttachmentsAsBlobs(host);
   const hasText = text.length > 0;
   const hasImages = images.length > 0;
 
@@ -143,6 +145,7 @@ async function extractPageSelected(
     return {
       quote: text,
       markdown: markdown,
+      attachments,
     };
   } else if (!hasText && hasImages && images.length === 1) {
     host.command
@@ -153,6 +156,7 @@ async function extractPageSelected(
       })
       .run();
     return {
+      attachments,
       images,
     };
   } else {
@@ -162,6 +166,7 @@ async function extractPageSelected(
       quote: text,
       markdown,
       images,
+      attachments,
     };
   }
 }

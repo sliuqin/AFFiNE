@@ -6,7 +6,11 @@ import {
   getSurfaceBlock,
   type SurfaceBlockComponent,
 } from '@blocksuite/affine/blocks/surface';
-import { DatabaseBlockModel, ImageBlockModel } from '@blocksuite/affine/model';
+import {
+  AttachmentBlockModel,
+  DatabaseBlockModel,
+  ImageBlockModel,
+} from '@blocksuite/affine/model';
 import {
   getBlockSelectionsCommand,
   getImageSelectionsCommand,
@@ -230,6 +234,34 @@ export const getSelectedImagesAsBlobs = async (host: EditorHost) => {
     }) ?? []
   );
   return blobs.filter((blob): blob is File => !!blob);
+};
+
+export const getSelectedAttachmentsAsBlobs = async (host: EditorHost) => {
+  const [_, data] = host.command.exec(getSelectedBlocksCommand, {
+    types: ['block'],
+  });
+
+  const blocks = data.selectedBlocks ?? [];
+  const attachments: { sourceId: string; name: string }[] = [];
+
+  for (const block of blocks) {
+    if (block.model instanceof AttachmentBlockModel) {
+      const { sourceId, name } = block.model.props;
+      if (sourceId && name) {
+        attachments.push({ sourceId, name });
+      }
+    }
+  }
+
+  const blobs = await Promise.all(
+    attachments.map(attachment => {
+      return host.store.blobSync.get(attachment.sourceId);
+    })
+  );
+
+  return blobs
+    .filter(blob => blob)
+    .map((blob, index) => new File([blob as Blob], attachments[index].name));
 };
 
 export const getSelectedNoteAnchor = (host: EditorHost, id: string) => {
