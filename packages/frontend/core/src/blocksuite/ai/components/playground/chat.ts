@@ -45,6 +45,9 @@ const DEFAULT_CHAT_CONTEXT_VALUE: ChatContextValue = {
   status: 'idle',
   error: null,
   markdown: '',
+  snapshot: null,
+  attachments: [],
+  markdownSummary: null,
 };
 
 export class PlaygroundChat extends SignalWatcher(
