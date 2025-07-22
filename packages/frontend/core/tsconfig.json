@@ -18,6 +18,7 @@
     { "path": "../track" },
     { "path": "../../../blocksuite/affine/all" },
     { "path": "../../../blocksuite/affine/components" },
+    { "path": "../../../blocksuite/affine/blocks/root" },
     { "path": "../../../blocksuite/affine/shared" },
     { "path": "../../../blocksuite/framework/global" },
     { "path": "../../../blocksuite/framework/std" },
