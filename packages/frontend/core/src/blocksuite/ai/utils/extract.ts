@@ -1,7 +1,9 @@
+import { WorkspaceImpl } from '@affine/core/modules/workspace/impls/workspace';
 import {
+  AttachmentBlockModel,
   DatabaseBlockModel,
   ImageBlockModel,
-  type NoteBlockModel,
+  NoteBlockModel,
   NoteDisplayMode,
 } from '@blocksuite/affine/model';
 import {
@@ -15,12 +17,18 @@ import {
 } from '@blocksuite/affine/shared/commands';
 import { DocModeProvider } from '@blocksuite/affine/shared/services';
 import {
+  getBlockProps,
   isInsideEdgelessEditor,
   matchModels,
 } from '@blocksuite/affine/shared/utils';
 import { BlockStdScope, type EditorHost } from '@blocksuite/affine/std';
-import type { BlockModel, Store } from '@blocksuite/affine/store';
+import {
+  GfxBlockElementModel,
+  GfxControllerIdentifier,
+} from '@blocksuite/affine/std/gfx';
+import type { BlockModel, DocSnapshot, Store } from '@blocksuite/affine/store';
 import { Slice, toDraftModel } from '@blocksuite/affine/store';
+import { Doc as YDoc } from 'yjs';
 
 import { getStoreManager } from '../../manager/store';
 import type { ChatContextValue } from '../components/ai-chat-content';
@@ -46,6 +54,65 @@ async function extractEdgelessSelected(
   host: EditorHost
 ): Promise<Partial<ChatContextValue> | null> {
   if (!isInsideEdgelessEditor(host)) return null;
+  const gfx = host.std.get(GfxControllerIdentifier);
+  const selectedElements = gfx.selection.selectedElements;
+
+  let snapshot: DocSnapshot | null = null;
+  let markdown = '';
+  const attachments: ChatContextValue['attachments'] = [];
+
+  if (selectedElements.length) {
+    console.log('selectedElements', selectedElements);
+
+    const transformer = host.store.getTransformer();
+    const markdownAdapter = new MarkdownAdapter(
+      transformer,
+      host.store.provider
+    );
+    const collection = new WorkspaceImpl({
+      id: 'AI_EXTRACT',
+      rootDoc: new YDoc({ guid: 'AI_EXTRACT' }),
+    });
+    collection.meta.initialize();
+
+    try {
+      const fragmentDoc = collection.createDoc();
+      const fragment = fragmentDoc.getStore();
+      fragmentDoc.load();
+
+      const rootId = fragment.addBlock('affine:page');
+      const surfaceId = fragment.addBlock('affine:surface', {}, rootId);
+      const noteId = fragment.addBlock('affine:note', {}, rootId);
+      for (const element of selectedElements) {
+        if (element instanceof GfxBlockElementModel) {
+          const props = getBlockProps(element);
+          fragment.addBlock(element.flavour, props, surfaceId);
+        }
+
+        if (element instanceof NoteBlockModel) {
+          for (const child of element.children) {
+            const props = getBlockProps(child);
+            fragment.addBlock(child.flavour, props, noteId);
+          }
+        }
+
+        if (element instanceof AttachmentBlockModel) {
+          const { name, sourceId } = element.props;
+          if (name && sourceId) {
+            const blob = await host.store.blobSync.get(sourceId);
+            if (blob) {
+              attachments.push(new File([blob], name));
+            }
+          }
+        }
+      }
+
+      snapshot = transformer.docToSnapshot(fragment) ?? null;
+      markdown = (await markdownAdapter.fromDoc(fragment))?.file ?? '';
+    } finally {
+      collection.dispose();
+    }
+  }
 
   const canvas = await selectedToCanvas(host);
   if (!canvas) return null;
@@ -57,6 +124,9 @@ async function extractEdgelessSelected(
 
   return {
     images: [new File([blob], 'selected.png')],
+    snapshot: snapshot ?? undefined,
+    markdown: markdown.length ? markdown : undefined,
+    attachments,
   };
 }
 

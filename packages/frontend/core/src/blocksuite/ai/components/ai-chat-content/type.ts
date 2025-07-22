@@ -1,3 +1,5 @@
+import type { DocSnapshot } from '@blocksuite/affine/store';
+
 import type { AIError } from '../../provider';
 import type { ChatStatus, HistoryMessage } from '../ai-chat-messages';
 
@@ -12,5 +14,8 @@ export type ChatContextValue = {
   markdown: string;
   // images of the selected content or user uploaded
   images: File[];
+  // snapshot of the selected content
+  snapshot: DocSnapshot;
+  attachments: File[];
   abortController: AbortController | null;
 };
