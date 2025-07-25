@@ -117,10 +117,14 @@ export class WorkspaceMemberResolver {
         status,
       }));
     } else {
-      const [list] = await this.models.workspaceUser.paginate(workspace.id, {
-        offset: skip ?? 0,
-        first: take ?? 8,
-      });
+      const [list] = await this.models.workspaceUser.paginate(
+        workspace.id,
+        {
+          offset: skip ?? 0,
+          first: take ?? 8,
+        },
+        user.id
+      );
 
       return list.map(({ id, status, type, user }) => ({
         ...user,

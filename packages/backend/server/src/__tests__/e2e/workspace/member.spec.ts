@@ -226,8 +226,22 @@ e2e('should support pagination for member', async t => {
       take: 2,
     },
   });
+  t.is(result.workspace.members[0].id, owner.id);
   t.is(result.workspace.memberCount, 3);
   t.is(result.workspace.members.length, 2);
+
+  await app.login(u1);
+  result = await app.gql({
+    query: getMembersByWorkspaceIdQuery,
+    variables: {
+      workspaceId: workspace.id,
+      skip: 0,
+      take: 5,
+    },
+  });
+  t.is(result.workspace.members[0].id, u1.id);
+  t.is(result.workspace.memberCount, 3);
+  t.is(result.workspace.members.length, 3);
 
   result = await app.gql({
     query: getMembersByWorkspaceIdQuery,

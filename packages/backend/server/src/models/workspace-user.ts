@@ -302,7 +302,50 @@ export class WorkspaceUserModel extends BaseModel {
     });
   }
 
-  async paginate(workspaceId: string, pagination: PaginationInput) {
+  async paginate(
+    workspaceId: string,
+    pagination: PaginationInput,
+    priorityUserId?: string
+  ) {
+    // If priorityUserId is provided and we're on the first page, handle priority user separately
+    if (priorityUserId && pagination.offset === 0 && !pagination.after) {
+      const priorityUser = await this.db.workspaceUserRole.findFirst({
+        include: {
+          user: {
+            select: workspaceUserSelect,
+          },
+        },
+        where: {
+          workspaceId,
+          userId: priorityUserId,
+        },
+      });
+
+      const remainingLimit = pagination.first - (priorityUser ? 1 : 0);
+
+      const otherUsers = await this.db.workspaceUserRole.findMany({
+        include: {
+          user: {
+            select: workspaceUserSelect,
+          },
+        },
+        where: {
+          workspaceId,
+          userId: priorityUser ? { not: priorityUserId } : undefined,
+        },
+        orderBy: {
+          createdAt: 'asc',
+        },
+        take: remainingLimit,
+        skip: 0,
+      });
+
+      const users = priorityUser ? [priorityUser, ...otherUsers] : otherUsers;
+      const total = await this.count(workspaceId);
+
+      return [users, total] as const;
+    }
+
     return await Promise.all([
       this.db.workspaceUserRole.findMany({
         include: {
