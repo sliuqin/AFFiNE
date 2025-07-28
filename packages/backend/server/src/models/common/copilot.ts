@@ -106,6 +106,10 @@ export type FileChunkSimilarity = ChunkSimilarity & {
   mimeType: string;
 };
 
+export type BlobChunkSimilarity = ChunkSimilarity & {
+  blobId: string;
+};
+
 export type DocChunkSimilarity = ChunkSimilarity & {
   docId: string;
 };

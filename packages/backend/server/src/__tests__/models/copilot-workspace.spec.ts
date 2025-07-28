@@ -146,6 +146,52 @@ test('should insert and search embedding', async t => {
   }
 
   {
+    await t.context.db.blob.create({
+      data: {
+        workspaceId: workspace.id,
+        key: 'blob-test',
+        mime: 'text/plain',
+        size: 1,
+      },
+    });
+
+    const blobId = 'blob-test';
+    await t.context.copilotWorkspace.insertBlobEmbeddings(
+      workspace.id,
+      blobId,
+      [
+        {
+          index: 0,
+          content: 'blob content',
+          embedding: Array.from({ length: 1024 }, () => 1),
+        },
+      ]
+    );
+
+    {
+      const ret = await t.context.copilotWorkspace.matchBlobEmbedding(
+        workspace.id,
+        Array.from({ length: 1024 }, () => 0.9),
+        1,
+        1
+      );
+      t.snapshot(cleanObject(ret), 'should match workspace blob embedding');
+    }
+
+    await t.context.copilotWorkspace.removeBlob(workspace.id, blobId);
+
+    {
+      const ret = await t.context.copilotWorkspace.matchBlobEmbedding(
+        workspace.id,
+        Array.from({ length: 1024 }, () => 0.9),
+        1,
+        1
+      );
+      t.deepEqual(ret, [], 'should not match after removal');
+    }
+  }
+
+  {
     const docId = randomUUID();
     await t.context.doc.upsert({
       spaceId: workspace.id,

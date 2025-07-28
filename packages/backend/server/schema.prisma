@@ -568,6 +568,23 @@ model AiWorkspaceFileEmbedding {
   @@map("ai_workspace_file_embeddings")
 }
 
+model AiWorkspaceBlobEmbedding {
+  workspaceId String                      @map("workspace_id") @db.VarChar
+  blobId      String                      @map("blob_id") @db.VarChar
+  // a file can be divided into multiple chunks and embedded separately.
+  chunk       Int                         @db.Integer
+  content     String                      @db.VarChar
+  embedding   Unsupported("vector(1024)")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  blob Blob @relation(fields: [workspaceId, blobId], references: [workspaceId, key], onDelete: Cascade)
+
+  @@id([workspaceId, blobId, chunk])
+  @@index([embedding], map: "ai_workspace_blob_embeddings_idx")
+  @@map("ai_workspace_blob_embeddings")
+}
+
 enum AiJobStatus {
   pending
   running
@@ -807,7 +824,8 @@ model Blob {
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(3)
 
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspace                Workspace                  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  AiWorkspaceBlobEmbedding AiWorkspaceBlobEmbedding[]
 
   @@id([workspaceId, key])
   @@map("blobs")
