@@ -145,6 +145,8 @@ declare global {
       contexts?: {
         docs: AIDocContextOption[];
         files: AIFileContextOption[];
+        selectedSnapshot?: string;
+        selectedMarkdown?: string;
       };
       postfix?: (text: string) => string;
     }
