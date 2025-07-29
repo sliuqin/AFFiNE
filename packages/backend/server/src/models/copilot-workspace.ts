@@ -168,26 +168,20 @@ export class CopilotWorkspaceConfigModel extends BaseModel {
       ],
     };
 
-    const [docTotal, docEmbedded, fileTotal, fileEmbedded, blobEmbedded] =
-      await Promise.all([
-        this.db.snapshot.findMany({
-          where: snapshotCondition,
-          select: { id: true },
-        }),
-        this.db.snapshot.findMany({
-          where: { ...snapshotCondition, embedding: { some: {} } },
-          select: { id: true },
-        }),
-        this.db.aiWorkspaceFiles.count({ where: { workspaceId } }),
-        this.db.aiWorkspaceFiles.count({
-          where: { workspaceId, embeddings: { some: {} } },
-        }),
-        this.db.$queryRaw<{ count: bigint }[]>`
-        SELECT count(DISTINCT blob_id) as count
-        FROM "ai_workspace_blob_embeddings"
-        WHERE workspace_id = ${workspaceId}
-      `.then(result => Number(result[0]?.count || 0)),
-      ]);
+    const [docTotal, docEmbedded, fileTotal, fileEmbedded] = await Promise.all([
+      this.db.snapshot.findMany({
+        where: snapshotCondition,
+        select: { id: true },
+      }),
+      this.db.snapshot.findMany({
+        where: { ...snapshotCondition, embedding: { some: {} } },
+        select: { id: true },
+      }),
+      this.db.aiWorkspaceFiles.count({ where: { workspaceId } }),
+      this.db.aiWorkspaceFiles.count({
+        where: { workspaceId, embeddings: { some: {} } },
+      }),
+    ]);
 
     const docTotalIds = docTotal.map(d => d.id);
     const docTotalSet = new Set(docTotalIds);
@@ -201,14 +195,11 @@ export class CopilotWorkspaceConfigModel extends BaseModel {
     return {
       total:
         docTotalIds.filter(id => !duplicateOutdatedDocSet.has(id)).length +
-        fileTotal +
-        blobEmbedded,
+        fileTotal,
       embedded:
         docEmbedded
           .map(d => d.id)
-          .filter(id => !duplicateOutdatedDocSet.has(id)).length +
-        fileEmbedded +
-        blobEmbedded,
+          .filter(id => !duplicateOutdatedDocSet.has(id)).length + fileEmbedded,
     };
   }
 
