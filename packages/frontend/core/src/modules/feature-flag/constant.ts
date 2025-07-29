@@ -272,6 +272,15 @@ export const AFFINE_FLAGS = {
     configurable: isCanaryBuild,
     defaultState: isCanaryBuild,
   },
+  enable_send_detailed_object_to_ai: {
+    category: 'affine',
+    displayName:
+      'com.affine.settings.workspace.experimental-features.enable-ai-send-detailed-object.name',
+    description:
+      'com.affine.settings.workspace.experimental-features.enable-ai-send-detailed-object.description',
+    configurable: true,
+    defaultState: true,
+  },
 } satisfies { [key in string]: FlagInfo };
 
 // oxlint-disable-next-line no-redeclare

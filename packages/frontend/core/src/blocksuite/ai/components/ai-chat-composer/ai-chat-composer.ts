@@ -14,7 +14,10 @@ import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import type { EditorHost } from '@blocksuite/affine/std';
 import { ShadowlessElement } from '@blocksuite/affine/std';
 import { uuidv4 } from '@blocksuite/affine/store';
-import type { NotificationService } from '@blocksuite/affine-shared/services';
+import type {
+  FeatureFlagService,
+  NotificationService,
+} from '@blocksuite/affine-shared/services';
 import { css, html, type PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 
@@ -123,6 +126,9 @@ export class AIChatComposer extends SignalWatcher(
   @property({ attribute: false })
   accessor aiDraftService!: AIDraftService;
 
+  @property({ attribute: false })
+  accessor affineFeatureFlagService!: FeatureFlagService;
+
   @state()
   accessor chips: ChatChip[] = [];
 
@@ -160,7 +166,6 @@ export class AIChatComposer extends SignalWatcher(
         .session=${this.session}
         .chips=${this.chips}
         .addChip=${this.addChip}
-        .addSelectedContextChip=${this.addSelectedContextChip} 
         .waitForSelectedContextChipsFinished=${this.waitForSelectedContextChipsFinished}
         .addImages=${this.addImages}
         .createSession=${this.createSession}
@@ -170,6 +175,7 @@ export class AIChatComposer extends SignalWatcher(
         .reasoningConfig=${this.reasoningConfig}
         .docDisplayConfig=${this.docDisplayConfig}
         .searchMenuConfig=${this.searchMenuConfig}
+        .affineFeatureFlagService=${this.affineFeatureFlagService}
         .aiDraftService=${this.aiDraftService}
         .portalContainer=${this.portalContainer}
         .onChatSuccess=${this.onChatSuccess}

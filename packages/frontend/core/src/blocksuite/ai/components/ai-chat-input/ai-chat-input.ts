@@ -1,4 +1,5 @@
 import type { AIDraftService } from '@affine/core/modules/ai-button';
+import type { FeatureFlagService } from '@affine/core/modules/feature-flag';
 import type { CopilotChatHistoryFragment } from '@affine/graphql';
 import { SignalWatcher, WithDisposable } from '@blocksuite/affine/global/lit';
 import { unsafeCSSVar, unsafeCSSVarV2 } from '@blocksuite/affine/shared/theme';
@@ -344,9 +345,6 @@ export class AIChatInput extends SignalWatcher(
   accessor addChip!: (chip: ChatChip, silent?: boolean) => Promise<void>;
 
   @property({ attribute: false })
-  accessor addSelectedContextChip!: () => Promise<void>;
-
-  @property({ attribute: false })
   accessor networkSearchConfig!: AINetworkSearchConfig;
 
   @property({ attribute: false })
@@ -360,6 +358,9 @@ export class AIChatInput extends SignalWatcher(
 
   @property({ attribute: false })
   accessor aiDraftService!: AIDraftService;
+
+  @property({ attribute: false })
+  accessor affineFeatureFlagService!: FeatureFlagService;
 
   @property({ attribute: false })
   accessor isRootSession: boolean = true;
@@ -640,8 +641,6 @@ export class AIChatInput extends SignalWatcher(
       const { status, markdown, images, snapshot, markdownSummary } =
         this.chatContextValue;
 
-      await this.addSelectedContextChip();
-
       if (status === 'loading' || status === 'transmitting') return;
       if (!text) return;
       if (!AIProvider.actions.chat) return;
@@ -670,13 +669,21 @@ export class AIChatInput extends SignalWatcher(
         return;
       }
 
+      const enableSendDetailedObject =
+        this.affineFeatureFlagService.flags.enable_send_detailed_object_to_ai
+          .value;
+
       const stream = await AIProvider.actions.chat({
         sessionId,
         input: userInput,
         contexts: {
           ...contexts,
-          selectedSnapshot: snapshot ?? undefined,
-          selectedMarkdown: markdownSummary ?? undefined,
+          selectedSnapshot:
+            snapshot && enableSendDetailedObject ? snapshot : undefined,
+          selectedMarkdown:
+            markdownSummary && enableSendDetailedObject
+              ? markdownSummary
+              : undefined,
         },
         docId: this.docId,
         attachments: [],
