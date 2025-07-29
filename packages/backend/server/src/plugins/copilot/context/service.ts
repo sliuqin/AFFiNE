@@ -147,6 +147,28 @@ export class CopilotContextService implements OnApplicationBootstrap {
     return null;
   }
 
+  async matchWorkspaceBlobs(
+    workspaceId: string,
+    content: string,
+    topK: number = 5,
+    signal?: AbortSignal,
+    threshold: number = 0.5
+  ) {
+    if (!this.embeddingClient) return [];
+    const embedding = await this.embeddingClient.getEmbedding(content, signal);
+    if (!embedding) return [];
+
+    const blobChunks = await this.models.copilotWorkspace.matchBlobEmbedding(
+      workspaceId,
+      embedding,
+      topK * 2,
+      threshold
+    );
+    if (!blobChunks.length) return [];
+
+    return await this.embeddingClient.reRank(content, blobChunks, topK, signal);
+  }
+
   async matchWorkspaceFiles(
     workspaceId: string,
     content: string,

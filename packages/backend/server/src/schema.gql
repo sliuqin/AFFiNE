@@ -2,6 +2,11 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input AddContextBlobInput {
+  blobId: String!
+  contextId: String!
+}
+
 input AddContextCategoryInput {
   categoryId: String!
   contextId: String!
@@ -226,6 +231,9 @@ type Copilot {
 }
 
 type CopilotContext {
+  """list blobs in context"""
+  blobs: [CopilotContextBlob!]!
+
   """list collections in context"""
   collections: [CopilotContextCategory!]!
 
@@ -247,16 +255,21 @@ type CopilotContext {
   workspaceId: String!
 }
 
+type CopilotContextBlob {
+  createdAt: SafeInt!
+  id: ID!
+  status: ContextEmbedStatus
+}
+
 type CopilotContextCategory {
   createdAt: SafeInt!
-  docs: [CopilotDocType!]!
+  docs: [CopilotContextDoc!]!
   id: ID!
   type: ContextCategories!
 }
 
 type CopilotContextDoc {
   createdAt: SafeInt!
-  error: String
   id: ID!
   status: ContextEmbedStatus
 }
@@ -279,12 +292,6 @@ type CopilotContextFileNotSupportedDataType {
 
 type CopilotDocNotFoundDataType {
   docId: String!
-}
-
-type CopilotDocType {
-  createdAt: SafeInt!
-  id: ID!
-  status: ContextEmbedStatus
 }
 
 type CopilotFailedToAddWorkspaceFileEmbeddingDataType {
@@ -1163,6 +1170,9 @@ type Mutation {
   acceptInviteById(inviteId: String!, sendAcceptMail: Boolean @deprecated(reason: "never used"), workspaceId: String @deprecated(reason: "never used")): Boolean!
   activateLicense(license: String!, workspaceId: String!): License!
 
+  """add a blob to context"""
+  addContextBlob(options: AddContextBlobInput!): CopilotContextBlob!
+
   """add a category to context"""
   addContextCategory(options: AddContextCategoryInput!): CopilotContextCategory!
 
@@ -1265,6 +1275,9 @@ type Mutation {
 
   """Remove user avatar"""
   removeAvatar: RemoveAvatar!
+
+  """remove a blob from context"""
+  removeContextBlob(options: RemoveContextBlobInput!): Boolean!
 
   """remove a category from context"""
   removeContextCategory(options: RemoveContextCategoryInput!): Boolean!
@@ -1615,6 +1628,11 @@ type ReleaseVersionType {
 
 type RemoveAvatar {
   success: Boolean!
+}
+
+input RemoveContextBlobInput {
+  blobId: String!
+  contextId: String!
 }
 
 input RemoveContextCategoryInput {

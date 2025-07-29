@@ -37,6 +37,11 @@ const ContextEmbedStatusSchema = z.enum([
   ContextEmbedStatus.failed,
 ]);
 
+const ContextBlobSchema = z.object({
+  id: z.string(),
+  createdAt: z.number(),
+});
+
 const ContextDocSchema = z.object({
   id: z.string(),
   createdAt: z.number(),
@@ -64,6 +69,9 @@ export const ContextCategorySchema = z.object({
 
 export const ContextConfigSchema = z.object({
   workspaceId: z.string(),
+  blobs: ContextBlobSchema.merge(
+    z.object({ status: ContextEmbedStatusSchema.optional() })
+  ).array(),
   files: ContextFileSchema.array(),
   docs: ContextDocSchema.merge(
     z.object({ status: ContextEmbedStatusSchema.optional() })
@@ -77,10 +85,9 @@ export const MinimalContextConfigSchema = ContextConfigSchema.pick({
 
 export type ContextCategory = z.infer<typeof ContextCategorySchema>;
 export type ContextConfig = z.infer<typeof ContextConfigSchema>;
+export type ContextBlob = z.infer<typeof ContextConfigSchema>['blobs'][number];
 export type ContextDoc = z.infer<typeof ContextConfigSchema>['docs'][number];
 export type ContextFile = z.infer<typeof ContextConfigSchema>['files'][number];
-export type ContextListItem = ContextDoc | ContextFile;
-export type ContextList = ContextListItem[];
 
 // embeddings
 

@@ -66,10 +66,11 @@ export class CopilotContextModel extends BaseModel {
       if (minimalConfig.success) {
         // fulfill the missing fields
         return {
-          ...minimalConfig.data,
+          blobs: [],
           docs: [],
           files: [],
           categories: [],
+          ...minimalConfig.data,
         };
       }
     }
@@ -83,10 +84,35 @@ export class CopilotContextModel extends BaseModel {
     return row;
   }
 
+  async mergeBlobStatus(
+    workspaceId: string,
+    blobs: ContextDoc[]
+  ): Promise<ContextDoc[]> {
+    const canEmbedding = await this.checkEmbeddingAvailable();
+    const finishedBlobs = canEmbedding
+      ? await this.listWorkspaceBlobEmbedding(
+          workspaceId,
+          Array.from(new Set(blobs.map(blob => blob.id)))
+        )
+      : [];
+    const finishedBlobSet = new Set(finishedBlobs);
+
+    for (const blob of blobs) {
+      const status = finishedBlobSet.has(blob.id)
+        ? ContextEmbedStatus.finished
+        : undefined;
+      // NOTE: when the blob has not been synchronized to the server or is in the embedding queue
+      // the status will be empty, fallback to processing if no status is provided
+      blob.status = status || blob.status || ContextEmbedStatus.processing;
+    }
+
+    return blobs;
+  }
+
   async mergeDocStatus(workspaceId: string, docs: ContextDoc[]) {
     const canEmbedding = await this.checkEmbeddingAvailable();
     const finishedDoc = canEmbedding
-      ? await this.listWorkspaceEmbedding(
+      ? await this.listWorkspaceDocEmbedding(
           workspaceId,
           Array.from(new Set(docs.map(doc => doc.id)))
         )
@@ -126,7 +152,23 @@ export class CopilotContextModel extends BaseModel {
     return Number(count) === 2;
   }
 
-  async listWorkspaceEmbedding(workspaceId: string, docIds?: string[]) {
+  async listWorkspaceBlobEmbedding(
+    workspaceId: string,
+    blobIds?: string[]
+  ): Promise<string[]> {
+    const existsIds = await this.db.aiWorkspaceBlobEmbedding
+      .groupBy({
+        where: {
+          workspaceId,
+          blobId: blobIds ? { in: blobIds } : undefined,
+        },
+        by: ['blobId'],
+      })
+      .then(r => r.map(r => r.blobId));
+    return existsIds;
+  }
+
+  async listWorkspaceDocEmbedding(workspaceId: string, docIds?: string[]) {
     const existsIds = await this.db.aiWorkspaceEmbedding
       .groupBy({
         where: {

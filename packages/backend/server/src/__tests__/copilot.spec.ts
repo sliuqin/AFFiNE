@@ -1519,15 +1519,18 @@ test('TextStreamParser should process a sequence of message chunks', t => {
 });
 
 // ==================== context ====================
-test('should be able to manage context', async t => {
-  const { context, prompt, session, event, jobs, storage } = t.context;
+test.only('should be able to manage context', async t => {
+  const { context, db, event, jobs, prompt, session, storage, workspace } =
+    t.context;
+
+  const ws = await workspace.create(userId);
 
   await prompt.set(promptName, 'model', [
     { role: 'system', content: 'hello {{word}}' },
   ]);
   const chatSession = await session.create({
     docId: 'test',
-    workspaceId: 'test',
+    workspaceId: ws.id,
     userId,
     promptName,
     pinned: false,
@@ -1606,6 +1609,36 @@ test('should be able to manage context', async t => {
       const result = await session.matchFiles('test', 1, undefined, 1);
       t.is(result.length, 1, 'should match context');
       t.is(result[0].fileId, file.id, 'should match file id');
+    }
+
+    // blob record
+    {
+      const blobId = 'test-blob';
+      await storage.put(userId, session.workspaceId, blobId, buffer);
+      await db.blob.create({
+        data: {
+          workspaceId: session.workspaceId,
+          key: blobId,
+          size: buffer.length,
+          mime: 'application/pdf',
+        },
+      });
+
+      await jobs.embedPendingBlob({
+        userId,
+        workspaceId: session.workspaceId,
+        blobId,
+      });
+
+      const result = await t.context.context.matchWorkspaceBlobs(
+        session.workspaceId,
+        'test',
+        1,
+        undefined,
+        1
+      );
+      t.is(result.length, 1, 'should match blob embedding');
+      t.is(result[0].blobId, blobId, 'should match blob id');
     }
 
     // doc record

@@ -568,6 +568,26 @@ export const applyDocUpdatesQuery = {
 }`,
 };
 
+export const addContextBlobMutation = {
+  id: 'addContextBlobMutation' as const,
+  op: 'addContextBlob',
+  query: `mutation addContextBlob($options: AddContextBlobInput!) {
+  addContextBlob(options: $options) {
+    id
+    createdAt
+    status
+  }
+}`,
+};
+
+export const removeContextBlobMutation = {
+  id: 'removeContextBlobMutation' as const,
+  op: 'removeContextBlob',
+  query: `mutation removeContextBlob($options: RemoveContextBlobInput!) {
+  removeContextBlob(options: $options)
+}`,
+};
+
 export const addContextCategoryMutation = {
   id: 'addContextCategoryMutation' as const,
   op: 'addContextCategory',
@@ -609,7 +629,6 @@ export const addContextDocMutation = {
     id
     createdAt
     status
-    error
   }
 }`,
 };
@@ -655,10 +674,14 @@ export const listContextObjectQuery = {
   currentUser {
     copilot(workspaceId: $workspaceId) {
       contexts(sessionId: $sessionId, contextId: $contextId) {
+        blobs {
+          id
+          status
+          createdAt
+        }
         docs {
           id
           status
-          error
           createdAt
         }
         files {
