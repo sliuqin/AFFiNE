@@ -7,6 +7,7 @@ import { GeminiGenerativeProvider, GeminiVertexProvider } from './gemini';
 import { MorphProvider } from './morph';
 import { OpenAIProvider } from './openai';
 import { PerplexityProvider } from './perplexity';
+import { QwenProvider } from './qwen';
 
 export const CopilotProviders = [
   OpenAIProvider,
@@ -17,6 +18,7 @@ export const CopilotProviders = [
   AnthropicOfficialProvider,
   AnthropicVertexProvider,
   MorphProvider,
+  QwenProvider,
 ];
 
 export {
@@ -29,4 +31,5 @@ export { GeminiGenerativeProvider, GeminiVertexProvider } from './gemini';
 export { OpenAIProvider } from './openai';
 export { PerplexityProvider } from './perplexity';
 export type { CopilotProvider } from './provider';
+export { QwenProvider } from './qwen';
 export * from './types';

@@ -12,6 +12,7 @@ import { GeminiGenerativeConfig, GeminiVertexConfig } from './providers/gemini';
 import { MorphConfig } from './providers/morph';
 import { OpenAIConfig } from './providers/openai';
 import { PerplexityConfig } from './providers/perplexity';
+import { QwenConfig } from './providers/qwen';
 import { VertexSchema } from './providers/types';
 declare global {
   interface AppConfigSchema {
@@ -33,6 +34,7 @@ declare global {
         anthropic: ConfigItem<AnthropicOfficialConfig>;
         anthropicVertex: ConfigItem<AnthropicVertexConfig>;
         morph: ConfigItem<MorphConfig>;
+        qwen: ConfigItem<QwenConfig>;
       };
     };
   }
@@ -87,6 +89,13 @@ defineModuleConfig('copilot', {
   'providers.morph': {
     desc: 'The config for the morph provider.',
     default: {},
+  },
+  'providers.qwen': {
+    desc: 'The config for the qwen provider.',
+    default: {
+      apiKey: '',
+      baseUrl: '',
+    },
   },
   unsplash: {
     desc: 'The config for the unsplash key.',
