@@ -2,6 +2,18 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AccessToken {
+  createdAt: DateTime!
+  expiresAt: DateTime
+  id: String!
+  name: String!
+}
+
+input AddContextBlobInput {
+  blobId: String!
+  contextId: String!
+}
+
 input AddContextCategoryInput {
   categoryId: String!
   contextId: String!
@@ -226,6 +238,9 @@ type Copilot {
 }
 
 type CopilotContext {
+  """list blobs in context"""
+  blobs: [CopilotContextBlob!]!
+
   """list collections in context"""
   collections: [CopilotContextCategory!]!
 
@@ -247,16 +262,21 @@ type CopilotContext {
   workspaceId: String!
 }
 
+type CopilotContextBlob {
+  createdAt: SafeInt!
+  id: ID!
+  status: ContextEmbedStatus
+}
+
 type CopilotContextCategory {
   createdAt: SafeInt!
-  docs: [CopilotDocType!]!
+  docs: [CopilotContextDoc!]!
   id: ID!
   type: ContextCategories!
 }
 
 type CopilotContextDoc {
   createdAt: SafeInt!
-  error: String
   id: ID!
   status: ContextEmbedStatus
 }
@@ -279,12 +299,6 @@ type CopilotContextFileNotSupportedDataType {
 
 type CopilotDocNotFoundDataType {
   docId: String!
-}
-
-type CopilotDocType {
-  createdAt: SafeInt!
-  id: ID!
-  status: ContextEmbedStatus
 }
 
 type CopilotFailedToAddWorkspaceFileEmbeddingDataType {
@@ -805,6 +819,11 @@ input ForkChatSessionInput {
   workspaceId: String!
 }
 
+input GenerateAccessTokenInput {
+  expiresAt: DateTime
+  name: String!
+}
+
 input GrantDocUserRolesInput {
   docId: String!
   role: DocRole!
@@ -1163,6 +1182,9 @@ type Mutation {
   acceptInviteById(inviteId: String!, sendAcceptMail: Boolean @deprecated(reason: "never used"), workspaceId: String @deprecated(reason: "never used")): Boolean!
   activateLicense(license: String!, workspaceId: String!): License!
 
+  """add a blob to context"""
+  addContextBlob(options: AddContextBlobInput!): CopilotContextBlob!
+
   """add a category to context"""
   addContextCategory(options: AddContextCategoryInput!): CopilotContextCategory!
 
@@ -1237,6 +1259,7 @@ type Mutation {
   """Create a chat session"""
   forkCopilotSession(options: ForkChatSessionInput!): String!
   generateLicenseKey(sessionId: String!): String!
+  generateUserAccessToken(input: GenerateAccessTokenInput!): RevealedAccessToken!
   grantDocUserRoles(input: GrantDocUserRolesInput!): Boolean!
   grantMember(permission: Permission!, userId: String!, workspaceId: String!): Boolean!
 
@@ -1266,6 +1289,9 @@ type Mutation {
   """Remove user avatar"""
   removeAvatar: RemoveAvatar!
 
+  """remove a blob from context"""
+  removeContextBlob(options: RemoveContextBlobInput!): Boolean!
+
   """remove a category from context"""
   removeContextCategory(options: RemoveContextCategoryInput!): Boolean!
 
@@ -1289,6 +1315,7 @@ type Mutation {
   revokeMember(userId: String!, workspaceId: String!): Boolean!
   revokePublicDoc(docId: String!, workspaceId: String!): DocType!
   revokePublicPage(docId: String!, workspaceId: String!): DocType! @deprecated(reason: "use revokePublicDoc instead")
+  revokeUserAccessToken(id: String!): Boolean!
   sendChangeEmail(callbackUrl: String!, email: String): Boolean!
   sendChangePasswordEmail(callbackUrl: String!, email: String @deprecated(reason: "fetched from signed in user")): Boolean!
   sendSetPasswordEmail(callbackUrl: String!, email: String @deprecated(reason: "fetched from signed in user")): Boolean!
@@ -1523,6 +1550,8 @@ type PublicUserType {
 }
 
 type Query {
+  accessTokens: [AccessToken!]!
+
   """get the whole app configuration"""
   appConfig: JSONObject!
 
@@ -1617,6 +1646,11 @@ type RemoveAvatar {
   success: Boolean!
 }
 
+input RemoveContextBlobInput {
+  blobId: String!
+  contextId: String!
+}
+
 input RemoveContextCategoryInput {
   categoryId: String!
   contextId: String!
@@ -1665,6 +1699,14 @@ type ReplyObjectType {
 input ReplyUpdateInput {
   content: JSONObject!
   id: ID!
+}
+
+type RevealedAccessToken {
+  createdAt: DateTime!
+  expiresAt: DateTime
+  id: String!
+  name: String!
+  token: String!
 }
 
 input RevokeDocUserRoleInput {
