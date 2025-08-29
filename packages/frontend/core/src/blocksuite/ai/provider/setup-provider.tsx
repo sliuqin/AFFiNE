@@ -99,6 +99,9 @@ export function setupAIProvider(
       params: {
         docs: contexts?.docs,
         files: contexts?.files,
+        selectedSnapshot: contexts?.selectedSnapshot,
+        selectedMarkdown: contexts?.selectedMarkdown,
+        html: contexts?.html,
         searchMode: webSearch ? 'MUST' : 'AUTO',
       },
       endpoint: Endpoint.StreamObject,
@@ -744,6 +747,21 @@ Could you make a new website based on these notes and send back just the html fi
       updates: string
     ) => {
       return client.applyDocUpdates(workspaceId, docId, op, updates);
+    },
+    addContextBlob: async (options: { blobId: string; contextId: string }) => {
+      return client.addContextBlob({
+        contextId: options.contextId,
+        blobId: options.blobId,
+      });
+    },
+    removeContextBlob: async (options: {
+      blobId: string;
+      contextId: string;
+    }) => {
+      return client.removeContextBlob({
+        contextId: options.contextId,
+        blobId: options.blobId,
+      });
     },
   });
 

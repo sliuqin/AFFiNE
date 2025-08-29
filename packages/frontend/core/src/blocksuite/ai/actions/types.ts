@@ -1,9 +1,11 @@
+import type { AIToolsConfig } from '@affine/core/modules/ai-button';
 import type {
   AddContextFileInput,
   ContextMatchedDocChunk,
   ContextMatchedFileChunk,
   ContextWorkspaceEmbeddingStatus,
   CopilotChatHistoryFragment,
+  CopilotContextBlob,
   CopilotContextCategory,
   CopilotContextDoc,
   CopilotContextFile,
@@ -142,9 +144,13 @@ declare global {
       webSearch?: boolean;
       reasoning?: boolean;
       modelId?: string;
+      toolsConfig?: AIToolsConfig | undefined;
       contexts?: {
         docs: AIDocContextOption[];
         files: AIFileContextOption[];
+        selectedSnapshot?: string;
+        selectedMarkdown?: string;
+        html?: string;
       };
       postfix?: (text: string) => string;
     }
@@ -275,6 +281,7 @@ declare global {
       files: CopilotContextFile[];
       tags: CopilotContextCategory[];
       collections: CopilotContextCategory[];
+      blobs: CopilotContextBlob[];
     };
 
     interface AIContextService {
@@ -354,6 +361,14 @@ declare global {
         op: string,
         updates: string
       ) => Promise<string>;
+      addContextBlob: (options: {
+        blobId: string;
+        contextId: string;
+      }) => Promise<CopilotContextBlob>;
+      removeContextBlob: (options: {
+        blobId: string;
+        contextId: string;
+      }) => Promise<boolean>;
     }
 
     // TODO(@Peng): should be refactored to get rid of implement details (like messages, action, role, etc.)

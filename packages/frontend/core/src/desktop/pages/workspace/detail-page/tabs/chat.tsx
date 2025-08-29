@@ -4,9 +4,13 @@ import type { AffineEditorContainer } from '@affine/core/blocksuite/block-suite-
 import { NotificationServiceImpl } from '@affine/core/blocksuite/view-extensions/editor-view/notification-service';
 import { useAIChatConfig } from '@affine/core/components/hooks/affine/use-ai-chat-config';
 import { useAISpecs } from '@affine/core/components/hooks/affine/use-ai-specs';
-import { AIDraftService } from '@affine/core/modules/ai-button';
+import {
+  AIDraftService,
+  AIToolsConfigService,
+} from '@affine/core/modules/ai-button';
 import { WorkspaceDialogService } from '@affine/core/modules/dialogs';
 import { FeatureFlagService } from '@affine/core/modules/feature-flag';
+import { PeekViewService } from '@affine/core/modules/peek-view';
 import { AppThemeService } from '@affine/core/modules/theme';
 import { WorkbenchService } from '@affine/core/modules/workbench';
 import { RefNodeSlotsProvider } from '@blocksuite/affine/inlines/reference';
@@ -92,11 +96,14 @@ export const EditorChatPanel = forwardRef(function EditorChatPanel(
       chatPanelRef.current.affineWorkbenchService =
         framework.get(WorkbenchService);
       chatPanelRef.current.affineThemeService = framework.get(AppThemeService);
+      chatPanelRef.current.peekViewService = framework.get(PeekViewService);
       chatPanelRef.current.notificationService = new NotificationServiceImpl(
         confirmModal.closeConfirmModal,
         confirmModal.openConfirmModal
       );
       chatPanelRef.current.aiDraftService = framework.get(AIDraftService);
+      chatPanelRef.current.aiToolsConfigService =
+        framework.get(AIToolsConfigService);
 
       containerRef.current?.append(chatPanelRef.current);
     } else {

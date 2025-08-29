@@ -45,6 +45,7 @@ import {
   UnsplashIsNotConfigured,
 } from '../../base';
 import { CurrentUser, Public } from '../../core/auth';
+import { CopilotContextService } from './context';
 import {
   CopilotProvider,
   CopilotProviderFactory,
@@ -56,7 +57,7 @@ import { StreamObjectParser } from './providers/utils';
 import { ChatSession, ChatSessionService } from './session';
 import { CopilotStorage } from './storage';
 import { ChatMessage, ChatQuerySchema } from './types';
-import { getSignal } from './utils';
+import { getSignal, getTools } from './utils';
 import { CopilotWorkflowService, GraphExecutorState } from './workflow';
 
 export interface ChatEvent {
@@ -75,6 +76,7 @@ export class CopilotController implements BeforeApplicationShutdown {
   constructor(
     private readonly config: Config,
     private readonly chatSession: ChatSessionService,
+    private readonly context: CopilotContextService,
     private readonly provider: CopilotProviderFactory,
     private readonly workflow: CopilotWorkflowService,
     private readonly storage: CopilotStorage
@@ -204,14 +206,30 @@ export class CopilotController implements BeforeApplicationShutdown {
       retry
     );
 
-    if (latestMessage) {
-      params = Object.assign({}, params, latestMessage.params, {
-        content: latestMessage.content,
-        attachments: latestMessage.attachments,
-      });
-    }
+    const context = await this.context.getBySessionId(sessionId);
+    const contextParams =
+      (Array.isArray(context?.files) && context.files.length > 0) ||
+      (Array.isArray(context?.blobs) && context.blobs.length > 0)
+        ? {
+            contextFiles: [
+              ...context.files,
+              ...(await context.getBlobMetadata()),
+            ],
+          }
+        : {};
+    const lastParams = latestMessage
+      ? {
+          ...latestMessage.params,
+          content: latestMessage.content,
+          attachments: latestMessage.attachments,
+        }
+      : {};
 
-    const finalMessage = session.finish(params);
+    const finalMessage = session.finish({
+      ...params,
+      ...lastParams,
+      ...contextParams,
+    });
 
     return {
       provider,
@@ -244,7 +262,8 @@ export class CopilotController implements BeforeApplicationShutdown {
       info.finalMessage = finalMessage.filter(m => m.role !== 'system');
       metrics.ai.counter('chat_calls').add(1, { model });
 
-      const { reasoning, webSearch } = ChatQuerySchema.parse(query);
+      const { reasoning, webSearch, toolsConfig } =
+        ChatQuerySchema.parse(query);
       const content = await provider.text({ modelId: model }, finalMessage, {
         ...session.config.promptConfig,
         signal: getSignal(req).signal,
@@ -253,6 +272,7 @@ export class CopilotController implements BeforeApplicationShutdown {
         workspace: session.config.workspaceId,
         reasoning,
         webSearch,
+        tools: getTools(session.config.promptConfig?.tools, toolsConfig),
       });
 
       session.push({
@@ -306,7 +326,8 @@ export class CopilotController implements BeforeApplicationShutdown {
         }
       });
 
-      const { messageId, reasoning, webSearch } = ChatQuerySchema.parse(query);
+      const { messageId, reasoning, webSearch, toolsConfig } =
+        ChatQuerySchema.parse(query);
 
       const source$ = from(
         provider.streamText({ modelId: model }, finalMessage, {
@@ -317,6 +338,7 @@ export class CopilotController implements BeforeApplicationShutdown {
           workspace: session.config.workspaceId,
           reasoning,
           webSearch,
+          tools: getTools(session.config.promptConfig?.tools, toolsConfig),
         })
       ).pipe(
         connect(shared$ =>
@@ -398,7 +420,8 @@ export class CopilotController implements BeforeApplicationShutdown {
         }
       });
 
-      const { messageId, reasoning, webSearch } = ChatQuerySchema.parse(query);
+      const { messageId, reasoning, webSearch, toolsConfig } =
+        ChatQuerySchema.parse(query);
 
       const source$ = from(
         provider.streamObject({ modelId: model }, finalMessage, {
@@ -409,6 +432,7 @@ export class CopilotController implements BeforeApplicationShutdown {
           workspace: session.config.workspaceId,
           reasoning,
           webSearch,
+          tools: getTools(session.config.promptConfig?.tools, toolsConfig),
         })
       ).pipe(
         connect(shared$ =>

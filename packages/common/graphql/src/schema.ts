@@ -37,6 +37,19 @@ export interface Scalars {
   Upload: { input: File; output: File };
 }
 
+export interface AccessToken {
+  __typename?: 'AccessToken';
+  createdAt: Scalars['DateTime']['output'];
+  expiresAt: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+}
+
+export interface AddContextBlobInput {
+  blobId: Scalars['String']['input'];
+  contextId: Scalars['String']['input'];
+}
+
 export interface AddContextCategoryInput {
   categoryId: Scalars['String']['input'];
   contextId: Scalars['String']['input'];
@@ -294,6 +307,8 @@ export interface CopilotSessionsArgs {
 
 export interface CopilotContext {
   __typename?: 'CopilotContext';
+  /** list blobs in context */
+  blobs: Array<CopilotContextBlob>;
   /** list collections in context */
   collections: Array<CopilotContextCategory>;
   /** list files in context */
@@ -324,10 +339,17 @@ export interface CopilotContextMatchWorkspaceDocsArgs {
   threshold?: InputMaybe<Scalars['Float']['input']>;
 }
 
+export interface CopilotContextBlob {
+  __typename?: 'CopilotContextBlob';
+  createdAt: Scalars['SafeInt']['output'];
+  id: Scalars['ID']['output'];
+  status: Maybe<ContextEmbedStatus>;
+}
+
 export interface CopilotContextCategory {
   __typename?: 'CopilotContextCategory';
   createdAt: Scalars['SafeInt']['output'];
-  docs: Array<CopilotDocType>;
+  docs: Array<CopilotContextDoc>;
   id: Scalars['ID']['output'];
   type: ContextCategories;
 }
@@ -335,7 +357,6 @@ export interface CopilotContextCategory {
 export interface CopilotContextDoc {
   __typename?: 'CopilotContextDoc';
   createdAt: Scalars['SafeInt']['output'];
-  error: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   status: Maybe<ContextEmbedStatus>;
 }
@@ -361,13 +382,6 @@ export interface CopilotContextFileNotSupportedDataType {
 export interface CopilotDocNotFoundDataType {
   __typename?: 'CopilotDocNotFoundDataType';
   docId: Scalars['String']['output'];
-}
-
-export interface CopilotDocType {
-  __typename?: 'CopilotDocType';
-  createdAt: Scalars['SafeInt']['output'];
-  id: Scalars['ID']['output'];
-  status: Maybe<ContextEmbedStatus>;
 }
 
 export interface CopilotFailedToAddWorkspaceFileEmbeddingDataType {
@@ -979,6 +993,11 @@ export interface ForkChatSessionInput {
   workspaceId: Scalars['String']['input'];
 }
 
+export interface GenerateAccessTokenInput {
+  expiresAt?: InputMaybe<Scalars['DateTime']['input']>;
+  name: Scalars['String']['input'];
+}
+
 export interface GrantDocUserRolesInput {
   docId: Scalars['String']['input'];
   role: DocRole;
@@ -1333,6 +1352,8 @@ export interface Mutation {
   __typename?: 'Mutation';
   acceptInviteById: Scalars['Boolean']['output'];
   activateLicense: License;
+  /** add a blob to context */
+  addContextBlob: CopilotContextBlob;
   /** add a category to context */
   addContextCategory: CopilotContextCategory;
   /** add a doc to context */
@@ -1388,6 +1409,7 @@ export interface Mutation {
   /** Create a chat session */
   forkCopilotSession: Scalars['String']['output'];
   generateLicenseKey: Scalars['String']['output'];
+  generateUserAccessToken: RevealedAccessToken;
   grantDocUserRoles: Scalars['Boolean']['output'];
   grantMember: Scalars['Boolean']['output'];
   /** import users */
@@ -1412,6 +1434,8 @@ export interface Mutation {
   releaseDeletedBlobs: Scalars['Boolean']['output'];
   /** Remove user avatar */
   removeAvatar: RemoveAvatar;
+  /** remove a blob from context */
+  removeContextBlob: Scalars['Boolean']['output'];
   /** remove a category from context */
   removeContextCategory: Scalars['Boolean']['output'];
   /** remove a doc from context */
@@ -1433,6 +1457,7 @@ export interface Mutation {
   revokePublicDoc: DocType;
   /** @deprecated use revokePublicDoc instead */
   revokePublicPage: DocType;
+  revokeUserAccessToken: Scalars['Boolean']['output'];
   sendChangeEmail: Scalars['Boolean']['output'];
   sendChangePasswordEmail: Scalars['Boolean']['output'];
   sendSetPasswordEmail: Scalars['Boolean']['output'];
@@ -1487,6 +1512,10 @@ export interface MutationAcceptInviteByIdArgs {
 export interface MutationActivateLicenseArgs {
   license: Scalars['String']['input'];
   workspaceId: Scalars['String']['input'];
+}
+
+export interface MutationAddContextBlobArgs {
+  options: AddContextBlobInput;
 }
 
 export interface MutationAddContextCategoryArgs {
@@ -1636,6 +1665,10 @@ export interface MutationGenerateLicenseKeyArgs {
   sessionId: Scalars['String']['input'];
 }
 
+export interface MutationGenerateUserAccessTokenArgs {
+  input: GenerateAccessTokenInput;
+}
+
 export interface MutationGrantDocUserRolesArgs {
   input: GrantDocUserRolesInput;
 }
@@ -1707,6 +1740,10 @@ export interface MutationReleaseDeletedBlobsArgs {
   workspaceId: Scalars['String']['input'];
 }
 
+export interface MutationRemoveContextBlobArgs {
+  options: RemoveContextBlobInput;
+}
+
 export interface MutationRemoveContextCategoryArgs {
   options: RemoveContextCategoryInput;
 }
@@ -1770,6 +1807,10 @@ export interface MutationRevokePublicDocArgs {
 export interface MutationRevokePublicPageArgs {
   docId: Scalars['String']['input'];
   workspaceId: Scalars['String']['input'];
+}
+
+export interface MutationRevokeUserAccessTokenArgs {
+  id: Scalars['String']['input'];
 }
 
 export interface MutationSendChangeEmailArgs {
@@ -2076,6 +2117,7 @@ export interface PublicUserType {
 
 export interface Query {
   __typename?: 'Query';
+  accessTokens: Array<AccessToken>;
   /** get the whole app configuration */
   appConfig: Scalars['JSONObject']['output'];
   /** Apply updates to a doc using LLM and return the merged markdown. */
@@ -2221,6 +2263,11 @@ export interface RemoveAvatar {
   success: Scalars['Boolean']['output'];
 }
 
+export interface RemoveContextBlobInput {
+  blobId: Scalars['String']['input'];
+  contextId: Scalars['String']['input'];
+}
+
 export interface RemoveContextCategoryInput {
   categoryId: Scalars['String']['input'];
   contextId: Scalars['String']['input'];
@@ -2263,6 +2310,15 @@ export interface ReplyObjectType {
 export interface ReplyUpdateInput {
   content: Scalars['JSONObject']['input'];
   id: Scalars['ID']['input'];
+}
+
+export interface RevealedAccessToken {
+  __typename?: 'RevealedAccessToken';
+  createdAt: Scalars['DateTime']['output'];
+  expiresAt: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  token: Scalars['String']['output'];
 }
 
 export interface RevokeDocUserRoleInput {
@@ -2987,6 +3043,46 @@ export interface TokenType {
   token: Scalars['String']['output'];
 }
 
+export type GenerateUserAccessTokenMutationVariables = Exact<{
+  input: GenerateAccessTokenInput;
+}>;
+
+export type GenerateUserAccessTokenMutation = {
+  __typename?: 'Mutation';
+  generateUserAccessToken: {
+    __typename?: 'RevealedAccessToken';
+    id: string;
+    name: string;
+    token: string;
+    createdAt: string;
+    expiresAt: string | null;
+  };
+};
+
+export type ListUserAccessTokensQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type ListUserAccessTokensQuery = {
+  __typename?: 'Query';
+  accessTokens: Array<{
+    __typename?: 'AccessToken';
+    id: string;
+    name: string;
+    createdAt: string;
+    expiresAt: string | null;
+  }>;
+};
+
+export type RevokeUserAccessTokenMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+export type RevokeUserAccessTokenMutation = {
+  __typename?: 'Mutation';
+  revokeUserAccessToken: boolean;
+};
+
 export type AdminServerConfigQueryVariables = Exact<{ [key: string]: never }>;
 
 export type AdminServerConfigQuery = {
@@ -3535,6 +3631,29 @@ export type ApplyDocUpdatesQuery = {
   applyDocUpdates: string;
 };
 
+export type AddContextBlobMutationVariables = Exact<{
+  options: AddContextBlobInput;
+}>;
+
+export type AddContextBlobMutation = {
+  __typename?: 'Mutation';
+  addContextBlob: {
+    __typename?: 'CopilotContextBlob';
+    id: string;
+    createdAt: number;
+    status: ContextEmbedStatus | null;
+  };
+};
+
+export type RemoveContextBlobMutationVariables = Exact<{
+  options: RemoveContextBlobInput;
+}>;
+
+export type RemoveContextBlobMutation = {
+  __typename?: 'Mutation';
+  removeContextBlob: boolean;
+};
+
 export type AddContextCategoryMutationVariables = Exact<{
   options: AddContextCategoryInput;
 }>;
@@ -3547,7 +3666,7 @@ export type AddContextCategoryMutation = {
     createdAt: number;
     type: ContextCategories;
     docs: Array<{
-      __typename?: 'CopilotDocType';
+      __typename?: 'CopilotContextDoc';
       id: string;
       createdAt: number;
       status: ContextEmbedStatus | null;
@@ -3585,7 +3704,6 @@ export type AddContextDocMutation = {
     id: string;
     createdAt: number;
     status: ContextEmbedStatus | null;
-    error: string | null;
   };
 };
 
@@ -3641,11 +3759,16 @@ export type ListContextObjectQuery = {
       __typename?: 'Copilot';
       contexts: Array<{
         __typename?: 'CopilotContext';
+        blobs: Array<{
+          __typename?: 'CopilotContextBlob';
+          id: string;
+          status: ContextEmbedStatus | null;
+          createdAt: number;
+        }>;
         docs: Array<{
           __typename?: 'CopilotContextDoc';
           id: string;
           status: ContextEmbedStatus | null;
-          error: string | null;
           createdAt: number;
         }>;
         files: Array<{
@@ -3665,7 +3788,7 @@ export type ListContextObjectQuery = {
           id: string;
           createdAt: number;
           docs: Array<{
-            __typename?: 'CopilotDocType';
+            __typename?: 'CopilotContextDoc';
             id: string;
             status: ContextEmbedStatus | null;
             createdAt: number;
@@ -3677,7 +3800,7 @@ export type ListContextObjectQuery = {
           id: string;
           createdAt: number;
           docs: Array<{
-            __typename?: 'CopilotDocType';
+            __typename?: 'CopilotContextDoc';
             id: string;
             status: ContextEmbedStatus | null;
             createdAt: number;
@@ -4954,6 +5077,19 @@ export type GetDocDefaultRoleQuery = {
   };
 };
 
+export type GetDocSummaryQueryVariables = Exact<{
+  workspaceId: Scalars['String']['input'];
+  docId: Scalars['String']['input'];
+}>;
+
+export type GetDocSummaryQuery = {
+  __typename?: 'Query';
+  workspace: {
+    __typename?: 'WorkspaceType';
+    doc: { __typename?: 'DocType'; summary: string | null };
+  };
+};
+
 export type GetInviteInfoQueryVariables = Exact<{
   inviteId: Scalars['String']['input'];
 }>;
@@ -6135,6 +6271,11 @@ export type GrantWorkspaceTeamMemberMutation = {
 
 export type Queries =
   | {
+      name: 'listUserAccessTokensQuery';
+      variables: ListUserAccessTokensQueryVariables;
+      response: ListUserAccessTokensQuery;
+    }
+  | {
       name: 'adminServerConfigQuery';
       variables: AdminServerConfigQueryVariables;
       response: AdminServerConfigQuery;
@@ -6303,6 +6444,11 @@ export type Queries =
       name: 'getDocDefaultRoleQuery';
       variables: GetDocDefaultRoleQueryVariables;
       response: GetDocDefaultRoleQuery;
+    }
+  | {
+      name: 'getDocSummaryQuery';
+      variables: GetDocSummaryQueryVariables;
+      response: GetDocSummaryQuery;
     }
   | {
       name: 'getInviteInfoQuery';
@@ -6487,6 +6633,16 @@ export type Queries =
 
 export type Mutations =
   | {
+      name: 'generateUserAccessTokenMutation';
+      variables: GenerateUserAccessTokenMutationVariables;
+      response: GenerateUserAccessTokenMutation;
+    }
+  | {
+      name: 'revokeUserAccessTokenMutation';
+      variables: RevokeUserAccessTokenMutationVariables;
+      response: RevokeUserAccessTokenMutation;
+    }
+  | {
       name: 'createChangePasswordUrlMutation';
       variables: CreateChangePasswordUrlMutationVariables;
       response: CreateChangePasswordUrlMutation;
@@ -6615,6 +6771,16 @@ export type Mutations =
       name: 'uploadCommentAttachmentMutation';
       variables: UploadCommentAttachmentMutationVariables;
       response: UploadCommentAttachmentMutation;
+    }
+  | {
+      name: 'addContextBlobMutation';
+      variables: AddContextBlobMutationVariables;
+      response: AddContextBlobMutation;
+    }
+  | {
+      name: 'removeContextBlobMutation';
+      variables: RemoveContextBlobMutationVariables;
+      response: RemoveContextBlobMutation;
     }
   | {
       name: 'addContextCategoryMutation';
