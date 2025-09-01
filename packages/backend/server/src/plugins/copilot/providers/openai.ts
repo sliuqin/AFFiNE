@@ -341,7 +341,9 @@ export class OpenAIProvider extends CopilotProvider<OpenAIConfig> {
   override async refreshOnlineModels() {
     try {
       const baseUrl = this.config.baseURL || 'https://api.openai.com/v1';
-      if (baseUrl && !this.onlineModelList.length) {
+      // Only fetch models from official OpenAI endpoints to avoid conflicts with other providers
+      const isOpenAIEndpoint = baseUrl.includes('api.openai.com');
+      if (baseUrl && !this.onlineModelList.length && isOpenAIEndpoint) {
         const { data } = await fetch(`${baseUrl}/models`, {
           headers: {
             Authorization: `Bearer ${this.config.apiKey}`,

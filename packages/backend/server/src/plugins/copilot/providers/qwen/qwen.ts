@@ -18,7 +18,7 @@ import { StreamObjectParser } from '../utils';
 
 export type QwenConfig = {
   apiKey: string;
-  baseUrl?: string;
+  baseURL?: string;
 };
 
 @Injectable()
@@ -74,10 +74,10 @@ export class QwenProvider extends CopilotProvider<QwenConfig> {
 
   private get baseUrl(): string {
     const url =
-      this.config.baseUrl ||
+      this.config.baseURL ||
       'https://dashscope.aliyuncs.com/compatible-mode/v1';
     this.logger.debug('Qwen BaseURL Config:', {
-      configBaseUrl: this.config.baseUrl,
+      configBaseURL: this.config.baseURL,
       finalUrl: url,
       fullConfig: this.config,
     });
@@ -328,7 +328,7 @@ export class QwenProvider extends CopilotProvider<QwenConfig> {
       const parser = new StreamObjectParser();
 
       for await (const chunk of textStream) {
-        const result = parser.parse({ type: 'text-delta', textDelta: chunk });
+        const result = parser.parse({ type: 'text-delta', text: chunk } as any);
         if (result) {
           yield result;
         }

@@ -117,7 +117,7 @@ defineModuleConfig('copilot', {
     desc: 'The config for the qwen provider.',
     default: {
       apiKey: '',
-      baseUrl: '',
+      baseURL: '',
     },
   },
   unsplash: {
